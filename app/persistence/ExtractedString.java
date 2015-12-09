@@ -12,7 +12,6 @@ import javax.persistence.PreUpdate;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import persistence.converters.StringExtractionConverter;
-import scala.reflect.internal.Trees.This;
 import utilities.DSFormatter;
 import datadefinitions.StringExtraction;
 
