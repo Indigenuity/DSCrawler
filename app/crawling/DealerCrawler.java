@@ -25,7 +25,7 @@ import global.Global;
 
 public class DealerCrawler extends WebCrawler {
 
-	//This is a github testing comment
+	//This is a github testing comment again and again
 	public final static String CONTENT_FILE_SUFFIX = "HTML-";
 	
 	
