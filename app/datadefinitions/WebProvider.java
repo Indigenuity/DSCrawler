@@ -10,7 +10,7 @@ public enum WebProvider implements StringMatch {
 	
 	NONE					(0, "Unknown Web Provider", "Intentionally non-matching regex", "This signifies that the web crawler could not find a known web provider for this site"),
 	DEALER_COM				(1, "Dealer.com", "dealer.com", "Not a strict match"),
-	DEALER_COM_POWERED_BY	(2, "Powered by Dealer.com", "powered by dealer.com", ""),
+	DEALER_COM_POWERED_BY	(2, "Powered by Dealer.com", "powered by dealer.com", "A stricter match than simply 'dealer.com'"),
 	DEALER_COM_CONF			(3, "Dealer.com", "Website by Dealer.com", ""),
     FRESH_INPUT				(4, "Fresh Input", "freshinput.com", ""),
     JAZELAUTOS				(5, "Jazel Auto", "jazelauto.com", ""),
