@@ -12,7 +12,6 @@ import persistence.PageInformation;
 import persistence.SiteCrawl;
 import persistence.SiteInformationOld;
 import play.Logger;
-import scala.reflect.internal.Trees.This;
 import utilities.DSFormatter;
 import analysis.PageAnalyzer;
 
@@ -26,7 +25,9 @@ import global.Global;
 
 public class DealerCrawler extends WebCrawler {
 
+	//This is a github testing comment
 	public final static String CONTENT_FILE_SUFFIX = "HTML-";
+	
 	
 	private final static Pattern FILTERS = Pattern.compile(".*(\\.(css|js|gif|jpg|png|mp3|mp4|zip|gz|pdf|jpeg))$");
 	
