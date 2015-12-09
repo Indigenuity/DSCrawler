@@ -1,0 +1,21 @@
+@(dealers : java.util.List[_root_.persistence.Dealer])
+
+
+@global()
+
+
+@for(dealer <- dealers) {
+	<div class="siteless-dealer">
+		<div>@dealer.getDealerName()</div>
+		<div>@dealer.getDealerId()</div>
+		<div>@dealer.getCapdb()</div>
+		<div>@dealer.isFranchise()</div>
+		<div>@dealer.getNiada()</div>
+		<div>@dealer.getDatasource()</div>
+		<div>@dealer.getMainSite()</div>
+		
+		<input type="text" class="site-input"/>
+		<button type="button" onclick="makeSite(this, @dealer.getDealerId())">Submit</button>
+		<span class="make-site-results"></span>
+	</div>
+}

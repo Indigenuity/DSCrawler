@@ -1,0 +1,21 @@
+use ds;
+drop table if exists pageinformation_staff;
+drop table if exists sitesummary_staff;
+drop table if exists staff;
+drop table if exists siteinformation_pageinformation;
+drop table if exists pageinformation_schedulers;
+drop table if exists pageinformation_generalmatches;
+drop table if exists pageinformation_webproviders;
+drop table if exists pageinformation_extractedurl;
+drop table if exists pageinformation_extractedstring;
+drop table if exists sitesummary_webproviders;
+drop table if exists sitesummary_schedulers;
+drop table if exists sitesummary_generalmatches;
+drop table if exists sitesummary_extractedurl;
+drop table if exists sitesummary_extractedstring;
+drop table if exists extractedstring;
+drop table if exists extractedurl;
+drop table if exists pageinformation;
+drop table if exists sitesummary;
+intentional syntaxerror
+drop table if exists siteinformation;

@@ -1,0 +1,66 @@
+@(site : _root_.persistence.Site, crawlSet : _root_.persistence.CrawlSet = null)
+
+<div class="site-brief">
+	<div>
+		<span class="site-homepage"><span class="big">Site @site.getSiteId(): </span><a href="@site.getHomepage()" target="_blank">@site.getHomepage()</a></span>
+		<br>
+		<span class="site-numCrawls">@site.getCrawls().size() crawls  </span>
+		@if(site.getLatestCrawl() != null) {
+			<br>
+			<span class="recent-crawl-date">Recent crawl : @site.getLatestCrawl().getCrawlDate()</span>
+			<span class="recent-crawl-num-files">(@site.getLatestCrawl().getNumRetrievedFiles() Retrieved Files)</span>
+			<span class="recent-crawl-num-files"> -- @site.getLatestCrawl().getSeed()</span>
+			<p class="recent-redirect-resolve"> Last Redirect Resolve : @site.getRedirectResolveDate()</p>
+			<p class="review-reason">Reasons for Review: @site.getReviewReason()</p>
+		}
+	</div>
+	<div class="site-review">
+		@if(site.getSuggestedHomepage() != null) {
+		<div class="redirect-resolve-review">
+			<h4>Suggested by Redirect Resolve</h4>
+			<p class="site-suggested-homepage"><a href="@site.getSuggestedHomepage()" target="_blank">@site.getSuggestedHomepage()</a></p>
+			<div class="homepage-action-buttons">
+				
+				@helper.form(action = routes.DataEditor.acceptSuggested, 'id -> "acceptSuggestedForm", 'class -> "faux-submit") {
+					<input type="hidden" name="crawlSetId" value="@crawlSet.getCrawlSetId()"/>
+					<input type="hidden" name="siteId" value="@site.getSiteId()"/>
+					<input type="hidden" name="isNotable" value="false"/>
+					<button type="submit" name="accept-button">Accept</button>
+					<button type="submit" name="accept-and-mark-button" onclick="this.form.elements['isNotable'].value = 'true';">Notable Accept</button>
+					<button type="submit" name="ignore-button" onclick="this.form.action='@routes.DataEditor.ignoreSuggested'">Ignore</button>
+				}
+			</div>
+		</div>
+		}
+		<div class="general-review">
+			<h4>General Site Review</h4>
+			@helper.form(action = routes.DataEditor.setHomepage, 'id -> "acceptSuggestedForm", 'class -> "faux-submit") {
+				<input type="hidden" name="crawlSetId" value="@crawlSet.getCrawlSetId()"/>
+				<input type="hidden" name="siteId" value="@site.getSiteId()"/>
+				@if(site.getLatestCrawl() != null) {
+					<input type="hidden" name="siteCrawlId" value="@site.getLatestCrawl().getSiteCrawlId()"/>
+				}
+				<p>
+					<button type="submit" class="mark-for-review-button" onclick="this.form.action='@routes.DataEditor.reviewLater';">Mark to Review</button>
+					<button type="submit" class="mark-for-closing-button" onclick="this.form.action='@routes.DataEditor.markMaybeDefunct'">Maybe Defunct</button>
+					<button type="submit" class="approve-small-crawl-button" onclick="this.form.action='@routes.DataEditor.approveSmallCrawl'">Approve Small Crawl</button>
+					<button type="submit" class="mark-group-site" onclick="this.form.action='@routes.DataEditor.markGroupSite'">Mark as Group Site</button>
+					<button type="submit" class="mark-crawl-protected" onclick="this.form.action='@routes.DataEditor.markCrawlProtected'">Mark as Crawl Protected</button>
+					<button type="submit" class="mark-recrawl" onclick="this.form.action='@routes.DataEditor.markRecrawl'">Mark for Recrawling</button>
+				</p>
+				<label name="manualHomepage">Manually Set Homepage</label>
+				<input type="text" name="manualHomepage" class="homepage-input" value="@site.getHomepage()"/>
+				<button type="submit" class="homepage-input-button" onclick="this.form.action='@routes.DataEditor.setHomepage'">Set Homepage Manually</button>
+				
+			}
+		</div>
+		@if(site.getCrawls().size() > 0) {
+			<div class="crawl-review-container">
+				
+			</div>
+		}
+		@if(crawlSet != null) {
+		}
+		
+	</div>
+</div>

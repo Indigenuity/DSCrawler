@@ -1,0 +1,18 @@
+@(sites : java.util.List[_root_.persistence.Site])
+
+@global()
+
+@for(site <- sites) {
+	<div class="site-group-url-wrapper">
+		<h3><a href="@site.getHomepage()" target="_blank">@site.getHomepage()</a></h3>
+		<h4>Current Group URLs:</h4>
+		@for(groupUrl <- site.getGroupUrls()) {
+			<p class="group-url">@groupUrl</p>
+		}
+		<input type="text" class="group-url-input"/>
+		<button type="button" class="group-url-submit" onclick="addGroupUrl($(this), @site.getSiteId())">Submit</button>
+		<button type="button" class="hide-from-matt-button" onclick="hideFromMatt(@site.getSiteId())">Hide From Matt</button>
+		<button type="button" class="hide-from-travis-button" onclick="">Hide From Travis</button>
+	
+	</div>
+}

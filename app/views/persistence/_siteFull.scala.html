@@ -1,0 +1,23 @@
+@(site : _root_.persistence.Site)
+
+<div class="site-full">
+	<div>
+		<span class="site-id">@site.getSiteId()</span>
+		<span class="site-homepage">@site.getHomepage()</span>
+	</div>
+	<div>
+		<span class="site-domain">Domain : @site.getDomain()</span>
+	</div>
+	<div class="site-crawls">
+		Insert crawls here	
+	</div>
+	<div>
+		<table class="site-properties">
+			<tr><td>Homepage needs review</td></tr>
+			<tr><td>Homepage confirmed</td></tr>
+			<tr><td>Standalone site</td></tr>
+		</table>
+	</div>
+	
+
+</div>

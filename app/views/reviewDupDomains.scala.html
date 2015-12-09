@@ -1,0 +1,17 @@
+@import _root_.dao.SitesDAO
+
+@(domains : java.util.List[String])
+
+@main("Duplicate Domains"){
+	@for(domain <- domains) {
+		<div class="domain-comparison">
+			<h3>@domain</h3>
+			<p>Number of Sites: @SitesDAO.getList("domain", domain, 20, 0).size()</p>
+			@for(site <- SitesDAO.getList("domain", domain, 20, 0)){
+				<p class="site-info">
+					@site.getSiteId() : @site.getHomepage()
+				</p>
+			}
+		</div>
+	}
+}

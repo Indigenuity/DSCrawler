@@ -1,0 +1,20 @@
+@import _root_.scaffolding.Scaffolder
+@import java.lang.reflect.Field
+@import java.util.List
+@import org.apache.commons.beanutils.BeanUtils
+
+@(entity : Object)
+
+@helper.form(action = routes.DataEditor.editEntity, 'id -> "entityForm") {
+	<input type="hidden" name="entityClass" value="@entity.getClass().getName()">
+	<input type="hidden" name="entityId" value="@Scaffolder.getId(entity)">
+	<table class="view-entity">
+		@for( (prop, value) <- Scaffolder.getBasicFields(entity)) {
+			<tr>
+				<td><label name="@prop">@prop</label></td>
+				<td><input name="@prop" type="text" value="@value"/></td>
+			</tr>
+		}
+	</table>
+	<button type="submit" value="Submit">Submit</button>
+}

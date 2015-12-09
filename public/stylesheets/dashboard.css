@@ -1,0 +1,25 @@
+.monitoring-panel-inner {
+	max-height: 300px;
+	width: 450px;
+	overflow-y: scroll;
+	border-style: groove;
+}
+
+.monitoring-panel {
+	display: inline-block;
+	vertical-align: top;
+	margin-left: 25px;
+}
+
+.single-action-container {
+	margin-bottom:30px;
+}
+#dashboard-stats-container {
+	display:inline-block;
+	margin:0 50px;
+	vertical-align:top;
+}
+#dashboard-actions-container{
+	display: inline-block;
+	margin: 0 50px;
+}

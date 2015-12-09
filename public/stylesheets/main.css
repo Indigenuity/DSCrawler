@@ -1,0 +1,260 @@
+body,html {
+	margin:0;
+	padding:0;
+	font-family: 'Roboto', sans-serif;
+}
+
+#main-content {
+	margin:0 30px;
+}
+
+input,
+select,
+textarea{
+	margin-bottom:30px;
+}
+
+p {
+	margin-top:0;
+}
+
+#message-board {
+	color:red;
+	font-style:italic;
+	font-size:1.2em;
+	margin:30px 0;
+}
+.big {
+	font-size:1.4em;
+	font-weight:bold;
+}
+
+#dashboard-stats {
+	float:left;
+	margin-right:45px;
+}
+
+/*********************Menu********************/
+
+#menu-container {
+	background-color:#666;
+	color:#FFF;
+	font:verdana;
+	margin-top:0;
+}
+
+#menu {
+	display:inline-block;
+	margin:0;
+}
+
+#menu .menu-item {
+	list-style-type:none;
+	display:inline-block;
+	margin:15px;
+}
+
+#menu a {
+	color:#FFF;
+	text-decoration:none;
+	font-family: 'Roboto', sans-serif;
+}
+
+#menu a:hover {
+	color:#DDD;
+}
+
+#space-gauge {
+	font-size:.7em;
+	display:inline-block;
+	vertical-align:middle;
+	margin-left:30px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/**************End Menu**********************/
+.panel-item {
+	display:inline-block;
+	width:45%;
+	margin-left:15px;
+	margin-right:15px;
+	height:300px;
+	overflow-y:auto;
+}
+
+
+
+/*********************Dashboard ***********************/
+
+.monitoring-panel-inner {
+	max-height: 300px;
+	width: 450px;
+	overflow-y: scroll;
+	border-style: groove;
+}
+
+.monitoring-panel {
+	display: inline-block;
+	vertical-align: top;
+	margin-left: 25px;
+}
+
+.single-action-container {
+	margin-bottom:30px;
+}
+#dashboard-stats-container {
+	display:inline-block;
+	margin:0 50px;
+	vertical-align:top;
+}
+#dashboard-actions-container{
+	display: inline-block;
+	margin: 0 50px;
+}
+
+/*******************End Dashboard*********************/
+
+/****************Persistence Objects******************/
+
+.site-brief-list .site-brief {
+	padding:15px;
+}
+
+.homepage-input {
+	width:400px;
+}
+
+.crawl-review-container {
+	margin-top:30px;
+}
+
+.hide-from-matt-button {
+	margin-left:60px;
+}
+
+
+.hide-from-travis-button {
+  margin: 100px 0;
+  padding: 15px 20px;
+  display: inline-block;
+  position: relative;
+  z-index: 1;
+  font-family: "Helvetica", Arial, sans-serif;
+  font-weight: bold;
+  text-decoration: none;
+  color: #fff;
+  
+  background: purple;
+  color: blue;
+  border-color: lightgreen;
+  
+  &:before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    border: 2px solid #fff;
+
+    -webkit-transition: 0.2s;
+    transition: 0.2s;
+    -webkit-transition-timing-function: cubic-bezier(0.64, 0.57, 0.67, 1.53);
+    transition-timing-function: cubic-bezier(0.64, 0.57, 0.67, 1.53);
+
+    -webkit-transform:
+      perspective(200px)
+      rotateY(9deg)
+      rotateX(-3deg)
+      translateX(8%)
+      translateZ(-10px)
+      scale(1.05);
+    transform:
+      perspective(200px)
+      rotateY(9deg)
+      rotateX(-3deg)
+      translateX(8%)
+      translateZ(-10px)
+      scale(1.05);
+  }
+  &:hover:before {
+    -webkit-transform:
+      perspective(200px)
+      rotateY(-5deg) 
+      rotateX(-3deg)
+      translateX(-5%)
+      translateY(2%)
+      translateZ(-20px)
+      scale(1.1);
+    transform: 
+      perspective(200px)
+      rotateY(-5deg) 
+      rotateX(-3deg)
+      translateX(-5%)
+      translateY(2%)
+      translateZ(-20px)
+      scale(1.1);
+  }
+}
+
+.block {
+	max-width: 200px;
+}
+.view-entity td {
+	vertical-align:top;
+}
+.view-entity input {
+	margin-bottom:5px;
+	width:500px;
+}
+
+
+
+/**************End Persistence Objects*****************/
+
+
+/************* Forms **********************************/
+
+/*Review Sites */
+
+.review-reason {
+	color:red;
+	font-style:italics;
+}
+
+.site-review {
+	padding-left:30px;
+}
+
+.submit-link {
+	text-decoration:underline;
+	color:blue;
+}
+.submit-link:hover {
+	text-decoration:none;
+	cursor:pointer;
+}
+
+
+/***************End Forms*******************************/
+
+/*************** Whatever *******************************/
+
+.domain-comparison {
+	margin-bottom:45px;
+}
+.domain-comparison .site-info {
+	padding-left:45px;
+}

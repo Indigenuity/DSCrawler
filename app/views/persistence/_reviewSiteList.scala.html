@@ -1,0 +1,8 @@
+@(sites : java.util.List[_root_.persistence.Site], crawlSet : _root_.persistence.CrawlSet)
+
+
+<div class="site-brief-list">
+	@for( site <- sites) {
+		@_reviewSite(site, crawlSet)
+	}
+</div>

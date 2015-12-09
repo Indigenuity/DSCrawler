@@ -1,0 +1,36 @@
+@(crawlSets : java.util.List[_root_.persistence.CrawlSet])
+
+
+
+
+@main("Crawl Sets") {
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$("#new-crawl-set-button").click(function() {
+				$("#new-crawl-set-result").html("Creating Crawl Set ...");
+				$.get("/createCrawlSet", function(data) {
+					$("#new-crawl-set-result").html(data);
+				})
+				.fail(function(data) {
+					$("#new-crawl-set-result").html(data);
+				});
+			})
+		});
+	</script>
+	<div id="new-crawlset-form">
+		@helper.form(action = routes.DataEditor.createCrawlSet, 'id -> "createCrawlSetForm") {
+		
+		}
+	</div>
+	<button type="button" id="new-crawl-set-button">New Crawl Set</button>
+	<span id="new-crawl-set-result" class="ajax-response-label"></span>
+	@for(crawlSet <- crawlSets) {
+		<div>
+			<h3>@crawlSet.getName() (@crawlSet.getCrawlSetId())</h3>
+			<p>Crawl Started : @crawlSet.getStartDate()</p>
+			<p>@crawlSet.getUncrawled().size() Sites Uncrawled</p>
+			<p>@crawlSet.getCompletedCrawls().size() Sites completed</p>
+			<p><a href="/crawlSet?crawlSetId=@crawlSet.getCrawlSetId()">View Crawl Set &raquo;</a></p>
+		</div>
+	}
+}

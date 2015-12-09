@@ -1,0 +1,173 @@
+@(message : String)
+
+@main("Dashboard", message){
+<script type="text/javascript">
+$(document).ready(function(){
+	var monitoringUpdateFrequency = 30 * 1000;
+	var dashboardUpdateFrequency = 10 * 1000
+	
+	function updateDashboardStats() {
+		$("#dashboard-stats").load("@(controllers.routes.DataView.dashboardStats())");
+	}
+	
+	function updateMonitoring() {
+		console.log("updating");
+		
+		
+		$("#monitoring-panels").load("@(controllers.routes.DataView.getMonitoringQueues())");
+	}
+	updateDashboardStats();
+	var monitorInterval = setInterval(updateMonitoring, monitoringUpdateFrequency);
+	//var statInteverval = setInterval(updateDashboardStats, dashboardUpdateFrequency);
+	$("#update-monitoring-button").click(function() {
+		updateMonitoring();
+	})
+	
+	$("#crawl-one-site-button").click(function() {
+		$("#crawl-one-site-label").load("@(controllers.routes.JobController.crawlUncrawled(1))")
+	});
+	$("#crawl-five-sites-button").click(function() {
+		$("#crawl-five-sites-label").load("@(controllers.routes.JobController.crawlUncrawled(5))")
+	});
+	$("#crawl-multiple-sites-button").click(function() {
+		var count = $("#crawl-multiple-sites-input").val();
+		$("#crawl-multiple-sites-label").load("@(controllers.routes.JobController.crawlUncrawled(0))" + count);
+	});
+	$("#small-crawl-multiple-sites-button").click(function() {
+		var count = $("#small-crawl-multiple-sites-input").val();
+		$("#small-crawl-multiple-sites-label").load("@(controllers.routes.JobController.smallCrawl(0))" + count);
+	});
+	$("#crawl-empty-sites-button").click(function() {
+		var count = $("#crawl-empty-sites-input").val();
+		$("#crawl-empty-sites-label").load("@(controllers.routes.JobController.recrawlEmpties(0))" + count);
+	});
+	$("#fix-multiple-sites-button").click(function() {
+		var count = $("#fix-multiple-sites-input").val();
+		$("#fix-multiple-sites-label").load("@(controllers.routes.JobController.fixUnfixedUrls(0))" + count);
+	});
+	$("#resolve-multiple-sites-button").click(function() {
+		var count = $("#resolve-multiple-sites-input").val();
+		$("#resolve-multiple-sites-label").load("@(controllers.routes.JobController.resolveUnresolvedUrls(0))" + count);
+	});
+	$("#match-multiple-sites-button").click(function() {
+		var count = $("#match-multiple-sites-input").val();
+		$("#match-multiple-sites-label").load("@(controllers.routes.JobController.matchUnmatched(0))" + count);
+	});
+	$("#string-extract-multiple-sites-button").click(function() {
+		var count = $("#string-extract-multiple-sites-input").val();
+		$("#string-extract-multiple-sites-label").load("@(controllers.routes.JobController.stringExtractions(0))" + count);
+	});
+	$("#staff-extract-multiple-sites-button").click(function() {
+		var count = $("#staff-extract-multiple-sites-input").val();
+		$("#staff-extract-multiple-sites-label").load("@(controllers.routes.JobController.staffExtractions(0))" + count);
+	});
+	$("#summarize-multiple-sites-button").click(function() {
+		var count = $("#summarize-multiple-sites-input").val();
+		$("#summarize-multiple-sites-label").load("@(controllers.routes.JobController.summarizeUnsummarized(0))" + count);
+	});
+	$("#inferences-button").click(function() {
+		var count = $("#inferences-input").val();
+		$("#inferences-label").load("@(controllers.routes.JobController.inferUninferred(0))" + count);
+	});
+	$("#all-work-button").click(function() {
+		var count = $("#all-work-input").val();
+		$("#all-work-label").load("@(controllers.routes.JobController.doAllWork(0))" + count);
+	});
+	
+	
+	
+	
+	
+	
+})
+
+</script>
+
+
+
+
+<div id="dashboard-stats-container">
+	<div id="dashboard-stats"></div>
+</div>
+<div id="dashboard-actions-container">
+	<div id="dashboard-actions">
+		<div class="single-action-container">
+			<button id="crawl-one-site-button" type="button">Crawl Next Site</button>
+			<label id="crawl-one-site-label"></label>
+		</div>
+		<div class="single-action-container">
+			<button id="crawl-five-sites-button" type="button">Crawl 5 Sites</button>
+			<label id="crawl-five-sites-label"></label>
+		</div>
+		<div class="single-action-container">
+			<button id="crawl-multiple-sites-button" type="button">Crawl multiple Sites</button>
+			<input type="text" id="crawl-multiple-sites-input" value="500"/>
+			<label id="crawl-multiple-sites-label"></label>
+		</div><div class="single-action-container">
+			<button id="small-crawl-multiple-sites-button" type="button">Small Crawl</button>
+			<input type="text" id="small-crawl-multiple-sites-input" value="500"/>
+			<label id="small-crawl-multiple-sites-label"></label>
+		</div>
+		<div class="single-action-container">
+			<button id="crawl-empty-sites-button" type="button">Recrawl Empty Sites</button>
+			<input type="text" id="crawl-empty-sites-input" value="500"/>
+			<label id="crawl-empty-sites-label"></label>
+		</div>
+		<div class="single-action-container">
+			<button id="sniff-one-site-button" type="button">Crawl Next Site</button>
+			<label id="crawl-one-site-label"></label>
+		</div>
+		
+		<div class="single-action-container">
+			<button id="fix-multiple-sites-button" type="button">Fix multiple sites</button>
+			<input type="text" id="fix-multiple-sites-input" value="500"/>
+			<label id="fix-multiple-sites-label"></label>
+		</div>
+		<div class="single-action-container">
+			<button id="resolve-multiple-sites-button" type="button">Resolve multiple sites</button>
+			<input type="text" id="resolve-multiple-sites-input" value="500"/>
+			<label id="resolve-multiple-sites-label"></label>
+		</div>
+		<div class="single-action-container">
+			<button id="match-multiple-sites-button" type="button">Match multiple sites</button>
+			<input type="text" id="match-multiple-sites-input" value="500"/>
+			<label id="match-multiple-sites-label"></label>
+		</div>
+		<div class="single-action-container">
+			<button id="string-extract-multiple-sites-button" type="button">String Extract multiple sites</button>
+			<input type="text" id="string-extract-multiple-sites-input" value="500"/>
+			<label id="string-extract-multiple-sites-label"></label>
+		</div>
+		<div class="single-action-container">
+			<button id="staff-extract-multiple-sites-button" type="button">Staff Extract multiple sites</button>
+			<input type="text" id="staff-extract-multiple-sites-input" value="500"/>
+			<label id="staff-extract-multiple-sites-label"></label>
+		</div>
+		<div class="single-action-container">
+			<button id="summarize-multiple-sites-button" type="button">Summarize multiple sites</button>
+			<input type="text" id="summarize-multiple-sites-input" value="500"/>
+			<label id="summarize-multiple-sites-label"></label>
+		</div>
+		<div class="single-action-container">
+			<button id="inferences-button" type="button">Do inferences for site crawls</button>
+			<input type="text" id="inferences-input" value="500"/>
+			<label id="inferences-label"></label>
+		</div>
+		<div class="single-action-container">
+			<button id="all-work-button" type="button">Do all work for sites</button>
+			<input type="text" id="all-work-input" value="500"/>
+			<label id="all-work-label"></label>
+		</div>
+		
+		
+		
+	</div>
+</div>
+<div id="monitoring-container">
+	<button id="update-monitoring-button" type="button">Update monitoring</button>
+	<div id="monitoring-panels">
+		
+	</div>
+</div>
+
+}
