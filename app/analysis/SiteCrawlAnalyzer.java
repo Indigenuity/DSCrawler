@@ -50,10 +50,10 @@ public class SiteCrawlAnalyzer {
 	public static void metaAnalysis(SiteCrawl siteCrawl) {
 //		System.out.println("meta analysis : " + siteCrawl.getSiteCrawlId());
 		checkUniques(siteCrawl);
-//		checkLength(siteCrawl);
-//		checkContent(siteCrawl);
-//		checkImages(siteCrawl);
-//		inferWebProvider(siteCrawl);
+		checkLength(siteCrawl);
+		checkContent(siteCrawl);
+		checkImages(siteCrawl);
+		inferWebProvider(siteCrawl);
 	}
 	
 	public static void checkImages(SiteCrawl siteCrawl) {

@@ -11,6 +11,7 @@ import javax.persistence.Query;
 
 import persistence.CrawlSet;
 import persistence.Site;
+import persistence.SiteCrawl;
 import play.db.jpa.JPA;
 import reporting.DashboardStats;
 
@@ -99,6 +100,13 @@ public class StatsDAO {
 		for(Field field : Site.class.getDeclaredFields()) {
 			if(field.getType() == boolean.class){
 				long count = SitesDAO.getCrawlSetCount(crawlSet.getCrawlSetId(), field.getName(), true);
+				stats.put(field.getName(), count);
+			}
+		}
+		
+		for(Field field : SiteCrawl.class.getDeclaredFields()) {
+			if(field.getType() == boolean.class){
+				long count = SiteCrawlDAO.getCrawlSetCount(crawlSet.getCrawlSetId(), field.getName(), true);
 				stats.put(field.getName(), count);
 			}
 		}

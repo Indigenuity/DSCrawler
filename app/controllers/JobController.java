@@ -3,6 +3,7 @@ package controllers;
 import global.Global;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -16,6 +17,7 @@ import async.work.SiteWork;
 import async.work.WorkItem;
 import async.work.WorkSet;
 import async.work.WorkType;
+import dao.SiteCrawlDAO;
 import persistence.CrawlSet;
 import persistence.PageInformation;
 import persistence.Site;
@@ -69,42 +71,67 @@ public class JobController extends Controller {
 						WorkItem workItem = new WorkItem(workType);
 						workSet.addWorkItem(workItem);
 						System.out.println("submitting work for site : " + site.getSiteId());
+						JPA.em().detach(site);
 						Asyncleton.instance().getMainMaster().tell(workSet, ActorRef.noSender());
 					}
 				}
 			}
-			else {		//Do site crawl work
-				if(workType == WorkType.CUSTOM) {
-					Set<SiteCrawl> siteCrawls = crawlSet.getCompletedCrawls();
-					for(SiteCrawl siteCrawl : siteCrawls) {
-						if( count++ < numToProcess) {
-							WorkSet workSet = new WorkSet();
-							workSet.setCrawlSetId(crawlSet.getCrawlSetId());
-							workSet.setSiteCrawlId(siteCrawl.getSiteCrawlId());
-							WorkItem workItem;
-							if(!siteCrawl.isAmalgamationDone()){
-								workItem = new WorkItem(WorkType.AMALGAMATION);
-								workSet.addWorkItem(workItem);
-							}
-							if(!siteCrawl.isDocAnalysisDone()) {
-								workItem = new WorkItem(WorkType.DOC_ANALYSIS);
-								workSet.addWorkItem(workItem);
-							}
-							if(!siteCrawl.isTextAnalysisDone()){
-								workItem = new WorkItem(WorkType.TEXT_ANALYSIS);
-								workSet.addWorkItem(workItem);
-							}
-							if(!siteCrawl.isMetaAnalysisDone()){
-								workItem = new WorkItem(WorkType.META_ANALYSIS);
-								workSet.addWorkItem(workItem);
-							}
-							System.out.println("submitting work for sitecrawl : " + siteCrawl.getSiteCrawlId());
-							Asyncleton.instance().getMainMaster().tell(workSet, ActorRef.noSender());
+			else if(workType == WorkType.CUSTOM) {
+				Set<SiteCrawl> siteCrawls = crawlSet.getCompletedCrawls();
+				for(SiteCrawl siteCrawl : siteCrawls) {
+					if( count++ < numToProcess) {
+						WorkSet workSet = new WorkSet();
+						workSet.setCrawlSetId(crawlSet.getCrawlSetId());
+						workSet.setSiteCrawlId(siteCrawl.getSiteCrawlId());
+						WorkItem workItem;
+						if(!siteCrawl.isAmalgamationDone()){
+							workItem = new WorkItem(WorkType.AMALGAMATION);
+							workSet.addWorkItem(workItem);
 						}
+						if(!siteCrawl.isDocAnalysisDone()) {
+							workItem = new WorkItem(WorkType.DOC_ANALYSIS);
+							workSet.addWorkItem(workItem);
+						}
+						if(!siteCrawl.isTextAnalysisDone()){
+							workItem = new WorkItem(WorkType.TEXT_ANALYSIS);
+							workSet.addWorkItem(workItem);
+						}
+						if(!siteCrawl.isMetaAnalysisDone()){
+							workItem = new WorkItem(WorkType.META_ANALYSIS);
+							workSet.addWorkItem(workItem);
+						}
+						System.out.println("submitting work for sitecrawl : " + siteCrawl.getSiteCrawlId());
+						JPA.em().detach(siteCrawl);	
+						Asyncleton.instance().getMainMaster().tell(workSet, ActorRef.noSender());
 					}
 				}
+			}
+			else{		//Do site crawl work
+				List<SiteCrawl> siteCrawls = new ArrayList<SiteCrawl>();
+				if(workType == WorkType.META_ANALYSIS){
+					siteCrawls = SiteCrawlDAO.getCrawlSetList(crawlSet.getCrawlSetId(), "metaAnalysisDone", false, count, offset);
+					
+				}
+				else if(workType == WorkType.DOC_ANALYSIS){
+					siteCrawls = SiteCrawlDAO.getCrawlSetList(crawlSet.getCrawlSetId(), "docAnalysisDone", false, count, offset);
+					
+				}
+				else if(workType == WorkType.TEXT_ANALYSIS){
+					siteCrawls = SiteCrawlDAO.getCrawlSetList(crawlSet.getCrawlSetId(), "textAnalysisDone", false, count, offset);
+					
+				}
 				else{
-					throw new UnsupportedOperationException("No site crawl work yet");
+					throw new UnsupportedOperationException("Unknown Work Type for Crawl Set : " + workType);
+				}
+				
+				for(SiteCrawl siteCrawl : siteCrawls) {
+					WorkSet workSet = new WorkSet();
+					workSet.setCrawlSetId(crawlSet.getCrawlSetId());
+					workSet.setSiteCrawlId(siteCrawl.getSiteCrawlId());
+					WorkItem workItem = new WorkItem(workType);
+					workSet.addWorkItem(workItem);
+					JPA.em().detach(siteCrawl);
+					Asyncleton.instance().getMainMaster().tell(workSet, ActorRef.noSender());
 				}
 			}
 			

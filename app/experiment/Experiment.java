@@ -90,18 +90,15 @@ import utilities.FB;
 
 public class Experiment {
 	
-	public static void runExperasdfasdfiment() {
+	public static void runExperiment() {
 		SiteCrawl siteCrawl  = JPA.em().find(SiteCrawl.class, 97878L);
 		
-		for(PageCrawl pageCrawl : siteCrawl.getPageCrawls()) {
-			System.out.println("h1 : " + pageCrawl.getH1());
+		for(WebProvider wp : siteCrawl.getWebProviders()){
+			System.out.println("wp :  " + wp);
 		}
-		System.out.println("before : " + siteCrawl.getUniqueH1Score());
-		SiteCrawlAnalyzer.checkUniques(siteCrawl);
-		System.out.println("after : " + siteCrawl.getUniqueH1Score());
-		
+		System.out.println("inferred : " + siteCrawl.getInferredWebProvider());
 	}
-	public static void runExperiment() throws IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+	public static void sfExport() throws IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
 		CSVGenerator.generateSpecialProjectReport();
 	}
 	

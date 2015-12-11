@@ -2,9 +2,13 @@ package dao;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.persistence.Column;
+import javax.persistence.TypedQuery;
 
 import persistence.Site;
 import persistence.SiteCrawl;
@@ -144,6 +148,44 @@ public class SiteCrawlDAO {
 	}
 	
 
+	public static long getCrawlSetCount(long crawlSetId, String valueName, Object value){
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		parameters.put(valueName , value);
+		return getCrawlSetCount(crawlSetId, parameters);
+	}
+	public static long getCrawlSetCount(long crawlSetId, Map<String, Object> parameters) {
+		String query = "select count(sc) from CrawlSet cs join cs.completedCrawls sc where cs.crawlSetId = :crawlSetId ";
+		for(String key : parameters.keySet()) {
+			query += " and sc." + key + " = :" + key;
+		}
+		
+		TypedQuery<Long> q = JPA.em().createQuery(query, Long.class);
+		q.setParameter("crawlSetId", crawlSetId);
+		for(Entry<String, Object> entry : parameters.entrySet()) {
+			q.setParameter(entry.getKey(), entry.getValue());
+		}
+		return q.getSingleResult();
+	}
+	public static List<SiteCrawl> getCrawlSetList(long crawlSetId, String valueName, Object value, int count, int offset){
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		parameters.put(valueName , value);
+		return getCrawlSetList(crawlSetId, parameters, count, offset);
+	}
+	public  static List<SiteCrawl> getCrawlSetList(long crawlSetId, Map<String, Object> parameters, int count, int offset){
+		String query = "select sc from CrawlSet cs join cs.completedCrawls sc where cs.crawlSetId = :crawlSetId ";
+		for(String key : parameters.keySet()) {
+			query += " and sc." + key + " = :" + key;
+		}
+		
+		TypedQuery<SiteCrawl> q = JPA.em().createQuery(query, SiteCrawl.class);
+		q.setParameter("crawlSetId", crawlSetId);
+		for(Entry<String, Object> entry : parameters.entrySet()) {
+			q.setParameter(entry.getKey(), entry.getValue());
+		}
+		q.setFirstResult(offset);
+		q.setMaxResults(count);
+		return q.getResultList();
+	}
 	
 	public static List<SiteCrawl> getList(String query, boolean isNative, int count, int offset) {
 		if(isNative) {

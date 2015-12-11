@@ -15,7 +15,7 @@ public class WaitingRoom {
 
 	//Functionally act like adding to a set
 	public static boolean add(WorkItem workItem, WorkSet workSet){
-		System.out.println("workset entered waiting room : " + workSet.getUuid());
+//		System.out.println("workset entered waiting room : " + workSet.getUuid());
 		synchronized (workSets){
 			if(workSets.containsKey(workItem)) {
 				return false;
@@ -26,7 +26,7 @@ public class WaitingRoom {
 	}
 	
 	public static WorkSet remove(WorkItem workItem) {
-		System.out.println("workset leaving waiting room : " + workItem.getUuid());
+//		System.out.println("workset leaving waiting room : " + workItem.getUuid());
 		return workSets.remove(workItem);
 	}
 	

@@ -13,9 +13,9 @@ public class DocAnalysisWorker extends UntypedActor {
 	@Override
 	public void onReceive(Object work) throws Exception {
 		
-		System.out.println("received doc analysis work");
 		WorkItem workItem = (WorkItem) work;
 		workItem.setWorkStatus(WorkStatus.WORK_IN_PROGRESS);
+		System.out.println("Performing doc analysis work : " + workItem.getSiteCrawlId());
 		JPA.withTransaction( () -> {
 			
 			try{

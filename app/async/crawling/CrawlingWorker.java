@@ -49,6 +49,7 @@ public class CrawlingWorker extends UntypedActor {
 
 		WorkItem workItem = (WorkItem) work;
 		workItem.setWorkStatus(WorkStatus.WORK_IN_PROGRESS);
+		System.out.println("Performing crawling work : " + workItem.getSiteId());
 		try{
 			String[] homepage = new String[1];
 			JPA.withTransaction( () -> {

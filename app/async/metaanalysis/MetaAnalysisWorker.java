@@ -13,9 +13,10 @@ public class MetaAnalysisWorker  extends UntypedActor {
 	@Override
 	public void onReceive(Object work) throws Exception {
 
-		System.out.println("received meta analysis work");
+		
 		WorkItem workItem = (WorkItem) work;
 		workItem.setWorkStatus(WorkStatus.WORK_IN_PROGRESS);
+		System.out.println("Performing meta analysis work : " + workItem.getSiteCrawlId());
 		JPA.withTransaction( () -> {
 			
 			try{

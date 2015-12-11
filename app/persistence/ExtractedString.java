@@ -21,7 +21,6 @@ public class ExtractedString {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	protected long extractedStringId;
-	//a thing?
 	
 	
 	@Column(nullable = true, columnDefinition="varchar(1000)")
