@@ -35,8 +35,12 @@ public class MobileCrawl {
 	
 	private Date crawlDate;
 	
+	//These two values come from the CSS values for width of the body tag
 	private int width;
 	private int height;
+	
+	private int scrollWidth;
+	private int scrollHeight;
 	
 	private int windowWidth;
 	private int windowHeight;
@@ -102,6 +106,18 @@ public class MobileCrawl {
 	}
 	public void setResponseCode(int responseCode) {
 		this.responseCode = responseCode;
+	}
+	public int getScrollWidth() {
+		return scrollWidth;
+	}
+	public void setScrollWidth(int scrollWidth) {
+		this.scrollWidth = scrollWidth;
+	}
+	public int getScrollHeight() {
+		return scrollHeight;
+	}
+	public void setScrollHeight(int scrollHeight) {
+		this.scrollHeight = scrollHeight;
 	}
 	
 	

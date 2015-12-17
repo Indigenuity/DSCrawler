@@ -49,11 +49,11 @@ public class SiteCrawlAnalyzer {
 	
 	public static void metaAnalysis(SiteCrawl siteCrawl) {
 //		System.out.println("meta analysis : " + siteCrawl.getSiteCrawlId());
-		checkUniques(siteCrawl);
-		checkLength(siteCrawl);
-		checkContent(siteCrawl);
-		checkImages(siteCrawl);
-		inferWebProvider(siteCrawl);
+//		checkUniques(siteCrawl);
+//		checkLength(siteCrawl);
+//		checkContent(siteCrawl);
+//		checkImages(siteCrawl);
+		siteCrawl.setInferredWebProvider(inferWebProvider(siteCrawl));
 	}
 	
 	public static void checkImages(SiteCrawl siteCrawl) {
@@ -376,12 +376,15 @@ public class SiteCrawlAnalyzer {
 		
 		if(wps.size() == 1) {
 			WebProvider wp = wps.iterator().next();
-			if(!wp.equals(WebProvider.NONE))
+			if(!wp.equals(WebProvider.NONE)){
+				System.out.println("returning");
 				return wp;
+			}
 		}
 		
 		WebProvider result = WebProviderInference.inferFromManualRules(siteCrawl);
 		if(result != null && result != WebProvider.NONE) {
+			System.out.println("Inferred from manual rules");
 			return result;
 		}
 		for(WebProviderInference criteria : WebProviderInference.probableInferences) {

@@ -25,6 +25,7 @@ import akka.actor.UntypedActor;
 import analysis.SiteCrawlAnalyzer;
 import async.work.SiteWork;
 import async.work.WorkItem;
+import async.work.WorkStatus;
 import async.work.WorkType;
 
 public class MobileWorker extends UntypedActor {
@@ -33,16 +34,10 @@ public class MobileWorker extends UntypedActor {
 	@Override
 	public void onReceive(Object work) throws Exception {
 
-		System.out.println("Received work " );
-		if(!(work instanceof WorkItem)){
-			return;
-		}
 		
 		WorkItem workItem = (WorkItem) work;
-		if(workItem.getWorkType() != WorkType.MOBILE_TEST) {
-			return;
-		}
-		
+		workItem.setWorkStatus(WorkStatus.WORK_IN_PROGRESS);
+		System.out.println("Performing Mobile Crawl work : " + workItem.getSiteId());
 		try{
 			
 			
@@ -58,13 +53,14 @@ public class MobileWorker extends UntypedActor {
 				crawlSet.addMobileCrawl(mobileCrawl);
 				crawlSet.getNeedMobile().remove(site);
 				JPA.em().persist(mobileCrawl);
+				workItem.setWorkStatus(WorkStatus.WORK_COMPLETED);
 			});
 		}
 		catch(Exception e) {
 			Logger.error("error while mobile crawling : " + e);
 			e.printStackTrace();
 		}
-//		getSender().tell(work, getSelf());
+		getSender().tell(workItem, getSelf());
 	}
 	
 	@Override

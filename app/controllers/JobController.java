@@ -109,15 +109,15 @@ public class JobController extends Controller {
 			else{		//Do site crawl work
 				List<SiteCrawl> siteCrawls = new ArrayList<SiteCrawl>();
 				if(workType == WorkType.META_ANALYSIS){
-					siteCrawls = SiteCrawlDAO.getCrawlSetList(crawlSet.getCrawlSetId(), "metaAnalysisDone", false, count, offset);
+					siteCrawls = SiteCrawlDAO.getCrawlSetList(crawlSet.getCrawlSetId(), "metaAnalysisDone", false, numToProcess, offset);
 					
 				}
 				else if(workType == WorkType.DOC_ANALYSIS){
-					siteCrawls = SiteCrawlDAO.getCrawlSetList(crawlSet.getCrawlSetId(), "docAnalysisDone", false, count, offset);
+					siteCrawls = SiteCrawlDAO.getCrawlSetList(crawlSet.getCrawlSetId(), "docAnalysisDone", false, numToProcess, offset);
 					
 				}
 				else if(workType == WorkType.TEXT_ANALYSIS){
-					siteCrawls = SiteCrawlDAO.getCrawlSetList(crawlSet.getCrawlSetId(), "textAnalysisDone", false, count, offset);
+					siteCrawls = SiteCrawlDAO.getCrawlSetList(crawlSet.getCrawlSetId(), "textAnalysisDone", false, numToProcess, offset);
 					
 				}
 				else{
