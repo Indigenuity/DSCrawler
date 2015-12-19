@@ -57,6 +57,8 @@ import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import crawling.DealerCrawlController;
+import crawling.GoogleCrawler;
+import crawling.MobileCrawler;
 import dao.SitesDAO;
 import datadefinitions.GeneralMatch;
 import datadefinitions.Scheduler;
@@ -79,6 +81,8 @@ import persistence.Dealer;
 import persistence.ExtractedString;
 import persistence.ExtractedUrl;
 import persistence.FBPage;
+import persistence.GoogleCrawl;
+import persistence.MobileCrawl;
 import persistence.PageCrawl;
 import persistence.Site;
 import persistence.SiteCrawl;
@@ -90,13 +94,64 @@ import utilities.FB;
 
 public class Experiment {
 	
-	public static void runExperiment() {
-		SiteCrawl siteCrawl  = JPA.em().find(SiteCrawl.class, 97878L);
+	public static void gCrawl() throws Exception {
+		GoogleCrawl gCrawl = GoogleCrawler.googleCrawl("toyota houston tx");
+	}
+	
+	public static void resetMobile() {
+		CrawlSet crawlSet = JPA.em().find(CrawlSet.class, 7L);
 		
-		for(WebProvider wp : siteCrawl.getWebProviders()){
-			System.out.println("wp :  " + wp);
+		for(MobileCrawl mobileCrawl : crawlSet.getMobileCrawls()){
+			crawlSet.getNeedMobile().add(mobileCrawl.getSite());
 		}
-		System.out.println("inferred : " + siteCrawl.getInferredWebProvider());
+		
+		crawlSet.getMobileCrawls().clear();
+	}
+	
+	public static void runExperiment() throws Exception {
+		String seed = "http://www.sewelltoyota.com/";
+//		seed = "http://www.jaguarhoustoncentral.com/";
+//		seed = "http://allsolutionsnetwork.com/10/1000/";
+//		seed = "http://facebook.com";
+//		seed = "http://xkcd.com";
+//		seed = "http://www.pipkinsmotors.com/";
+//		seed = "http://www.lidtkemotors.com/";
+//		MobileCrawl mobileCrawl = MobileCrawler.testingMobileCrawl(seed);
+		MobileCrawl mobileCrawl = MobileCrawler.defaultMobileCrawl(seed);
+		
+		System.out.println("width : " + mobileCrawl.getWidth());
+		System.out.println("window width : " + mobileCrawl.getWindowWidth());
+		System.out.println("scroll width : " + mobileCrawl.getScrollWidth());
+		System.out.println("seed : " + mobileCrawl.getSeed());
+		System.out.println("resolved seed : " + mobileCrawl.getResolvedSeed());
+		System.out.println("crawl date : " + mobileCrawl.getCrawlDate());
+		System.out.println("400 : " + mobileCrawl.isDetected400());
+		System.out.println("401 : " + mobileCrawl.isDetected401());
+		System.out.println("402 : " + mobileCrawl.isDetected402());
+		System.out.println("403 : " + mobileCrawl.isDetected403());
+		System.out.println("404 : " + mobileCrawl.isDetected404());
+		System.out.println("500 : " + mobileCrawl.isDetected500());
+		System.out.println("501 : " + mobileCrawl.isDetected501());
+		System.out.println("502 : " + mobileCrawl.isDetected502());
+		System.out.println("503 : " + mobileCrawl.isDetected503());
+		System.out.println("Faux ********************************************");
+		System.out.println("width : " + mobileCrawl.getFauxWidth());
+		System.out.println("window width : " + mobileCrawl.getFauxWindowWidth());
+		System.out.println("scroll width : " + mobileCrawl.getFauxScrollWidth());
+		System.out.println("resolved seed : " + mobileCrawl.getFauxResolvedSeed());
+		System.out.println("400 : " + mobileCrawl.isFauxDetected400());
+		System.out.println("401 : " + mobileCrawl.isFauxDetected401());
+		System.out.println("402 : " + mobileCrawl.isFauxDetected402());
+		System.out.println("403 : " + mobileCrawl.isFauxDetected403());
+		System.out.println("404 : " + mobileCrawl.isFauxDetected404());
+		System.out.println("500 : " + mobileCrawl.isFauxDetected500());
+		System.out.println("501 : " + mobileCrawl.isFauxDetected501());
+		System.out.println("502 : " + mobileCrawl.isFauxDetected502());
+		System.out.println("503 : " + mobileCrawl.isFauxDetected503());
+		
+		
+		
+		System.out.println();
 	}
 	public static void sfExport() throws IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
 		CSVGenerator.generateSpecialProjectReport();

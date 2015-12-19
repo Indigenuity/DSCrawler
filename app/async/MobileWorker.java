@@ -48,7 +48,6 @@ public class MobileWorker extends UntypedActor {
 				MobileCrawl mobileCrawl = MobileCrawler.defaultMobileCrawl(site.getHomepage());
 				System.out.println("mobile crawl seed : " + mobileCrawl.getSeed());
 				System.out.println("mobile crawl resolved seed : " + mobileCrawl.getResolvedSeed());
-				mobileCrawl.setCrawlDate(new java.sql.Date(Calendar.getInstance().getTimeInMillis()));
 				mobileCrawl.setSite(site);
 				crawlSet.addMobileCrawl(mobileCrawl);
 				crawlSet.getNeedMobile().remove(site);

@@ -3,6 +3,7 @@ package crawling;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -195,8 +196,6 @@ public class MobileCrawler {
 	}
 	
 	public static MobileCrawl defaultMobileCrawl(String seed) throws Exception{
-		
-		
 		DesiredCapabilities capabilities = DesiredCapabilities.chrome();
 		
 		if(Global.useProxy()){
@@ -207,24 +206,19 @@ public class MobileCrawler {
 			proxy.setSslProxy(proxyString);
 			capabilities.setCapability(CapabilityType.PROXY, proxy);
 		}
-		
 //		capabilities.setCapability("chrome.switches",  Arrays.asList("--disable-javascript"));
-		
-		Map<String, String> mobileEmulation = new HashMap<String, String>();
-		mobileEmulation.put("deviceName",  "Apple iPhone 6");
-		Map<String, Object> chromeOptions = new HashMap<String, Object>();
-//		chromeOptions.put("mobileEmulation",  mobileEmulation);
-		capabilities.setCapability(ChromeOptions.CAPABILITY, chromeOptions);
 		WebDriver driver = new ChromeDriver(capabilities);
 		
 		MobileCrawl mobileCrawl = new MobileCrawl();
 		mobileCrawl.setSeed(seed);
-		System.out.println("Performing default mobile crawl : " + seed);
-//		driver.manage().window().setSize(new Dimension(480, 320));
+		System.out.println("Performing faux mobile crawl : " + seed);
+		
+		/*********************** Perform crawl with small windowed normal browser ************************************/
+		driver.manage().window().setSize(new Dimension(480, 320));
+		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 		driver.get(seed);
 		try{
 			
-//			driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS); 
 			WebElement bodyElement = driver.findElement(By.cssSelector("body"));
 			int bodyWidth = bodyElement.getSize().getWidth();
 			int bodyHeight = bodyElement.getSize().getHeight();
@@ -232,73 +226,72 @@ public class MobileCrawler {
 			int scrollWidth = Integer.parseInt(((JavascriptExecutor) driver).executeScript(javascript) + "");
 			javascript = "return document.getElementsByTagName('html')[0].scrollHeight";
 			int scrollHeight= Integer.parseInt(((JavascriptExecutor) driver).executeScript(javascript) + "");
+			String content = driver.getPageSource();
 			
-			System.out.println("body height : " + bodyElement.getSize().getHeight());
-			System.out.println("body width : " + bodyElement.getSize().getWidth());
-			System.out.println("css body width: " + bodyElement.getCssValue("width"));
-			System.out.println("css body height: " + bodyElement.getCssValue("height"));
-			System.out.println("window height : " + driver.manage().window().getSize().getHeight());
-			System.out.println("window width : " + driver.manage().window().getSize().getWidth());
+			
+			mobileCrawl.setFauxWidth(bodyWidth);
+			mobileCrawl.setFauxHeight(bodyHeight);
+			mobileCrawl.setFauxScrollWidth(scrollWidth);
+			mobileCrawl.setFauxScrollHeight(scrollHeight);
+			mobileCrawl.setFauxWindowWidth(Integer.parseInt(((JavascriptExecutor) driver).executeScript("return document.documentElement.clientWidth").toString()));
+			mobileCrawl.setFauxWindowHeight(Integer.parseInt(((JavascriptExecutor) driver).executeScript("return document.documentElement.clientHeight").toString()));
+			mobileCrawl.setFauxResolvedSeed(driver.getCurrentUrl());
+			System.out.println("Checking for errors");
+			mobileCrawl.setFauxDetected400(content.matches("(?s).*\\b400\\b.*"));
+			mobileCrawl.setFauxDetected401(content.matches("(?s).*\\b401\\b.*"));
+			mobileCrawl.setFauxDetected402(content.matches("(?s).*\\b402\\b.*"));
+			mobileCrawl.setFauxDetected403(content.matches("(?s).*\\b403\\b.*"));
+			mobileCrawl.setFauxDetected404(content.matches("(?s).*\\b404\\b.*"));
+			mobileCrawl.setFauxDetected500(content.matches("(?s).*\\b500\\b.*"));
+			mobileCrawl.setFauxDetected501(content.matches("(?s).*\\b501\\b.*"));
+			mobileCrawl.setFauxDetected502(content.matches("(?s).*\\b502\\b.*"));
+			mobileCrawl.setFauxDetected503(content.matches("(?s).*\\b503\\b.*"));
+			
+			driver.quit();
+			
+			System.out.println("starting actual mobile crawl");
+			/*********************** Perform actual mobile crawl with mobile browser ************************************/	
+			Map<String, String> mobileEmulation = new HashMap<String, String>();
+			mobileEmulation.put("deviceName",  "Apple iPhone 6");
+			Map<String, Object> chromeOptions = new HashMap<String, Object>();
+			chromeOptions.put("mobileEmulation",  mobileEmulation);
+			capabilities.setCapability(ChromeOptions.CAPABILITY, chromeOptions);
+			driver = new ChromeDriver(capabilities);
+			driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+			driver.get(seed);
+			
+			bodyElement = driver.findElement(By.cssSelector("body"));
+			bodyWidth = bodyElement.getSize().getWidth();
+			bodyHeight = bodyElement.getSize().getHeight();
 			javascript = "return document.getElementsByTagName('html')[0].scrollWidth";
-			System.out.println("scrollwidth : " + ((JavascriptExecutor) driver).executeScript(javascript));
-			javascript = "return document.getElementsByTagName('html')[0].offsetWidth";
-			System.out.println("offsetwidth : " + ((JavascriptExecutor) driver).executeScript(javascript));
-			javascript = "return document.getElementsByTagName('html')[0].clientWidth";
-			System.out.println("clientwidth : " + ((JavascriptExecutor) driver).executeScript(javascript));
-			javascript = "return document.getElementsByTagName('html')[0].offsetLeft";
-			System.out.println("offsetLeft : " + ((JavascriptExecutor) driver).executeScript(javascript));
-			javascript = "return document.getElementsByTagName('html')[0].offsetParent";
-			System.out.println("offsetParent : " + ((JavascriptExecutor) driver).executeScript(javascript));
-			javascript = "return document.getElementsByTagName('html')[0].clientLeft";
-			System.out.println("clientLeft : " + ((JavascriptExecutor) driver).executeScript(javascript));
-			javascript = "return document.getElementsByTagName('html')[0].scrollLeft";
-			System.out.println("scrollLeft : " + ((JavascriptExecutor) driver).executeScript(javascript));
-			javascript = "return document.getElementsByTagName('html')[0].scrollLeftMax";
-			System.out.println("scrollLeftMax : " + ((JavascriptExecutor) driver).executeScript(javascript));
+			scrollWidth = Integer.parseInt(((JavascriptExecutor) driver).executeScript(javascript) + "");
 			javascript = "return document.getElementsByTagName('html')[0].scrollHeight";
-			System.out.println("scrollHeight : " + ((JavascriptExecutor) driver).executeScript(javascript));
+			scrollHeight= Integer.parseInt(((JavascriptExecutor) driver).executeScript(javascript) + "");
+			content = driver.getPageSource();
 			
 			
-//			TimeUnit.SECONDS.sleep(120);  //Wait for redirects, etc. to finish.  This includes bad redirects after page load.
-			
-			Actions action = new Actions(driver);
 			mobileCrawl.setWidth(bodyWidth);
 			mobileCrawl.setHeight(bodyHeight);
 			mobileCrawl.setScrollWidth(scrollWidth);
 			mobileCrawl.setScrollHeight(scrollHeight);
-			
 			mobileCrawl.setWindowWidth(Integer.parseInt(((JavascriptExecutor) driver).executeScript("return document.documentElement.clientWidth").toString()));
 			mobileCrawl.setWindowHeight(Integer.parseInt(((JavascriptExecutor) driver).executeScript("return document.documentElement.clientHeight").toString()));
 			mobileCrawl.setResolvedSeed(driver.getCurrentUrl());
-//			WebElement clearButton = driver.findElement(By.cssSelector("span[aria-label='Clear Search']"));
-//			clearButton.click();
-			WebElement inputField = driver.findElement(By.id("lst-ib"));
-			inputField.click();
-			String del = Keys.chord(Keys.CONTROL + "a") + Keys.DELETE;
-			inputField.sendKeys(del);
-			inputField.sendKeys("toyota baltimore md");
-			inputField.sendKeys(Keys.ENTER);
-//			driver.get("https://www.google.com/search?q=wikipedia");
-			TimeUnit.SECONDS.sleep(120);  //Wait for redirects, etc. to finish.  This includes bad redirects after page load.
-			inputField = driver.findElement(By.id("lst-ib"));
-			inputField.click();
-			inputField.sendKeys(del);
-			inputField.sendKeys("ford houston tx");
-			inputField.sendKeys(Keys.ENTER);
-//			driver.get("https://www.google.com/search?q=wikipedia");
-			TimeUnit.SECONDS.sleep(120);  //Wait for redirects, etc. to finish.  This includes bad redirects after page load.
+			mobileCrawl.setCrawlDate(Calendar.getInstance().getTime());
+			System.out.println("Checking for errors");
+			mobileCrawl.setDetected400(content.matches("(?s).*\\b400\\b.*"));
+			mobileCrawl.setDetected401(content.matches("(?s).*\\b401\\b.*"));
+			mobileCrawl.setDetected402(content.matches("(?s).*\\b402\\b.*"));
+			mobileCrawl.setDetected403(content.matches("(?s).*\\b403\\b.*"));
+			mobileCrawl.setDetected404(content.matches("(?s).*\\b404\\b.*"));
+			mobileCrawl.setDetected500(content.matches("(?s).*\\b500\\b.*"));
+			mobileCrawl.setDetected501(content.matches("(?s).*\\b501\\b.*"));
+			mobileCrawl.setDetected502(content.matches("(?s).*\\b502\\b.*"));
+			mobileCrawl.setDetected503(content.matches("(?s).*\\b503\\b.*"));
+			
 			driver.quit();
+//			TimeUnit.SECONDS.sleep(30);
 			
-			//Check status code because WebDriver doesn't provide this information
-			
-//			URL url = new URL(mobileCrawl.getResolvedSeed());
-//			HttpURLConnection con = (HttpURLConnection)(url.openConnection());
-//			con.setConnectTimeout(5 * 1000);
-//			con.setRequestProperty("User-Agent", DEFAULT_MOBILE_USER_AGENT_STRING);
-//			con.connect();
-//			int responseCode = con.getResponseCode();
-			
-//			mobileCrawl.setResponseCode(responseCode);
 		}
 		catch(Exception e) {
 			driver.quit();

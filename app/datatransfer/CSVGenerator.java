@@ -49,6 +49,7 @@ public class CSVGenerator {
 		values.add("Salesforce Unique ID");
 		values.add("Account Name");
 		values.add("Primary Website URL:");
+		values.add("Inferred Website Provider");
 		values.add("Alt. Image Tag Score");
 		
 		values.add("Meta Description Content Score");
@@ -88,6 +89,12 @@ public class CSVGenerator {
 			values.add(match.getSfId());
 			values.add(match.getName());
 			values.add(match.getStandardizedUrl());
+			if(siteCrawl.getInferredWebProvider() != null){
+				values.add(siteCrawl.getInferredWebProvider().getDescription());
+			}
+			else{
+				values.add("");
+			}
 			values.add("" + siteCrawl.getAltImageScore());
 			values.add("" + siteCrawl.getContentMetaDescriptionScore());
 			values.add("" + siteCrawl.getContentUrlScore());

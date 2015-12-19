@@ -216,9 +216,9 @@ public class Site {
 	
 	public MobileCrawl getLatestMobileCrawl() {
 		MobileCrawl returned = null;
-		Date mostRecent = null;
+		java.util.Date mostRecent = null;
 		for(MobileCrawl mobileCrawl : mobileCrawls) {
-			Date date = mobileCrawl.getCrawlDate();
+			java.util.Date date = mobileCrawl.getCrawlDate();
 			if(mostRecent == null || date.compareTo(mostRecent) < 0) {
 				mostRecent = date;
 				returned = mobileCrawl;
