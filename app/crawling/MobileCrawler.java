@@ -218,7 +218,7 @@ public class MobileCrawler {
 		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 		driver.get(seed);
 		try{
-			
+			driver.manage().window().setSize(new Dimension(480, 320));
 			WebElement bodyElement = driver.findElement(By.cssSelector("body"));
 			int bodyWidth = bodyElement.getSize().getWidth();
 			int bodyHeight = bodyElement.getSize().getHeight();

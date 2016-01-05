@@ -1,7 +1,6 @@
 package async.work;
 
 import async.MainWorker;
-import async.MobileWorker;
 import async.amalgamation.AmalgamationWorker;
 import async.crawling.CrawlingWorker;
 import async.datatransfer.DataTransferWorker;
@@ -9,6 +8,8 @@ import async.docanalysis.DocAnalysisWorker;
 import async.metaanalysis.MetaAnalysisWorker;
 import async.sniffer.SnifferWorker;
 import async.textanalysis.TextAnalysisWorker;
+import async.workers.MobileAnalysisWorker;
+import async.workers.MobileWorker;
 
  
 //The types of work to be done by workers in this program.
@@ -22,6 +23,7 @@ public enum WorkType {
 	CRAWL						(CrawlingWorker.class, 15), 
 	SMALL_CRAWL					(),
 	MOBILE_TEST					(MobileWorker.class),
+	MOBILE_ANALYSIS				(MobileAnalysisWorker.class),
 	AMALGAMATION				(AmalgamationWorker.class),
 	DOC_ANALYSIS				(DocAnalysisWorker.class),
 	STRING_EXTRACTION			, 

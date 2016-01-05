@@ -26,6 +26,7 @@ import datadefinitions.WebProvider;
 import persistence.Dealer;
 import persistence.ExtractedString;
 import persistence.FBPage;
+import persistence.MobileCrawl;
 import persistence.PlacesDealer;
 import persistence.Site;
 import persistence.SiteCrawl;
@@ -63,6 +64,13 @@ public class CSVGenerator {
 		values.add("Unique Meta Description Score");
 		values.add("Unique Title Tag Score");
 		values.add("Unique URL Score");
+		
+		values.add("Passes Responsive Test");
+		values.add("Passes Adaptive Test");
+		values.add("Almost Responsive");
+		values.add("Almost Adaptive");
+		values.add("Is Mobile Site");
+		values.add("Mobile URL");
 //		values.add("Primary Website Provider");
 		
 		
@@ -77,15 +85,20 @@ public class CSVGenerator {
 			fields = Scaffolder.getBasicFields(siteCrawl);
 			values = new ArrayList<String>();
 			Temp match = null;
+			MobileCrawl mobileCrawl = null;
+			
 			for(Temp sf: sfs) {
 				if(StringUtils.equals(siteCrawl.getSeed(), sf.getStandardizedUrl())){
 					match = sf;
 					break;
 				}
 			}
-			if(match == null || siteCrawl.getNumRetrievedFiles() < 10) {
+			mobileCrawl = siteCrawl.getSite().getLatestMobileCrawl();
+			if(match == null || mobileCrawl == null || siteCrawl.getNumRetrievedFiles() < 10) {
 				continue;
 			}
+			
+			
 			values.add(match.getSfId());
 			values.add(match.getName());
 			values.add(match.getStandardizedUrl());
@@ -105,6 +118,17 @@ public class CSVGenerator {
 			values.add("" + siteCrawl.getUniqueMetaDescriptionScore());
 			values.add("" + siteCrawl.getUniqueTitleScore());
 			values.add("" + siteCrawl.getUniqueUrlScore());
+			values.add("" + mobileCrawl.isResponsive());
+			values.add("" + mobileCrawl.isAdaptive());
+			values.add("" + mobileCrawl.isMostlyResponsive());
+			values.add("" + mobileCrawl.isMostlyAdaptive());
+			values.add("" + mobileCrawl.isMobiSite());
+			if(mobileCrawl.isMobiSite()){
+				values.add(mobileCrawl.getResolvedSeed());
+			} else {
+				values.add("");
+			}
+			
 //			if(siteCrawl.getInferredWebProvider() != null){
 //				values.add(siteCrawl.getInferredWebProvider().name());				
 //			}

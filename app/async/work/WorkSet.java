@@ -16,6 +16,7 @@ public class WorkSet {
 	private Long siteId = new Long(0);
 	private Long siteCrawlId = new Long(0);
 	private Long crawlSetId = new Long(0);
+	private Long mobileCrawlId = new Long(0);
 	private String idType = "Site";
 	
 	public WorkSet(Long id) {
@@ -30,6 +31,7 @@ public class WorkSet {
 		workItem.setSiteCrawlId(this.siteCrawlId);
 		workItem.setSiteId(this.siteId);
 		workItem.setCrawlSetId(this.crawlSetId);
+		workItem.setMobileCrawlId(this.mobileCrawlId);
 		workItems.put(workItem.getWorkType(), workItem);
 	}
 	
@@ -100,5 +102,14 @@ public class WorkSet {
 	public long getUuid() {
 		return uuid;
 	}
+
+	public Long getMobileCrawlId() {
+		return mobileCrawlId;
+	}
+
+	public void setMobileCrawlId(Long mobileCrawlId) {
+		this.mobileCrawlId = mobileCrawlId;
+	}
+	
 
 }

@@ -82,6 +82,15 @@ public class MobileCrawl {
 	private boolean fauxDetected501 = false;
 	private boolean fauxDetected502 = false;
 	private boolean fauxDetected503 = false;
+	
+	private boolean isMobiSite = false;
+	private boolean isResponsive = true;
+	private boolean isAdaptive = true;
+	private boolean mostlyResponsive = false;
+	private boolean mostlyAdaptive = false;
+	
+	private boolean mobileAnalysisDone = false;
+	
 
 	
 	public long getSiteCrawlId() {
@@ -311,6 +320,42 @@ public class MobileCrawl {
 	}
 	public void setFauxDetected503(boolean fauxDetected503) {
 		this.fauxDetected503 = fauxDetected503;
+	}
+	public boolean isMobiSite() {
+		return isMobiSite;
+	}
+	public void setMobiSite(boolean isMobiSite) {
+		this.isMobiSite = isMobiSite;
+	}
+	public boolean isResponsive() {
+		return isResponsive;
+	}
+	public void setResponsive(boolean isResponsive) {
+		this.isResponsive = isResponsive;
+	}
+	public boolean isAdaptive() {
+		return isAdaptive;
+	}
+	public void setAdaptive(boolean isAdaptive) {
+		this.isAdaptive = isAdaptive;
+	}
+	public boolean isMostlyResponsive() {
+		return mostlyResponsive;
+	}
+	public void setMostlyResponsive(boolean mostlyResponsive) {
+		this.mostlyResponsive = mostlyResponsive;
+	}
+	public boolean isMostlyAdaptive() {
+		return mostlyAdaptive;
+	}
+	public void setMostlyAdaptive(boolean mostlyAdaptive) {
+		this.mostlyAdaptive = mostlyAdaptive;
+	}
+	public boolean isMobileAnalysisDone() {
+		return mobileAnalysisDone;
+	}
+	public void setMobileAnalysisDone(boolean mobileAnalysisDone) {
+		this.mobileAnalysisDone = mobileAnalysisDone;
 	}
 	
 	

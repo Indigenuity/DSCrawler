@@ -12,6 +12,7 @@ public class WorkItem {
 	private Long siteId;
 	private Long siteCrawlId;
 	private Long crawlSetId;
+	private Long mobileCrawlId;
 	
 	public WorkItem(WorkType workType, WorkStatus workStatus) {
 		this.workType = workType;
@@ -81,6 +82,14 @@ public class WorkItem {
 
 	public Long getUuid() {
 		return uuid;
+	}
+
+	public Long getMobileCrawlId() {
+		return mobileCrawlId;
+	}
+
+	public void setMobileCrawlId(Long mobileCrawlId) {
+		this.mobileCrawlId = mobileCrawlId;
 	}
 
 	

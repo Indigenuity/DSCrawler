@@ -94,6 +94,51 @@ import utilities.FB;
 
 public class Experiment {
 	
+	public static void runExperiment() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
+		sfExport();
+	}
+	
+	public static void checkMobile() {
+		String query = "select mc from CrawlSet cs join cs.mobileCrawls mc where cs.crawlSetId = 7";
+		System.out.println("Getting mobile crawls ");
+		List<MobileCrawl> crawls = JPA.em().createQuery(query, MobileCrawl.class).getResultList();
+		System.out.println("crawls size : " + crawls.size());
+		
+		int responsive = 0;
+		int adaptive = 0;
+		int scrollResponsive = 0;
+		int scrollAdaptive = 0;
+		int almostResponsive = 0;
+		int almostAdaptive = 0;
+		for(MobileCrawl crawl : crawls) {
+			if(crawl.getFauxWindowWidth() >= crawl.getFauxWidth()){
+				responsive++;
+			}
+			if(crawl.getWindowWidth() >= crawl.getWidth()){
+				adaptive++;
+			}
+			if(crawl.getFauxWindowWidth() >= crawl.getFauxScrollWidth()){
+				scrollResponsive++;
+			}
+			else if(crawl.getFauxScrollWidth() < 724 ){
+				almostResponsive++;
+			}
+			if(crawl.getWindowWidth() >= crawl.getScrollWidth()){
+				scrollAdaptive++;
+			}
+			else if(crawl.getScrollWidth() < 724){
+				almostAdaptive++;
+			}
+			
+		}
+		System.out.println("responsive : " + responsive);
+		System.out.println("adaptive : " + adaptive);
+		System.out.println("scrollResponsive : " + scrollResponsive);
+		System.out.println("scrollAdaptive : " + scrollAdaptive);
+		System.out.println("almostAdaptive : " + almostAdaptive);
+		System.out.println("slmost responsieve: " + almostResponsive);
+	}
+	
 	public static void gCrawl() throws Exception {
 		GoogleCrawl gCrawl = GoogleCrawler.googleCrawl("toyota houston tx");
 	}
@@ -101,14 +146,26 @@ public class Experiment {
 	public static void resetMobile() {
 		CrawlSet crawlSet = JPA.em().find(CrawlSet.class, 7L);
 		
+		List<MobileCrawl> taken = new ArrayList<MobileCrawl>();
+		int normal = 0;
+		int faux = 0;
 		for(MobileCrawl mobileCrawl : crawlSet.getMobileCrawls()){
-			crawlSet.getNeedMobile().add(mobileCrawl.getSite());
+			if(mobileCrawl.getWindowWidth() > 375){
+				crawlSet.getNeedMobile().add(mobileCrawl.getSite());
+				System.out.println("Incorrect window height : " + normal++);
+				taken.add(mobileCrawl);
+			}
+			else if(mobileCrawl.getFauxWindowWidth() > 447){
+				crawlSet.getNeedMobile().add(mobileCrawl.getSite());
+				System.out.println("Incorrect faux window height : " + faux++);
+				taken.add(mobileCrawl);
+			}
 		}
 		
-		crawlSet.getMobileCrawls().clear();
+		crawlSet.getMobileCrawls().removeAll(taken);
 	}
 	
-	public static void runExperiment() throws Exception {
+	public static void mobileExperiment() throws Exception {
 		String seed = "http://www.sewelltoyota.com/";
 //		seed = "http://www.jaguarhoustoncentral.com/";
 //		seed = "http://allsolutionsnetwork.com/10/1000/";
@@ -116,6 +173,7 @@ public class Experiment {
 //		seed = "http://xkcd.com";
 //		seed = "http://www.pipkinsmotors.com/";
 //		seed = "http://www.lidtkemotors.com/";
+		seed = "http://lawrencehalllincoln.net/";
 //		MobileCrawl mobileCrawl = MobileCrawler.testingMobileCrawl(seed);
 		MobileCrawl mobileCrawl = MobileCrawler.defaultMobileCrawl(seed);
 		

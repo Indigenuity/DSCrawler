@@ -19,6 +19,7 @@ import async.work.WorkSet;
 import async.work.WorkType;
 import dao.SiteCrawlDAO;
 import persistence.CrawlSet;
+import persistence.MobileCrawl;
 import persistence.PageInformation;
 import persistence.Site;
 import persistence.SiteCrawl;
@@ -104,6 +105,17 @@ public class JobController extends Controller {
 						JPA.em().detach(siteCrawl);	
 						Asyncleton.instance().getMainMaster().tell(workSet, ActorRef.noSender());
 					}
+				}
+			}
+			else if(workType == WorkType.MOBILE_ANALYSIS) {
+				for(MobileCrawl crawl : crawlSet.getMobileCrawls()){
+					WorkSet workSet = new WorkSet();
+					workSet.setCrawlSetId(crawlSet.getCrawlSetId());
+					workSet.setMobileCrawlId(crawl.getSiteCrawlId());
+					WorkItem workItem = new WorkItem(workType);
+					workSet.addWorkItem(workItem);
+					JPA.em().detach(crawl);
+					Asyncleton.instance().getMainMaster().tell(workSet, ActorRef.noSender());
 				}
 			}
 			else{		//Do site crawl work

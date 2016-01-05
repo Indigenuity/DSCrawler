@@ -1,4 +1,4 @@
-package async;
+package async.workers;
 
 import java.util.Calendar;
 import java.util.HashMap;

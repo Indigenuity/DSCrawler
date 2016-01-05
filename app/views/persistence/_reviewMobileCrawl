@@ -1,0 +1,11 @@
+@(crawl : _root_.persistence.MobileCrawl, crawlSet : _root_.persistence.CrawlSet = null)
+
+<div class="crawl-brief">
+	<div>
+		<span class="crawl-seed"><span class="big">crawl @crawl.getMobileCrawlId(): </span><a href="@crawl.getSeed()" target="_blank">@crawl.getSeed()</a></span>
+		<span class="crawl-resolved-seed"><span class="big">crawl @crawl.getMobileCrawlId(): </span><a href="@crawl.getResolvedSeed()" target="_blank">@crawl.getResolvedSeed()</a></span>
+		<br>
+		<span class="crawl-numCrawls">@crawl.getCrawls().size() crawls  </span>
+	</div>
+	
+</div>
