@@ -1,0 +1,19 @@
+@(site : _root_.persistence.Site)
+
+<div class="site-display">
+	<div>
+		<span class="site-homepage"><span class="big">Site @site.getSiteId(): </span><a href="@site.getHomepage()" target="_blank">@site.getHomepage()</a></span>
+		<br>
+		<span class="site-numCrawls">@site.getCrawls().size() crawls  </span>
+		@if(site.getLatestCrawl() != null) {
+			<br>
+			<span class="recent-crawl-date">Recent crawl : @site.getLatestCrawl().getCrawlDate()</span>
+			<span class="recent-crawl-num-files">(@site.getLatestCrawl().getNumRetrievedFiles() Retrieved Files)</span>
+			<span class="recent-crawl-num-files"> -- @site.getLatestCrawl().getSeed()</span>
+			<p class="recent-redirect-resolve"> Last Redirect Resolve : @site.getRedirectResolveDate()</p>
+			<p class="review-reason">Reasons for Review: @site.getReviewReason()</p>
+		}
+		<p class="site-suggested-homepage">Suggested Homepage: <a href="@site.getSuggestedHomepage()" target="_blank">@site.getSuggestedHomepage()</a></p>
+	</div>
+	
+</div>

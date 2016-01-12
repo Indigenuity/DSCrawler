@@ -1,0 +1,16 @@
+@(sharedEntities : java.util.Collection[_root_.viewmodels.SharedEntity])
+
+@main("Duplicate Domains"){
+
+	@for(sharedEntity <- sharedEntities) {
+		<div class="duplicate-domain single-action-container">
+			<h2>@sharedEntity.getUrl()</h2>
+			@for(site <- sharedEntity.getSites()){
+				@persistence.site(site)
+				<p><button onclick="combineOnDomain(@site.getSiteId());">Combine, Favoring This Site</button> &nbsp;&nbsp;&nbsp;
+				<a href="/viewEntity?entityClass=Site&entityId=@site.getSiteId()" target="_blank">Review Site &raquo;</a></p>
+			}
+		</div>
+	
+	}
+}

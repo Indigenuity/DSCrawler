@@ -4,6 +4,10 @@ $(document).ready(function() {
 			      active: false
 			    });
 				
+				$(".single-action-container button").click(function() {
+					$(this).parents(".single-action-container").slideUp(50);
+				})
+				
 				$(".site-brief button").click(function() {
 					$(this).parents(".site-brief").slideUp(50);
 				});
@@ -40,6 +44,12 @@ $(document).ready(function() {
 				//	});
 				//});
 			});
+
+			function combineOnDomain(siteId){
+				var endpoint = "/combineOnDomain?siteId=" + siteId;
+				
+				$.get(endpoint);
+			}
 			
 			function continueCrawlSet(button, crawlSetId){
 				var numToProcess = $(button).parent().find(".continue-crawl-set-input").val();

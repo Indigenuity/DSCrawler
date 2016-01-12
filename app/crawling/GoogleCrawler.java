@@ -1,5 +1,6 @@
 package crawling;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.By;
@@ -25,7 +26,7 @@ public class GoogleCrawler {
 	
 	private static WebDriver driver = null;
 	
-	private static final Integer MUTEX = 1;
+	private static final Object MUTEX = new Object();
 	
 	private static WebDriver getDriver() {
 		System.out.println("getting driver");
@@ -83,28 +84,45 @@ public class GoogleCrawler {
 	}
 
 	public static GoogleCrawl googleCrawl(String query) throws Exception{
-		try{
-			WebElement inputField = getDriver().findElement(By.id("lst-ib"));
-			inputField.click();
-			
-			inputField.sendKeys(DELETE);
-			inputField.sendKeys(query);
-			inputField.sendKeys(Keys.ENTER);
-			System.out.println("page source : " + driver.getPageSource());
-			System.out.println("tostring : " + driver);
-			System.out.println("window : " + driver.manage().window());
-			System.out.println("javascript : " + ((JavascriptExecutor) driver).executeScript("return document.documentElement.outerHTML"));
-			
-//			driver.get("https://www.google.com/search?q=wikipedia");
-			TimeUnit.SECONDS.sleep(120);  //Wait for redirects, etc. to finish.  This includes bad redirects after page load.
-			return GoogleParser.fromRaw(null);
+		synchronized(MUTEX) {
+			try{
+				WebElement inputField = getDriver().findElement(By.id("lst-ib"));
+				
+				inputField.click();
+				
+				inputField.sendKeys(DELETE);
+				inputField.sendKeys(query);
+				inputField.sendKeys(Keys.ENTER);
+				
+				TimeUnit.SECONDS.sleep(2);  //Wait for redirects, etc. to finish.  This includes bad redirects after page load.
+				System.out.println("page source : " + driver.getPageSource());
+				System.out.println("tostring : " + driver);
+				System.out.println("window : " + driver.manage().window());
+				System.out.println("javascript : " + ((JavascriptExecutor) driver).executeScript("return document.documentElement.outerHTML"));
+				
+				List<WebElement> topAds = getDriver().findElements(By.cssSelector("#tvcap .ads-ad"));
+				List<WebElement> sideAds = getDriver().findElements(By.cssSelector("#rhs_block .ads-ad"));
+				List<WebElement> placesResults = getDriver().findElements(By.cssSelector("._Xhb ._gt"));
+				List<WebElement> regularResults = getDriver().findElements(By.cssSelector("#ires .g"));
+				
+				System.out.println("topAds : " + topAds.size());
+				System.out.println("sideAds : " + sideAds.size());
+				System.out.println("placesResults : " + placesResults.size());
+				System.out.println("regularResults : " + regularResults.size());
+				
+				
+	//			driver.get("https://www.google.com/search?q=wikipedia");
+//				TimeUnit.SECONDS.sleep(120);  //Wait for redirects, etc. to finish.  This includes bad redirects after page load.
+				
+				return GoogleParser.fromRaw(null);
+			}
+			catch(Exception e) {
+				System.out.println("Error while google crawling (" + query + ": " + e);
+				Logger.error("Error while google crawling (" + query + ": " + e);
+				onError(e);
+			}
+			return null;
 		}
-		catch(Exception e) {
-			System.out.println("Error while google crawling (" + query + ": " + e);
-			Logger.error("Error while google crawling (" + query + ": " + e);
-			onError(e);
-		}
-		return null;
 	}
 		
 }

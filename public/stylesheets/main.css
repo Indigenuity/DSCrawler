@@ -255,6 +255,7 @@ p {
 .domain-comparison {
 	margin-bottom:45px;
 }
-.domain-comparison .site-info {
+.domain-comparison .site-info,
+.duplicate-domain .site-display{
 	padding-left:45px;
 }

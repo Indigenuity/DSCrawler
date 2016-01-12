@@ -111,6 +111,9 @@ public class Site {
 	@Column(nullable = false, columnDefinition="boolean default false")
 	private boolean recrawl = false;
 	
+	@Column(nullable = false, columnDefinition="boolean default false")
+	private boolean locationPage = false;
+	
 	@Column(nullable = false, columnDefinition="boolean default true")
 	private boolean showToMatt = true;
 
@@ -422,6 +425,14 @@ public class Site {
 	
 	
 	
+	public boolean isLocationPage() {
+		return locationPage;
+	}
+
+	public void setLocationPage(boolean locationPage) {
+		this.locationPage = locationPage;
+	}
+
 	public Set<String> getCities() {
 		return cities;
 	}

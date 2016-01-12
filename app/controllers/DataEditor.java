@@ -1,5 +1,6 @@
 package controllers;
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.ManagedType;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -33,26 +35,46 @@ import utilities.DSFormatter;
 public class DataEditor extends Controller{
 	
 	@Transactional
-	public static Result editEntity() {
+	public static Result editEntity() throws IllegalAccessException, InvocationTargetException {
 		DynamicForm data = Form.form().bindFromRequest();
-		String entityClass = data.get("entityClass");
+		String entityClass = "class " + data.get("entityClass");
 		long entityId = Long.parseLong(data.get("entityId"));
-		Object entity;
+		Object entity = null;
 		//Only accept JPA Entity classes
-		for(EntityType<?> type : JPA.em().getMetamodel().getEntities()) {
-			if(StringUtils.equals(type.getName(), entityClass)){
+		for(ManagedType<?> type : JPA.em().getMetamodel().getManagedTypes()) {
+//			System.out.println("type : " + type.getJavaType());
+//			System.out.println("entityClass : " + entityClass);
+			if(StringUtils.equals(type.getJavaType().toString(), entityClass)){
 				entity = JPA.em().find(type.getJavaType(), entityId);
 				System.out.println("entity : " + entity);
-				return ok(views.html.scaffolding.viewEntity.render(entity));
+				System.out.println("Found entity : " + entityId);
+//				return ok(views.html.scaffolding.viewEntity.render(entity));
 			}
 		}
-		for(Entry<String, String> entry : data.data().entrySet()){
-//			BeanUtils.setProperty(entity, entry.key(), entry.value());
-			System.out.println("key : " + entry.getKey());
-			System.out.println("value : " + entry.getValue());
+		if(entity != null){
+			for(Entry<String, String> entry : data.data().entrySet()){
+				BeanUtils.setProperty(entity, entry.getKey(), entry.getValue());
+	//			System.out.println("key : " + entry.getKey());
+	//			System.out.println("value : " + entry.getValue());
+			}
+			Site site = (Site) entity;
+			System.out.println("homepage : " + site.getHomepage());
+			JPA.em().merge(site);
+		}
+		else {
+			System.out.println("null entity");
 		}
 		
 		
+		
+		return ok();
+	}
+	
+	@Transactional
+	public static Result combineOnDomain(long siteId){
+		Site primary = JPA.em().find(Site.class, siteId);
+		System.out.println("found site to favor in combining : " + primary);
+		Cleaner.combineOnDomain(primary);
 		return ok();
 	}
 
@@ -164,7 +186,7 @@ public class DataEditor extends Controller{
 	
 	@Transactional
 	public static Result fillStandardizedFormat() {
-		String query = "from Site s where redirectResolveDate is not null and (s.standardizedHomepage is null or s.domain is null)";
+		String query = "from Site s where redirectResolveDate is not null ";
 		int chunkSize = 500;
 		int offset = 0;
 		List<Site> sites = JPA.em().createQuery(query).getResultList();
@@ -172,7 +194,7 @@ public class DataEditor extends Controller{
 		for(Site site : sites) {
 			try{
 				System.out.println(count++ + " : " + site.getHomepage());
-				site.setStandardizedHomepage(DSFormatter.standardizeUrl(site.getHomepage()));
+//				site.setStandardizedHomepage(DSFormatter.standardizeUrl(site.getHomepage()));
 				site.setDomain(DSFormatter.getDomain(site.getHomepage()));
 			} catch(Exception e) {
 				System.out.println("error : " + e);
@@ -394,6 +416,18 @@ public class DataEditor extends Controller{
 		crawlSet.getCompletedCrawls().remove(siteCrawl);
 		crawlSet.getUncrawled().add(site);
 		
+		return ok();
+	}
+	
+	@Transactional
+	public static Result markNonStandalone(String domain) {
+//		Site site = JPA.em().find(Site.class, siteId);
+//		
+//		Logger.info("Marking Site " + site.getSiteId() + " as not standalone.");
+//		System.out.println("Marking Site " + site.getSiteId() + " as not standalone.");
+//		
+//		site.setStandaloneSite(false);
+//		
 		return ok();
 	}
 	

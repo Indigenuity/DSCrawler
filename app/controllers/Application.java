@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +72,7 @@ import play.libs.ws.WSResponse;
 import play.mvc.*;
 import utilities.DSFormatter;
 import utilities.UrlSniffer;
+import viewmodels.SharedEntity;
 import views.html.*;
 import edu.uci.ics.crawler4j.crawler.*;
 import experiment.ApiExperiment;
@@ -131,6 +133,21 @@ public class Application extends Controller {
     		}
     	}
     	return ok();
+    }
+    
+    @Transactional
+    public static Result duplicateDomains(int numToProcess, int offset){
+    	List<String> domains = SitesDAO.getDuplicateDomains(numToProcess, offset);
+    	List<SharedEntity> items = new ArrayList<SharedEntity>();
+    	for(String domain : domains){
+    		List<Site> sites = SitesDAO.getList("domain", domain, numToProcess, offset);
+    		SharedEntity item = new SharedEntity();
+    		item.setSites(sites);
+    		item.setUrl(domain);
+    		items.add(item);
+    	}
+    	
+    	return ok(views.html.duplicateDomains.render(items));
     }
     
     

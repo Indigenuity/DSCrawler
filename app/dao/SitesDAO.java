@@ -36,7 +36,7 @@ public class SitesDAO {
 		return dups;
 	}
 	public static List<String> getDuplicateDomains(int count, int offset) {
-		String query = "select domain from Site group by domain having count(*) > 1";
+		String query = "select domain from Site where franchise = true and standaloneSite = true group by domain having count(*) > 1";
 		List<String> dups = JPA.em().createNativeQuery(query).setMaxResults(count).setFirstResult(offset).getResultList();
 		return dups;
 	}

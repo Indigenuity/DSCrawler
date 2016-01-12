@@ -94,9 +94,6 @@ import utilities.FB;
 
 public class Experiment {
 	
-	public static void runExperiment() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
-		sfExport();
-	}
 	
 	public static void checkMobile() {
 		String query = "select mc from CrawlSet cs join cs.mobileCrawls mc where cs.crawlSetId = 7";
@@ -139,7 +136,7 @@ public class Experiment {
 		System.out.println("slmost responsieve: " + almostResponsive);
 	}
 	
-	public static void gCrawl() throws Exception {
+	public static void runExperiment() throws Exception {
 		GoogleCrawl gCrawl = GoogleCrawler.googleCrawl("toyota houston tx");
 	}
 	

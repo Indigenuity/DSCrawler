@@ -15,6 +15,7 @@ GET		/groupSites						controllers.Application.groupSites(numToProcess : Integer 
 GET		/crawlSets						controllers.Application.crawlSets(numToProcess : Integer ?= 20, offset : Integer ?= 0)
 GET		/continueCrawlSet				controllers.Application.continueCrawlSet(numToProcess : Integer, crawlSetId : Long)
 GET		/runGc							controllers.Application.runGc()
+GET		/duplicateDomains				controllers.Application.duplicateDomains(numToProcess : Integer ?= 20, offset : Integer ?= 0)
 
 GET		/viewEntity						controllers.DataView.viewEntity(entityClass : String, entityId : Long ?= 0)
 GET		/dashboard						controllers.DataView.dashboard(message : String ?= "")
@@ -72,6 +73,7 @@ GET		/makeSite						controllers.DataEditor.makeSite(url : String, dealerId : Lon
 GET		/removeExtraCrawls				controllers.DataEditor.removeExtraCrawls()
 GET		/fillStandardizedFormat			controllers.DataEditor.fillStandardizedFormat()
 GET		/fillPlacesDomain				controllers.DataEditor.fillPlacesDomain()
+GET		/combineOnDomain				controllers.DataEditor.combineOnDomain(siteId : Long)
 
 GET		/hideFromMatt					controllers.DataEditor.hideFromMatt(siteId : Long)
 GET		/addGroupUrl					controllers.DataEditor.addGroupUrl(siteId : Long, url : String)

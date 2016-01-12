@@ -1,5 +1,6 @@
 package viewmodels;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,20 +24,23 @@ public class SharedEntity {
 	public Set<Dealer> getDealers() {
 		return dealers;
 	}
-	public void setDealers(Set<Dealer> dealers) {
-		this.dealers = dealers;
+	public void setDealers(Collection<Dealer> dealers) {
+		this.dealers.clear();
+		this.dealers.addAll(dealers);
 	}
 	public Set<Site> getSites() {
 		return sites;
 	}
-	public void setSites(Set<Site> sites) {
-		this.sites = sites;
+	public void setSites(Collection<Site> sites) {
+		this.sites.clear();
+		this.sites.addAll(sites);
 	}
 	public Set<SiteCrawl> getSiteCrawls() {
 		return siteCrawls;
 	}
-	public void setSiteCrawls(Set<SiteCrawl> siteCrawls) {
-		this.siteCrawls = siteCrawls;
+	public void setSiteCrawls(Collection<SiteCrawl> siteCrawls) {
+		this.siteCrawls.clear();
+		this.siteCrawls.addAll(siteCrawls);
 	}
 	public Dealer getDealer() {
 		return dealer;
