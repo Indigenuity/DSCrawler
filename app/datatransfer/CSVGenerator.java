@@ -39,6 +39,60 @@ import scaffolding.Scaffolder;
 
 public class CSVGenerator {
 	
+	public static void generateSourceQualityReport() throws IOException {
+		
+		List<Temp> sfs = JPA.em().createQuery("from Temp t").getResultList();
+		System.out.println("sfs : " + sfs.size());
+		List<String[]> CSVRows = new ArrayList<String[]>();
+		List<String> values = new ArrayList<String>();
+		values.add("Salesforce Unique ID");
+		values.add("tempId");
+		values.add("Account Name");
+		values.add("Given URL:");
+		values.add("Intermediate URL");
+		values.add("Standardized URL");
+		values.add("Domain");
+		values.add("Suggested URL");
+		values.add("Suggested Source");
+		values.add("Problem");
+		
+		
+		CSVRows.add((String[])values.toArray(new String[values.size()]));
+		int count = 0;
+		for(Temp temp : sfs){
+			values = new ArrayList<String>();
+			values.add(temp.getSfId());
+			values.add(temp.getTempId() + "");
+			values.add(temp.getName());
+			values.add(temp.getGivenUrl());
+			values.add(temp.getIntermediateUrl());
+			values.add(temp.getStandardizedUrl());
+			values.add(temp.getDomain());
+			values.add(temp.getSuggestedUrl());
+			values.add(temp.getSuggestedSource());
+			values.add(temp.getProblem());
+			
+			CSVRows.add((String[])values.toArray(new String[values.size()]));
+			if(++count % 500 == 0) {
+				System.out.println("count : " + count);
+				System.gc();
+			}
+			if(count > 1000){
+//				break;
+			}
+		}
+		
+		System.out.println("Writing to file ");
+		
+		String targetFilename = Global.REPORTS_STORAGE_FOLDER + "/dataqualityreport" + System.currentTimeMillis() + ".csv";  
+		File target = new File(targetFilename);
+		FileWriter fileOut = new FileWriter(target);
+		CSVPrinter printer = new CSVPrinter(fileOut, CSVFormat.EXCEL);
+		printer.printRecords(CSVRows);
+		printer.close();
+		fileOut.close();
+	}
+	
 	public static void generateSpecialProjectReport() throws IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
 		String query = "select s from CrawlSet cs join cs.completedCrawls s where cs.crawlSetId = 7";
 		List<SiteCrawl> siteCrawls = JPA.em().createQuery(query).getResultList();

@@ -6,6 +6,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import utilities.DSFormatter;
+
 @Entity
 public class Temp {
 
@@ -24,7 +26,16 @@ public class Temp {
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	private String standardizedUrl;
 	
+	private String domain;
+	
 	private String name;
+	
+	@Column(nullable = true, columnDefinition="varchar(4000)")
+	private String suggestedUrl;
+	
+	private String suggestedSource;
+	
+	private String problem;
 	
 	
 
@@ -49,7 +60,7 @@ public class Temp {
 	}
 
 	public void setGivenUrl(String givenUrl) {
-		this.givenUrl = givenUrl;
+		this.givenUrl = DSFormatter.truncate(givenUrl, 4000);
 	}
 
 	public String getName() {
@@ -65,7 +76,7 @@ public class Temp {
 	}
 
 	public void setStandardizedUrl(String standardizedUrl) {
-		this.standardizedUrl = standardizedUrl;
+		this.standardizedUrl = DSFormatter.truncate(standardizedUrl, 4000);
 	}
 
 	public String getIntermediateUrl() {
@@ -73,8 +84,41 @@ public class Temp {
 	}
 
 	public void setIntermediateUrl(String intermediateUrl) {
-		this.intermediateUrl = intermediateUrl;
+		this.intermediateUrl = DSFormatter.truncate(intermediateUrl, 4000);
 	}
+
+	public String getDomain() {
+		return domain;
+	}
+
+	public void setDomain(String domain) {
+		this.domain = domain;
+	}
+
+	public String getSuggestedUrl() {
+		return suggestedUrl;
+	}
+
+	public void setSuggestedUrl(String suggestedUrl) {
+		this.suggestedUrl = DSFormatter.truncate(suggestedUrl, 4000);
+	}
+
+	public String getSuggestedSource() {
+		return suggestedSource;
+	}
+
+	public void setSuggestedSource(String suggestedSource) {
+		this.suggestedSource = suggestedSource;
+	}
+
+	public String getProblem() {
+		return problem;
+	}
+
+	public void setProblem(String problem) {
+		this.problem = problem;
+	}
+
 	
 	
 	

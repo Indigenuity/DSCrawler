@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
@@ -39,6 +41,22 @@ public class SitesDAO {
 		String query = "select domain from Site where franchise = true and standaloneSite = true group by domain having count(*) > 1";
 		List<String> dups = JPA.em().createNativeQuery(query).setMaxResults(count).setFirstResult(offset).getResultList();
 		return dups;
+	}
+	
+	public static List<Site> getSitesWithRedirectUrl(String compare, int count, int offset) {
+		String query = "select Site_siteId from site_redirectUrls sr " +
+				"join temp t on sr.redirectUrls like '%" + compare + "%'";
+//		System.out.println("query : " + query);
+		List<Object> siteIds = JPA.em().createNativeQuery(query).setMaxResults(count).setFirstResult(offset).getResultList();
+		
+		Set<Site> sites = new HashSet<Site>();
+		for(Object id : siteIds) {
+			long longId = Long.parseLong(id.toString());
+			Site site = JPA.em().find(Site.class, longId);
+			sites.add(site);
+		}
+		List<Site> returned = new ArrayList<Site>(sites);
+		return returned;
 	}
 	
 	

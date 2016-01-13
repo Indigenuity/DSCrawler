@@ -11,10 +11,13 @@ public class SharedEntity {
 	private Dealer dealer = null;
 	private Site site = null;
 	private SiteCrawl siteCrawl = null;
+	private Temp temp = null;
 	
 	private Set<Dealer> dealers = new HashSet<Dealer>();
 	private Set<Site> sites = new HashSet<Site>();
 	private Set<SiteCrawl> siteCrawls = new HashSet<SiteCrawl>();
+	private Set<Temp> temps = new HashSet<Temp>();
+	
 	public String getUrl() {
 		return url;
 	}
@@ -60,11 +63,18 @@ public class SharedEntity {
 	public void setSiteCrawl(SiteCrawl siteCrawl) {
 		this.siteCrawl = siteCrawl;
 	}
+	public void setTemp(Temp temp) {
+		this.temp = temp;
+	}
+	public Temp getTemp(){
+		return this.temp;
+	}
+	public Set<Temp> getTemps() {
+		return temps;
+	}
+	public void setTemps(Set<Temp> temps) {
+		this.temps.clear();
+		this.temps.addAll(temps);
+	}
 	
-	
-	
-	
-	
-	
-
 }

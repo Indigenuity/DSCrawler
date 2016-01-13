@@ -34,15 +34,17 @@ $(document).ready(function() {
 						$("html").animate({"background-color":"white"}, 5);
 					}
 				})
-				//$("#jobFormSubmit").click(function() {
-				//	var serialized = $("#jobForm").serializeArray();
-					//alert("serialized : " + serialized);
-					//var stringified = JSON.stringify(serialized);
-				//	$.ajax ("/crawlSetWork", {
-				//		data : serialized,
-				//		type: 'POST'
-				//	});
-				//});
+				$(".accept-temp").click(function() {
+					var form = $(this).parents(".single-action-container").find("form");
+					var siteContainer = $(this).parents(".indented-container");
+					var input = form.find("input[name=suggestedUrl]");
+					var inputSource = form.find("input[name=suggestedSource]");
+					var value = siteContainer.find(".site-homepage").text();
+					input.val(value);
+					inputSource.val("Domain similarity to Redirect URL");
+					form.addClass("faux-submit");
+					form.submit()
+				});
 			});
 
 			function combineOnDomain(siteId){

@@ -226,7 +226,8 @@ public enum WebProvider implements StringMatch {
 	MACH_20					(215, "Mach 20 Autos", "by mach20autos.com", ""),
 	TRACTOR_HOUSE			(216, "Tractor House", "TractorHouse.com", ""),
 	AUTO_PUBLISHERS			(217, "Auto Publishers", "Powered by: Auto Publishers", ""),
-	SKY_CONCEPTS			(218, "Sky Concepts", "hosted by <a href=\"http://skyconcepts.co", "");
+	SKY_CONCEPTS			(218, "Sky Concepts", "hosted by <a href=\"http://skyconcepts.co", ""),
+	AUTO_COMPARISON			(219, "Auto Comparison", "AutoComparison.com", "Domain predators that buy old dealer URLs.  This would mean the site is DEFUNCT.");
 	
 	
 	

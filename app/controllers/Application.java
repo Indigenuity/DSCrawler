@@ -16,6 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 
 import org.hibernate.Hibernate;
 
@@ -57,6 +58,7 @@ import persistence.SiteCrawl;
 import persistence.SiteInformationOld;
 import persistence.SiteSummary;
 import persistence.Staff;
+import persistence.Temp;
 import persistence.ZipLocation;
 import places.Retriever;
 import play.*;
@@ -137,15 +139,44 @@ public class Application extends Controller {
     
     @Transactional
     public static Result duplicateDomains(int numToProcess, int offset){
-    	List<String> domains = SitesDAO.getDuplicateDomains(numToProcess, offset);
     	List<SharedEntity> items = new ArrayList<SharedEntity>();
-    	for(String domain : domains){
-    		List<Site> sites = SitesDAO.getList("domain", domain, numToProcess, offset);
-    		SharedEntity item = new SharedEntity();
-    		item.setSites(sites);
-    		item.setUrl(domain);
-    		items.add(item);
+    	Query q = JPA.em().createQuery("from Temp t where t.intermediateUrl is null and t.suggestedUrl is null and t.domain is not null and t.domain != ''").setMaxResults(20);
+    	List<Temp> sfs = new ArrayList<Temp>();
+    	do {
+    		sfs = q.getResultList();
+    		for(Temp temp : sfs) {
+    			List<Site> sites = SitesDAO.getSitesWithRedirectUrl(temp.getDomain(), 20, 0);
+    			if(sites.size() > 0){
+    				SharedEntity item = new SharedEntity();
+    				item.setSites(sites);
+    				item.setTemp(temp);
+    				items.add(item);
+//    				System.out.println("found one ");
+    			}
+    			else{
+    				temp.setIntermediateUrl("checked");
+    			}
+    		}
+    		JPA.em().getTransaction().commit();
+    		JPA.em().getTransaction().begin();
+    		
     	}
+    	while(items.size() < 20 && sfs.size() > 1);
+    	 
+		System.out.println("sfs : " + sfs.size());
+		
+		
+		
+		
+//    	List<String> domains = SitesDAO.getDuplicateDomains(numToProcess, offset);
+//    	
+//    	for(String domain : domains){
+//    		List<Site> sites = SitesDAO.getList("domain", domain, numToProcess, offset);
+//    		SharedEntity item = new SharedEntity();
+//    		item.setSites(sites);
+//    		item.setUrl(domain);
+//    		items.add(item);
+//    	}
     	
     	return ok(views.html.duplicateDomains.render(items));
     }

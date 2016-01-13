@@ -2,7 +2,7 @@
 
 <div class="site-display">
 	<div>
-		<span class="site-homepage"><span class="big">Site @site.getSiteId(): </span><a href="@site.getHomepage()" target="_blank">@site.getHomepage()</a></span>
+		<span><span class="big">Site @site.getSiteId(): </span><a  class="site-homepage" href="@site.getHomepage()" target="_blank">@site.getHomepage()</a></span>
 		<br>
 		<span class="site-numCrawls">@site.getCrawls().size() crawls  </span>
 		@if(site.getLatestCrawl() != null) {

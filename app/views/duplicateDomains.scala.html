@@ -4,11 +4,20 @@
 
 	@for(sharedEntity <- sharedEntities) {
 		<div class="duplicate-domain single-action-container">
-			<h2>@sharedEntity.getUrl()</h2>
+			<h2>@sharedEntity.getTemp().getName()</h2>
+			@scaffolding.basicForm(sharedEntity.getTemp())
 			@for(site <- sharedEntity.getSites()){
-				@persistence.site(site)
-				<p><button onclick="combineOnDomain(@site.getSiteId());">Combine, Favoring This Site</button> &nbsp;&nbsp;&nbsp;
-				<a href="/viewEntity?entityClass=Site&entityId=@site.getSiteId()" target="_blank">Review Site &raquo;</a></p>
+				<div class="indented-container">
+					<span class="big">Temp @sharedEntity.getTemp().getTempId(): </span><a href="@sharedEntity.getTemp().getStandardizedUrl()" target = "_blank">@sharedEntity.getTemp().getStandardizedUrl()</a>
+					@persistence.site(site)
+					<h4>Redirect Urls</h4>
+					@for(redirectUrl <- site.getRedirectUrls()){
+						<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@redirectUrl</p> 
+					}
+	<!-- 				<p><button onclick="combineOnDomain(@site.getSiteId());">Combine, Favoring This Site</button> &nbsp;&nbsp;&nbsp;
+					<a href="/viewEntity?entityClass=Site&entityId=@site.getSiteId()" target="_blank">Review Site &raquo;</a></p>-->
+					<button class="accept-temp">Accept</button>
+				</div>
 			}
 		</div>
 	

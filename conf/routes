@@ -61,7 +61,7 @@ GET		/monitoringQueues				controllers.DataView.getMonitoringQueues()
 #GET		/inferenceQueueSize				controllers.DataView.checkInferenceQueue()
 
 
-GET		/editEntity						controllers.DataEditor.editEntity()
+POST	/editEntity						controllers.DataEditor.editEntity()
 GET		/mainUsableSpace				controllers.DataView.mainUsableSpace()
 GET		/secondaryUsableSpace			controllers.DataView.secondaryUsableSpace()
 GET 	/siteCrawl/:siteCrawlId			controllers.DataView.viewSiteCrawl(siteCrawlId : Long)

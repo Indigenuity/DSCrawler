@@ -5,7 +5,7 @@
 
 @(entity : Object)
 
-@helper.form(action = routes.DataEditor.editEntity, 'id -> "entityForm") {
+@helper.form(action = routes.DataEditor.editEntity, 'id -> "entityForm", 'class -> "faux-submit") {
 	<input type="hidden" name="entityClass" value="@entity.getClass().getName()">
 	<input type="hidden" name="entityId" value="@Scaffolder.getId(entity)">
 	<table class="view-entity">

@@ -22,6 +22,7 @@ import persistence.Dealer;
 import persistence.PlacesDealer;
 import persistence.Site;
 import persistence.SiteCrawl;
+import persistence.Temp;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -33,6 +34,7 @@ import play.mvc.Results;
 import utilities.DSFormatter;
 
 public class DataEditor extends Controller{
+	
 	
 	@Transactional
 	public static Result editEntity() throws IllegalAccessException, InvocationTargetException {
@@ -57,9 +59,9 @@ public class DataEditor extends Controller{
 	//			System.out.println("key : " + entry.getKey());
 	//			System.out.println("value : " + entry.getValue());
 			}
-			Site site = (Site) entity;
-			System.out.println("homepage : " + site.getHomepage());
-			JPA.em().merge(site);
+			Temp temp = (Temp) entity;
+			System.out.println("homepage : " + temp.getSuggestedUrl());
+//			JPA.em().merge(site);
 		}
 		else {
 			System.out.println("null entity");

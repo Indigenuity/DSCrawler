@@ -86,14 +86,51 @@ import persistence.MobileCrawl;
 import persistence.PageCrawl;
 import persistence.Site;
 import persistence.SiteCrawl;
+import persistence.Temp;
 import play.db.DB;
 import play.db.jpa.JPA;
 import scaffolding.Scaffolder;
 import utilities.DSFormatter;
 import utilities.FB;
+import utilities.UrlSniffer;
 
 public class Experiment {
 	
+	public static void runExperiment() {
+		List<Site> sites = SitesDAO.getSitesWithRedirectUrl("cramertoyota.com", 20, 0);
+		System.out.println("sites : " + sites.size());
+//		List<Site> sfs = JPA.em().createQuery("select s from Site s join s.redirectUrls where join Temp t on t.domain = s.domain").getResultList();
+//		System.out.println("sfs : " + sfs.size());
+//		int count = 0;
+//		for(Temp temp : sfs) {
+////			String domain = "";
+////			if(temp.getStandardizedUrl() != null){
+////				domain = DSFormatter.getDomain(temp.getStandardizedUrl());
+////			}
+////			temp.setDomain(domain);
+////			if(domain.equals("ERROR")){
+////				temp.setProblem("Invalid URL");
+////				continue;
+////			}
+////			long shared = 0;
+////			if((shared = SitesDAO.getCount("homepage", temp.getStandardizedUrl())) > 0){
+////				temp.setSuggestedSource("" + shared);
+////			}
+//			if(UrlSniffer.isGenericRedirect(temp.getStandardizedUrl(), temp.getIntermediateUrl())){
+//				temp.setSuggestedUrl(temp.getIntermediateUrl());
+//				temp.setSuggestedSource("Domain similarity");
+//			}
+//			if(++count % 100 == 0) {
+//				System.out.println("count : " + count);
+//				JPA.em().getTransaction().commit();
+//				JPA.em().getTransaction().begin();
+//			}
+//		}
+	}
+	
+	public static void generateQualityReport() throws IOException {
+		CSVGenerator.generateSourceQualityReport();
+	}
 	
 	public static void checkMobile() {
 		String query = "select mc from CrawlSet cs join cs.mobileCrawls mc where cs.crawlSetId = 7";
@@ -136,7 +173,7 @@ public class Experiment {
 		System.out.println("slmost responsieve: " + almostResponsive);
 	}
 	
-	public static void runExperiment() throws Exception {
+	public static void gcrawl() throws Exception {
 		GoogleCrawl gCrawl = GoogleCrawler.googleCrawl("toyota houston tx");
 	}
 	
