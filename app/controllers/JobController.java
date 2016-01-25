@@ -24,6 +24,8 @@ import persistence.PageInformation;
 import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.SiteInformationOld;
+import persistence.stateful.FetchJob;
+import persistence.stateful.InfoFetch;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.db.jpa.JPA;
@@ -33,6 +35,28 @@ import play.mvc.Result;
 
 public class JobController extends Controller {
 
+	@Transactional 
+	public static Result fetchJobWork() {
+		try{
+			System.out.println("received crawl set work"); 
+			DynamicForm requestData = Form.form().bindFromRequest();
+			FetchJob fetchJob = JPA.em().find(FetchJob.class, Long.parseLong(requestData.get("fetchJobId")));
+			Integer numToProcess = Integer.parseInt(requestData.get("numToProcess"));
+			Integer offset = Integer.parseInt(requestData.get("offset"));
+			
+			int count = 0;
+			for(InfoFetch fetch : fetchJob.getFetches()) {
+				if(++count <= numToProcess) {
+					Asyncleton.getInstance().getMainMaster().tell(fetch, ActorRef.noSender());
+				}
+			}
+			return DataView.dashboard("Submitted Fetch Job Work");
+		}
+		catch(Exception e) {
+			return internalServerError(e.getMessage());
+		}
+		
+	}
 	
 	@Transactional 
 	public static Result crawlSetWork()  {

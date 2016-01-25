@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import persistence.SiteInformationOld;
+import persistence.stateful.InfoFetch;
 import play.Logger;
 import akka.actor.ActorRef;
 import akka.actor.Props;
@@ -50,7 +51,10 @@ public class MainMaster extends UntypedActor {
 	@Override
 	public void onReceive(Object message) throws Exception {
 		try{
-			if(message instanceof WorkSet) {
+			if(message instanceof InfoFetch) {
+				Asyncleton.instance().getMaster(WorkType.INFO_FETCH).tell(message, getSelf());
+			}
+			else if(message instanceof WorkSet) {
 				WorkSet workSet = (WorkSet) message;
 				WorkItem workItem = workSet.getNextWorkItem();
 				if(workItem == null){

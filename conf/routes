@@ -25,6 +25,8 @@ GET		/crawlSet						controllers.DataView.crawlSet(crawlSetId : Long)
 GET		/reviewSites					controllers.DataView.reviewSites(crawlSetId : Long, numToProcess : Integer ?= 20, offset : Integer ?= 0)
 GET		/reviewDupDomains				controllers.DataView.reviewDupDomains(numToProcess : Integer ?= 20, offset : Integer ?= 0)
 POST	/viewSiteList					controllers.DataView.viewSiteList()
+GET		/fetchJobs						controllers.DataView.fetchJobs()
+GET		/fetchJob						controllers.DataView.fetchJob(fetchJobId : Long)					
 
 
 GET		/crawlUncrawled/:numToCrawl				controllers.JobController.crawlUncrawled(numToCrawl : Integer)
@@ -40,6 +42,7 @@ GET		/fillFailedUrls							controllers.JobController.fillFailedUrls()
 GET		/inferUninferred/:numToProcess			controllers.JobController.inferUninferred(numToProcess : Integer)
 GET		/smallCrawl/:numToProcess				controllers.JobController.smallCrawl(numToProcess : Integer)
 POST	/crawlSetWork							controllers.JobController.crawlSetWork()
+POST	/fetchJobWork							controllers.JobController.fetchJobWork()
 
 GET		/monitoringQueues				controllers.DataView.getMonitoringQueues()
 #GET		/snifferQueue					controllers.DataView.getSniffingQueue()

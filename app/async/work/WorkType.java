@@ -8,8 +8,10 @@ import async.docanalysis.DocAnalysisWorker;
 import async.metaanalysis.MetaAnalysisWorker;
 import async.sniffer.SnifferWorker;
 import async.textanalysis.TextAnalysisWorker;
+import async.workers.InfoFetchWorker;
 import async.workers.MobileAnalysisWorker;
 import async.workers.MobileWorker;
+import async.workers.UrlResolveWorker;
 
  
 //The types of work to be done by workers in this program.
@@ -19,7 +21,7 @@ public enum WorkType {
 	NO_WORK						,
 	RESTORE						(DataTransferWorker.class), 
 	URL							, 
-	REDIRECT_RESOLVE			(SnifferWorker.class), 
+	REDIRECT_RESOLVE			(UrlResolveWorker.class), 
 	CRAWL						(CrawlingWorker.class, 15), 
 	SMALL_CRAWL					(),
 	MOBILE_TEST					(MobileWorker.class),
@@ -33,7 +35,8 @@ public enum WorkType {
 	SUMMARY						, 
 	META_ANALYSIS				(MetaAnalysisWorker.class), 
 	CUSTOM						, 
-	BACKUP						(DataTransferWorker.class);
+	BACKUP						(DataTransferWorker.class),
+	INFO_FETCH					(InfoFetchWorker.class);
 
 	private static final int DEFAULT_NUM_WORKERS = 5;
 	private Class<?> defaultWorker;

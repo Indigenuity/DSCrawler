@@ -2,6 +2,8 @@ package async.work;
 
 import java.util.UUID;
 
+import persistence.UrlCheck;
+
 public class WorkItem {
 
 	private WorkType workType;
@@ -13,6 +15,8 @@ public class WorkItem {
 	private Long siteCrawlId;
 	private Long crawlSetId;
 	private Long mobileCrawlId;
+	private Long urlCheckId;
+	private String seed;	
 	
 	public WorkItem(WorkType workType, WorkStatus workStatus) {
 		this.workType = workType;
@@ -90,6 +94,22 @@ public class WorkItem {
 
 	public void setMobileCrawlId(Long mobileCrawlId) {
 		this.mobileCrawlId = mobileCrawlId;
+	}
+
+	public String getSeed() {
+		return seed;
+	}
+
+	public void setSeed(String seed) {
+		this.seed = seed;
+	}
+
+	public Long getUrlCheckId() {
+		return urlCheckId;
+	}
+
+	public void setUrlCheckId(Long urlCheckId) {
+		this.urlCheckId = urlCheckId;
 	}
 
 	

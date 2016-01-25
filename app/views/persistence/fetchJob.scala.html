@@ -1,0 +1,26 @@
+
+@(fetchJob : _root_.persistence.stateful.FetchJob)
+
+@main("Fetch Job" + fetchJob.getFetchJobId()) {
+	<div>
+		<p>Job Started : @fetchJob.getDateStarted()</p>
+		<p>@fetchJob.getFetches().size() Info Fetches</p>
+	</div>
+	<div id="dashboard-stats">
+	</div>
+	
+	<div id="work-form-wrapper">
+		<H2>Fetch Job Work</H2>
+		@helper.form(action = routes.JobController.fetchJobWork, 'id -> "jobForm") {
+			<input type="hidden" name="fetchJobId" value="@fetchJob.getFetchJobId()"/>
+			
+			<label name="numToProcess"># sites to Process</label>
+			<input type="text" name="numToProcess" value="500" id="count-input">
+			<br>
+			<label name="offset">Offset</label>
+			<input type="text" name="offset" value = "0" id="offset-input">
+			<br>
+			<button type = "submit" id="jobFormSubmit">Submit Job</button>
+		}
+	</div>
+}

@@ -87,6 +87,9 @@ import persistence.PageCrawl;
 import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.Temp;
+import persistence.UrlCheck;
+import persistence.stateful.FetchJob;
+import persistence.stateful.InfoFetch;
 import play.db.DB;
 import play.db.jpa.JPA;
 import scaffolding.Scaffolder;
@@ -97,6 +100,19 @@ import utilities.UrlSniffer;
 public class Experiment {
 	
 	public static void runExperiment() {
+		String seed = "http://www.legendmarinegroup.com/";
+		
+		WorkSet workSet = new WorkSet();
+		WorkItem workItem = new WorkItem(WorkType.REDIRECT_RESOLVE);
+		workItem.setSeed(seed);
+		workSet.addWorkItem(workItem);
+		
+		Asyncleton.getInstance().getMaster(WorkType.REDIRECT_RESOLVE).tell(workItem, ActorRef.noSender());
+		
+		
+	}
+	
+	public static void mergingLists() {
 		List<Site> sites = SitesDAO.getSitesWithRedirectUrl("cramertoyota.com", 20, 0);
 		System.out.println("sites : " + sites.size());
 //		List<Site> sfs = JPA.em().createQuery("select s from Site s join s.redirectUrls where join Temp t on t.domain = s.domain").getResultList();

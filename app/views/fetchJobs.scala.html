@@ -1,0 +1,15 @@
+@(fetchJobs : java.util.List[_root_.persistence.stateful.FetchJob])
+
+
+
+
+@main("Fetch Jobs") {
+	@for(fetchJob <- fetchJobs) {
+		<div>
+			<h3>Fetch Job @fetchJob.getFetchJobId()</h3>
+			<p>Crawl Started : @fetchJob.getDateStarted()</p>
+			<p>@fetchJob.getFetches().size() Info Fetches</p>
+			<p><a href="/fetchJob?fetchJobId=@fetchJob.getFetchJobId()">View Fetch Job &raquo;</a></p>
+		</div>
+	}
+}

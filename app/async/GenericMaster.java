@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import persistence.SiteCrawl;
+import persistence.stateful.InfoFetch;
 import play.Logger;
 import akka.actor.ActorRef;
 import akka.actor.Props;
@@ -51,9 +52,8 @@ public class GenericMaster extends UntypedActor {
 			if(work instanceof WorkItem) {
 				WorkItem workItem = (WorkItem) work;
 				if(workItem.getWorkStatus() == WorkStatus.DO_WORK){
-					AsyncMonitor.instance().addWip(workItem.getWorkType().toString(), workItem.getUuid());
 					workItem.setWorkStatus(WorkStatus.WORK_IN_PROGRESS);
-					router.route(workItem, getSelf());
+					router.route(workItem, getSender());
 				}
 				else if(workItem.getWorkStatus() == WorkStatus.WORK_COMPLETED){
 					AsyncMonitor.instance().finishWip(workItem.getWorkType().toString(), workItem.getUuid());
@@ -63,6 +63,9 @@ public class GenericMaster extends UntypedActor {
 					AsyncMonitor.instance().finishWip(workItem.getWorkType().toString(), workItem.getUuid());
 				}
 				
+			}
+			else if (work instanceof InfoFetch) {
+				router.route(work, getSelf());
 			}
 			else if(work instanceof Terminated) {
 				Logger.error("Generic Master (" + this.clazz + ") received terminated worker");

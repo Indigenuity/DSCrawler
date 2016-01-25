@@ -21,6 +21,7 @@ import persistence.CrawlSet;
 import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.SiteInformationOld;
+import persistence.stateful.FetchJob;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.db.jpa.JPA;
@@ -32,6 +33,19 @@ import views.html.*;
 import org.apache.commons.beanutils.*;
 
 public class DataView extends Controller { 
+	
+	@Transactional
+	public static Result fetchJobs() {
+		List<FetchJob> fetchJobs = JPA.em().createQuery("from FetchJob fj", FetchJob.class).getResultList();
+		System.out.println("fetchJobs : " + fetchJobs.size());
+		return ok(views.html.fetchJobs.render(fetchJobs));
+	}
+	
+	@Transactional
+	public static Result fetchJob(long fetchJobId) {
+		FetchJob fetchJob = JPA.em().find(FetchJob.class, fetchJobId);
+		return ok(views.html.persistence.fetchJob.render(fetchJob));
+	}
 	
 	@Transactional
 	public static Result viewEntity(String entityClass, long entityId){
