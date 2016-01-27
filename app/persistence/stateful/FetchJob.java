@@ -12,12 +12,16 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+import async.work.infofetch.InfoFetch;
+
 @Entity
 public class FetchJob {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long fetchJobId;
+	
+	private String name;
 	
 	@OneToMany(mappedBy="fetchJob")
 	private Set<InfoFetch> fetches = new HashSet<InfoFetch>();
@@ -54,6 +58,15 @@ public class FetchJob {
 	public void setDateStarted(Date dateStarted) {
 		this.dateStarted = dateStarted;
 	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+	
 	
 	
 	

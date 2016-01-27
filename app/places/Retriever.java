@@ -9,7 +9,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import persistence.CanadaPostal;
-import persistence.PlacesDealer;
+import persistence.PlacesPage;
 import persistence.ZipLocation;
 import play.Logger;
 import play.db.jpa.JPA;
@@ -119,8 +119,8 @@ public class Retriever {
 	public static void retrieveDetails(String placesId) throws IOException {
 		Response<Place> detailsResponse = Places.details(new Params().placeId(placesId));
 		Place detailsPlace = detailsResponse.getResult();
-		PlacesDealer dealer = DataBuilder.getPlacesDealer(detailsPlace);
-		JPA.em().persist(dealer);
+//		PlacesPage dealer = DataBuilder.getPlacesDealer(detailsPlace);
+//		JPA.em().persist(dealer);
 		
 	}
 }

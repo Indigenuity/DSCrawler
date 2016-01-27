@@ -42,6 +42,7 @@ public class UrlCheck {
 	private boolean domainApproved;
 	private boolean domainChanged;
 	
+	private boolean noChange;
 	private boolean accepted;
 	
 	public UrlCheck(){}
@@ -149,6 +150,12 @@ public class UrlCheck {
 	}
 	public void setErrorMessage(String errorMessage) {
 		this.errorMessage = DSFormatter.truncate(errorMessage, 4000);
+	}
+	public boolean isNoChange() {
+		return noChange;
+	}
+	public void setNoChange(boolean noChange) {
+		this.noChange = noChange;
 	}
 
 }

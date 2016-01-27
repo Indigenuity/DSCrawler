@@ -4,6 +4,8 @@ import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
 
+import com.google.maps.GeoApiContext;
+
 import dao.SiteInformationDAO;
 import dao.SiteSummaryDAO;
 import akka.actor.ActorRef;
@@ -46,15 +48,17 @@ public class Global extends GlobalSettings {
 	private ActorRef snifferMaster;
 	
 	private static boolean useProxy = true;
-	private static String proxyUrl = "52.25.252.253";
+	private static String proxyUrl = "54.69.89.6";
 	private static int proxyPort = 8888;
-	
+
 	public static final Date STALE_DATE;
 	static {
 		Calendar calendar = Calendar.getInstance();
 		calendar.add(Calendar.MONTH, - 1);
 		STALE_DATE = calendar.getTime();
 	}
+	
+	private static GeoApiContext placesContext = new GeoApiContext().setApiKey("AIzaSyD3GEnaHTMZPNdfd1kdWtu61rxkaBEghsw");
 	
 	public void onStart(Application app) {
 		System.out.println("in startup");
@@ -130,6 +134,9 @@ public class Global extends GlobalSettings {
 		Global.proxyPort = proxyPort;
 	}
 
+	public static GeoApiContext getPlacesContext() {
+		return placesContext;
+	}
 
 
 	public enum HomepageAction {

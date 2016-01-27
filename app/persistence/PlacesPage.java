@@ -9,17 +9,17 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
-public class PlacesDealer {
+public class PlacesPage {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long placesDealerId;
+	private long placesPageId;
 	
 	@Column(nullable=false)
 	private String placesId;
 	
 	@Column(nullable=true)
-	private String formattedAddress;
+	private String formattedAddress; 
 	@Column(nullable=true)
 	private String country;
 	@Column(nullable=true)
@@ -64,7 +64,7 @@ public class PlacesDealer {
 	
 	
 	public void setId(long id) {
-		this.placesDealerId = id;
+		this.placesPageId = id;
 	}
 	public String getPlacesId() {
 		return placesId;
@@ -180,7 +180,7 @@ public class PlacesDealer {
 	public void setCountry(String country) {
 		this.country = country;
 	}
-	public double getRatingCount() { 
+	public double getRatingCount() {
 		return ratingCount;
 	}
 	public void setRatingCount(double ratingCount) {
@@ -193,10 +193,10 @@ public class PlacesDealer {
 		this.domain = domain;
 	}
 	public long getPlacesPageId() {
-		return placesDealerId;
+		return placesPageId;
 	}
 	public void setPlacesPageId(long placesPageId) {
-		this.placesDealerId = placesPageId;
+		this.placesPageId = placesPageId;
 	}
 	public String getShortCountry() {
 		return shortCountry;

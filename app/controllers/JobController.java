@@ -17,6 +17,7 @@ import async.work.SiteWork;
 import async.work.WorkItem;
 import async.work.WorkSet;
 import async.work.WorkType;
+import async.work.infofetch.InfoFetch;
 import dao.SiteCrawlDAO;
 import persistence.CrawlSet;
 import persistence.MobileCrawl;
@@ -25,7 +26,6 @@ import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.SiteInformationOld;
 import persistence.stateful.FetchJob;
-import persistence.stateful.InfoFetch;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.db.jpa.JPA;
@@ -38,14 +38,17 @@ public class JobController extends Controller {
 	@Transactional 
 	public static Result fetchJobWork() {
 		try{
-			System.out.println("received crawl set work"); 
+			System.out.println("received fetch job work"); 
 			DynamicForm requestData = Form.form().bindFromRequest();
 			FetchJob fetchJob = JPA.em().find(FetchJob.class, Long.parseLong(requestData.get("fetchJobId")));
 			Integer numToProcess = Integer.parseInt(requestData.get("numToProcess"));
 			Integer offset = Integer.parseInt(requestData.get("offset"));
 			
+			String query = "select i from FetchJob fj join fj.fetches i where fj.fetchJobId = 4 and i.needUrlCheck = true";
+			List<InfoFetch> fetches = JPA.em().createQuery(query).getResultList();
+			
 			int count = 0;
-			for(InfoFetch fetch : fetchJob.getFetches()) {
+			for(InfoFetch fetch : fetches) {
 				if(++count <= numToProcess) {
 					Asyncleton.getInstance().getMainMaster().tell(fetch, ActorRef.noSender());
 				}

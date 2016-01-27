@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import persistence.SiteCrawl;
-import persistence.stateful.InfoFetch;
 import play.Logger;
 import akka.actor.ActorRef;
 import akka.actor.Props;
@@ -20,6 +19,7 @@ import async.work.SiteWork;
 import async.work.WorkItem;
 import async.work.WorkSet;
 import async.work.WorkStatus;
+import async.work.infofetch.InfoFetch;
 
 public class GenericMaster extends UntypedActor {
 	
@@ -41,7 +41,7 @@ public class GenericMaster extends UntypedActor {
 	      getContext().watch(r);
 	      routees.add(new ActorRefRoutee(r));
 	    }
-	    router = new Router(new RoundRobinRoutingLogic(), routees);
+	    router = new Router(new RoundRobinRoutingLogic(), routees); 
 	    
 	}
 	
@@ -65,7 +65,8 @@ public class GenericMaster extends UntypedActor {
 				
 			}
 			else if (work instanceof InfoFetch) {
-				router.route(work, getSelf());
+				ActorRef r = getContext().actorOf(Props.create(clazz));
+			    r.tell(work, getSender());
 			}
 			else if(work instanceof Terminated) {
 				Logger.error("Generic Master (" + this.clazz + ") received terminated worker");

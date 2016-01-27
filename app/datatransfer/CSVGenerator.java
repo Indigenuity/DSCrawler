@@ -27,7 +27,7 @@ import persistence.Dealer;
 import persistence.ExtractedString;
 import persistence.FBPage;
 import persistence.MobileCrawl;
-import persistence.PlacesDealer;
+import persistence.PlacesPage;
 import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.SiteInformationOld;
@@ -546,7 +546,7 @@ public class CSVGenerator {
 	public static void generatePlacesCSV() throws IOException {
 		System.out.println("executing query");
 		String query = "from PlacesDealer pd";
-		List<PlacesDealer> places = JPA.em().createQuery(query, PlacesDealer.class).getResultList();
+		List<PlacesPage> places = JPA.em().createQuery(query, PlacesPage.class).getResultList();
 		System.out.println("Finished with query");
 		
 		List<String[]> CSVRows = new ArrayList<String[]>();
@@ -567,7 +567,7 @@ public class CSVGenerator {
 		CSVRows.add(values);
 		
 		int count = 0;
-		for(PlacesDealer place : places) {
+		for(PlacesPage place : places) {
 			count++;
 			if(count % 100 == 0){
 				System.out.println("printed site " + count);

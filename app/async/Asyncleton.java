@@ -22,6 +22,7 @@ import async.sniffer.SnifferMaster;
 import async.textanalysis.TextAnalysisMaster;
 import async.work.WorkType;
 import async.work.WorkerRegistry;
+import async.work.infofetch.InfoFetchWorker;
 
 public class Asyncleton {
 	
@@ -73,9 +74,13 @@ public class Asyncleton {
 			if(entry.getValue() == MainWorker.class){
 				masters.put(entry.getKey(), mainMaster);
 			}
-			else{
+			if(entry.getValue() == InfoFetchWorker.class){
 				ActorRef master = mainSystem.actorOf(Props.create(GenericMaster.class, entry.getKey().getNumWorker(), mainListener, entry.getValue()));
 				masters.put(entry.getKey(), master);
+			}
+			else{
+//				ActorRef master = mainSystem.actorOf(Props.create(GenericMaster.class, entry.getKey().getNumWorker(), mainListener, entry.getValue()));
+//				masters.put(entry.getKey(), master);
 			}
 		}
 	}
@@ -89,39 +94,39 @@ public class Asyncleton {
 			
 			Logger.info("Starting up main async system");
 			mainSystem = ActorSystem.create("mainSystem");
-			redirectResolveSystem = ActorSystem.create("redirectResolveSystem");
-			crawlSystem = ActorSystem.create("crawlSystem");
-			docAnalysisSystem = ActorSystem.create("docAnalysisSystem");
-			metaAnalysisSystem = ActorSystem.create("metaAnalysisSystem");
-			amalgamationSystem = ActorSystem.create("amalgamationSystem");
-			textAnalysisSystem = ActorSystem.create("textAnalysisSystem");
-			inferenceSystem = ActorSystem.create("inferenceSystem");
-			dataTransferSystem = ActorSystem.create("dataTransferSystem");
-			
-			
-			matchingsystem = ActorSystem.create("matchingSystem");
-			stringExtractionSystem = ActorSystem.create("stringExtractionSystem");
-			staffExtractionSystem = ActorSystem.create("staffExtractionSystem");
-			summarySystem = ActorSystem.create("summarySystem");
+//			redirectResolveSystem = ActorSystem.create("redirectResolveSystem");
+//			crawlSystem = ActorSystem.create("crawlSystem");
+//			docAnalysisSystem = ActorSystem.create("docAnalysisSystem");
+//			metaAnalysisSystem = ActorSystem.create("metaAnalysisSystem");
+//			amalgamationSystem = ActorSystem.create("amalgamationSystem");
+//			textAnalysisSystem = ActorSystem.create("textAnalysisSystem");
+//			inferenceSystem = ActorSystem.create("inferenceSystem");
+//			dataTransferSystem = ActorSystem.create("dataTransferSystem");
+//			
+//			
+//			matchingsystem = ActorSystem.create("matchingSystem");
+//			stringExtractionSystem = ActorSystem.create("stringExtractionSystem");
+//			staffExtractionSystem = ActorSystem.create("staffExtractionSystem");
+//			summarySystem = ActorSystem.create("summarySystem");
 			
 			mainListener = mainSystem.actorOf(Props.create(MainListener.class), "mainListener");
 			mainMaster = mainSystem.actorOf(Props.create(MainMaster.class, 60, mainListener));
 			Logger.info("Main async system ready for jobs");
 			
 			 
-			redirectResolveMaster = redirectResolveSystem.actorOf(Props.create(SnifferMaster.class, 5));
-			crawlingMaster = crawlSystem.actorOf(Props.create(CrawlingMaster.class, 22));
-			docAnalysisMaster = docAnalysisSystem.actorOf(Props.create(DocAnalysisMaster.class, 22));
-			metaAnalysisMaster = metaAnalysisSystem.actorOf(Props.create(MetaAnalysisMaster.class, 22));
-			amalgamationMaster = amalgamationSystem.actorOf(Props.create(AmalgamationMaster.class, 22));
-			textAnalysisMaster = textAnalysisSystem.actorOf(Props.create(TextAnalysisMaster.class, 22));
-//			inferenceMaster = inferenceSystem.actorOf(Props.create(InferenceMaster.class, 22));
-			dataTransferMaster = dataTransferSystem.actorOf(Props.create(DataTransferMaster.class, 22));
-			
-			matchingMaster = matchingsystem.actorOf(Props.create(MatchingMaster.class, 20));
-			stringExtractionMaster = stringExtractionSystem.actorOf(Props.create(StringExtractionMaster.class, 10));
-			staffExtractionMaster = staffExtractionSystem.actorOf(Props.create(StaffExtractionMaster.class, 10));
-			summaryMaster = summarySystem.actorOf(Props.create(SummaryMaster.class, 10));
+//			redirectResolveMaster = redirectResolveSystem.actorOf(Props.create(SnifferMaster.class, 5));
+//			crawlingMaster = crawlSystem.actorOf(Props.create(CrawlingMaster.class, 22));
+//			docAnalysisMaster = docAnalysisSystem.actorOf(Props.create(DocAnalysisMaster.class, 22));
+//			metaAnalysisMaster = metaAnalysisSystem.actorOf(Props.create(MetaAnalysisMaster.class, 22));
+//			amalgamationMaster = amalgamationSystem.actorOf(Props.create(AmalgamationMaster.class, 22));
+//			textAnalysisMaster = textAnalysisSystem.actorOf(Props.create(TextAnalysisMaster.class, 22));
+////			inferenceMaster = inferenceSystem.actorOf(Props.create(InferenceMaster.class, 22));
+//			dataTransferMaster = dataTransferSystem.actorOf(Props.create(DataTransferMaster.class, 22));
+//			
+//			matchingMaster = matchingsystem.actorOf(Props.create(MatchingMaster.class, 20));
+//			stringExtractionMaster = stringExtractionSystem.actorOf(Props.create(StringExtractionMaster.class, 10));
+//			staffExtractionMaster = staffExtractionSystem.actorOf(Props.create(StaffExtractionMaster.class, 10));
+//			summaryMaster = summarySystem.actorOf(Props.create(SummaryMaster.class, 10));
 		}
 	}
 

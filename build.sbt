@@ -24,7 +24,8 @@ libraryDependencies ++= Seq(
   "com.restfb" % "restfb" % "1.11.0",
   "org.seleniumhq.selenium" % "selenium-chrome-driver" % "2.48.2",
   "org.seleniumhq.selenium" % "selenium-htmlunit-driver" % "2.48.2",
-  "commons-beanutils" % "commons-beanutils" % "1.9.2"
+  "commons-beanutils" % "commons-beanutils" % "1.9.2",
+   "com.google.maps" % "google-maps-services" % "0.1.10"
 )
 
 fork in run := true

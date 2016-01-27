@@ -51,7 +51,7 @@ import persistence.Dealer;
 import persistence.Dealer.Datasource;
 import persistence.MobileCrawl;
 import persistence.PageInformation;
-import persistence.PlacesDealer;
+import persistence.PlacesPage;
 import persistence.SFEntry;
 import persistence.Site;
 import persistence.SiteCrawl;

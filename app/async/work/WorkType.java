@@ -8,10 +8,12 @@ import async.docanalysis.DocAnalysisWorker;
 import async.metaanalysis.MetaAnalysisWorker;
 import async.sniffer.SnifferWorker;
 import async.textanalysis.TextAnalysisWorker;
-import async.workers.InfoFetchWorker;
+import async.work.googleplaces.GooglePlacesWorker;
+import async.work.infofetch.InfoFetchWorker;
+import async.work.siteupdate.SiteUpdateWorker;
+import async.work.urlresolve.UrlResolveWorker;
 import async.workers.MobileAnalysisWorker;
 import async.workers.MobileWorker;
-import async.workers.UrlResolveWorker;
 
  
 //The types of work to be done by workers in this program.
@@ -22,6 +24,7 @@ public enum WorkType {
 	RESTORE						(DataTransferWorker.class), 
 	URL							, 
 	REDIRECT_RESOLVE			(UrlResolveWorker.class), 
+	SITE_UPDATE					(SiteUpdateWorker.class),
 	CRAWL						(CrawlingWorker.class, 15), 
 	SMALL_CRAWL					(),
 	MOBILE_TEST					(MobileWorker.class),
@@ -34,6 +37,7 @@ public enum WorkType {
 	MATCHES						, 
 	SUMMARY						, 
 	META_ANALYSIS				(MetaAnalysisWorker.class), 
+	PLACES_PAGE_FETCH			(GooglePlacesWorker.class),
 	CUSTOM						, 
 	BACKUP						(DataTransferWorker.class),
 	INFO_FETCH					(InfoFetchWorker.class);

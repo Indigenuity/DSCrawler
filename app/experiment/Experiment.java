@@ -56,6 +56,13 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import com.google.maps.GeoApiContext;
+import com.google.maps.PlaceDetailsRequest;
+import com.google.maps.PlacesApi;
+import com.google.maps.model.AddressComponent;
+import com.google.maps.model.AddressComponentType;
+import com.google.maps.model.PlaceDetails;
+
 import crawling.DealerCrawlController;
 import crawling.GoogleCrawler;
 import crawling.MobileCrawler;
@@ -76,6 +83,7 @@ import async.work.SiteWork;
 import async.work.WorkItem;
 import async.work.WorkSet;
 import async.work.WorkType;
+import async.work.infofetch.InfoFetch;
 import persistence.CrawlSet;
 import persistence.Dealer;
 import persistence.ExtractedString;
@@ -84,12 +92,14 @@ import persistence.FBPage;
 import persistence.GoogleCrawl;
 import persistence.MobileCrawl;
 import persistence.PageCrawl;
+import persistence.PlacesDealer;
+import persistence.PlacesPage;
 import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.Temp;
 import persistence.UrlCheck;
 import persistence.stateful.FetchJob;
-import persistence.stateful.InfoFetch;
+import places.DataBuilder;
 import play.db.DB;
 import play.db.jpa.JPA;
 import scaffolding.Scaffolder;
@@ -100,16 +110,35 @@ import utilities.UrlSniffer;
 public class Experiment {
 	
 	public static void runExperiment() {
-		String seed = "http://www.legendmarinegroup.com/";
 		
-		WorkSet workSet = new WorkSet();
-		WorkItem workItem = new WorkItem(WorkType.REDIRECT_RESOLVE);
-		workItem.setSeed(seed);
-		workSet.addWorkItem(workItem);
-		
-		Asyncleton.getInstance().getMaster(WorkType.REDIRECT_RESOLVE).tell(workItem, ActorRef.noSender());
-		
-		
+	}
+	public static void createSiteUpdateFetchJobs() {
+		String query = "from Site s where s.franchise = false";
+		List<Site> sites = JPA.em().createQuery(query).getResultList();
+		System.out.println("sites : " + sites.size());
+		FetchJob job = new FetchJob();
+		job.setName("Checking non-Franchise Sites");
+		JPA.em().persist(job);
+		for(Site site : sites) {
+			InfoFetch fetch = new InfoFetch();
+			fetch.setSiteId(site.getSiteId());
+			fetch.setSeed(site.getHomepage());
+			fetch.setDoUrlCheck(true);
+			fetch.setDoSiteUpdate(true);
+			fetch.setFetchJob(job);
+			JPA.em().persist(fetch);
+		}
+	}
+	
+	public static void testPlaces() throws Exception {
+
+		GeoApiContext context = Global.getPlacesContext();
+		PlaceDetailsRequest request = PlacesApi.placeDetails(context, "ChIJ_-fL8YBmA4wRlfmHQSkrqwM");
+		PlaceDetails details = request.await();
+		PlacesPage page = DataBuilder.getPlacesDealer(details);
+		JPA.em().persist(page);
+		System.out.println("details : " + details);
+		System.out.println("website : " + details.website);
 	}
 	
 	public static void mergingLists() {

@@ -5,7 +5,7 @@ import java.util.List;
 
 import persistence.CapEntry;
 import persistence.Dealer;
-import persistence.PlacesDealer;
+import persistence.PlacesPage;
 import persistence.Dealer.Datasource;
 import persistence.SFEntry;
 import persistence.Site;
@@ -59,10 +59,10 @@ public class SourceSwapper {
 	
 	public static void placesToNative(){
 		String query = "from PlacesDealer pd where pd.website is not null and not exists (from Site s where s.domain = pd.domain)";
-    	List<PlacesDealer> places = JPA.em().createQuery(query, PlacesDealer.class).getResultList();
+    	List<PlacesPage> places = JPA.em().createQuery(query, PlacesPage.class).getResultList();
     	System.out.println("places size : " + places.size());
     	int count = 0;
-    	for(PlacesDealer place : places) {
+    	for(PlacesPage place : places) {
     		System.out.println("count : " + ++count);
     		Dealer dealer = new Dealer();
     		dealer.setPlacesId(place.getPlacesId());

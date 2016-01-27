@@ -19,7 +19,7 @@ import datatransfer.Cleaner;
 import global.Global.HomepageAction;
 import persistence.CrawlSet;
 import persistence.Dealer;
-import persistence.PlacesDealer;
+import persistence.PlacesPage;
 import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.Temp;
@@ -210,9 +210,9 @@ public class DataEditor extends Controller{
 		String query = "from PlacesDealer pd where pd.website is not null and pd.domain is null";
 		int chunkSize = 500;
 		int offset = 0;
-		List<PlacesDealer> dealers = JPA.em().createQuery(query).getResultList();
+		List<PlacesPage> dealers = JPA.em().createQuery(query).getResultList();
 		int count = 0;
-		for(PlacesDealer dealer : dealers) {
+		for(PlacesPage dealer : dealers) {
 			try{
 				System.out.println(count++ + " : " + dealer.getWebsite());
 				dealer.setDomain(DSFormatter.getDomain(dealer.getWebsite()));

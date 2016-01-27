@@ -35,6 +35,9 @@ public class UrlSniffer {
 		}
 		if(check.getResolvedSeed() != null){
 			check.setResolvedSeed(check.getResolvedSeed().replace(":80", ""));
+			if(DSFormatter.equals(check.getSeed(), check.getResolvedSeed())){
+				check.setNoChange(true);
+			}
 		}
 		
 		return check;

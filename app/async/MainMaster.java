@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import persistence.SiteInformationOld;
-import persistence.stateful.InfoFetch;
 import play.Logger;
 import akka.actor.ActorRef;
 import akka.actor.Props;
@@ -18,6 +17,7 @@ import async.work.SiteWork;
 import async.work.WorkItem;
 import async.work.WorkSet;
 import async.work.WorkType;
+import async.work.infofetch.InfoFetch;
 import experiment.Experiment;
 
 public class MainMaster extends UntypedActor {
