@@ -14,6 +14,8 @@ import javax.persistence.Query;
 import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
 
+import org.apache.commons.lang3.StringUtils;
+
 import persistence.MobileCrawl;
 import persistence.Site;
 import persistence.SiteCrawl;
@@ -44,9 +46,33 @@ public class SitesDAO {
 	}
 	
 	public static List<Site> getSitesWithRedirectUrl(String compare, int count, int offset) {
-		String query = "select Site_siteId from site_redirectUrls sr " +
+		if(StringUtils.isEmpty(compare)){
+			return new ArrayList<Site>();
+		}
+		String query = "select sr.Site_siteId from site_redirectUrls sr " +
+				"join temp t on sr.redirectUrls = '" + compare + "'";
+//		System.out.println("query : " + query);
+		List<Object> siteIds = JPA.em().createNativeQuery(query).setMaxResults(count).setFirstResult(offset).getResultList();
+		
+		Set<Site> sites = new HashSet<Site>();
+		for(Object id : siteIds) {
+			long longId = Long.parseLong(id.toString());
+			Site site = JPA.em().find(Site.class, longId);
+			sites.add(site);
+		}
+		List<Site> returned = new ArrayList<Site>(sites);
+		return returned;
+	}
+	
+	
+	public static List<Site> getSitesWithSimilarRedirectUrl(String compare, int count, int offset) {
+		if(StringUtils.isEmpty(compare)){
+			return new ArrayList<Site>();
+		}
+		String query = "select sr.Site_siteId from site_redirectUrls sr " +
 				"join temp t on sr.redirectUrls like '%" + compare + "%'";
 //		System.out.println("query : " + query);
+		
 		List<Object> siteIds = JPA.em().createNativeQuery(query).setMaxResults(count).setFirstResult(offset).getResultList();
 		
 		Set<Site> sites = new HashSet<Site>();
@@ -166,6 +192,30 @@ public class SitesDAO {
 		return q.getResultList();
 	}
 	
+	
+	public static Site getFirst(String valueName, Object value, int offset){
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		parameters.put(valueName , value);
+		return getFirst(parameters, offset);
+	}
+	public static Site getFirst(Map<String, Object> parameters, int offset){
+		String query = "from Site s where s.siteId > 0";
+		for(String key : parameters.keySet()) {
+			query += " and s." + key + " = :" + key;
+		}
+		
+		TypedQuery<Site> q = JPA.em().createQuery(query, Site.class);
+		for(Entry<String, Object> entry : parameters.entrySet()) {
+			q.setParameter(entry.getKey(), entry.getValue());
+		}
+		q.setFirstResult(offset);
+		q.setMaxResults(1);
+		List<Site> results = q.getResultList();
+		if(results.size() > 0){
+			return results.get(0);
+		}
+		return null;
+	}
 	
 	
 	public static long getCrawlSetCount(long crawlSetId, String valueName, Object value){

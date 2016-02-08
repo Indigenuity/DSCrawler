@@ -28,8 +28,8 @@ public class AmalgamationWorker extends UntypedActor {
 			
 			try{
 				SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, workItem.getSiteCrawlId());
-				File storageFolder = new File(Global.CRAWL_STORAGE_FOLDER + "/" + siteCrawl.getStorageFolder());
-				File destination = new File(Global.COMBINED_STORAGE_FOLDER + "/" + siteCrawl.getStorageFolder());
+				File storageFolder = new File(Global.getCrawlStorageFolder() + "/" + siteCrawl.getStorageFolder());
+				File destination = new File(Global.getCombinedStorageFolder() + "/" + siteCrawl.getStorageFolder());
 				File amalgamatedFile = Amalgamater.amalgamateFiles(storageFolder, destination);
 				siteCrawl.setAmalgamationDone(true);
 				workItem.setWorkStatus(WorkStatus.WORK_COMPLETED);

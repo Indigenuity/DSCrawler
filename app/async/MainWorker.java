@@ -36,66 +36,66 @@ public class MainWorker extends UntypedActor {
 		try{
 		
 			
-			if(siteWork.getAllWorkNeeded() == SiteWork.DO_WORK){
-				markWorkNeeded(siteWork);
-			}
-			
-			//Only perform one of the following async actions:
-			if(siteWork.getUrlWork() == SiteWork.DO_WORK){
-				doUrlWork(siteWork);
-			}  
-			else if(siteWork.getRedirectResolveWork() == SiteWork.DO_WORK){
-				Asyncleton.instance().getRedirectResolveMaster().tell(siteWork, getSelf());
-			}
-			else if(siteWork.getRestoreWork() == SiteWork.DO_WORK){
-				Asyncleton.instance().getDataTransferMaster().tell(siteWork, getSelf());;
-			}
-			else if(siteWork.getCrawlWork() == SiteWork.DO_WORK){
-//				System.out.println("doing crawl work (" + site.getSiteId() + ")");
-				Asyncleton.instance().getCrawlingMaster().tell(siteWork, getSelf());
-//				System.out.println("told work(" + site.getSiteId() + ")");
-			}
-			else if(siteWork.getDocAnalysisWork() == SiteWork.DO_WORK){
-				System.out.println("Doing doc analysis work for : " + siteWork.getSiteCrawlId());
-				Asyncleton.instance().getDocAnalysisMaster().tell(siteWork, getSelf());
-			}
-			else if(siteWork.getMetaAnalysisWork() == SiteWork.DO_WORK){
-				System.out.println("Doing meta analysis work for : " + siteWork.getSiteCrawlId());
-				Asyncleton.instance().getMetaAnalysisMaster().tell(siteWork, getSelf());
-			}
-			else if(siteWork.getAmalgamationWork() == SiteWork.DO_WORK){
-				System.out.println("Doing doc Amalgamation work for : " + siteWork.getSiteCrawlId());
-				Asyncleton.instance().getAmalgamationMaster().tell(siteWork, getSelf());
-			}
-			else if(siteWork.getTextAnalysisWork() == SiteWork.DO_WORK){
-				System.out.println("Doing text analysis work for : " + siteWork.getSiteCrawlId());
-				Asyncleton.instance().getTextAnalysisMaster().tell(siteWork, getSelf());
-			}
-//			else if(siteWork.getInferenceWork() == SiteWork.DO_WORK){
-//				Asyncleton.instance().getInferenceMaster().tell(siteWork, getSelf());
+//			if(siteWork.getAllWorkNeeded() == SiteWork.DO_WORK){
+//				markWorkNeeded(siteWork);
 //			}
-			else if(siteWork.getMatchesWork() == SiteWork.DO_WORK) {
-				Asyncleton.instance().getMatchingMaster().tell(siteWork, getSelf());
-			}
-			else if(siteWork.getStringExtractionWork() == SiteWork.DO_WORK) {
-				Asyncleton.instance().getStringExtractionMaster().tell(siteWork, getSelf());
-			}
-			else if(siteWork.getStaffExtractionWork() == SiteWork.DO_WORK) {
-				Asyncleton.instance().getStaffExtractionMaster().tell(siteWork, getSelf());
-			}
-			else if(siteWork.getSummaryWork() == SiteWork.DO_WORK) {
-				Asyncleton.instance().getSummaryMaster().tell(siteWork, getSelf());
-			}
-			else if(siteWork.getCustomWork() == SiteWork.DO_WORK) {
-				System.out.println("Doing custom work");
-				doCustomWork(siteWork);
-			}
-			else if(siteWork.getBackupWork() == SiteWork.DO_WORK){
-				Asyncleton.instance().getDataTransferMaster().tell(siteWork, getSelf());;
-			}
-			else {
-				System.out.println("Work Completed. SiteId : " + siteWork.getSiteId() + " SiteCrawlId : " + siteWork.getSiteCrawlId());
-			}
+//			
+//			//Only perform one of the following async actions:
+//			if(siteWork.getUrlWork() == SiteWork.DO_WORK){
+//				doUrlWork(siteWork);
+//			}  
+//			else if(siteWork.getRedirectResolveWork() == SiteWork.DO_WORK){
+//				Asyncleton.instance().getRedirectResolveMaster().tell(siteWork, getSelf());
+//			}
+//			else if(siteWork.getRestoreWork() == SiteWork.DO_WORK){
+//				Asyncleton.instance().getDataTransferMaster().tell(siteWork, getSelf());;
+//			}
+//			else if(siteWork.getCrawlWork() == SiteWork.DO_WORK){
+////				System.out.println("doing crawl work (" + site.getSiteId() + ")");
+//				Asyncleton.instance().getCrawlingMaster().tell(siteWork, getSelf());
+////				System.out.println("told work(" + site.getSiteId() + ")");
+//			}
+//			else if(siteWork.getDocAnalysisWork() == SiteWork.DO_WORK){
+//				System.out.println("Doing doc analysis work for : " + siteWork.getSiteCrawlId());
+//				Asyncleton.instance().getDocAnalysisMaster().tell(siteWork, getSelf());
+//			}
+//			else if(siteWork.getMetaAnalysisWork() == SiteWork.DO_WORK){
+//				System.out.println("Doing meta analysis work for : " + siteWork.getSiteCrawlId());
+//				Asyncleton.instance().getMetaAnalysisMaster().tell(siteWork, getSelf());
+//			}
+//			else if(siteWork.getAmalgamationWork() == SiteWork.DO_WORK){
+//				System.out.println("Doing doc Amalgamation work for : " + siteWork.getSiteCrawlId());
+//				Asyncleton.instance().getAmalgamationMaster().tell(siteWork, getSelf());
+//			}
+//			else if(siteWork.getTextAnalysisWork() == SiteWork.DO_WORK){
+//				System.out.println("Doing text analysis work for : " + siteWork.getSiteCrawlId());
+//				Asyncleton.instance().getTextAnalysisMaster().tell(siteWork, getSelf());
+//			}
+////			else if(siteWork.getInferenceWork() == SiteWork.DO_WORK){
+////				Asyncleton.instance().getInferenceMaster().tell(siteWork, getSelf());
+////			}
+//			else if(siteWork.getMatchesWork() == SiteWork.DO_WORK) {
+//				Asyncleton.instance().getMatchingMaster().tell(siteWork, getSelf());
+//			}
+//			else if(siteWork.getStringExtractionWork() == SiteWork.DO_WORK) {
+//				Asyncleton.instance().getStringExtractionMaster().tell(siteWork, getSelf());
+//			}
+//			else if(siteWork.getStaffExtractionWork() == SiteWork.DO_WORK) {
+//				Asyncleton.instance().getStaffExtractionMaster().tell(siteWork, getSelf());
+//			}
+//			else if(siteWork.getSummaryWork() == SiteWork.DO_WORK) {
+//				Asyncleton.instance().getSummaryMaster().tell(siteWork, getSelf());
+//			}
+//			else if(siteWork.getCustomWork() == SiteWork.DO_WORK) {
+//				System.out.println("Doing custom work");
+//				doCustomWork(siteWork);
+//			}
+//			else if(siteWork.getBackupWork() == SiteWork.DO_WORK){
+//				Asyncleton.instance().getDataTransferMaster().tell(siteWork, getSelf());;
+//			}
+//			else {
+//				System.out.println("Work Completed. SiteId : " + siteWork.getSiteId() + " SiteCrawlId : " + siteWork.getSiteCrawlId());
+//			}
 		}
 		catch(Exception e) {
 			Logger.error("Caught exception in MainWorker  (SiteId : " + siteWork.getSiteId() + " SiteCrawlId : " + siteWork.getSiteCrawlId() + ") : " + e);

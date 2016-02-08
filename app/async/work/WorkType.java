@@ -2,12 +2,12 @@ package async.work;
 
 import async.MainWorker;
 import async.amalgamation.AmalgamationWorker;
-import async.crawling.CrawlingWorker;
 import async.datatransfer.DataTransferWorker;
 import async.docanalysis.DocAnalysisWorker;
 import async.metaanalysis.MetaAnalysisWorker;
 import async.sniffer.SnifferWorker;
 import async.textanalysis.TextAnalysisWorker;
+import async.work.crawling.CrawlingWorker;
 import async.work.googleplaces.GooglePlacesWorker;
 import async.work.infofetch.InfoFetchWorker;
 import async.work.siteupdate.SiteUpdateWorker;
@@ -40,7 +40,7 @@ public enum WorkType {
 	PLACES_PAGE_FETCH			(GooglePlacesWorker.class),
 	CUSTOM						, 
 	BACKUP						(DataTransferWorker.class),
-	INFO_FETCH					(InfoFetchWorker.class);
+	INFO_FETCH					(InfoFetchWorker.class, 20);
 
 	private static final int DEFAULT_NUM_WORKERS = 5;
 	private Class<?> defaultWorker;

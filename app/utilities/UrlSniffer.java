@@ -9,6 +9,7 @@ import java.net.URL;
 
 import global.Global;
 import persistence.UrlCheck;
+import play.Logger;
 
 public class UrlSniffer {
 
@@ -30,7 +31,7 @@ public class UrlSniffer {
 		}
 		catch(Exception e){
 			check.setError(true);
-			System.out.println("Error while checking redirect : " + e);
+			Logger.warn("Error while checking redirect : " + e);
 			check.setErrorMessage(e.getMessage());
 		}
 		if(check.getResolvedSeed() != null){
@@ -39,7 +40,6 @@ public class UrlSniffer {
 				check.setNoChange(true);
 			}
 		}
-		
 		return check;
 	}
 	
@@ -61,6 +61,7 @@ public class UrlSniffer {
 		}
 		con.setInstanceFollowRedirects(false);	//Follow redirects only manually 
 		con.setConnectTimeout(15 * 1000);
+		con.setReadTimeout(15 * 1000);
 		con.setRequestProperty("User-Agent", DEFAULT_USER_AGENT_STRING);
 		
 		con.connect();

@@ -20,6 +20,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.StringUtils;
 
+import dao.PlacesPageDAO;
 import datadefinitions.GeneralMatch;
 import datadefinitions.Scheduler;
 import datadefinitions.WebProvider;
@@ -41,7 +42,7 @@ public class CSVGenerator {
 	
 	public static void generateSourceQualityReport() throws IOException {
 		
-		List<Temp> sfs = JPA.em().createQuery("from Temp t").getResultList();
+		List<Temp> sfs = JPA.em().createQuery("from Temp t where t.givenUrl != ''").getResultList();
 		System.out.println("sfs : " + sfs.size());
 		List<String[]> CSVRows = new ArrayList<String[]>();
 		List<String> values = new ArrayList<String>();
@@ -84,7 +85,85 @@ public class CSVGenerator {
 		
 		System.out.println("Writing to file ");
 		
-		String targetFilename = Global.REPORTS_STORAGE_FOLDER + "/dataqualityreport" + System.currentTimeMillis() + ".csv";  
+		String targetFilename = Global.getReportsStorageFolder() + "/dataqualityreport" + System.currentTimeMillis() + ".csv";  
+		File target = new File(targetFilename);
+		FileWriter fileOut = new FileWriter(target);
+		CSVPrinter printer = new CSVPrinter(fileOut, CSVFormat.EXCEL);
+		printer.printRecords(CSVRows);
+		printer.close();
+		fileOut.close();
+	}
+	
+	public static void generateTempsReport() throws IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+		
+		List<String[]> CSVRows = new ArrayList<String[]>();
+		List<String> values = new ArrayList<String>();
+		values.add("Salesforce Unique ID");
+		values.add("Account Name");
+		values.add("Primary Website URL:");
+		values.add("New Verified URL");
+		values.add("URL changed");
+		values.add("Google Places Page");
+		values.add("Google Places Rating");
+		values.add("Suggested URL");
+		values.add("Reason Suggested");
+		values.add("Problem");
+		CSVRows.add((String[])values.toArray(new String[values.size()]));
+		
+		List<Temp> sfs = JPA.em().createQuery("from Temp t where t.givenUrl != ''").getResultList();
+		int count = 0;
+		String problem = "";
+		for(Temp temp : sfs) {
+			values = new ArrayList<String>();
+			values.add(temp.getSfId());
+			values.add(temp.getName());
+			values.add(temp.getGivenUrl());
+			if(temp.getSite() == null){
+				values.add("");
+				values.add("");
+				values.add("");
+				values.add("");
+				values.add(temp.getSuggestedUrl());
+				values.add(temp.getSuggestedSource());
+			}
+			else{
+				Site site = temp.getSite();
+				values.add(site.getHomepage());
+				if(site.getHomepage().equals(temp.getGivenUrl())){
+					values.add("No Change");
+				}
+				else if(site.getHomepage().equals(temp.getStandardizedUrl())){
+					values.add("Only URL standardization");
+				}
+				else {
+					values.add("Changed");
+				}
+				if(site.getPlacesPage() != null){
+					values.add(site.getPlacesPage().getGoogleUrl());
+					values.add(site.getPlacesPage().getRating() + "");
+				}
+				else {
+					values.add("");
+					values.add("");
+				}
+				values.add("");
+				values.add("");
+			}
+			
+			if(temp.getProblem() != null){
+				problem += " " + temp.getProblem();
+			}
+			values.add(problem);
+			problem = "";
+			
+			CSVRows.add((String[])values.toArray(new String[values.size()]));
+			if(++count % 500 == 0) {
+				System.out.println("count : " + count);
+			}
+		}
+		System.out.println("Writing to file ");
+		
+		String targetFilename = Global.getReportsStorageFolder() + "/places and url report.csv";  
 		File target = new File(targetFilename);
 		FileWriter fileOut = new FileWriter(target);
 		CSVPrinter printer = new CSVPrinter(fileOut, CSVFormat.EXCEL);
@@ -135,6 +214,7 @@ public class CSVGenerator {
 		int count = 0;
 		query = "from Temp t where t.standardizedUrl = :standardizedUrl";
 		TypedQuery<Temp> q = JPA.em().createQuery(query, Temp.class);
+		
 		for(SiteCrawl siteCrawl : siteCrawls){
 			fields = Scaffolder.getBasicFields(siteCrawl);
 			values = new ArrayList<String>();
@@ -208,7 +288,7 @@ public class CSVGenerator {
 		
 		System.out.println("Writing to file ");
 		
-		String targetFilename = Global.REPORTS_STORAGE_FOLDER + "/testing.csv";  
+		String targetFilename = Global.getReportsStorageFolder() + "/testing.csv";  
 		File target = new File(targetFilename);
 		FileWriter fileOut = new FileWriter(target);
 		CSVPrinter printer = new CSVPrinter(fileOut, CSVFormat.EXCEL);
@@ -216,6 +296,7 @@ public class CSVGenerator {
 		printer.close();
 		fileOut.close();
 	}
+	
 	
 	public static void generateNonOemPlacesDealers() throws IOException {
 		
@@ -310,7 +391,7 @@ public class CSVGenerator {
 		
 		System.out.println("Writing to file ");
 		
-		String targetFilename = Global.REPORTS_STORAGE_FOLDER + "/" +new SimpleDateFormat("MM-dd-yyyy").format(new java.util.Date()) + fileSuffix + ".csv";  
+		String targetFilename = Global.getReportsStorageFolder() + "/" +new SimpleDateFormat("MM-dd-yyyy").format(new java.util.Date()) + fileSuffix + ".csv";  
 		File target = new File(targetFilename);
 		FileWriter fileOut = new FileWriter(target);
 		CSVPrinter printer = new CSVPrinter(fileOut, CSVFormat.EXCEL);
@@ -449,7 +530,7 @@ public class CSVGenerator {
 		}//end for(dealer)
 		System.out.println("Writing to file ");
 		
-		String targetFilename = Global.REPORTS_STORAGE_FOLDER + "/" +new SimpleDateFormat("MM-dd-yyyy").format(new java.util.Date()) + fileSuffix + ".csv";  
+		String targetFilename = Global.getReportsStorageFolder() + "/" +new SimpleDateFormat("MM-dd-yyyy").format(new java.util.Date()) + fileSuffix + ".csv";  
 		File target = new File(targetFilename);
 		FileWriter fileOut = new FileWriter(target);
 		CSVPrinter printer = new CSVPrinter(fileOut, CSVFormat.EXCEL);
@@ -534,7 +615,7 @@ public class CSVGenerator {
 		
 		System.out.println("Writing to file ");
 		
-		String targetFilename = Global.REPORTS_STORAGE_FOLDER + "/" +new SimpleDateFormat("MM-dd-yyyy").format(new java.util.Date()) + "-SiteCrawls.csv";  
+		String targetFilename = Global.getReportsStorageFolder() + "/" +new SimpleDateFormat("MM-dd-yyyy").format(new java.util.Date()) + "-SiteCrawls.csv";  
 		File target = new File(targetFilename);
 		FileWriter fileOut = new FileWriter(target);
 		CSVPrinter printer = new CSVPrinter(fileOut, CSVFormat.EXCEL);
@@ -589,7 +670,7 @@ public class CSVGenerator {
 			};
 			CSVRows.add(values);
 		}
-		String targetFilename = Global.REPORTS_STORAGE_FOLDER + "/" +new SimpleDateFormat("MM-dd-yyyy").format(new java.util.Date()) + "-GooglePlaces.csv";  
+		String targetFilename = Global.getReportsStorageFolder() + "/" +new SimpleDateFormat("MM-dd-yyyy").format(new java.util.Date()) + "-GooglePlaces.csv";  
 		File target = new File(targetFilename);
 		FileWriter fileOut = new FileWriter(target);
 		CSVPrinter printer = new CSVPrinter(fileOut, CSVFormat.EXCEL);

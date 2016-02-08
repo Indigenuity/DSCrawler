@@ -17,6 +17,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
@@ -44,6 +45,9 @@ public class Site {
 	
 	@Column(nullable = false, columnDefinition="boolean default true")
 	private boolean standaloneSite = true;	//If this site is the only one on the domain, as opposed to PAACO sites
+	
+	@ManyToOne
+	private PlacesPage placesPage;
 	
 	@OneToMany(fetch=FetchType.LAZY)
 	@JoinTable(name="site_sitecrawl", 
@@ -425,6 +429,16 @@ public class Site {
 	
 	
 	
+	
+	
+	public PlacesPage getPlacesPage() {
+		return placesPage;
+	}
+
+	public void setPlacesPage(PlacesPage placesPage) {
+		this.placesPage = placesPage;
+	}
+
 	public boolean isLocationPage() {
 		return locationPage;
 	}

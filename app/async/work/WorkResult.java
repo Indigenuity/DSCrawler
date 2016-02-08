@@ -1,9 +1,13 @@
 package async.work;
 
+import java.util.UUID;
+
 public class WorkResult {
 	
 	protected WorkType workType;
 	protected WorkStatus workStatus;
+	protected Long uuid;
+	protected String note;
 	
 	public WorkResult() {
 		this.workType = WorkType.NO_WORK;
@@ -32,6 +36,24 @@ public class WorkResult {
 	public void setWorkStatus(WorkStatus workStatus) {
 		this.workStatus = workStatus;
 	}
+
+	public Long getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(Long uuid) {
+		this.uuid = uuid;
+	}
+
+	public String getNote() {
+		return note;
+	}
+
+	public void setNote(String note) {
+		this.note = note;
+	}
+	
+	
 	
 	
 }

@@ -25,11 +25,11 @@ public class FileMover {
 	}
 	
 	public static Long getMainUsableBytes() {
-		return getUsableBytes(new File(Global.STORAGE_FOLDER));
+		return getUsableBytes(new File(Global.getStorageFolder()));
 	}
 	
 	public static Long getSecondaryUsableBytes() {
-		return getUsableBytes(new File(Global.SECONDARY_STORAGE_FOLDER));
+		return getUsableBytes(new File(Global.getSecondaryStorageFolder()));
 	}
 	
 	public static Long getUsableBytes(File file) {
@@ -39,11 +39,11 @@ public class FileMover {
 	}
 	
 	public static String getMainUsableGb() {
-		return getUsableGb(new File(Global.STORAGE_FOLDER));
+		return getUsableGb(new File(Global.getStorageFolder()));
 	}
 	
 	public static String getSecondaryUsableGb() {
-		return getUsableGb(new File(Global.SECONDARY_STORAGE_FOLDER));
+		return getUsableGb(new File(Global.getSecondaryStorageFolder()));
 	}
 	
 	public static String getUsableGb(File file) {
@@ -58,8 +58,8 @@ public class FileMover {
 		if(crawlIsOnLocal(siteCrawl)){
 			return;
 		}
-		File source = new File(Global.SECONDARY_CRAWL_STORAGE_FOLDER + siteCrawl.getStorageFolder());
-		File destination = new File(Global.CRAWL_STORAGE_FOLDER + siteCrawl.getStorageFolder());
+		File source = new File(Global.getSecondaryCrawlStorageFolder() + siteCrawl.getStorageFolder());
+		File destination = new File(Global.getCrawlStorageFolder() + siteCrawl.getStorageFolder());
 		moveDirectory(source, destination);
 		
 	}
@@ -68,18 +68,18 @@ public class FileMover {
 		if(crawlIsOnSecondary(siteCrawl)){
 			return;
 		}
-		File source = new File(Global.CRAWL_STORAGE_FOLDER + siteCrawl.getStorageFolder());
-		File destination = new File(Global.SECONDARY_CRAWL_STORAGE_FOLDER + siteCrawl.getStorageFolder());
+		File source = new File(Global.getCrawlStorageFolder() + siteCrawl.getStorageFolder());
+		File destination = new File(Global.getSecondaryCrawlStorageFolder() + siteCrawl.getStorageFolder());
 		moveDirectory(source, destination);
 	}
 	
 	public static boolean crawlIsOnLocal(SiteCrawl siteCrawl) {
-		File localFolder = new File(Global.CRAWL_STORAGE_FOLDER + siteCrawl.getStorageFolder());
+		File localFolder = new File(Global.getCrawlStorageFolder() + siteCrawl.getStorageFolder());
 		return localFolder.exists() && localFolder.isDirectory();
 	}
 	
 	public static boolean crawlIsOnSecondary(SiteCrawl siteCrawl) {
-		File secondaryFolder = new File(Global.CRAWL_STORAGE_FOLDER + siteCrawl.getStorageFolder());
+		File secondaryFolder = new File(Global.getCrawlStorageFolder() + siteCrawl.getStorageFolder());
 		return secondaryFolder.exists() && secondaryFolder.isDirectory();
 	}
 	
@@ -87,8 +87,8 @@ public class FileMover {
 		if(combinedIsOnLocal(siteCrawl)){
 			return;
 		}
-		File source = new File(Global.SECONDARY_COMBINED_STORAGE_FOLDER + siteCrawl.getStorageFolder());
-		File destination = new File(Global.COMBINED_STORAGE_FOLDER + siteCrawl.getStorageFolder());
+		File source = new File(Global.getSecondaryCombinedStorageFolder() + siteCrawl.getStorageFolder());
+		File destination = new File(Global.getCombinedStorageFolder() + siteCrawl.getStorageFolder());
 		moveDirectory(source, destination);
 	}
 	
@@ -96,18 +96,18 @@ public class FileMover {
 		if(combinedIsOnSecondary(siteCrawl)){
 			return;
 		}
-		File source = new File(Global.COMBINED_STORAGE_FOLDER + siteCrawl.getStorageFolder());
-		File destination = new File(Global.SECONDARY_COMBINED_STORAGE_FOLDER + siteCrawl.getStorageFolder());
+		File source = new File(Global.getCombinedStorageFolder() + siteCrawl.getStorageFolder());
+		File destination = new File(Global.getSecondaryCombinedStorageFolder() + siteCrawl.getStorageFolder());
 		moveDirectory(source, destination);
 	}
 	
 	public static boolean combinedIsOnLocal(SiteCrawl siteCrawl) {
-		File localFolder = new File(Global.COMBINED_STORAGE_FOLDER + siteCrawl.getStorageFolder());
+		File localFolder = new File(Global.getCombinedStorageFolder() + siteCrawl.getStorageFolder());
 		return localFolder.exists() && localFolder.isDirectory();
 	}
 	
 	public static boolean combinedIsOnSecondary(SiteCrawl siteCrawl) {
-		File secondaryFolder = new File(Global.SECONDARY_COMBINED_STORAGE_FOLDER + siteCrawl.getStorageFolder());
+		File secondaryFolder = new File(Global.getSecondaryCombinedStorageFolder() + siteCrawl.getStorageFolder());
 		return secondaryFolder.exists() && secondaryFolder.isDirectory();
 	}
 	

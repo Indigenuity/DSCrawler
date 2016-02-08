@@ -2,9 +2,11 @@ package persistence;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 import utilities.DSFormatter;
 
@@ -17,8 +19,12 @@ public class Temp {
 	
 	private String sfId;
 	
+	@ManyToOne(fetch=FetchType.LAZY)
+	private Site site;
+	
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	private String givenUrl;
+
 	
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	private String intermediateUrl;
@@ -36,6 +42,10 @@ public class Temp {
 	private String suggestedSource;
 	
 	private String problem;
+	
+	private String nextStep;
+	
+	private String siteSource;
 	
 	
 
@@ -117,6 +127,30 @@ public class Temp {
 
 	public void setProblem(String problem) {
 		this.problem = problem;
+	}
+
+	public Site getSite() {
+		return site;
+	}
+
+	public void setSite(Site site) {
+		this.site = site;
+	}
+
+	public String getNextStep() {
+		return nextStep;
+	}
+
+	public void setNextStep(String nextStep) {
+		this.nextStep = nextStep;
+	}
+
+	public String getSiteSource() {
+		return siteSource;
+	}
+
+	public void setSiteSource(String siteSource) {
+		this.siteSource = siteSource;
 	}
 
 	

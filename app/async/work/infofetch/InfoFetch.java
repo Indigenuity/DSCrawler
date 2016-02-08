@@ -1,30 +1,37 @@
 package async.work.infofetch;
 
+import java.util.List;
+
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 import async.work.WorkOrder;
+import async.work.WorkStatus;
 import async.work.WorkType;
-import persistence.Site;
-import persistence.SiteCrawl;
-import persistence.UrlCheck;
+import async.work.urlresolve.UrlResolveWorkOrder;
 import persistence.stateful.FetchJob;
 import utilities.DSFormatter;
 
 @Entity
 public class InfoFetch extends WorkOrder {
 	
+	
+	
 	public InfoFetch(){
-		super(WorkType.INFO_FETCH);
+		super(WorkType.INFO_FETCH); 
 	}
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long infoFetchId;
+	private Long infoFetchId;
 	
 	@ManyToOne
 	private FetchJob fetchJob;
@@ -34,37 +41,27 @@ public class InfoFetch extends WorkOrder {
 	
 	private String placesId;
 	
-	private long siteId;
-	private long siteCrawlId;
-	private long urlCheckId;
-	private long placesPageId;
+	@Column(nullable = true)
+	private Long siteId;
+	@Column(nullable = true)
+	private Long siteCrawlId;
+	@Column(nullable = true)
+	private Long urlCheckId;
+	@Column(nullable = true)
+	private Long placesPageId;
 	
+	@Transient
+	private List<Subtask> subtasks;
 	
-	private boolean doUrlCheck = false;
-	private boolean doSiteUpdate = false;
-	private boolean doSiteCrawl = false;
-	private boolean doPlacesPageFetch = false;
+	private Subtask urlCheck = new Subtask();
+	private Subtask siteUpdate = new Subtask();
+	private Subtask siteCrawl = new Subtask();
+	private Subtask placesPageFetch = new Subtask();
 	
-	private boolean siteUpdateCompleted = false;
-	
-	@Column(insertable = false, updatable = false)
-	private boolean needUrlCheck = false;
-	@Column(insertable = false, updatable = false)
-	private boolean needSiteCrawl = false;
-	@Column(insertable = false, updatable = false)
-	private boolean needSiteUpdate = false;
-	@Column(insertable = false, updatable = false)
-	private boolean needPlacesPageFetch= false;
-	
-	public boolean hasMoreWork(){
-		return needUrlCheck || needSiteCrawl || needSiteUpdate || needPlacesPageFetch;
-	}
-	
-	
-	public long getInfoFetchId() {
+	public Long getInfoFetchId() {
 		return infoFetchId;
 	}
-	public void setInfoFetchId(long infoFetchId) {
+	public void setInfoFetchId(Long infoFetchId) {
 		this.infoFetchId = infoFetchId;
 	}
 	public String getSeed() {
@@ -73,42 +70,24 @@ public class InfoFetch extends WorkOrder {
 	public void setSeed(String seed) {
 		this.seed = DSFormatter.truncate(seed, 4000);
 	}
-	public long getSiteId() {
+	public Long getSiteId() {
 		return siteId;
 	}
-	public void setSiteId(long siteId) {
+	public void setSiteId(Long siteId) {
 		this.siteId = siteId;
 	}
-	public long getUrlCheckId() {
+	public Long getUrlCheckId() {
 		return urlCheckId;
 	}
-	public void setUrlCheckId(long urlCheckId) {
+	public void setUrlCheckId(Long urlCheckId) {
 		this.urlCheckId = urlCheckId;
-		System.out.println("just set urlcheck id : " + this.urlCheckId);
+//		System.out.println("just set urlcheck id : " + this.urlCheckId);
 	}
-	public long getSiteCrawlId() {
+	public Long getSiteCrawlId() {
 		return siteCrawlId;
 	}
-	public void setSiteCrawlId(long siteCrawlId) {
+	public void setSiteCrawlId(Long siteCrawlId) {
 		this.siteCrawlId = siteCrawlId;
-	}
-	public boolean isDoUrlCheck() {
-		return doUrlCheck;
-	}
-	public void setDoUrlCheck(boolean doUrlCheck) {
-		this.doUrlCheck = doUrlCheck;
-	}
-	public boolean isDoSiteUpdate() {
-		return doSiteUpdate;
-	}
-	public void setDoSiteUpdate(boolean doSiteUpdate) {
-		this.doSiteUpdate = doSiteUpdate;
-	}
-	public boolean isDoSiteCrawl() {
-		return doSiteCrawl;
-	}
-	public void setDoSiteCrawl(boolean doSiteCrawl) {
-		this.doSiteCrawl = doSiteCrawl;
 	}
 	public FetchJob getFetchJob() {
 		return fetchJob;
@@ -116,58 +95,41 @@ public class InfoFetch extends WorkOrder {
 	public void setFetchJob(FetchJob fetchJob) {
 		this.fetchJob = fetchJob;
 	}
-	public boolean siteUpdateCompleted() {
-		return siteUpdateCompleted;
-	}
-	public void setSiteUpdateCompleted(boolean siteUpdateCompleted) {
-		this.siteUpdateCompleted = siteUpdateCompleted;
-	}
-	public boolean needUrlCheck() {
-		return needUrlCheck;
-	}
-	public void setNeedUrlCheck(boolean needUrlCheck) {
-		this.needUrlCheck = needUrlCheck;
-	}
-	public boolean needSiteCrawl() {
-		return needSiteCrawl;
-	}
-	public void setNeedSiteCrawl(boolean needSiteCrawl) {
-		this.needSiteCrawl = needSiteCrawl;
-	}
-	public boolean needSiteUpdate() {
-		return needSiteUpdate;
-	}
-	public void setNeedSiteUpdate(boolean needSiteUpdate) {
-		this.needSiteUpdate = needSiteUpdate;
-	}
 	public String getPlacesId() {
 		return placesId;
 	}
 	public void setPlacesId(String placesId) {
 		this.placesId = placesId;
 	}
-	public long getPlacesPageId() {
+	public Long getPlacesPageId() {
 		return placesPageId;
 	}
-	public void setPlacesPageId(long placesPageId) {
+	public void setPlacesPageId(Long placesPageId) {
 		this.placesPageId = placesPageId;
 	}
-	public boolean isDoPlacesPageFetch() {
-		return doPlacesPageFetch;
+	public Subtask getUrlCheck() {
+		return urlCheck;
 	}
-	public void setDoPlacesPageFetch(boolean doPlacesPageFetch) {
-		this.doPlacesPageFetch = doPlacesPageFetch;
+	public void setUrlCheck(Subtask urlCheck) {
+		this.urlCheck = urlCheck;
 	}
-	public boolean isSiteUpdateCompleted() {
-		return siteUpdateCompleted;
+	public Subtask getSiteUpdate() {
+		return siteUpdate;
 	}
-	public boolean needPlacesPageFetch() {
-		return needPlacesPageFetch;
+	public void setSiteUpdate(Subtask siteUpdate) {
+		this.siteUpdate = siteUpdate;
+	}
+	public Subtask getSiteCrawl() {
+		return siteCrawl;
+	}
+	public void setSiteCrawl(Subtask siteCrawl) {
+		this.siteCrawl = siteCrawl;
+	}
+	public Subtask getPlacesPageFetch() {
+		return placesPageFetch;
+	}
+	public void setPlacesPageFetch(Subtask placesPageFetch) {
+		this.placesPageFetch = placesPageFetch;
 	}
 	
-	
-	
-	
-	
-
 }

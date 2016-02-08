@@ -28,13 +28,13 @@ public class AsyncMonitor {
 	private static final AsyncMonitor instance = new AsyncMonitor();
 	
 	private AsyncMonitor() {
-		wipLists.put("Crawl", new HashMap<Long, WorkInProgress>());
-		wipLists.put("Doc Analysis", new HashMap<Long, WorkInProgress>());
-		wipLists.put("Meta Analysis", new HashMap<Long, WorkInProgress>());
-		wipLists.put("Amalgamation", new HashMap<Long, WorkInProgress>());
-		wipLists.put("Text Analysis", new HashMap<Long, WorkInProgress>());
-		wipLists.put("Inference", new HashMap<Long, WorkInProgress>());
-		wipLists.put("Sniffer", new HashMap<Long, WorkInProgress>());
+//		wipLists.put("Crawl", new HashMap<Long, WorkInProgress>());
+//		wipLists.put("Doc Analysis", new HashMap<Long, WorkInProgress>());
+//		wipLists.put("Meta Analysis", new HashMap<Long, WorkInProgress>());
+//		wipLists.put("Amalgamation", new HashMap<Long, WorkInProgress>());
+//		wipLists.put("Text Analysis", new HashMap<Long, WorkInProgress>());
+//		wipLists.put("Inference", new HashMap<Long, WorkInProgress>());
+//		wipLists.put("Sniffer", new HashMap<Long, WorkInProgress>());
  	}
 	
 	public static AsyncMonitor instance() {

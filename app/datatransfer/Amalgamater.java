@@ -61,7 +61,7 @@ public class Amalgamater {
 	}
 	
 	public static void splitFile(File f) throws IOException {
-		splitFile(f, Global.LARGE_FILE_THRESHOLD);
+		splitFile(f, Global.getLargeFileThreshold());
 	}
 	
 	 public static void splitFile(File f, int sizeOfFiles) throws IOException {

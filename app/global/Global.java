@@ -24,20 +24,20 @@ import play.db.DB;
 
 public class Global extends GlobalSettings {
 
-	public static final String STORAGE_FOLDER = "E:/DSStorage";
-	public static final String SECONDARY_STORAGE_FOLDER = "E:/DSStorage";
-	public final static String CRAWL_STORAGE_FOLDER = Global.STORAGE_FOLDER + "/crawldata";
-	public final static String COMBINED_STORAGE_FOLDER = Global.STORAGE_FOLDER + "/combined";
-	public final static String REPORTS_STORAGE_FOLDER = Global.STORAGE_FOLDER + "/reports";
-	public final static String SECONDARY_CRAWL_STORAGE_FOLDER = Global.SECONDARY_STORAGE_FOLDER + "/crawldata";
-	public final static String SECONDARY_COMBINED_STORAGE_FOLDER = Global.SECONDARY_STORAGE_FOLDER + "/combined";
-	public final static String SECONDARY_REPORTS_STORAGE_FOLDER = Global.SECONDARY_STORAGE_FOLDER + "/reports";
-	public final static int LARGE_FILE_THRESHOLD = 500 * 1000;	//~ .5MB
+	private static final String STORAGE_FOLDER = "C:/Workspace/DSStorage";
+	private static final String SECONDARY_STORAGE_FOLDER = "E:/DSStorage";
+	private final static String CRAWL_STORAGE_FOLDER = Global.STORAGE_FOLDER + "/crawldata";
+	private final static String COMBINED_STORAGE_FOLDER = Global.STORAGE_FOLDER + "/combined";
+	private final static String REPORTS_STORAGE_FOLDER = Global.STORAGE_FOLDER + "/reports";
+	private final static String SECONDARY_CRAWL_STORAGE_FOLDER = Global.SECONDARY_STORAGE_FOLDER + "/crawldata";
+	private final static String SECONDARY_COMBINED_STORAGE_FOLDER = Global.SECONDARY_STORAGE_FOLDER + "/combined";
+	private final static String SECONDARY_REPORTS_STORAGE_FOLDER = Global.SECONDARY_STORAGE_FOLDER + "/reports";
+	private final static int LARGE_FILE_THRESHOLD = 500 * 1000;	//~ .5MB
 	
-	public static final String DEFAULT_MOBILE_USER_AGENT_STRING = "Mozilla/5.0 (iPhone; CPU iPhone OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A5376e Safari/8536.25";
-	public final static String DEFAULT_USER_AGENT_STRING = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36";
+	private static final String DEFAULT_MOBILE_USER_AGENT_STRING = "Mozilla/5.0 (iPhone; CPU iPhone OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A5376e Safari/8536.25";
+	private final static String DEFAULT_USER_AGENT_STRING = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36";
 	
-	public final static String OLD_LOGS_FOLDER = "logs/old";
+	private final static String OLD_LOGS_FOLDER = "logs/old";
 	
 	private ActorSystem crawlingSystem; 
 	private ActorRef crawlingListener;
@@ -48,7 +48,7 @@ public class Global extends GlobalSettings {
 	private ActorRef snifferMaster;
 	
 	private static boolean useProxy = true;
-	private static String proxyUrl = "54.69.89.6";
+	private static String proxyUrl = "52.33.96.24";
 	private static int proxyPort = 8888;
 
 	public static final Date STALE_DATE;
@@ -137,6 +137,61 @@ public class Global extends GlobalSettings {
 	public static GeoApiContext getPlacesContext() {
 		return placesContext;
 	}
+	
+
+	public static String getStorageFolder() {
+		return STORAGE_FOLDER;
+	}
+
+	public static String getSecondaryStorageFolder() {
+		return SECONDARY_STORAGE_FOLDER;
+	}
+
+	public static String getCrawlStorageFolder() {
+		return CRAWL_STORAGE_FOLDER;
+	}
+
+	public static String getCombinedStorageFolder() {
+		return COMBINED_STORAGE_FOLDER;
+	}
+
+	public static String getReportsStorageFolder() {
+		return REPORTS_STORAGE_FOLDER;
+	}
+
+	public static String getSecondaryCrawlStorageFolder() {
+		return SECONDARY_CRAWL_STORAGE_FOLDER;
+	}
+
+	public static String getSecondaryCombinedStorageFolder() {
+		return SECONDARY_COMBINED_STORAGE_FOLDER;
+	}
+
+	public static String getSecondaryReportsStorageFolder() {
+		return SECONDARY_REPORTS_STORAGE_FOLDER;
+	}
+
+	public static int getLargeFileThreshold() {
+		return LARGE_FILE_THRESHOLD;
+	}
+
+	public static String getDefaultMobileUserAgentString() {
+		return DEFAULT_MOBILE_USER_AGENT_STRING;
+	}
+
+	public static String getDefaultUserAgentString() {
+		return DEFAULT_USER_AGENT_STRING;
+	}
+
+	public static String getOldLogsFolder() {
+		return OLD_LOGS_FOLDER;
+	}
+
+	public static Date getStaleDate() {
+		return STALE_DATE;
+	}
+
+
 
 
 	public enum HomepageAction {

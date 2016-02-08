@@ -89,14 +89,14 @@ public class DealerCrawlController extends CrawlController {
 
 	public static SiteCrawl crawlSite(String seed, DealerCrawlConfig config) throws Exception {
 //		seed = seed.toLowerCase();
-		
+		System.out.println("DealerCrawlController starting crawl from thread " + Thread.currentThread().getName());
 		String encodedSeed = DSFormatter.encode(seed);
 		String safeSeed = DSFormatter.makeSafePath(encodedSeed);
 		String date = new SimpleDateFormat("MM-dd-yyyy").format(new java.util.Date());  
 		String relativeStorageFolder = "/" + date + "/" + safeSeed;
 		config.setRelativeStorageFolder(relativeStorageFolder);
 		if(Global.useProxy()) {
-			System.out.println("Using proxy");
+//			System.out.println("Using proxy");
 			config.setProxyHost(Global.getProxyUrl());
 			config.setProxyPort(Global.getProxyPort());
 		}

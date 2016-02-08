@@ -54,36 +54,36 @@ public class MainMaster extends UntypedActor {
 			if(message instanceof InfoFetch) {
 				Asyncleton.instance().getMaster(WorkType.INFO_FETCH).tell(message, getSelf());
 			}
-			else if(message instanceof WorkSet) {
-				WorkSet workSet = (WorkSet) message;
-				WorkItem workItem = workSet.getNextWorkItem();
-				if(workItem == null){
-					System.out.println("Work completed for WorkSet : " + workSet.getUuid());
-					return;
-				}
-				
-				if(WaitingRoom.add(workItem, workSet)) {
-					Asyncleton.instance().getMaster(workItem.getWorkType()).tell(workItem, ActorRef.noSender());
-				}
-				else {
-					Logger.warn("Attempt to perform multiple tasks at same time was stopped on id " + workSet.getId() + " : " + workItem.getWorkType());
-				}
-			}
-			
-			else if(message instanceof WorkItem) {
-				WorkItem workItem = (WorkItem) message;
-				WorkSet workSet = null;
-				if(isMainWork(workItem)) {
-					router.route(message, getSelf());
-					return;
-				}
-				workSet = WaitingRoom.remove(workItem);
-				if(workSet == null) {
-					throw new IllegalStateException("Main Master received orhpaned work item : " + workItem.getId());
-				}
-				
-				getSelf().tell(workSet, getSelf());	//Send back to beginning of process to check for more work
-			}
+//			else if(message instanceof WorkSet) {
+//				WorkSet workSet = (WorkSet) message;
+//				WorkItem workItem = workSet.getNextWorkItem();
+//				if(workItem == null){
+//					System.out.println("Work completed for WorkSet : " + workSet.getUuid());
+//					return;
+//				}
+//				
+//				if(WaitingRoom.add(workItem, workSet)) {
+//					Asyncleton.instance().getMaster(workItem.getWorkType()).tell(workItem, ActorRef.noSender());
+//				}
+//				else {
+//					Logger.warn("Attempt to perform multiple tasks at same time was stopped on id " + workSet.getId() + " : " + workItem.getWorkType());
+//				}
+//			}
+//			
+//			else if(message instanceof WorkItem) {
+//				WorkItem workItem = (WorkItem) message;
+//				WorkSet workSet = null;
+//				if(isMainWork(workItem)) {
+//					router.route(message, getSelf());
+//					return;
+//				}
+//				workSet = WaitingRoom.remove(workItem);
+//				if(workSet == null) {
+//					throw new IllegalStateException("Main Master received orhpaned work item : " + workItem.getId());
+//				}
+//				
+//				getSelf().tell(workSet, getSelf());	//Send back to beginning of process to check for more work
+//			}
 			
 			else if(message instanceof SiteWork) {
 				router.route((SiteWork) message, getSelf());

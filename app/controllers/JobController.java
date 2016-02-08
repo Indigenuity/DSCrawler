@@ -44,12 +44,14 @@ public class JobController extends Controller {
 			Integer numToProcess = Integer.parseInt(requestData.get("numToProcess"));
 			Integer offset = Integer.parseInt(requestData.get("offset"));
 			
-			String query = "select i from FetchJob fj join fj.fetches i where fj.fetchJobId = 4 and i.needUrlCheck = true";
-			List<InfoFetch> fetches = JPA.em().createQuery(query).getResultList();
-			
+			String query = "select i from FetchJob fj join fj.fetches i where fj.fetchJobId = 5 and i.needUrlCheck = true";
+			Set<InfoFetch> fetches = fetchJob.getFetches();
+			System.out.println("fetches : " + fetches.size());
+			System.out.println("numToProcess : " + numToProcess);
 			int count = 0;
 			for(InfoFetch fetch : fetches) {
 				if(++count <= numToProcess) {
+					System.out.println("fetch : " + fetch);
 					Asyncleton.getInstance().getMainMaster().tell(fetch, ActorRef.noSender());
 				}
 			}
@@ -192,7 +194,7 @@ public class JobController extends Controller {
 	
 	@Transactional
 	public static Result smallCrawl(int numToProcess){
-		System.out.println("Global : " + Global.CRAWL_STORAGE_FOLDER);
+		System.out.println("Global : " + Global.getCrawlStorageFolder());
 		System.out.println("about to launch query");
 		System.out.println("numToProcess : " + numToProcess);
 		String query = "from Site s where s.maybeDefunct = false and "
@@ -217,7 +219,7 @@ public class JobController extends Controller {
 	
 	@Transactional
 	public static Result recrawlEmpties(int numToProcess) {
-		System.out.println("Global : " + Global.CRAWL_STORAGE_FOLDER);
+		System.out.println("Global : " + Global.getCrawlStorageFolder());
 		System.out.println("about to launch query");
 		System.out.println("numtocrawl : " + numToProcess);
 		String query = "from SiteCrawl sc where sc.numRetrievedFiles = 0";
@@ -239,7 +241,7 @@ public class JobController extends Controller {
 	}
 	@Transactional
 	public static Result inferUninferred(int numToProcess){
-		System.out.println("Global : " + Global.CRAWL_STORAGE_FOLDER);
+		System.out.println("Global : " + Global.getCrawlStorageFolder());
 		System.out.println("about to launch query");
 		System.out.println("numToProcess: " + numToProcess);
 		String query = "from SiteCrawl sc where (sc.inferredWebProvider is null or sc.inferredWebProvider = 0) "
@@ -256,7 +258,7 @@ public class JobController extends Controller {
 	 
 	@Transactional
 	public static Result crawlUncrawled(int numToCrawl){
-		System.out.println("Global : " + Global.CRAWL_STORAGE_FOLDER);
+		System.out.println("Global : " + Global.getCrawlStorageFolder());
 		System.out.println("about to launch query");
 		System.out.println("numtocrawl : " + numToCrawl);
 		String query = "from Site s where (s.crawls is empty or s.recrawl = true) and (s.maybeDefunct = false and "

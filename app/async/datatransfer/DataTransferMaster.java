@@ -14,9 +14,9 @@ import akka.routing.RoundRobinRoutingLogic;
 import akka.routing.Routee;
 import akka.routing.Router;
 import async.Asyncleton;
-import async.crawling.CrawlingWorker;
 import async.monitoring.AsyncMonitor;
 import async.work.SiteWork;
+import async.work.crawling.CrawlingWorker;
 
 public class DataTransferMaster extends UntypedActor {
 

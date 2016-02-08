@@ -25,7 +25,7 @@ public class LogAnalyzer {
 	public static Set<String> failedUrls() throws IOException{
 		Set<String> urls = new HashSet<String>();
 		
-		File logFolder = new File(Global.OLD_LOGS_FOLDER);
+		File logFolder = new File(Global.getOldLogsFolder());
 		System.out.println("absolute : " + logFolder.getAbsolutePath());
 		
 		for(File log : logFolder.listFiles()) {
@@ -58,7 +58,7 @@ public class LogAnalyzer {
 	public static Set<String> nullUrls() throws IOException{
 		Set<String> urls = new HashSet<String>();
 		
-		File logFolder = new File(Global.OLD_LOGS_FOLDER);
+		File logFolder = new File(Global.getOldLogsFolder());
 		System.out.println("absolute : " + logFolder.getAbsolutePath());
 		
 		for(File log : logFolder.listFiles()) {

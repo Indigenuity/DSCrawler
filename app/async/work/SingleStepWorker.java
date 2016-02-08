@@ -14,13 +14,19 @@ public class SingleStepWorker extends UntypedActor {
 
 	@Override
 	public void onReceive(Object work) throws Exception {
-		WorkOrder workOrder = (WorkOrder) work;
-		System.out.println("Performing work : " + workOrder.getWorkType());
-		AsyncMonitor.instance().addWip(workOrder.getWorkType().toString(), uuid);
-		WorkResult workResult = processWorkOrder(workOrder);
-		AsyncMonitor.instance().finishWip(workOrder.getWorkType().toString(), uuid);
-		getSender().tell(workResult, getSelf());
-		getContext().stop(getSelf());
+		try{
+			WorkOrder workOrder = (WorkOrder) work;
+			System.out.println("Performing work : " + workOrder.getWorkType() + " Thread name : " + Thread.currentThread().getName());
+			AsyncMonitor.instance().addWip(workOrder.getWorkType().toString(), uuid);
+			WorkResult workResult = processWorkOrder(workOrder);
+			AsyncMonitor.instance().finishWip(workOrder.getWorkType().toString(), uuid);
+			getSender().tell(workResult, getSelf());
+		}
+		catch(Exception e){
+			Logger.error("Error in Single Step Worker : " + e);
+			System.out.println("Error in Single Step Worker : " + e);
+			e.printStackTrace();
+		}
 	}
 	
 	@Override

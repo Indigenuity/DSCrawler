@@ -20,6 +20,7 @@ import async.monitoring.AsyncMonitor;
 import async.monitoring.AsyncMonitor.CompletedWork;
 import async.monitoring.AsyncMonitor.WorkInProgress;
 import async.work.SiteWork;
+import async.work.crawling.CrawlingWorker;
 
 public class CrawlingMaster extends UntypedActor {
 

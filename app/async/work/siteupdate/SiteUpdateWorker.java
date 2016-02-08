@@ -1,51 +1,57 @@
 package async.work.siteupdate;
 
-import org.apache.commons.lang.StringUtils;
-import org.eclipse.jetty.util.StringUtil;
-
-import com.google.maps.GeoApiContext;
-import com.google.maps.PlaceDetailsRequest;
-import com.google.maps.PlacesApi;
-import com.google.maps.model.PlaceDetails;
+import java.util.Calendar;
 
 import async.work.SingleStepJPAWorker;
+import async.work.SingleStepWorker;
 import async.work.WorkOrder;
 import async.work.WorkResult;
 import async.work.WorkStatus;
-import async.work.googleplaces.PlacesPageWorkOrder;
-import async.work.googleplaces.PlacesPageWorkResult;
-import global.Global;
-import persistence.PlacesPage;
 import persistence.Site;
 import persistence.UrlCheck;
-import places.DataBuilder;
 import play.Logger;
 import play.db.jpa.JPA;
 import utilities.DSFormatter;
 import utilities.UrlSniffer;
 
-public class SiteUpdateWorker extends SingleStepJPAWorker {
+public class SiteUpdateWorker extends SingleStepWorker {
 	
 	@Override
-	protected WorkResult processWorkOrder(WorkOrder workOrder) {
+	public WorkResult processWorkOrder(WorkOrder workOrder) {
 		SiteUpdateWorkResult result = new SiteUpdateWorkResult();
 		try{
-			System.out.println("doing some site updatework");
+//			System.out.println("doing some site updatework");
 			SiteUpdateWorkOrder order = (SiteUpdateWorkOrder)workOrder;
 			result.setSiteId(order.getSiteId());
+			result.setUuid(order.getUuid());
 			result.setUrlCheckId(order.getUrlCheckId());
-			UrlCheck urlCheck = JPA.em().find(UrlCheck.class, order.getUrlCheckId());
-			Site site = JPA.em().find(Site.class, order.getSiteId());
-			
-			if(urlCheck.getStatusCode() == 200) {
-				if(!DSFormatter.equals(urlCheck.getResolvedSeed(), site.getHomepage())){
-					if(UrlSniffer.isGenericRedirect(urlCheck.getResolvedSeed(), site.getHomepage())){
-						site.setHomepage(urlCheck.getResolvedSeed());
+			JPA.withTransaction( () -> {
+				UrlCheck urlCheck = JPA.em().find(UrlCheck.class, order.getUrlCheckId());
+				Site site = JPA.em().find(Site.class, order.getSiteId());
+				
+				if(urlCheck.getStatusCode() == 200) {
+					if(DSFormatter.equals(urlCheck.getResolvedSeed(), site.getHomepage())){
+	//					System.out.println("no redirect");
+						site.setRedirectResolveDate(urlCheck.getCheckDate());
 						urlCheck.setAccepted(true);
+						urlCheck.setNoChange(true);
+						result.setWorkStatus(WorkStatus.WORK_COMPLETED);
+						
+					}
+					else if(UrlSniffer.isGenericRedirect(urlCheck.getResolvedSeed(), site.getHomepage())){
+	//					System.out.println("generic change");
+						site.setHomepage(urlCheck.getResolvedSeed());
+						site.setRedirectResolveDate(urlCheck.getCheckDate());
+						urlCheck.setAccepted(true);
+						result.setWorkStatus(WorkStatus.WORK_COMPLETED);
 					}
 				}
-			}
-			result.setWorkStatus(WorkStatus.WORK_COMPLETED);
+				if(result.getWorkStatus() != WorkStatus.WORK_COMPLETED){
+	//				System.out.println("work needs review");
+					result.setWorkStatus(WorkStatus.NEEDS_REVIEW);				
+				}
+			});
+			
 		}
 		catch(Exception e) {
 			Logger.error("Error in Site Update Worker: " + e);

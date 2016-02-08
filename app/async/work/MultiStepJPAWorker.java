@@ -2,6 +2,7 @@ package async.work;
 
 import java.util.UUID;
 
+import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
 import async.monitoring.AsyncMonitor;
 import play.Logger;
@@ -11,24 +12,29 @@ public class MultiStepJPAWorker extends UntypedActor {
 	
 	protected Long uuid = UUID.randomUUID().getLeastSignificantBits();
 	protected WorkOrder workOrder;
+	protected ActorRef customer;
+	protected Long workOrderUuid;
 
 	@Override
 	public void onReceive(Object work) throws Exception {
-		
+		System.out.println("Starting multi step work on thread " + Thread.currentThread().getName());
 		if(work instanceof WorkOrder) {
 			if(workOrder != null){
+				Logger.error("Received second work order : " + work);
 				throw new IllegalStateException("Received second work order : " + work);
 			}
+			customer = getSender();
 			workOrder = (WorkOrder) work;
-			System.out.println("Performing work : " + workOrder.getWorkType());
-			AsyncMonitor.instance().addWip(workOrder.getWorkType().toString(), uuid);
+			this.workOrderUuid = workOrder.getUuid();
+//			System.out.println("just set work order uuid : " + this.workOrderUuid);
+//			System.out.println("Performing work : " + workOrder.getWorkType());
 			processWorkOrder(workOrder);
-			proceedWithWork();
+			doNextStep();
 		}
 		else if(work instanceof WorkResult){
 			WorkResult workResult = (WorkResult)work;
 			processWorkResult(workResult);
-			proceedWithWork();
+			doNextStep();
 		}
 		else {
 			Logger.error("got unknown work in Multi Step worker : " + work);
@@ -54,29 +60,28 @@ public class MultiStepJPAWorker extends UntypedActor {
 		
 	}
 	
-	public void proceedWithWork(){
-		if(hasNextStep()){
-			doNextStep();
-		}
-		else {
-			finish();
-		}
-	}
-	
 	public void processWorkResult(WorkResult workResult) {
 		
 	}
 	
 	public void finish() {
-		AsyncMonitor.instance().finishWip(workOrder.getWorkType().toString(), uuid);
 		WorkResult workResult = generateWorkResult();
-		getSender().tell(workResult, getSelf());
-		getContext().stop(getSelf());
+		customer.tell(workResult, getSelf());
 	}
 	
 	public WorkResult generateWorkResult(){
-		return null;
+		System.out.println("In generic generateworkresult");
+		return new WorkResult(WorkType.INFO_FETCH);
 	}
+
+	public Long getWorkOrderUuid() {
+		return workOrderUuid;
+	}
+
+	public void setWorkOrderUuid(Long workOrderUuid) {
+		this.workOrderUuid = workOrderUuid;
+	}
+
 	
 
 }

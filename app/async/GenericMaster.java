@@ -17,6 +17,8 @@ import async.docanalysis.DocAnalysisWorker;
 import async.monitoring.AsyncMonitor;
 import async.work.SiteWork;
 import async.work.WorkItem;
+import async.work.WorkOrder;
+import async.work.WorkResult;
 import async.work.WorkSet;
 import async.work.WorkStatus;
 import async.work.infofetch.InfoFetch;
@@ -31,10 +33,13 @@ public class GenericMaster extends UntypedActor {
 	
 	private Class<?> clazz;
 	
+	private WaitingRoom waitingRoom;
+	
 	public GenericMaster(int numWorkers, ActorRef listener, Class<?> clazz) {
 		this.numWorkers = numWorkers;
 		this.listener = listener;
 		this.clazz = clazz;
+		this.waitingRoom = new WaitingRoom("Waiting room for " + clazz);
 		List<Routee> routees = new ArrayList<Routee>();
 	    for (int i = 0; i < this.numWorkers; i++) {
 	      ActorRef r = getContext().actorOf(Props.create(clazz));
@@ -62,6 +67,29 @@ public class GenericMaster extends UntypedActor {
 				else if(workItem.getWorkStatus() == WorkStatus.WORK_IN_PROGRESS){	//Worker ended in error
 					AsyncMonitor.instance().finishWip(workItem.getWorkType().toString(), workItem.getUuid());
 				}
+				
+			}
+			else if (work instanceof WorkOrder) {
+				WorkOrder workOrder = (WorkOrder) work;
+//				System.out.println("got work order: " + workOrder);
+				if(!waitingRoom.add(workOrder.getUuid(), getSender())){
+					//TODO figure out what to do when duplicate work order is sent in
+					return;
+				}
+				router.route(workOrder, getSelf());
+			}
+			else if(work instanceof WorkResult) {
+				WorkResult workResult = (WorkResult) work;
+				ActorRef customer = waitingRoom.remove(workResult.getUuid());
+				if(customer == null){
+					//TODO figure out what to do when receiving work result for no customer
+					return;
+				}
+				if(customer.equals(ActorRef.noSender())){
+					//TODO figure out what to do when customer didn't leave a number
+					return;
+				}
+				customer.tell(workResult, getSelf());
 				
 			}
 			else if (work instanceof InfoFetch) {

@@ -19,7 +19,7 @@ public class SiteAnalyzer {
 		fetchPagesConditionally(siteInfo);
 		
 		for(PageInformation pageInfo : siteInfo.getPages()){
-			File in = new File(Global.CRAWL_STORAGE_FOLDER + siteInfo.getCrawlStorageFolder() + "/" + pageInfo.getFileLocation());
+			File in = new File(Global.getCrawlStorageFolder() + siteInfo.getCrawlStorageFolder() + "/" + pageInfo.getFileLocation());
 //			System.out.println(siteInfo.getId() + " : " + pageInfo.getPath());
 			PageAnalyzer.analyzeMatches(pageInfo, in);
 		}
@@ -29,7 +29,7 @@ public class SiteAnalyzer {
 		fetchPagesConditionally(siteInfo);
 		
 		for(PageInformation pageInfo : siteInfo.getPages()){
-			File in = new File(Global.CRAWL_STORAGE_FOLDER + siteInfo.getCrawlStorageFolder() + "/" + pageInfo.getFileLocation());
+			File in = new File(Global.getCrawlStorageFolder() + siteInfo.getCrawlStorageFolder() + "/" + pageInfo.getFileLocation());
 			PageAnalyzer.analyzeStringExtractions(pageInfo, in);
 		}
 	}
@@ -38,7 +38,7 @@ public class SiteAnalyzer {
 		fetchPagesConditionally(siteInfo);
 		
 		for(PageInformation pageInfo : siteInfo.getPages()){
-			File in = new File(Global.CRAWL_STORAGE_FOLDER + siteInfo.getCrawlStorageFolder() + "/" + pageInfo.getFileLocation());
+			File in = new File(Global.getCrawlStorageFolder() + siteInfo.getCrawlStorageFolder() + "/" + pageInfo.getFileLocation());
 			PageAnalyzer.analyzeStaff(pageInfo, in);
 		}
 	}
@@ -51,7 +51,7 @@ public class SiteAnalyzer {
 	
 	public static void fetchPages(SiteInformationOld siteInfo) throws IOException {
 		
-		File siteFolder = new File(Global.CRAWL_STORAGE_FOLDER + siteInfo.getCrawlStorageFolder());
+		File siteFolder = new File(Global.getCrawlStorageFolder() + siteInfo.getCrawlStorageFolder());
 		if (!(siteFolder.exists()  && siteFolder.isDirectory())) {
 			System.out.println("But it doesn't exist : " + siteFolder.getAbsolutePath());
 	          throw new IOException("There is no site information at this location");

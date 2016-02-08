@@ -209,7 +209,7 @@ public class SiteCrawlAnalyzer {
 //		if(siteCrawl.isFilesMoved() || !FileMover.crawlIsOnLocal(siteCrawl)){
 //			throw new IllegalArgumentException("Crawl files are not found on local storage : " + siteCrawl.getStorageFolder());
 //		}
-		File storageFolder = new File(Global.CRAWL_STORAGE_FOLDER + "/" + siteCrawl.getStorageFolder());
+		File storageFolder = new File(Global.getCrawlStorageFolder() + "/" + siteCrawl.getStorageFolder());
 		
 		if(!storageFolder.exists() || !storageFolder.isDirectory()){
 			throw new IllegalArgumentException("No crawl found at location : " + storageFolder.getAbsolutePath());
@@ -221,7 +221,7 @@ public class SiteCrawlAnalyzer {
 			if(StringUtils.isEmpty(pageCrawl.getFilename())){
 				continue;
 			}
-			File file = new File(Global.CRAWL_STORAGE_FOLDER + "/" + siteCrawl.getStorageFolder() + "/" + pageCrawl.getFilename());
+			File file = new File(Global.getCrawlStorageFolder() + "/" + siteCrawl.getStorageFolder() + "/" + pageCrawl.getFilename());
 			if(file.isFile() && !FilenameUtils.getExtension(file.getName()).equals("ser")) {
 				FileInputStream inputStream = new FileInputStream(file.getAbsolutePath());
 		        String text = IOUtils.toString(inputStream);
@@ -236,7 +236,7 @@ public class SiteCrawlAnalyzer {
 		        
 		        numFiles++;
 		        
-		        if(file.length() > Global.LARGE_FILE_THRESHOLD){
+		        if(file.length() > Global.getLargeFileThreshold()){
 		        	numLargeFiles++;
 		        }
 			}
@@ -249,7 +249,7 @@ public class SiteCrawlAnalyzer {
 	//Only analyzes amalgamated files.  
 	public static void textAnalysis(SiteCrawl siteCrawl) throws IOException {
 		System.out.println("text analysis : " + siteCrawl.getSiteCrawlId());
-		File storageFolder = new File(Global.COMBINED_STORAGE_FOLDER + "/" + siteCrawl.getStorageFolder());
+		File storageFolder = new File(Global.getCombinedStorageFolder() + "/" + siteCrawl.getStorageFolder());
 		
 		if(!storageFolder.exists() || !storageFolder.isDirectory()){
 			throw new IllegalArgumentException("No combined data found at location : " + storageFolder.getAbsolutePath());

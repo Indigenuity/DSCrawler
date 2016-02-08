@@ -290,8 +290,8 @@ public class Application extends Controller {
     	SiteCrawlAnalyzer.docAnalysis(siteCrawl);
     	siteCrawl.setDocAnalysisDone(true);
     	
-		File storageFolder = new File(Global.CRAWL_STORAGE_FOLDER + "/" + siteCrawl.getStorageFolder());
-		File destination = new File(Global.COMBINED_STORAGE_FOLDER + "/" + siteCrawl.getStorageFolder());
+		File storageFolder = new File(Global.getCrawlStorageFolder() + "/" + siteCrawl.getStorageFolder());
+		File destination = new File(Global.getCombinedStorageFolder() + "/" + siteCrawl.getStorageFolder());
 		System.out.println("destination: " + destination);
 		File amalgamatedFile = Amalgamater.amalgamateFiles(storageFolder, destination);
 		siteCrawl.setAmalgamationDone(true);

@@ -18,12 +18,11 @@ public class SingleStepJPAWorker extends UntypedActor {
 	@Override
 	public void onReceive(Object work) throws Exception {
 		WorkOrder workOrder = (WorkOrder) work;
-		System.out.println("Performing work : " + workOrder.getWorkType());
+//		System.out.println("Performing work : " + workOrder.getWorkType());
 		AsyncMonitor.instance().addWip(workOrder.getWorkType().toString(), uuid);
 		WorkResult workResult = processWorkOrderWithWrapper(workOrder);
 		AsyncMonitor.instance().finishWip(workOrder.getWorkType().toString(), uuid);
 		getSender().tell(workResult, getSelf());
-		getContext().stop(getSelf());
 	}
 	
 	@Override

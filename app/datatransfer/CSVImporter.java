@@ -443,7 +443,7 @@ public class CSVImporter {
 //		
 		System.out.println("Writing to file ");
 		
-		FileWriter fileOut = new FileWriter(new File(Global.STORAGE_FOLDER + "/csv/fordCustomList2.csv"));
+		FileWriter fileOut = new FileWriter(new File(Global.getStorageFolder() + "/csv/fordCustomList2.csv"));
 		CSVPrinter printer = new CSVPrinter(fileOut, CSVFormat.EXCEL);
 		printer.printRecords(CSVRows);
 		printer.close();

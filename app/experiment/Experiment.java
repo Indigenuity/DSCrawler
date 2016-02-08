@@ -82,8 +82,10 @@ import async.Asyncleton;
 import async.work.SiteWork;
 import async.work.WorkItem;
 import async.work.WorkSet;
+import async.work.WorkStatus;
 import async.work.WorkType;
 import async.work.infofetch.InfoFetch;
+import async.work.urlresolve.UrlResolveWorkOrder;
 import persistence.CrawlSet;
 import persistence.Dealer;
 import persistence.ExtractedString;
@@ -109,11 +111,35 @@ import utilities.UrlSniffer;
 
 public class Experiment {
 	
-	public static void runExperiment() {
-		
+	public static void runExperiment() throws Exception {
+//		UrlCheck urlCheck = UrlSniffer.checkUrl("http://auto-world.webs.com/");
+//		System.out.println("url check after : " + urlCheck);
+//		createSiteUpdateFetchJobs();
+//		testInfoFetch();
+//		SiteCrawl sc = DealerCrawlController.crawlSite("http://willtiesieraford.com/");
+//		System.out.println("sc : " + sc);
+//		System.out.println("pages : " + sc.getPageCrawls().size());
 	}
+	
+	public static void testInfoFetch() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
+		UrlResolveWorkOrder workOrder = new UrlResolveWorkOrder("http://www.conquerclub.com/");
+		InfoFetch infoFetch = JPA.em().find(InfoFetch.class, 45022L);
+		
+//		System.out.println("urlcheck before : " + infoFetch.getUrlCheckId());
+//		infoFetch.setUrlCheckId(0L);
+		infoFetch.getUrlCheck().workStatus = WorkStatus.DO_WORK;
+		infoFetch.getSiteUpdate().workStatus = WorkStatus.DO_WORK;
+		JPA.em().merge(infoFetch);
+		JPA.em().getTransaction().commit();
+		JPA.em().getTransaction().begin();
+		JPA.em().refresh(infoFetch);
+//		System.out.println("urlcheck after : " + infoFetch.getUrlCheckId());
+		Asyncleton.getInstance().getMaster(infoFetch.getWorkType()).tell(infoFetch, Asyncleton.getInstance().getMainListener());
+	}
+	
+	
 	public static void createSiteUpdateFetchJobs() {
-		String query = "from Site s where s.franchise = false";
+		String query = "from Site s where s.franchise = true";
 		List<Site> sites = JPA.em().createQuery(query).getResultList();
 		System.out.println("sites : " + sites.size());
 		FetchJob job = new FetchJob();
@@ -123,8 +149,9 @@ public class Experiment {
 			InfoFetch fetch = new InfoFetch();
 			fetch.setSiteId(site.getSiteId());
 			fetch.setSeed(site.getHomepage());
-			fetch.setDoUrlCheck(true);
-			fetch.setDoSiteUpdate(true);
+			fetch.getUrlCheck().workStatus = WorkStatus.DO_WORK;
+			fetch.getSiteUpdate().workStatus = WorkStatus.DO_WORK;
+			fetch.getSiteCrawl().workStatus = WorkStatus.DO_WORK;
 			fetch.setFetchJob(job);
 			JPA.em().persist(fetch);
 		}
@@ -142,35 +169,105 @@ public class Experiment {
 	}
 	
 	public static void mergingLists() {
-		List<Site> sites = SitesDAO.getSitesWithRedirectUrl("cramertoyota.com", 20, 0);
-		System.out.println("sites : " + sites.size());
-//		List<Site> sfs = JPA.em().createQuery("select s from Site s join s.redirectUrls where join Temp t on t.domain = s.domain").getResultList();
-//		System.out.println("sfs : " + sfs.size());
-//		int count = 0;
-//		for(Temp temp : sfs) {
-////			String domain = "";
-////			if(temp.getStandardizedUrl() != null){
-////				domain = DSFormatter.getDomain(temp.getStandardizedUrl());
-////			}
-////			temp.setDomain(domain);
-////			if(domain.equals("ERROR")){
-////				temp.setProblem("Invalid URL");
-////				continue;
-////			}
-////			long shared = 0;
-////			if((shared = SitesDAO.getCount("homepage", temp.getStandardizedUrl())) > 0){
-////				temp.setSuggestedSource("" + shared);
-////			}
+		List<Temp> sfs = JPA.em().createQuery("from Temp t where t.nextStep is not null").getResultList();
+		System.out.println("sfs : " + sfs.size());
+		int count = 0;
+		for(Temp temp : sfs) {
+			if("Follow up on urlcheck".equals(temp.getNextStep())){
+				Site match = SitesDAO.getFirst("homepage",  temp.getSuggestedUrl(), 0);
+				if(match != null){
+					temp.setSite(match);
+					temp.setSiteSource("Direct Match after url check");
+				}				
+			}
+//			String domain = "";
+//			if(temp.getStandardizedUrl() != null){
+//				domain = DSFormatter.getDomain(temp.getStandardizedUrl());
+//			}
+//			temp.setDomain(domain);
+//			if(temp.getDomain().equals("ERROR")){
+//				temp.setNextStep("Fix URL");
+//				continue;
+//			}
+//			Site match = SitesDAO.getFirst("homepage",  temp.getStandardizedUrl(), 0);
+//			if(match != null){
+//				temp.setSite(match);
+//				temp.setSiteSource("Direct Match");
+//			}
+//			
+//			
+//			List<Site> sites = SitesDAO.getSitesWithRedirectUrl(temp.getStandardizedUrl(), 20, 0);
+//			if(sites.size() == 1){
+//				temp.setSite(sites.get(0));
+//				System.out.println("Found by redirect urls");
+//				temp.setSiteSource("Redirect Url");
+//				continue;
+//			}
+//			else if (sites.size() > 1){
+//				String siteIds = "";
+//				String sep = "";
+//				for(Site site : sites){
+//					siteIds = siteIds + sep;
+//					siteIds = siteIds + site.getSiteId();
+//					sep = ", ";
+//				}
+//				temp.setNextStep("Decide which site is best : " + siteIds);
+//			}
+//			String query = "from UrlCheck uc where seed = '" + temp.getStandardizedUrl() + "'";
+//			List<UrlCheck> checks = JPA.em().createQuery(query).getResultList();
+//			if(checks.size() > 0){
+//				System.out.println("found checks : " + checks.size());
+//				UrlCheck check = checks.get(0);
+//				temp.setSuggestedUrl(check.getResolvedSeed());
+//				temp.setSuggestedSource("UrlCheck from FetchJob");
+//				temp.setNextStep("Follow up on urlcheck");
+//				if(check.getErrorMessage() != null){
+//					temp.setProblem("error from url check : " + check.getErrorMessage());
+//				}
+//				else if(check.getStatusCode() != 200){
+//					temp.setProblem("Status code from UrlCheck : " + check.getStatusCode());
+//				}
+//				continue;
+//			}
+			
+			
+			
+			
+			
+//			sites = SitesDAO.getSitesWithSimilarRedirectUrl(temp.getStandardizedUrl(), 20, 0);
+//			if(sites.size() == 1){
+//				for(String redirectUrl : sites.get(0).getRedirectUrls()){
+//					if(UrlSniffer.isGenericRedirect(redirectUrl, temp.getStandardizedUrl())){
+//						temp.setSite(sites.get(0));
+//						temp.setSiteSource("Similar redirect was generic");
+//						continue;
+//					}
+//				}
+//				if(temp.getSite() != null){
+//					continue;
+//				}
+//			}
+//			if(sites.size() >1){
+//				String siteIds = "";
+//				String sep = "";
+//				for(Site site : sites){
+//					siteIds = siteIds + sep;
+//					siteIds = siteIds + site.getSiteId();
+//					sep = ", ";
+//				}
+//				temp.setNextStep("Decide which similar redirect is best : " + siteIds);
+//			}
+			
 //			if(UrlSniffer.isGenericRedirect(temp.getStandardizedUrl(), temp.getIntermediateUrl())){
 //				temp.setSuggestedUrl(temp.getIntermediateUrl());
 //				temp.setSuggestedSource("Domain similarity");
 //			}
-//			if(++count % 100 == 0) {
-//				System.out.println("count : " + count);
-//				JPA.em().getTransaction().commit();
-//				JPA.em().getTransaction().begin();
-//			}
-//		}
+			if(++count % 100 == 0) {
+				System.out.println("count : " + count);
+				JPA.em().getTransaction().commit();
+				JPA.em().getTransaction().begin();
+			}
+		}
 	}
 	
 	public static void generateQualityReport() throws IOException {
@@ -491,8 +588,8 @@ public class Experiment {
 //					
 			if(siteCrawl.isFilesMoved() && count < 5000){
 				System.out.println("file location: " + siteCrawl.getStorageFolder());
-				File origin = new File(Global.SECONDARY_CRAWL_STORAGE_FOLDER + siteCrawl.getStorageFolder());
-				File destination = new File(Global.CRAWL_STORAGE_FOLDER + siteCrawl.getStorageFolder());
+				File origin = new File(Global.getSecondaryCrawlStorageFolder() + siteCrawl.getStorageFolder());
+				File destination = new File(Global.getCrawlStorageFolder() + siteCrawl.getStorageFolder());
 				count++;
 				try{
 					FileUtils.moveDirectory(origin, destination);
@@ -629,7 +726,7 @@ public class Experiment {
 	
 	
 	public static void moveToSecondary() {
-		File storageRoot = new File(Global.CRAWL_STORAGE_FOLDER);
+		File storageRoot = new File(Global.getCrawlStorageFolder());
 		
 		for(File dateFolder : storageRoot.listFiles()) {
 			for(File siteFolder : dateFolder.listFiles()){
