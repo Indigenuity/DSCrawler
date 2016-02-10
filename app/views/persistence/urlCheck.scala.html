@@ -1,0 +1,13 @@
+@(urlCheck : _root_.persistence.UrlCheck)
+
+<div class="urlcheck-compact compact">
+	@if( urlCheck == null){
+		<h4>UrlCheck object is null, nothing to display</h4>
+	} else {
+		<h4>UrlCheck #@urlCheck.getUrlCheckId()</h4>
+		<p>Seed: <a href="@urlCheck.getSeed()" target="_blank">@urlCheck.getSeed()</a></p>
+		<p>Resolved Seed: <a href="@urlCheck.getResolvedSeed()" target="_blank">@urlCheck.getResolvedSeed()</a></p>
+		<p>Status Code: @urlCheck.getStatusCode() &nbsp;&nbsp;&nbsp;&nbsp;NoChange: @urlCheck.isNoChange()</p>
+		<p>@urlCheck.getErrorMessage()</p>
+	}
+</div>

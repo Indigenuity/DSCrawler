@@ -2,7 +2,6 @@ package async.work.urlresolve;
 
 import java.util.Calendar;
 
-import async.work.SingleStepJPAWorker;
 import async.work.SingleStepWorker;
 import async.work.WorkOrder;
 import async.work.WorkResult;
@@ -36,6 +35,7 @@ public class UrlResolveWorker  extends SingleStepWorker {
 			Logger.error("Error in Url Resolve: " + e);
 			e.printStackTrace();
 			result.setWorkStatus(WorkStatus.COULD_NOT_COMPLETE);
+			result.setNote(e.getMessage());
 		}
 		return result;
 	}	

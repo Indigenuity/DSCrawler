@@ -50,6 +50,10 @@ public class CrawlingWorker extends SingleStepWorker {
 	private static int count = 0;
 	@Override
 	public WorkResult processWorkOrder(WorkOrder work) {
+		return doWorkOrder(work);
+	}
+	
+	public static SiteCrawlWorkResult doWorkOrder(WorkOrder work) {
 		System.out.println("CrawlingWorker processing WorkOrder : " + work);
 		SiteCrawlWorkResult result = new SiteCrawlWorkResult();
 		try{

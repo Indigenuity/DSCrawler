@@ -7,7 +7,7 @@ public enum WebProvider {
 	JAZEL_AUTOS,
 	CLICK_MOTIVE,
 	VIN_SOLUTIONS,
-	COBALT,
+	CDK_COBALT,
 	DEALER_ON,
 	AUTO_ONE
 

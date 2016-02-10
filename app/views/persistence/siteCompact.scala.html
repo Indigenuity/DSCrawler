@@ -1,0 +1,10 @@
+@(site : _root_.persistence.Site)
+
+<div class="site-compact compact">
+	@if( site == null){
+		<h4>Site object is null, nothing to display</h4>
+	} else {
+		<h4>Site #@site.getSiteId()</h4>
+		<p>Homepage: <a href="@site.getHomepage()" target="_blank">@site.getHomepage()</a></p>
+	}
+</div>

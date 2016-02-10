@@ -221,7 +221,6 @@ p {
 }
 
 
-
 /**************End Persistence Objects*****************/
 
 
@@ -258,4 +257,7 @@ p {
 .domain-comparison .site-info,
 .duplicate-domain .site-display{
 	padding-left:45px;
+}
+.indented {
+	margin-left:45px;
 }

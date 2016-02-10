@@ -26,7 +26,9 @@ GET		/reviewSites					controllers.DataView.reviewSites(crawlSetId : Long, numToP
 GET		/reviewDupDomains				controllers.DataView.reviewDupDomains(numToProcess : Integer ?= 20, offset : Integer ?= 0)
 POST	/viewSiteList					controllers.DataView.viewSiteList()
 GET		/fetchJobs						controllers.DataView.fetchJobs()
-GET		/fetchJob						controllers.DataView.fetchJob(fetchJobId : Long)					
+GET		/fetchJob						controllers.DataView.fetchJob(fetchJobId : Long)	
+
+GET		/reviewInfoFetches				controllers.DataView.reviewInfoFetches(subtaskName : String, fetchJobId : Long, numToProcess : Integer ?= 20, offset : Integer ?= 0)
 
 
 GET		/crawlUncrawled/:numToCrawl				controllers.JobController.crawlUncrawled(numToCrawl : Integer)
@@ -86,12 +88,14 @@ GET		/deleteCrawlSet					controllers.DataEditor.deleteCrawlSet(crawlSetId : Long
 POST	/setHomepage					controllers.DataEditor.setHomepage()
 POST 	/acceptSuggested				controllers.DataEditor.acceptSuggested()
 POST 	/ignoreSuggested				controllers.DataEditor.ignoreSuggested()
+POST	/redoUrlCheck					controllers.DataEditor.redoUrlCheck()
 POST	/markMaybeDefunct				controllers.DataEditor.markMaybeDefunct()
 POST	/reviewLater					controllers.DataEditor.reviewLater()
 POST	/approveSmallCrawl				controllers.DataEditor.approveSmallCrawl()
 POST	/markGroupSite					controllers.DataEditor.markGroupSite()
 POST	/markCrawlProtected				controllers.DataEditor.markCrawlProtected()
 POST	/markRecrawl					controllers.DataEditor.markRecrawl()
+POST	/editFetchJobOptions			controllers.DataEditor.editFetchJobOptions()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

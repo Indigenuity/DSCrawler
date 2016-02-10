@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -67,11 +68,13 @@ import crawling.DealerCrawlController;
 import crawling.GoogleCrawler;
 import crawling.MobileCrawler;
 import dao.SitesDAO;
+import dao.StatsDAO;
 import datadefinitions.GeneralMatch;
 import datadefinitions.Scheduler;
 import datadefinitions.StringExtraction;
 import datadefinitions.UrlExtraction;
 import datadefinitions.WebProvider;
+import datadefinitions.newdefinitions.WPAttribution;
 import datatransfer.Amalgamater;
 import datatransfer.CSVGenerator;
 import datatransfer.CSVImporter;
@@ -104,6 +107,7 @@ import persistence.stateful.FetchJob;
 import places.DataBuilder;
 import play.db.DB;
 import play.db.jpa.JPA;
+import reporting.DashboardStats;
 import scaffolding.Scaffolder;
 import utilities.DSFormatter;
 import utilities.FB;
@@ -111,14 +115,33 @@ import utilities.UrlSniffer;
 
 public class Experiment {
 	
-	public static void runExperiment() throws Exception {
-//		UrlCheck urlCheck = UrlSniffer.checkUrl("http://auto-world.webs.com/");
-//		System.out.println("url check after : " + urlCheck);
-//		createSiteUpdateFetchJobs();
-//		testInfoFetch();
-//		SiteCrawl sc = DealerCrawlController.crawlSite("http://willtiesieraford.com/");
-//		System.out.println("sc : " + sc);
-//		System.out.println("pages : " + sc.getPageCrawls().size());
+	public static void runExperiment() {
+		FetchJob fetchJob = JPA.em().find(FetchJob.class, 3L);
+		DashboardStats stats = StatsDAO.getFetchJobStats(fetchJob);
+		
+		for(Entry<String, Object> entry : stats.getStats().entrySet()){
+			System.out.println("key: " + entry.getKey());
+			System.out.println("value : " + entry.getValue());
+		}
+	}
+	
+	public static void testWpAttributions() throws Exception {
+//		String query = "from SiteCrawl sc order by "
+		SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, 118701L);
+		System.out.println("doing amalgamation");
+		File storageFolder = new File(Global.getCrawlStorageFolder() + "/" + siteCrawl.getStorageFolder());
+		File destination = new File(Global.getCombinedStorageFolder() + "/" + siteCrawl.getStorageFolder());
+		Amalgamater.amalgamateFiles(storageFolder, destination);
+		
+		System.out.println("doing text analysis");
+		SiteCrawlAnalyzer.textAnalysis(siteCrawl);
+		System.out.println("doing doc analysis");
+		SiteCrawlAnalyzer.docAnalysis(siteCrawl);
+		
+		System.out.println("printing wpattributions:");
+		for(WPAttribution wp : siteCrawl.getWpAttributions()){
+			System.out.println("wp : " + wp.name());
+		}
 	}
 	
 	public static void testInfoFetch() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {

@@ -1,13 +1,9 @@
 package analysis;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 
@@ -20,20 +16,18 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import datadefinitions.GeneralMatch;
-import datadefinitions.OEM;
 import datadefinitions.Scheduler;
 import datadefinitions.StringExtraction;
 import datadefinitions.StringMatch;
 import datadefinitions.UrlExtraction;
 import datadefinitions.WebProvider;
 import datadefinitions.WebProviderInference;
+import datadefinitions.newdefinitions.WPAttribution;
 import datatransfer.Amalgamater;
-import datatransfer.FileMover;
 import global.Global;
 import persistence.ExtractedString;
 import persistence.ExtractedUrl;
 import persistence.ImageTag;
-import persistence.Metatag;
 import persistence.PageCrawl;
 import persistence.SiteCrawl;
 import persistence.Staff;
@@ -78,10 +72,6 @@ public class SiteCrawlAnalyzer {
 		Set<String> urls = new HashSet<String>();
 		Set<String> metas = new HashSet<String>();
 		float total = siteCrawl.getPageCrawls().size();
-		float h1Total = 0;
-		float titleTotal = 0;
-		float urlTotal = 0;
-		float metaTotal = 0;
 		for(PageCrawl outer : siteCrawl.getPageCrawls()){
 			h1s.add(outer.getH1());
 			titles.add(outer.getTitle());
@@ -90,9 +80,6 @@ public class SiteCrawlAnalyzer {
 				metas.add(outer.getMetaDescription().getContent());
 			}
 		}
-		
-		
-				
 			
 //		System.out.println("new h1 score : " + h1s.size() / total);
 //		System.out.println("unique h1 : " + Math.round((1 - (h1Total/total)) * 100));
@@ -265,7 +252,10 @@ public class SiteCrawlAnalyzer {
 		        Tim.start();
 		        siteCrawl.addExtractedStrings(extractStrings(text));
 		        
-		        System.out.println("web providers");
+		        System.out.println("new web providers");
+		        Tim.intermediate();
+		        siteCrawl.setWpAttributions(getWebProviderAttributions(text));
+		        System.out.println("old web providers");
 		        Tim.intermediate();
 		        siteCrawl.setWebProviders(getWebProviders(text));
 		        System.out.println("schedulers");
@@ -280,6 +270,18 @@ public class SiteCrawlAnalyzer {
 		
 	}
 	
+	private static Set<WPAttribution> getWebProviderAttributions(String text) {
+		Set<WPAttribution> matches = new HashSet<WPAttribution>();
+		for(WPAttribution wp : WPAttribution.values()){
+			if(text.contains(wp.getDefinition()) && !matches.contains(wp.getDefinition())){
+//				System.out.println("matched : " + wp);
+				matches.add(wp);
+			}
+		}
+		return matches;
+	}
+
+
 	private static Set<WebProvider> getWebProviders(String text) {
 		Set<WebProvider> matches = new HashSet<WebProvider>();
 		for(WebProvider wp : WebProvider.values()){
@@ -329,7 +331,7 @@ public class SiteCrawlAnalyzer {
 		for(StringExtraction enumElement : StringExtraction.values()){
 			if(enumElement != StringExtraction.CITY){
 				Matcher matcher = enumElement.getPattern().matcher(text);
-				int count = 0;
+//				int count = 0;
 		    	while (matcher.find()) {
 	//	    		System.out.println("found count : " + ++count);
 		    		ExtractedString item = new ExtractedString(DSFormatter.truncate(matcher.group(0), 255), enumElement);

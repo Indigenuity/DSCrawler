@@ -17,7 +17,12 @@ import async.work.WorkOrder;
 import async.work.WorkStatus;
 import async.work.WorkType;
 import async.work.urlresolve.UrlResolveWorkOrder;
+import persistence.PlacesPage;
+import persistence.Site;
+import persistence.SiteCrawl;
+import persistence.UrlCheck;
 import persistence.stateful.FetchJob;
+import play.db.jpa.JPA;
 import utilities.DSFormatter;
 
 @Entity
@@ -51,12 +56,23 @@ public class InfoFetch extends WorkOrder {
 	private Long placesPageId;
 	
 	@Transient
-	private List<Subtask> subtasks;
+	private Site siteObject;
+	@Transient
+	private SiteCrawl siteCrawlObject;
+	@Transient
+	private UrlCheck urlCheckObject;
+	@Transient
+	private PlacesPage placesPageObject;
 	
 	private Subtask urlCheck = new Subtask();
 	private Subtask siteUpdate = new Subtask();
 	private Subtask siteCrawl = new Subtask();
+	private Subtask amalgamation = new Subtask();
+	private Subtask textAnalysis = new Subtask();
+	private Subtask docAnalysis = new Subtask();
+	private Subtask metaAnalysis = new Subtask();
 	private Subtask placesPageFetch = new Subtask();
+	
 	
 	public Long getInfoFetchId() {
 		return infoFetchId;
@@ -131,5 +147,66 @@ public class InfoFetch extends WorkOrder {
 	public void setPlacesPageFetch(Subtask placesPageFetch) {
 		this.placesPageFetch = placesPageFetch;
 	}
-	
+	public Subtask getTextAnalysis() {
+		return textAnalysis;
+	}
+	public void setTextAnalysis(Subtask textAnalysis) {
+		this.textAnalysis = textAnalysis;
+	}
+	public Subtask getDocAnalysis() {
+		return docAnalysis;
+	}
+	public void setDocAnalysis(Subtask docAnalysis) {
+		this.docAnalysis = docAnalysis;
+	}
+	public Subtask getMetaAnalysis() {
+		return metaAnalysis;
+	}
+	public void setMetaAnalysis(Subtask metaAnalysis) {
+		this.metaAnalysis = metaAnalysis;
+	}
+	public Subtask getAmalgamation() {
+		return amalgamation;
+	}
+	public void setAmalgamation(Subtask amalgamation) {
+		this.amalgamation = amalgamation;
+	}
+	public Site getSiteObject() {
+		return siteObject;
+	}
+	public void setSiteObject(Site siteObject) {
+		this.siteObject = siteObject;
+	}
+	public SiteCrawl getSiteCrawlObject() {
+		return siteCrawlObject;
+	}
+	public void setSiteCrawlObject(SiteCrawl siteCrawlObject) {
+		this.siteCrawlObject = siteCrawlObject;
+	}
+	public UrlCheck getUrlCheckObject() {
+		return urlCheckObject;
+	}
+	public void setUrlCheckObject(UrlCheck urlCheckObject) {
+		this.urlCheckObject = urlCheckObject;
+	}
+	public PlacesPage getPlacesPageObject() {
+		return placesPageObject;
+	}
+	public void setPlacesPageObject(PlacesPage placesPageObject) {
+		this.placesPageObject = placesPageObject;
+	}
+	public void initObjects(){
+		if(urlCheckId != null){
+			urlCheckObject = JPA.em().find(UrlCheck.class, urlCheckId);
+		}
+		if(siteId != null){
+			siteObject = JPA.em().find(Site.class, siteId);
+		}
+		if(siteCrawlId != null){
+			siteCrawlObject = JPA.em().find(SiteCrawl.class, siteCrawlId);
+		}
+		if(placesPageId != null){
+			placesPageObject = JPA.em().find(PlacesPage.class, placesPageId);
+		}
+	}
 }

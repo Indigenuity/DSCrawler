@@ -9,9 +9,11 @@ import javax.persistence.Column;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import async.work.WorkStatus;
 import persistence.CrawlSet;
 import persistence.Site;
 import persistence.SiteCrawl;
+import persistence.stateful.FetchJob;
 import play.db.jpa.JPA;
 import reporting.DashboardStats;
 
@@ -86,6 +88,58 @@ public class StatsDAO {
 		
 		
 		return stats;
+	}
+	
+	public static DashboardStats getFetchJobStats(FetchJob fetchJob) {
+		DashboardStats stats = new DashboardStats();
+		
+		fillSubtaskStats(fetchJob, stats, "urlCheck");
+		fillSubtaskStats(fetchJob, stats, "siteUpdate");
+		fillSubtaskStats(fetchJob, stats, "siteCrawl");
+		fillSubtaskStats(fetchJob, stats, "amalgamation");
+		fillSubtaskStats(fetchJob, stats, "textAnalysis");
+		fillSubtaskStats(fetchJob, stats, "docAnalysis");
+		fillSubtaskStats(fetchJob, stats, "placesPageFetch");
+//		stats.put("Total Sites", crawlSet.getSites().size());
+//		stats.put("Need Crawl", crawlSet.getUncrawled().size());
+//		stats.put("Need Mobile Crawl", crawlSet.getNeedMobile().size());
+//		stats.put("Need Redirect Resolve", crawlSet.getNeedRedirectResolve().size());
+//		stats.put("Site Crawls", crawlSet.getCompletedCrawls().size());
+//		
+//		for(Field field : Site.class.getDeclaredFields()) {
+//			if(field.getType() == boolean.class){
+//				long count = SitesDAO.getCrawlSetCount(crawlSet.getCrawlSetId(), field.getName(), true);
+//				stats.put(field.getName(), count);
+//			}
+//		}
+//		
+//		for(Field field : SiteCrawl.class.getDeclaredFields()) {
+//			if(field.getType() == boolean.class){
+//				long count = SiteCrawlDAO.getCrawlSetCount(crawlSet.getCrawlSetId(), field.getName(), true);
+//				stats.put(field.getName(), count);
+//			}
+//		}
+		
+		return stats;
+	}
+	
+	private static void fillSubtaskStats(FetchJob fetchJob, DashboardStats stats, String subtaskName){
+		String query = "select count(info) from FetchJob fj join fj.fetches info where fj.fetchJobId = :fetchJobId"
+				+ " and info." + subtaskName + ".workStatus = :workStatus";
+		Query q = JPA.em().createQuery(query);
+		q.setParameter("fetchJobId", fetchJob.getFetchJobId());
+		
+		q.setParameter("workStatus", WorkStatus.DO_WORK);
+		Integer value = Integer.parseInt(q.getSingleResult() + "");
+		stats.put(subtaskName + " Not Done", value);
+		
+		q.setParameter("workStatus", WorkStatus.WORK_COMPLETED);
+		value = Integer.parseInt(q.getSingleResult() + "");
+		stats.put(subtaskName + " Completed", value);
+		
+		q.setParameter("workStatus", WorkStatus.NEEDS_REVIEW);
+		value = Integer.parseInt(q.getSingleResult() + "");
+		stats.put(subtaskName + " Needs Review", value);
 	}
 	
 	public static DashboardStats getCrawlSetStats(CrawlSet crawlSet) {

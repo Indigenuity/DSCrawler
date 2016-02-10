@@ -4,50 +4,44 @@ import java.io.File;
 
 import datatransfer.Amalgamater;
 import global.Global;
-import persistence.CrawlSet;
-import persistence.Site;
 import persistence.SiteCrawl;
 import play.Logger;
 import play.db.jpa.JPA;
-import akka.actor.UntypedActor;
-import analysis.SiteCrawlAnalyzer;
-import async.work.SiteWork;
-import async.work.WorkItem;
+import async.work.SingleStepWorker;
+import async.work.WorkOrder;
+import async.work.WorkResult;
 import async.work.WorkStatus;
 
-public class AmalgamationWorker extends UntypedActor {
-
-	private static int count = 0;
+public class AmalgamationWorker extends SingleStepWorker { 
 	@Override
-	public void onReceive(Object work) throws Exception {
-
-		System.out.println("received amalgamation work");
-		WorkItem workItem = (WorkItem) work;
-		workItem.setWorkStatus(WorkStatus.WORK_IN_PROGRESS);
-		JPA.withTransaction( () -> {
-			
-			try{
-				SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, workItem.getSiteCrawlId());
-				File storageFolder = new File(Global.getCrawlStorageFolder() + "/" + siteCrawl.getStorageFolder());
-				File destination = new File(Global.getCombinedStorageFolder() + "/" + siteCrawl.getStorageFolder());
-				File amalgamatedFile = Amalgamater.amalgamateFiles(storageFolder, destination);
-				siteCrawl.setAmalgamationDone(true);
-				workItem.setWorkStatus(WorkStatus.WORK_COMPLETED);
-			}
-			catch(Exception e) {
-				Logger.error("error during amalgamation: " + e);
-				e.printStackTrace();
-			}
-			
-		});
-		getSender().tell(workItem, getSelf());
+	public WorkResult processWorkOrder(WorkOrder workOrder) {
+		return doWorkOrder(workOrder);
 	}
 	
-	@Override
-	public void postRestart(Throwable reason) throws Exception {
-		Logger.error("Amalgamation worker restarting");
-		preStart();
+	public static AmalgamationWorkResult doWorkOrder(WorkOrder workOrder) {
+		System.out.println("AmalgamationWorker processing WorkOrder : " + workOrder);
+		
+		AmalgamationWorkResult result = new AmalgamationWorkResult();
+		AmalgamationWorkOrder work = (AmalgamationWorkOrder) workOrder;
+		try{
+			Long siteCrawlId = work.getSiteCrawlId();
+			result.setSiteCrawlId(siteCrawlId);
+			result.setUuid(workOrder.getUuid());
+			
+			SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, siteCrawlId);
+			File storageFolder = new File(Global.getCrawlStorageFolder() + "/" + siteCrawl.getStorageFolder());
+			File destination = new File(Global.getCombinedStorageFolder() + "/" + siteCrawl.getStorageFolder());
+			Amalgamater.amalgamateFiles(storageFolder, destination);
+			siteCrawl.setAmalgamationDone(true);
+			result.setWorkStatus(WorkStatus.WORK_COMPLETED);
+		}
+		catch(Exception e) {
+			Logger.error("Error in Amalgamation: " + e);
+			e.printStackTrace();
+			result.setWorkStatus(WorkStatus.COULD_NOT_COMPLETE);
+			result.setNote(e.getMessage());
+		}
+		return result;
 	}
-	
 
 }

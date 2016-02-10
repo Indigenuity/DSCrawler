@@ -3,41 +3,41 @@ package async.docanalysis;
 import persistence.SiteCrawl;
 import play.Logger;
 import play.db.jpa.JPA;
-import akka.actor.UntypedActor;
 import analysis.SiteCrawlAnalyzer;
-import async.work.WorkItem;
+import async.work.SingleStepWorker;
+import async.work.WorkOrder;
+import async.work.WorkResult;
 import async.work.WorkStatus;
 
-public class DocAnalysisWorker extends UntypedActor {
-
+public class DocAnalysisWorker extends SingleStepWorker { 
 	@Override
-	public void onReceive(Object work) throws Exception {
+	public WorkResult processWorkOrder(WorkOrder workOrder) {
+		return doWorkOrder(workOrder);
+	}
+	
+	public static DocAnalysisWorkResult doWorkOrder(WorkOrder workOrder) {
+		System.out.println("DocAnalysisWorker processing WorkOrder : " + workOrder);
 		
-		WorkItem workItem = (WorkItem) work;
-		workItem.setWorkStatus(WorkStatus.WORK_IN_PROGRESS);
-		System.out.println("Performing doc analysis work : " + workItem.getSiteCrawlId());
-		JPA.withTransaction( () -> {
+		DocAnalysisWorkResult result = new DocAnalysisWorkResult();
+		DocAnalysisWorkOrder work = (DocAnalysisWorkOrder) workOrder;
+		try{
+			Long siteCrawlId = work.getSiteCrawlId();
+			result.setSiteCrawlId(siteCrawlId);
+			result.setUuid(workOrder.getUuid());
 			
-			try{
-				SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, workItem.getSiteCrawlId());
-				siteCrawl.initAll();
-				SiteCrawlAnalyzer.docAnalysis(siteCrawl);
-				siteCrawl.setDocAnalysisDone(true);
-				workItem.setWorkStatus(WorkStatus.WORK_COMPLETED);				
-			}
-			catch(Exception e) {
-				Logger.error("Error in Doc Analysis: " + e);
-				e.printStackTrace();
-			}
-		});
-		getSender().tell(work, getSelf());
+			SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, siteCrawlId);
+			siteCrawl.initAll();
+			SiteCrawlAnalyzer.docAnalysis(siteCrawl);
+			siteCrawl.setDocAnalysisDone(true);
+			result.setWorkStatus(WorkStatus.WORK_COMPLETED);
+		}
+		catch(Exception e) {
+			Logger.error("Error in Doc Analysis: " + e);
+			e.printStackTrace();
+			result.setWorkStatus(WorkStatus.COULD_NOT_COMPLETE);
+			result.setNote(e.getMessage());
+		}
+		return result;
 	}
-	
-	@Override
-	public void postRestart(Throwable reason) throws Exception {
-		Logger.error("Crawling worker restarting");
-		preStart();
-	}
-	
 
 }

@@ -1,0 +1,11 @@
+@(siteCrawl : _root_.persistence.SiteCrawl)
+
+<div class="sitecrawl-compact compact">
+	@if( siteCrawl == null){
+		<h4>SiteCrawl object is null, nothing to display</h4>
+	} else {
+		<h4>SiteCrawl #@siteCrawl.getSiteCrawlId() </h4>
+		<p>Seed: <a href="@siteCrawl.getSeed()" target="_blank">@siteCrawl.getSeed()</a></p>
+		<p>@siteCrawl.getPageCrawls().size() pages crawled</p>
+	}
+</div>

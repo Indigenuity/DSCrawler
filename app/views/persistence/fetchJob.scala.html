@@ -1,5 +1,6 @@
+@import reporting.DashboardStats
 
-@(fetchJob : _root_.persistence.stateful.FetchJob)
+@(fetchJob : _root_.persistence.stateful.FetchJob, stats : DashboardStats)
 
 @main("Fetch Job" + fetchJob.getFetchJobId()) {
 	<div>
@@ -7,6 +8,7 @@
 		<p>@fetchJob.getFetches().size() Info Fetches</p>
 	</div>
 	<div id="dashboard-stats">
+		@fetchJobStats(stats)
 	</div>
 	
 	<div id="work-form-wrapper">
@@ -21,6 +23,17 @@
 			<input type="text" name="offset" value = "0" id="offset-input">
 			<br>
 			<button type = "submit" id="jobFormSubmit">Submit Job</button>
+		}
+	</div>
+	<div id="review-links">
+		<h2> Review Links</h2>
+		<a href="/reviewInfoFetches?fetchJobId=@fetchJob.getFetchJobId()&subtaskName=siteUpdate" target="_blank">Review Site Updates &raquo;</a>
+	</div>
+	<div id="fetch-job-options">
+		<h2>Fetch Job Options</h2>
+		@helper.form(action = routes.JobController.fetchJobWork, 'id -> "jobForm") {
+			<input type="hidden" name="fetchJobId" value="@fetchJob.getFetchJobId()"/>
+			<input type="checkbox" name="urlCheck" value="urlCheck">urlCheck</
 		}
 	</div>
 }

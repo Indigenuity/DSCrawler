@@ -14,6 +14,8 @@ import javax.persistence.metamodel.ManagedType;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import async.work.WorkStatus;
+import async.work.infofetch.InfoFetch;
 import datadefinitions.WebProvider;
 import datatransfer.Cleaner;
 import global.Global.HomepageAction;
@@ -23,6 +25,7 @@ import persistence.PlacesPage;
 import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.Temp;
+import persistence.UrlCheck;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -35,6 +38,12 @@ import utilities.DSFormatter;
 
 public class DataEditor extends Controller{
 	
+	@Transactional
+	public static Result editFetchJobOptions(){
+		DynamicForm data = Form.form().bindFromRequest();
+		
+		return ok();
+	}
 	
 	@Transactional
 	public static Result editEntity() throws IllegalAccessException, InvocationTargetException {
@@ -287,23 +296,39 @@ public class DataEditor extends Controller{
 	@Transactional
 	public static Result acceptSuggested() {
 		DynamicForm requestData = Form.form().bindFromRequest();
-		CrawlSet crawlSet = JPA.em().find(CrawlSet.class, Long.parseLong(requestData.get("crawlSetId")));
-		Site site = JPA.em().find(Site.class, Long.parseLong(requestData.get("siteId")));
-		boolean isNotable = Boolean.parseBoolean(requestData.get("isNotable"));
+		InfoFetch infoFetch = JPA.em().find(InfoFetch.class, Long.parseLong(requestData.get("infoFetchId")));
+		UrlCheck urlCheck = JPA.em().find(UrlCheck.class, infoFetch.getUrlCheckId());
+		Site site = JPA.em().find(Site.class, infoFetch.getSiteId());
 		
-		Logger.info("Accepting suggested for Site " + site.getSiteId() + ". (CrawlSet : " + crawlSet.getCrawlSetId() + ", isNotable : " + isNotable + ")");
-		System.out.println("Accepting suggested for Site " + site.getSiteId() + ". (CrawlSet : " + crawlSet.getCrawlSetId() + ", isNotable : " + isNotable + ")");
+		site.getRedirectUrls().add(site.getHomepage());
+		site.setHomepage(urlCheck.getResolvedSeed());
+		site.setRedirectResolveDate(urlCheck.getCheckDate());
 		
-		site.addRedirectUrl(site.getHomepage());
-		site.setHomepage(site.getSuggestedHomepage());
-		site.setSuggestedHomepage(null);
-		site.setNotableChange(isNotable);
-		site.setQueryStringApproved(true);
-		site.setHompageValidUrlConfirmed(true);
-		site.setHomepageNeedsReview(false);
-		site.setReviewLater(false);
-		site.setReviewReason(null);
-		crawlSet.getNeedRedirectResolve().remove(site);
+		urlCheck.setAccepted(true);
+		
+		infoFetch.getSiteUpdate().workStatus = WorkStatus.WORK_COMPLETED;
+		
+		Logger.info("Accepting suggested for Site " + site.getSiteId());
+		System.out.println("Accepting suggested for Site " + site.getSiteId());
+		
+		
+		return ok();
+	}
+	
+	@Transactional
+	public static Result redoUrlCheck() {
+		DynamicForm requestData = Form.form().bindFromRequest();
+		InfoFetch infoFetch = JPA.em().find(InfoFetch.class, Long.parseLong(requestData.get("infoFetchId")));
+		UrlCheck urlCheck = JPA.em().find(UrlCheck.class, infoFetch.getUrlCheckId());
+		JPA.em().remove(urlCheck);
+		
+		infoFetch.setUrlCheckId(null);
+		infoFetch.getUrlCheck().workStatus = WorkStatus.DO_WORK;
+		infoFetch.getSiteUpdate().workStatus = WorkStatus.DO_WORK;
+		
+		Logger.info("Rechecking seed" + infoFetch.getSeed());
+		System.out.println("Rechecking seed" + infoFetch.getSeed());
+		
 		
 		return ok();
 	}
@@ -328,16 +353,19 @@ public class DataEditor extends Controller{
 	@Transactional
 	public static Result markMaybeDefunct() {
 		DynamicForm requestData = Form.form().bindFromRequest();
-		CrawlSet crawlSet = JPA.em().find(CrawlSet.class, Long.parseLong(requestData.get("crawlSetId")));
-		Site site = JPA.em().find(Site.class, Long.parseLong(requestData.get("siteId")));
 		
-		Logger.info("Marking Site " + site.getSiteId() + " for closing. (CrawlSet : " + crawlSet.getCrawlSetId() + ")");
-		System.out.println("Marking Site " + site.getSiteId() + " for closing. (CrawlSet : " + crawlSet.getCrawlSetId() + ")");
+		InfoFetch infoFetch = JPA.em().find(InfoFetch.class, Long.parseLong(requestData.get("infoFetchId")));
+		UrlCheck urlCheck = JPA.em().find(UrlCheck.class, infoFetch.getUrlCheckId());
+		Site site = JPA.em().find(Site.class, infoFetch.getSiteId());
+		
+		Logger.info("Marking Site " + site.getSiteId() + " for closing. ");
+		System.out.println("Marking Site " + site.getSiteId() + " for closing.");
 		
 		site.setMaybeDefunct(true);
-		site.setHomepageNeedsReview(false);
-		site.setReviewLater(false);
-		crawlSet.getNeedRedirectResolve().remove(site);
+		
+		infoFetch.getSiteUpdate().workStatus = WorkStatus.COULD_NOT_COMPLETE;
+		infoFetch.getSiteCrawl().workStatus = WorkStatus.COULD_NOT_COMPLETE;
+		
 		
 		return ok();
 	}

@@ -13,10 +13,12 @@ import javax.persistence.metamodel.EntityType;
 
 import org.apache.commons.lang3.StringUtils;
 
+import dao.InfoFetchDAO;
 import dao.SitesDAO;
 import dao.StatsDAO;
 import datatransfer.FileMover;
 import async.monitoring.AsyncMonitor;
+import async.work.infofetch.InfoFetch;
 import persistence.CrawlSet;
 import persistence.Site;
 import persistence.SiteCrawl;
@@ -35,6 +37,15 @@ import org.apache.commons.beanutils.*;
 public class DataView extends Controller { 
 	
 	@Transactional
+	public static Result reviewInfoFetches(String subtaskName, Long fetchJobId, int numToProcess, int offset) {
+		List<InfoFetch> fetches = InfoFetchDAO.getNeedReview(fetchJobId, subtaskName, numToProcess, offset);
+		for(InfoFetch fetch : fetches) {
+			fetch.initObjects();
+		}
+		return ok(views.html.reviewing.lists.infoFetchList.render(fetches));
+	}
+	
+	@Transactional
 	public static Result fetchJobs() {
 		List<FetchJob> fetchJobs = JPA.em().createQuery("from FetchJob fj", FetchJob.class).getResultList();
 		System.out.println("fetchJobs : " + fetchJobs.size());
@@ -44,7 +55,8 @@ public class DataView extends Controller {
 	@Transactional
 	public static Result fetchJob(long fetchJobId) {
 		FetchJob fetchJob = JPA.em().find(FetchJob.class, fetchJobId);
-		return ok(views.html.persistence.fetchJob.render(fetchJob));
+		DashboardStats stats = StatsDAO.getFetchJobStats(fetchJob);
+		return ok(views.html.persistence.fetchJob.render(fetchJob, stats));
 	}
 	
 	@Transactional

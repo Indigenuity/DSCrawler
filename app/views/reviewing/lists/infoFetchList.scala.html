@@ -1,0 +1,10 @@
+@(fetches : java.util.List[_root_.async.work.infofetch.InfoFetch])
+
+@main("Review Info Fetches"){
+
+	<div class="infofetch-list-review">
+		@for(fetch <- fetches){
+			@reviewing.singles.infoFetch(fetch)
+		}
+	</div>
+}

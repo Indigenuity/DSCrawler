@@ -28,13 +28,14 @@ public class MultiStepJPAWorker extends UntypedActor {
 			this.workOrderUuid = workOrder.getUuid();
 //			System.out.println("just set work order uuid : " + this.workOrderUuid);
 //			System.out.println("Performing work : " + workOrder.getWorkType());
-			processWorkOrder(workOrder);
-			doNextStep();
+			if(processWorkOrder(workOrder)){
+				
+			}
 		}
 		else if(work instanceof WorkResult){
 			WorkResult workResult = (WorkResult)work;
 			processWorkResult(workResult);
-			doNextStep();
+//			doNextStep();
 		}
 		else {
 			Logger.error("got unknown work in Multi Step worker : " + work);
@@ -42,22 +43,15 @@ public class MultiStepJPAWorker extends UntypedActor {
 		
 	}
 	
+	public boolean processWorkOrder(WorkOrder workOrder){
+		Logger.error("in Generic work order.  Must implement for class: " + this.getClass());
+		return false;
+	}
+	
 	@Override
 	public void postRestart(Throwable reason) throws Exception {
 		Logger.error("Worker restarting: " + reason);
 		preStart();
-	}
-	
-	public void processWorkOrder(WorkOrder workOrder) {
-		
-	}
-	
-	public boolean hasNextStep() {
-		return false;
-	}
-	
-	public void doNextStep(){
-		
 	}
 	
 	public void processWorkResult(WorkResult workResult) {

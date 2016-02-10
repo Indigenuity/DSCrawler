@@ -18,6 +18,10 @@ public class SiteUpdateWorker extends SingleStepWorker {
 	
 	@Override
 	public WorkResult processWorkOrder(WorkOrder workOrder) {
+		return SiteUpdateWorker.doWorkOrder(workOrder);
+	}	
+	
+	public static SiteUpdateWorkResult doWorkOrder(WorkOrder workOrder) {
 		SiteUpdateWorkResult result = new SiteUpdateWorkResult();
 		try{
 //			System.out.println("doing some site updatework");
@@ -26,8 +30,11 @@ public class SiteUpdateWorker extends SingleStepWorker {
 			result.setUuid(order.getUuid());
 			result.setUrlCheckId(order.getUrlCheckId());
 			JPA.withTransaction( () -> {
-				UrlCheck urlCheck = JPA.em().find(UrlCheck.class, order.getUrlCheckId());
 				Site site = JPA.em().find(Site.class, order.getSiteId());
+				UrlCheck urlCheck = UrlSniffer.checkUrl(site.getHomepage());
+				urlCheck.setCheckDate(new java.sql.Date(Calendar.getInstance().getTimeInMillis()));
+				JPA.em().persist(urlCheck);
+				result.setUrlCheckId(urlCheck.getUrlCheckId());
 				
 				if(urlCheck.getStatusCode() == 200) {
 					if(DSFormatter.equals(urlCheck.getResolvedSeed(), site.getHomepage())){
@@ -59,7 +66,14 @@ public class SiteUpdateWorker extends SingleStepWorker {
 			result.setWorkStatus(WorkStatus.COULD_NOT_COMPLETE);
 		}
 		return result;
-	}	
+	}
+	
+	
+//	public static SiteUpdateWorkResult updateSite(SiteUpdateWorkOrder workOrder) {
+//		SiteUpdateWorkResult workResult = new SiteUpdateWorkResult();
+//		result.setSiteId(order.getSiteId());
+//		result.setUuid(order.getUuid());
+//	}
 	
 
 }

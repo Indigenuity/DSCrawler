@@ -5,39 +5,42 @@ import play.Logger;
 import play.db.jpa.JPA;
 import akka.actor.UntypedActor;
 import analysis.SiteCrawlAnalyzer;
+import async.docanalysis.DocAnalysisWorkOrder;
+import async.docanalysis.DocAnalysisWorkResult;
+import async.work.SingleStepWorker;
 import async.work.WorkItem;
+import async.work.WorkOrder;
+import async.work.WorkResult;
 import async.work.WorkStatus;
 
-public class TextAnalysisWorker extends UntypedActor {
-
+public class TextAnalysisWorker extends SingleStepWorker { 
 	@Override
-	public void onReceive(Object work) throws Exception {
+	public WorkResult processWorkOrder(WorkOrder workOrder) {
+		return doWorkOrder(workOrder);
+	}
+	
+	public static TextAnalysisWorkResult doWorkOrder(WorkOrder workOrder) {
+		System.out.println("TextAnalysisWorker processing WorkOrder : " + workOrder);
 		
-		WorkItem workItem = (WorkItem) work;
-		workItem.setWorkStatus(WorkStatus.WORK_IN_PROGRESS);
-		System.out.println("Performing meta analysis work : " + workItem.getSiteCrawlId());
-		JPA.withTransaction( () -> {
+		TextAnalysisWorkResult result = new TextAnalysisWorkResult();
+		TextAnalysisWorkOrder work = (TextAnalysisWorkOrder) workOrder;
+		try{
+			Long siteCrawlId = work.getSiteCrawlId();
+			result.setSiteCrawlId(siteCrawlId);
+			result.setUuid(workOrder.getUuid());
 			
-			try{
-				SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, workItem.getSiteCrawlId());
-				siteCrawl.initAll();
-				SiteCrawlAnalyzer.textAnalysis(siteCrawl);
-				siteCrawl.setTextAnalysisDone(true);
-				workItem.setWorkStatus(WorkStatus.WORK_COMPLETED);				
-			}
-			catch(Exception e) {
-				Logger.error("Error in Text Analysis: " + e);
-				e.printStackTrace();
-			}
-		});
-		getSender().tell(work, getSelf());
+			SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, siteCrawlId);
+			siteCrawl.initAll();
+			SiteCrawlAnalyzer.textAnalysis(siteCrawl);
+			siteCrawl.setTextAnalysisDone(true);
+			result.setWorkStatus(WorkStatus.WORK_COMPLETED);
+		}
+		catch(Exception e) {
+			Logger.error("Error in Text Analysis: " + e);
+			e.printStackTrace();
+			result.setWorkStatus(WorkStatus.COULD_NOT_COMPLETE);
+			result.setNote(e.getMessage());
+		}
+		return result;
 	}
-	
-	@Override
-	public void postRestart(Throwable reason) throws Exception {
-		Logger.error("TextAnalysis worker restarting");
-		preStart();
-	}
-	
-
 }

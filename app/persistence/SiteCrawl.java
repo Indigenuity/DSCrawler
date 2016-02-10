@@ -12,6 +12,8 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -33,6 +35,7 @@ import utilities.DSFormatter;
 import datadefinitions.GeneralMatch;
 import datadefinitions.Scheduler;
 import datadefinitions.WebProvider;
+import datadefinitions.newdefinitions.WPAttribution;
 
 //Lazy fetch all collections
 
@@ -110,6 +113,10 @@ public class SiteCrawl {
 	@ElementCollection(fetch=FetchType.LAZY)
 	protected Set<WebProvider> webProviders = new HashSet<WebProvider>();
 	
+	@Enumerated(EnumType.STRING)
+	@ElementCollection(fetch=FetchType.LAZY)
+	protected Set<WPAttribution> wpAttributions = new HashSet<WPAttribution>();
+	
 	@Convert(converter = SchedulerConverter.class)
 	@ElementCollection(fetch=FetchType.LAZY)
 	protected Set<Scheduler> schedulers = new HashSet<Scheduler>();
@@ -129,6 +136,7 @@ public class SiteCrawl {
 	@Convert(converter = WebProviderConverter.class)
 	@Column(nullable = true)
 	protected WebProvider inferredWebProvider;
+	
 	
 	@Column(nullable = false, columnDefinition="boolean default false")
 	protected boolean crawlingDone = false;
@@ -707,6 +715,16 @@ public class SiteCrawl {
 
 	public void setUrlReadableScore(int urlReadableScore) {
 		this.urlReadableScore = urlReadableScore;
+	}
+	
+	
+
+	public Set<WPAttribution> getWpAttributions() {
+		return wpAttributions;
+	}
+
+	public void setWpAttributions(Set<WPAttribution> wpAttributions) {
+		this.wpAttributions = wpAttributions;
 	}
 
 	public void initPageData() {

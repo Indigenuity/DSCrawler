@@ -1,0 +1,19 @@
+@import _root_.async.work.WorkStatus
+@(infoFetch : _root_.async.work.infofetch.InfoFetch)
+
+<div class="review-infofetch">
+	<h3>InfoFetch #@infoFetch.getInfoFetchId()</h3>
+	<form id="review-infofetch-form" action="foo" method="post">
+		<input type="hidden" name="infoFetchId" value="@infoFetch.getInfoFetchId()"/>
+		@if(infoFetch.getSiteUpdate().workStatus == WorkStatus.NEEDS_REVIEW){
+			<div id="review-site-update" class="indented">
+				@persistence.urlCheck(infoFetch.getUrlCheckObject())
+				@persistence.siteCompact(infoFetch.getSiteObject())
+				<button type="submit" name="accept-button" onclick="this.form.action='/acceptSuggested'">Accept</button>
+				<button type="submit" name="recheck-button" onclick="this.form.action='/redoUrlCheck'">Recheck</button>
+				<button type="submit" class="mark-for-closing-button" onclick="this.form.action='/markMaybeDefunct'">Maybe Defunct</button>
+			</div>
+		}
+	</form>
+
+</div>
