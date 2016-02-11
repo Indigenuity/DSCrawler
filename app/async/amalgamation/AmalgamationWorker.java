@@ -27,12 +27,13 @@ public class AmalgamationWorker extends SingleStepWorker {
 			Long siteCrawlId = work.getSiteCrawlId();
 			result.setSiteCrawlId(siteCrawlId);
 			result.setUuid(workOrder.getUuid());
-			
-			SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, siteCrawlId);
-			File storageFolder = new File(Global.getCrawlStorageFolder() + "/" + siteCrawl.getStorageFolder());
-			File destination = new File(Global.getCombinedStorageFolder() + "/" + siteCrawl.getStorageFolder());
-			Amalgamater.amalgamateFiles(storageFolder, destination);
-			siteCrawl.setAmalgamationDone(true);
+			JPA.withTransaction( () -> {
+				SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, siteCrawlId);
+				File storageFolder = new File(Global.getCrawlStorageFolder() + "/" + siteCrawl.getStorageFolder());
+				File destination = new File(Global.getCombinedStorageFolder() + "/" + siteCrawl.getStorageFolder());
+				Amalgamater.amalgamateFiles(storageFolder, destination);
+				siteCrawl.setAmalgamationDone(true);
+			});
 			result.setWorkStatus(WorkStatus.WORK_COMPLETED);
 		}
 		catch(Exception e) {

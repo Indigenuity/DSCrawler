@@ -115,14 +115,31 @@ import utilities.UrlSniffer;
 
 public class Experiment {
 	
-	public static void runExperiment() {
-		FetchJob fetchJob = JPA.em().find(FetchJob.class, 3L);
-		DashboardStats stats = StatsDAO.getFetchJobStats(fetchJob);
-		
-		for(Entry<String, Object> entry : stats.getStats().entrySet()){
-			System.out.println("key: " + entry.getKey());
-			System.out.println("value : " + entry.getValue());
-		}
+	public static void runExperiment() throws IOException {
+//		String query = "from Temp t where t.givenUrl != null and t.givenUrl != '' and t.projectId =1";
+//		List<Temp> temps = JPA.em().createQuery(query).getResultList();
+//		System.out.println("temps : " + temps.size());
+//		
+//		FetchJob fetchJob = new FetchJob();
+//		fetchJob.setName("Canada franchise");
+//		JPA.em().persist(fetchJob);
+//		for(Temp temp : temps) {
+//			Site site = new Site();
+//			site.setHomepage(temp.getIntermediateUrl());
+//			site.setTemp(true);
+//			JPA.em().persist(site);
+//			
+//			InfoFetch infoFetch = new InfoFetch();
+//			infoFetch.setFetchJob(fetchJob);
+//			infoFetch.setSiteId(site.getSiteId());
+//			System.out.println("Site id : " + infoFetch.getSiteId());
+//			infoFetch.getSiteUpdate().workStatus=WorkStatus.DO_WORK;
+//			infoFetch.getSiteCrawl().workStatus=WorkStatus.DO_WORK;
+//			infoFetch.getAmalgamation().workStatus=WorkStatus.DO_WORK;
+//			infoFetch.getTextAnalysis().workStatus=WorkStatus.DO_WORK;
+//			infoFetch.getDocAnalysis().workStatus=WorkStatus.DO_WORK;
+//			JPA.em().persist(infoFetch);
+//		}
 	}
 	
 	public static void testWpAttributions() throws Exception {
@@ -163,6 +180,7 @@ public class Experiment {
 	
 	public static void createSiteUpdateFetchJobs() {
 		String query = "from Site s where s.franchise = true";
+		
 		List<Site> sites = JPA.em().createQuery(query).getResultList();
 		System.out.println("sites : " + sites.size());
 		FetchJob job = new FetchJob();

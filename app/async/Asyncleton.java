@@ -46,10 +46,10 @@ public class Asyncleton {
 			if(entry.getValue() == MainWorker.class){
 				masters.put(entry.getKey(), mainMaster);
 			}
-			else if(entry.getValue() == InfoFetchWorker.class){
-				ActorRef master = mainSystem.actorOf(Props.create(UniqueMaster.class, mainListener, entry.getValue()));
-				masters.put(entry.getKey(), master);
-			}
+//			else if(entry.getValue() == InfoFetchWorker.class){
+//				ActorRef master = mainSystem.actorOf(Props.create(UniqueMaster.class, mainListener, entry.getValue()));
+//				masters.put(entry.getKey(), master);
+//			}
 			else{
 				ActorRef master = mainSystem.actorOf(Props.create(GenericMaster.class, entry.getKey().getNumWorker(), mainListener, entry.getValue()));
 				masters.put(entry.getKey(), master);

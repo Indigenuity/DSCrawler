@@ -47,6 +47,10 @@ public class Temp {
 	
 	private String siteSource;
 	
+	private int projectId;
+	
+	private String state;
+	
 	
 
 	public long getTempId() {
@@ -151,6 +155,22 @@ public class Temp {
 
 	public void setSiteSource(String siteSource) {
 		this.siteSource = siteSource;
+	}
+
+	public int getProjectId() {
+		return projectId;
+	}
+
+	public void setProjectId(int projectId) {
+		this.projectId = projectId;
+	}
+
+	public String getState() {
+		return state;
+	}
+
+	public void setState(String state) {
+		this.state = state;
 	}
 
 	

@@ -2,7 +2,7 @@
 
 @(fetchJob : _root_.persistence.stateful.FetchJob, stats : DashboardStats)
 
-@main("Fetch Job" + fetchJob.getFetchJobId()) {
+@main("Fetch Job" + fetchJob.getFetchJobId() + " : " +  fetchJob.getName()) {
 	<div>
 		<p>Job Started : @fetchJob.getDateStarted()</p>
 		<p>@fetchJob.getFetches().size() Info Fetches</p>

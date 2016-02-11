@@ -92,10 +92,10 @@ public class GenericMaster extends UntypedActor {
 				customer.tell(workResult, getSelf());
 				
 			}
-			else if (work instanceof InfoFetch) {
-				ActorRef r = getContext().actorOf(Props.create(clazz));
-			    r.tell(work, getSender());
-			}
+//			else if (work instanceof InfoFetch) {
+//				ActorRef r = getContext().actorOf(Props.create(clazz));
+//			    r.tell(work, getSender());
+//			}
 			else if(work instanceof Terminated) {
 				Logger.error("Generic Master (" + this.clazz + ") received terminated worker");
 				router = router.removeRoutee(((Terminated) work).actor());

@@ -24,11 +24,12 @@ public class DocAnalysisWorker extends SingleStepWorker {
 			Long siteCrawlId = work.getSiteCrawlId();
 			result.setSiteCrawlId(siteCrawlId);
 			result.setUuid(workOrder.getUuid());
-			
-			SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, siteCrawlId);
-			siteCrawl.initAll();
-			SiteCrawlAnalyzer.docAnalysis(siteCrawl);
-			siteCrawl.setDocAnalysisDone(true);
+			JPA.withTransaction( () -> {
+				SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, siteCrawlId);
+				siteCrawl.initAll();
+				SiteCrawlAnalyzer.docAnalysis(siteCrawl);
+				siteCrawl.setDocAnalysisDone(true);
+			});
 			result.setWorkStatus(WorkStatus.WORK_COMPLETED);
 		}
 		catch(Exception e) {

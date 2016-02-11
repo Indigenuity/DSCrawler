@@ -8,6 +8,11 @@ public class SiteUpdateWorkOrder extends WorkOrder{
 	protected Long siteId;
 	protected Long urlCheckId;
 	
+	public SiteUpdateWorkOrder(Long siteId) {
+		super(WorkType.SITE_UPDATE);
+		this.siteId = siteId;
+	}
+	
 	public SiteUpdateWorkOrder(Long siteId, Long urlCheckId) {
 		super(WorkType.SITE_UPDATE);
 		this.siteId = siteId;

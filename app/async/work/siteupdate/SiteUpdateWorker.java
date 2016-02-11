@@ -28,13 +28,14 @@ public class SiteUpdateWorker extends SingleStepWorker {
 			SiteUpdateWorkOrder order = (SiteUpdateWorkOrder)workOrder;
 			result.setSiteId(order.getSiteId());
 			result.setUuid(order.getUuid());
-			result.setUrlCheckId(order.getUrlCheckId());
+			
 			JPA.withTransaction( () -> {
 				Site site = JPA.em().find(Site.class, order.getSiteId());
 				UrlCheck urlCheck = UrlSniffer.checkUrl(site.getHomepage());
 				urlCheck.setCheckDate(new java.sql.Date(Calendar.getInstance().getTimeInMillis()));
 				JPA.em().persist(urlCheck);
 				result.setUrlCheckId(urlCheck.getUrlCheckId());
+				System.out.println("urlCheckId after persisting : " + result.getUrlCheckId());
 				
 				if(urlCheck.getStatusCode() == 200) {
 					if(DSFormatter.equals(urlCheck.getResolvedSeed(), site.getHomepage())){

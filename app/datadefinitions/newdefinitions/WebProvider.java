@@ -9,7 +9,8 @@ public enum WebProvider {
 	VIN_SOLUTIONS,
 	CDK_COBALT,
 	DEALER_ON,
-	AUTO_ONE
+	AUTO_ONE,
+	EVOLIO
 
 	
 

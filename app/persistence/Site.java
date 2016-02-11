@@ -125,10 +125,13 @@ public class Site {
 	@ElementCollection(fetch=FetchType.LAZY)
 	private Set<String> cities = new HashSet<String>();
 	
+	private boolean temp = false;
+	
 	@Formula("homepageNeedsReview | reviewLater | invalidUrl | maybeDefunct | defunct | crawlerProtected | groupSite ")
 	private boolean invalid;
 	
-	@Formula("month(current_date) - month(redirectResolveDate) > 2 or year(current_date) - year(redirectResolveDate) > 0")
+//	@Formula("month(current_date) - month(redirectResolveDate) > 2 or year(current_date) - year(redirectResolveDate) > 0")
+	@Formula("homepageNeedsReview")
 	public boolean staleRedirect;
 	
 	
@@ -471,6 +474,14 @@ public class Site {
 			}
 		}
 		return false;
+	}
+
+	public boolean isTemp() {
+		return temp;
+	}
+
+	public void setTemp(boolean temp) {
+		this.temp = temp;
 	}
 	
 	

@@ -6,7 +6,9 @@ public enum WPAttribution {
 	DEALER_COM2				("Website by Dealer.com", WebProvider.DEALER_COM),
 	VIN_SOLUTIONS			("Powered by Vinsolutions.com", WebProvider.VIN_SOLUTIONS),
 	VIN_SOLUTIONS2			("Website Powered By <a href=\"http://www.vinsolutions.com", WebProvider.VIN_SOLUTIONS),
-	CDK_GLOBAL				("&copy 2015 CDK Global", WebProvider.CDK_COBALT, "", "Not usually visible except through source code");
+	CDK_GLOBAL				("&copy 2015 CDK Global", WebProvider.CDK_COBALT, "", "Not usually visible except through source code"),
+	AUTO_123_FR				("Membre d'Auto123.com", WebProvider.EVOLIO),
+	EVOLIO_FR				("Site conçu et hébergé par <a href=\"http://www.evolio.ca/fr/\" target=\"_blank\">EVOLIO", WebProvider.EVOLIO);
 	
 
 	private final String description;

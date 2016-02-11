@@ -28,11 +28,12 @@ public class TextAnalysisWorker extends SingleStepWorker {
 			Long siteCrawlId = work.getSiteCrawlId();
 			result.setSiteCrawlId(siteCrawlId);
 			result.setUuid(workOrder.getUuid());
-			
-			SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, siteCrawlId);
-			siteCrawl.initAll();
-			SiteCrawlAnalyzer.textAnalysis(siteCrawl);
-			siteCrawl.setTextAnalysisDone(true);
+			JPA.withTransaction( () -> {
+				SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, siteCrawlId);
+				siteCrawl.initAll();
+				SiteCrawlAnalyzer.textAnalysis(siteCrawl);
+				siteCrawl.setTextAnalysisDone(true);
+			});
 			result.setWorkStatus(WorkStatus.WORK_COMPLETED);
 		}
 		catch(Exception e) {

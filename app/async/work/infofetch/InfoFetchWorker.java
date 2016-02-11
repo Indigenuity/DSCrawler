@@ -49,7 +49,7 @@ public class InfoFetchWorker extends MultiStepJPAWorker {
 	private int count = 0;
 	
 	@Override
-	public boolean processWorkOrder(WorkOrder workOrder) {
+	public WorkOrder processWorkOrder(WorkOrder workOrder) {
 		infoFetch = (InfoFetch) workOrder;
 		System.out.println("InfoFetchWorker processing work order:"+ infoFetch.getInfoFetchId());
 		
@@ -63,22 +63,28 @@ public class InfoFetchWorker extends MultiStepJPAWorker {
 			doMetaAnalysis() ||
 			doPlacesPageFetch()){
 				refreshInfoFetch();
-				return true;
+				return infoFetch;
 			}
 		}catch(Exception e) {
 			refreshInfoFetch();
-			return false;
+			return null;
 		}
-		return false;
+		return null;
 	}
 	
 	public void refreshInfoFetch(){
 		JPA.withTransaction( () -> {
+//			System.out.println("infoFetch before : " + infoFetch.getInfoFetchId());
 			JPA.em().merge(infoFetch);
+//			System.out.println("after merge");
 			JPA.em().getTransaction().commit();
+//			System.out.println("after commit");
 			JPA.em().getTransaction().begin();
-			JPA.em().refresh(infoFetch);
-			JPA.em().detach(infoFetch);
+//			System.out.println("after begin");
+			infoFetch = JPA.em().find(InfoFetch.class, infoFetch.getInfoFetchId());
+//			System.out.println("after refetch");
+//			JPA.em().detach(infoFetch);
+//			System.out.println("infoFetch after refresh : " + infoFetch.getInfoFetchId());
 		});
 	}
 	
@@ -131,11 +137,13 @@ public class InfoFetchWorker extends MultiStepJPAWorker {
 	}
 	
 	private boolean doUrlCheck() throws IncompleteSubtaskException{
+		
 		WorkStatus workStatus = infoFetch.getUrlCheck().workStatus;
 		if(workStatus == WorkStatus.NO_WORK || workStatus == WorkStatus.WORK_COMPLETED){
 			return false;
 		} 
 		else if(workStatus == WorkStatus.DO_WORK){
+			System.out.println("InfoFetchWorker doing urlCheck");
 			String seed = infoFetch.getSeed();
 			if(seed == null){
 				infoFetch.getUrlCheck().workStatus = WorkStatus.NEEDS_REVIEW;
@@ -151,40 +159,42 @@ public class InfoFetchWorker extends MultiStepJPAWorker {
 	}
 	
 	private boolean doSiteUpdate() throws IncompleteSubtaskException{
-		WorkStatus workStatus = infoFetch.getSiteUpdate().workStatus;
-		if(workStatus == WorkStatus.NO_WORK || workStatus == WorkStatus.WORK_COMPLETED){
-			return false;
-		} 
-		else if(workStatus == WorkStatus.DO_WORK){
+		
+		try{
+			if(!shouldSubtask(infoFetch.getSiteUpdate()))
+				return false;
 			if(infoFetch.getSiteId() == null) {
-				infoFetch.getSiteUpdate().workStatus = WorkStatus.NEEDS_REVIEW;
-				infoFetch.getSiteUpdate().note = "Need site to perform site update";
-				throw new IncompleteSubtaskException("urlCheck");
+				throw new IncompleteSubtaskException("Need site to perform site update");
 			}
-			SiteUpdateWorkResult workResult = SiteUpdateWorker.doWorkOrder((new SiteUpdateWorkOrder(infoFetch.getSiteId(), infoFetch.getUrlCheckId())));
-			
+			System.out.println("InfoFetchWorker doing SiteUpdate");
+			SiteUpdateWorkResult workResult = SiteUpdateWorker.doWorkOrder(new SiteUpdateWorkOrder(infoFetch.getSiteId()));
 			if(workResult.getWorkStatus() == WorkStatus.WORK_COMPLETED){
-				infoFetch.setUrlCheckId(workResult.getUrlCheckId());
 				infoFetch.getSiteUpdate().workStatus = WorkStatus.WORK_COMPLETED;
+				infoFetch.setUrlCheckId(workResult.getUrlCheckId());
 			}
 			else {
 				infoFetch.getSiteUpdate().workStatus = WorkStatus.NEEDS_REVIEW;
+				infoFetch.setUrlCheckId(workResult.getUrlCheckId());
 			}
 			return true;
-		}
-		else {
-			throw new IncompleteSubtaskException("siteUpdate");
+		}catch(Exception e){
+			
+			String message = "siteUpdate : " + e.getMessage();
+			infoFetch.getSiteUpdate().workStatus = WorkStatus.NEEDS_REVIEW;
+			infoFetch.getSiteUpdate().note = message;
+			throw new IncompleteSubtaskException(message);
 		}
 	}
 	
 	private boolean doSiteCrawl() throws IncompleteSubtaskException {
+		
 		try{
 			if(!shouldSubtask(infoFetch.getSiteCrawl()))
 				return false;
 			if(infoFetch.getSiteId() == null) {
 				throw new IncompleteSubtaskException("Need site to perform site crawl");
 			}
-			
+			System.out.println("InfoFetchWorker doing SiteCrawl");			
 			SiteCrawlWorkResult workResult = CrawlingWorker.doWorkOrder(new SiteCrawlWorkOrder(infoFetch.getSiteId()));
 			if(workResult.getWorkStatus() == WorkStatus.WORK_COMPLETED){
 				infoFetch.getSiteCrawl().workStatus = WorkStatus.WORK_COMPLETED;
@@ -210,7 +220,7 @@ public class InfoFetchWorker extends MultiStepJPAWorker {
 			if(infoFetch.getSiteCrawlId() == null) {
 				throw new IncompleteSubtaskException("Need sitecrawl to perform amalgamation");
 			}
-			
+			System.out.println("InfoFetchWorker doing Amalgamation");
 			AmalgamationWorkResult workResult = AmalgamationWorker.doWorkOrder(new AmalgamationWorkOrder(infoFetch.getSiteCrawlId()));
 			if(workResult.getWorkStatus() == WorkStatus.WORK_COMPLETED){
 				infoFetch.getAmalgamation().workStatus = WorkStatus.WORK_COMPLETED;
@@ -234,7 +244,7 @@ public class InfoFetchWorker extends MultiStepJPAWorker {
 			if(infoFetch.getSiteCrawlId() == null) {
 				throw new IncompleteSubtaskException("Need sitecrawl to perform TextAnalysis");
 			}
-			
+			System.out.println("InfoFetchWorker doing TextAnalysis");
 			TextAnalysisWorkResult workResult = TextAnalysisWorker.doWorkOrder(new TextAnalysisWorkOrder(infoFetch.getSiteCrawlId()));
 			if(workResult.getWorkStatus() == WorkStatus.WORK_COMPLETED){
 				infoFetch.getTextAnalysis().workStatus = WorkStatus.WORK_COMPLETED;
@@ -258,6 +268,7 @@ public class InfoFetchWorker extends MultiStepJPAWorker {
 				throw new IncompleteSubtaskException("Need sitecrawl to perform DocAnalysis");
 			}
 			
+			System.out.println("InfoFetchWorker doing DocAnalysis");
 			DocAnalysisWorkResult workResult = DocAnalysisWorker.doWorkOrder(new DocAnalysisWorkOrder(infoFetch.getSiteCrawlId()));
 			if(workResult.getWorkStatus() == WorkStatus.WORK_COMPLETED){
 				infoFetch.getDocAnalysis().workStatus = WorkStatus.WORK_COMPLETED;

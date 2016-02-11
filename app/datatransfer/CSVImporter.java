@@ -39,7 +39,7 @@ import utilities.UrlSniffer;
 public class CSVImporter {
 	
 	public static void importTemp() throws IOException{
-		Reader in = new FileReader("C:\\Workspace\\DSStorage\\source/AccountIdentifiers12-3-2015.csv");
+		Reader in = new FileReader("C:\\Workspace\\DSStorage\\source/CanadaFranchise 2-11-16.csv");
 		Iterable<CSVRecord> records = CSVFormat.EXCEL.withHeader().parse(in);
 		
 		Temp entry;
@@ -51,6 +51,10 @@ public class CSVImporter {
 			entry = new Temp();
 			entry.setSfId(record.get("Salesforce Unique ID"));
 			entry.setGivenUrl(record.get("Website"));
+			entry.setName(record.get("Account Name"));
+			entry.setState(record.get("Dealership State/Province"));
+			
+			
 			String intermediate = DSFormatter.toHttp(entry.getGivenUrl());
 			entry.setIntermediateUrl(intermediate);
 			try{
