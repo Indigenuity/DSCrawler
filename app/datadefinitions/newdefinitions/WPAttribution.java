@@ -8,7 +8,10 @@ public enum WPAttribution {
 	VIN_SOLUTIONS2			("Website Powered By <a href=\"http://www.vinsolutions.com", WebProvider.VIN_SOLUTIONS),
 	CDK_GLOBAL				("&copy 2015 CDK Global", WebProvider.CDK_COBALT, "", "Not usually visible except through source code"),
 	AUTO_123_FR				("Membre d'Auto123.com", WebProvider.EVOLIO),
-	EVOLIO_FR				("Site conçu et hébergé par <a href=\"http://www.evolio.ca/fr/\" target=\"_blank\">EVOLIO", WebProvider.EVOLIO);
+	AUTO_123				("Member of Auto123.com", WebProvider.EVOLIO),
+	EVOLIO_FR				("Site conçu et hébergé par <a href=\"http://www.evolio.ca/fr/\" target=\"_blank\">EVOLIO", WebProvider.EVOLIO),
+	EVOLIO_FR_FULL			("Site conÃ§u et hÃ©bergÃ© par <a href=\"http://www.evolio.ca/fr/\" target=\"_blank\">EVOLIO</a>.", WebProvider.EVOLIO),
+	EVOLIO					("Website created and hosted by <a href=\"http://www.evolio.ca/en/\"  target=\"_blank\">EVOLIO", WebProvider.EVOLIO);
 	
 
 	private final String description;

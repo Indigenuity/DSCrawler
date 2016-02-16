@@ -20,10 +20,12 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.StringUtils;
 
+import async.work.infofetch.InfoFetch;
 import dao.PlacesPageDAO;
 import datadefinitions.GeneralMatch;
 import datadefinitions.Scheduler;
 import datadefinitions.WebProvider;
+import datadefinitions.newdefinitions.WPAttribution;
 import persistence.Dealer;
 import persistence.ExtractedString;
 import persistence.FBPage;
@@ -35,10 +37,69 @@ import persistence.SiteInformationOld;
 import persistence.SiteSummary;
 import persistence.Staff;
 import persistence.Temp;
+import persistence.UrlCheck;
 import play.db.jpa.JPA;
 import scaffolding.Scaffolder;
 
 public class CSVGenerator {
+	
+public static void generateEvolioReport() throws IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+		
+		List<String[]> CSVRows = new ArrayList<String[]>();
+		List<String> values = new ArrayList<String>();
+		values.add("Salesforce Unique ID");
+		values.add("Account Name");
+		values.add("Current SalesForce Primary Website URL:");
+		values.add("New Verified URL");
+		CSVRows.add((String[])values.toArray(new String[values.size()]));
+		
+		List<InfoFetch> fetches = JPA.em().createQuery("from InfoFetch info where info.fetchJob.fetchJobId = 6").getResultList();
+		List<Temp> sfs = JPA.em().createQuery("from Temp t where t.projectId = 1").getResultList();
+		int count = 0;
+		for(Temp temp : sfs) {
+			if(temp.getInfoFetchId() == null) {
+				continue;
+			}
+			InfoFetch fetch = JPA.em().find(InfoFetch.class, temp.getInfoFetchId());
+			fetch.initObjects();
+			UrlCheck urlCheck = fetch.getUrlCheckObject();
+			Site site = fetch.getSiteObject();
+			SiteCrawl siteCrawl = fetch.getSiteCrawlObject();
+			if(siteCrawl == null){
+				continue;
+			}
+			boolean evolio = false;
+			for(WPAttribution wp : siteCrawl.getWpAttributions()){
+				if(wp.getWp() == datadefinitions.newdefinitions.WebProvider.EVOLIO){
+					evolio = true;
+				}
+			}
+			
+			if(!evolio){
+				continue;
+			}
+			
+			values = new ArrayList<String>();
+			values.add(temp.getSfId());
+			values.add(temp.getName());
+			values.add(temp.getGivenUrl());
+			values.add(site.getHomepage());
+			
+			CSVRows.add((String[])values.toArray(new String[values.size()]));
+			if(++count % 500 == 0) {
+				System.out.println("count : " + count);
+			}
+		}
+		System.out.println("Writing to file ");
+		
+		String targetFilename = Global.getReportsStorageFolder() + "/evolioreport" + System.currentTimeMillis() + ".csv";  
+		File target = new File(targetFilename);
+		FileWriter fileOut = new FileWriter(target);
+		CSVPrinter printer = new CSVPrinter(fileOut, CSVFormat.EXCEL);
+		printer.printRecords(CSVRows);
+		printer.close();
+		fileOut.close();
+	}
 	
 	public static void generateSourceQualityReport() throws IOException {
 		

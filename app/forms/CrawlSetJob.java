@@ -2,8 +2,8 @@ package forms;
 
 import java.util.List;
 
-import play.data.validation.*;
 import async.work.WorkType;
+import play.data.validation.*;
 
 public class CrawlSetJob {
 	

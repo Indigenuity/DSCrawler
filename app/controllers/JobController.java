@@ -18,6 +18,7 @@ import async.work.WorkItem;
 import async.work.WorkSet;
 import async.work.WorkType;
 import async.work.infofetch.InfoFetch;
+import dao.InfoFetchDAO;
 import dao.SiteCrawlDAO;
 import persistence.CrawlSet;
 import persistence.MobileCrawl;
@@ -40,20 +41,17 @@ public class JobController extends Controller {
 		try{
 			System.out.println("received fetch job work"); 
 			DynamicForm requestData = Form.form().bindFromRequest();
-			FetchJob fetchJob = JPA.em().find(FetchJob.class, Long.parseLong(requestData.get("fetchJobId")));
+			Long fetchJobId = Long.parseLong(requestData.get("fetchJobId"));
 			Integer numToProcess = Integer.parseInt(requestData.get("numToProcess"));
 			Integer offset = Integer.parseInt(requestData.get("offset"));
+			List<InfoFetch> fetches = InfoFetchDAO.getDoWork(fetchJobId, numToProcess, offset);
 			
-			String query = "select i from FetchJob fj join fj.fetches i where fj.fetchJobId = 5 and i.needUrlCheck = true";
-			Set<InfoFetch> fetches = fetchJob.getFetches();
 			System.out.println("fetches : " + fetches.size());
 			System.out.println("numToProcess : " + numToProcess);
 			int count = 0;
 			for(InfoFetch fetch : fetches) {
-				if(++count <= numToProcess) {
-					System.out.println("fetch : " + fetch);
-					Asyncleton.getInstance().getMainMaster().tell(fetch, ActorRef.noSender());
-				}
+//				System.out.println("fetch : " + fetch);
+				Asyncleton.getInstance().getMainMaster().tell(fetch, ActorRef.noSender());
 			}
 			return DataView.dashboard("Submitted Fetch Job Work");
 		}

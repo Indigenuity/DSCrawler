@@ -267,14 +267,16 @@ public class DataEditor extends Controller{
 	@Transactional
 	public static Result setHomepage() {
 		DynamicForm requestData = Form.form().bindFromRequest();
-		CrawlSet crawlSet = JPA.em().find(CrawlSet.class, Long.parseLong(requestData.get("crawlSetId")));
+		String crawlSetIdString = requestData.get("crawlSetId");
+		String infoFetchIdString = requestData.get("infoFetchId");
+		String urlCheckIdString = requestData.get("urlCheckId");
+		
 		Site site = JPA.em().find(Site.class, Long.parseLong(requestData.get("siteId")));
 		String manualHomepage = requestData.get("manualHomepage");
-		boolean isNotable = true;
 		
-		Logger.info("Setting Homepage for Site " + site.getSiteId() + ". (CrawlSet : " + crawlSet.getCrawlSetId() + ", isNotable : " + isNotable + ")");
+		Logger.info("Setting Homepage for Site " + site.getSiteId() + ".");
 		Logger.info("manualHomepage: " + manualHomepage);
-		System.out.println("Setting Homepage for Site " + site.getSiteId() + ". (CrawlSet : " + crawlSet.getCrawlSetId() + ", isNotable : " + isNotable + ")");
+		System.out.println("Setting Homepage for Site " + site.getSiteId());
 		System.out.println("manualHomepage: " + manualHomepage);
 		
 		String decodedUrl = DSFormatter.decode(manualHomepage);
@@ -290,7 +292,26 @@ public class DataEditor extends Controller{
 		site.setReviewReason(null);
 		site.setSuggestedHomepage(null);
 		
-		return ok();
+		if(!StringUtils.isEmpty(infoFetchIdString)){
+			InfoFetch infoFetch = JPA.em().find(InfoFetch.class, Long.parseLong(infoFetchIdString));
+			if(infoFetch.getSiteUpdate().workStatus != WorkStatus.NO_WORK){
+				infoFetch.getSiteUpdate().workStatus = WorkStatus.DO_WORK;
+				infoFetch.getSiteUpdate().note = null;
+				infoFetch.setUrlCheckId(null);
+			}
+			if(infoFetch.getSiteCrawl().workStatus != WorkStatus.NO_WORK){
+				infoFetch.getSiteCrawl().workStatus = WorkStatus.DO_WORK;
+				infoFetch.getSiteCrawl().note = null;
+				infoFetch.setSiteCrawlId(null);
+			}
+			
+			if(!StringUtils.isEmpty(urlCheckIdString)) {
+				UrlCheck urlCheck = JPA.em().find(UrlCheck.class, Long.parseLong(urlCheckIdString));
+				JPA.em().remove(urlCheck);
+			}
+		}
+		
+		return status(204, "Manual Change Accepted");
 	}
 	
 	@Transactional
@@ -299,6 +320,8 @@ public class DataEditor extends Controller{
 		InfoFetch infoFetch = JPA.em().find(InfoFetch.class, Long.parseLong(requestData.get("infoFetchId")));
 		UrlCheck urlCheck = JPA.em().find(UrlCheck.class, infoFetch.getUrlCheckId());
 		Site site = JPA.em().find(Site.class, infoFetch.getSiteId());
+		Logger.info("Accepting suggested for Site " + site.getSiteId());
+		System.out.println("Accepting suggested for Site " + site.getSiteId());
 		
 		site.getRedirectUrls().add(site.getHomepage());
 		site.setHomepage(urlCheck.getResolvedSeed());
@@ -307,10 +330,7 @@ public class DataEditor extends Controller{
 		urlCheck.setAccepted(true);
 		
 		infoFetch.getSiteUpdate().workStatus = WorkStatus.WORK_COMPLETED;
-		
-		Logger.info("Accepting suggested for Site " + site.getSiteId());
-		System.out.println("Accepting suggested for Site " + site.getSiteId());
-		
+		infoFetch.getSiteUpdate().note = null;
 		
 		return ok();
 	}
@@ -353,18 +373,29 @@ public class DataEditor extends Controller{
 	@Transactional
 	public static Result markMaybeDefunct() {
 		DynamicForm requestData = Form.form().bindFromRequest();
-		
-		InfoFetch infoFetch = JPA.em().find(InfoFetch.class, Long.parseLong(requestData.get("infoFetchId")));
-		UrlCheck urlCheck = JPA.em().find(UrlCheck.class, infoFetch.getUrlCheckId());
-		Site site = JPA.em().find(Site.class, infoFetch.getSiteId());
+		String infoFetchIdString = requestData.get("infoFetchId");
+		String urlCheckIdString = requestData.get("urlCheckId");
+		Site site = JPA.em().find(Site.class, Long.parseLong(requestData.get("siteId")));
 		
 		Logger.info("Marking Site " + site.getSiteId() + " for closing. ");
 		System.out.println("Marking Site " + site.getSiteId() + " for closing.");
 		
 		site.setMaybeDefunct(true);
 		
-		infoFetch.getSiteUpdate().workStatus = WorkStatus.COULD_NOT_COMPLETE;
-		infoFetch.getSiteCrawl().workStatus = WorkStatus.COULD_NOT_COMPLETE;
+		if(!StringUtils.isEmpty(infoFetchIdString)){
+			InfoFetch infoFetch = JPA.em().find(InfoFetch.class, Long.parseLong(infoFetchIdString));
+			if(infoFetch.getSiteUpdate().workStatus != WorkStatus.NO_WORK){
+				infoFetch.getSiteUpdate().workStatus = WorkStatus.COULD_NOT_COMPLETE;
+				infoFetch.getSiteUpdate().note = "Site marked as maybe defunct";
+			}
+			if(infoFetch.getSiteCrawl().workStatus != WorkStatus.NO_WORK){
+				infoFetch.getSiteCrawl().workStatus = WorkStatus.COULD_NOT_COMPLETE;
+				infoFetch.getSiteCrawl().note = "Site marked as maybe defunct";
+			}
+			
+		}
+		
+		
 		
 		
 		return ok();

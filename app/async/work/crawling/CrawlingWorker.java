@@ -43,6 +43,7 @@ public class CrawlingWorker extends SingleStepWorker {
 		NO_CRAWL_DOMAINS.add("www.gm.com");
 		NO_CRAWL_DOMAINS.add("carmax.com");
 		NO_CRAWL_DOMAINS.add("paaco.com");
+		NO_CRAWL_DOMAINS.add("www.smart.com");
 		
 		
 	}

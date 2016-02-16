@@ -42,7 +42,7 @@ public class Amalgamater {
 			if(file.isFile() && !isAmalgamation(file)){
 				amalg++;
 				FileInputStream inputStream = new FileInputStream(file.getAbsolutePath());
-				String text = IOUtils.toString(inputStream);
+				String text = IOUtils.toString(inputStream, "UTF-8");
 				inputStream.close();
 				List<String> tokens = Arrays.asList(text.split("\\n"));
 //				System.out.println("tokens: " + tokens.size());

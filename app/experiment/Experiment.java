@@ -5,6 +5,7 @@ import global.Global;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -35,6 +36,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.metamodel.EntityType;
@@ -45,6 +47,7 @@ import org.apache.commons.csv.CSVPrinter;
 
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Hibernate;
 import org.openqa.selenium.By;
@@ -115,31 +118,118 @@ import utilities.UrlSniffer;
 
 public class Experiment {
 	
-	public static void runExperiment() throws IOException {
-//		String query = "from Temp t where t.givenUrl != null and t.givenUrl != '' and t.projectId =1";
-//		List<Temp> temps = JPA.em().createQuery(query).getResultList();
-//		System.out.println("temps : " + temps.size());
-//		
-//		FetchJob fetchJob = new FetchJob();
-//		fetchJob.setName("Canada franchise");
-//		JPA.em().persist(fetchJob);
-//		for(Temp temp : temps) {
-//			Site site = new Site();
-//			site.setHomepage(temp.getIntermediateUrl());
-//			site.setTemp(true);
-//			JPA.em().persist(site);
-//			
-//			InfoFetch infoFetch = new InfoFetch();
-//			infoFetch.setFetchJob(fetchJob);
-//			infoFetch.setSiteId(site.getSiteId());
-//			System.out.println("Site id : " + infoFetch.getSiteId());
-//			infoFetch.getSiteUpdate().workStatus=WorkStatus.DO_WORK;
-//			infoFetch.getSiteCrawl().workStatus=WorkStatus.DO_WORK;
-//			infoFetch.getAmalgamation().workStatus=WorkStatus.DO_WORK;
-//			infoFetch.getTextAnalysis().workStatus=WorkStatus.DO_WORK;
-//			infoFetch.getDocAnalysis().workStatus=WorkStatus.DO_WORK;
-//			JPA.em().persist(infoFetch);
-//		}
+	public static void runExperiment() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
+		CSVGenerator.generateEvolioReport();
+	}
+	
+	public static void assignTemps() {
+		String query = "from Temp t where t.projectId = 1 and t.infoFetchId is null and t.givenUrl != ''";
+		List<Temp> temps = JPA.em().createQuery(query).getResultList();
+		System.out.println("temp : " + temps.size());
+		query = "from InfoFetch info where info.fetchJob.fetchJobId = 6 ";
+		List<InfoFetch> fetches = JPA.em().createQuery(query).getResultList();
+		System.out.println("fetches : " + fetches.size());
+		
+		int count = 0;
+		for(InfoFetch fetch : fetches) {
+			fetch.initObjects();
+		}
+		System.out.println("fetches initialized");
+		for(Temp temp : temps) {
+			for(InfoFetch fetch : fetches) {
+				UrlCheck urlCheck = fetch.getUrlCheckObject();
+				Site site = fetch.getSiteObject();
+				
+				if(urlCheck != null && StringUtils.equals(urlCheck.getSeed(), temp.getIntermediateUrl())){
+					System.out.println("found match in urlcheck seed: " + ++count);
+					temp.setInfoFetchId(fetch.getInfoFetchId());
+					continue;
+				}
+				
+				if(site != null){
+					if(StringUtils.equals(site.getHomepage(), temp.getIntermediateUrl())){
+						System.out.println("found match in site homepage: " + ++count);
+						temp.setInfoFetchId(fetch.getInfoFetchId());
+						continue;
+					}
+					for(String url : site.getRedirectUrls()){
+						if(StringUtils.equals(url, temp.getIntermediateUrl())){
+							System.out.println("found match in redirect urls: " + ++count);
+							temp.setInfoFetchId(fetch.getInfoFetchId());
+							continue;
+						}
+					}
+				}
+			}
+//			fetch.initObjects();
+//			if(fetch.getUrlCheckObject() != null){
+//				q.setParameter("url", fetch.getUrlCheckObject().getSeed());
+//				List<Temp> temps = q.getResultList();
+//				if(temps.size() ==1){
+//					fetch.setSfId(temps.get(0).getTempId());
+//					System.out.println("found intermediate : " + ++count);
+//				}
+//				else if(temps.size() > 1){
+//					System.out.println("argh");
+//					continue;
+//				}
+//			}
+//			if(fetch.getSfId() == null){
+//				Site site = fetch.getSiteObject();
+//				Set<String> redirectUrls = site.getRedirectUrls();
+//				for(String url : redirectUrls){
+//					q.setParameter("url", url);
+//					List<Temp> temps = q.getResultList();
+//					if(temps.size() ==1){
+//						fetch.setSfId(temps.get(0).getTempId());
+//						System.out.println("found intermediate in redirect urls: " + ++count);
+//						continue;
+//					}
+//					else if(temps.size() > 1){
+//						System.out.println("argh2");
+//						continue;
+//					}
+//				}
+//			}
+			
+			if(count %100 ==0) {
+				JPA.em().getTransaction().commit();
+				JPA.em().getTransaction().begin();
+			}
+			
+		}
+	}
+	
+	public static void utf8Experiment() throws IOException {
+		String definition = "Site conçu et hébergé par"; 
+		String weird = " Site conÃ§u et hÃ©bergÃ© par";
+		String full = "Site conÃ§u et hÃ©bergÃ© par <a href=\"http://www.evolio.ca/fr/\" target=\"_blank\">EVOLIO";
+		String otherDef = "Site con";
+		String filename = "C:\\Workspace\\DSStorage\\crawldata\\02-11-2016\\http%253a%252f%252fwww.grandportagenissan.com%252ffr%252f/%2ffr%2fneuf%2faltima%2f";
+		String amalgamated = "C:\\Workspace\\DSStorage\\combined\\02-11-2016\\http%253a%252f%252fwww.grandportagenissan.com%252ffr%252f/amalgamated.txt";
+		FileInputStream inputStream = new FileInputStream((new File(amalgamated).getAbsolutePath()));
+        String text = IOUtils.toString(inputStream, "UTF-8");
+        inputStream.close();
+//		System.out.println("text : " + text);
+		System.out.println("contains : " + text.contains(definition));
+		System.out.println("contains weird: " + text.contains(weird));
+		System.out.println("contains full: " + text.contains(full));
+		System.out.println("contains other : " + text.contains(otherDef));
+	}
+	
+	public static void evolio() throws IOException {
+		String query = "select s from SiteCrawl sc join sc.site s where s.temp = true and ('EVOLIO' member of sc.wpAttributions "
+				+ "or 'EVOLIO_FR' member of sc.wpAttributions or 'AUTO_123_FR' member of sc.wpAttributions or 'AUTO_123' member of sc.wpAttributions)";
+		List<Site> results = JPA.em().createQuery(query).getResultList();
+
+		System.out.println("results : " + results.size());
+		int count = 0;
+		for(Site site: results) {
+//			System.out.println("got result  (" + siteCrawl.getSiteCrawlId() + ") : " + siteCrawl.getSeed() + " with pages : " + siteCrawl.getPageCrawls().size());
+//			System.out.println("latest crawl : " + siteCrawl.getSite().getLatestCrawl().getSiteCrawlId());
+//			SiteCrawlAnalyzer.textAnalysis(siteCrawl);
+//			System.out.println("site : " + site.getSiteId());
+		}
 	}
 	
 	public static void testWpAttributions() throws Exception {

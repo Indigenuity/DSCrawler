@@ -45,6 +45,7 @@ public class InfoFetch extends WorkOrder {
 	private String seed;
 	
 	private String placesId;
+	private Long sfId;
 	
 	@Column(nullable = true)
 	private Long siteId;
@@ -194,6 +195,13 @@ public class InfoFetch extends WorkOrder {
 	}
 	public void setPlacesPageObject(PlacesPage placesPageObject) {
 		this.placesPageObject = placesPageObject;
+	}
+	
+	public Long getSfId() {
+		return sfId;
+	}
+	public void setSfId(Long sfId) {
+		this.sfId = sfId;
 	}
 	public void initObjects(){
 		if(urlCheckId != null){

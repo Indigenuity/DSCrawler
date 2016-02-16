@@ -30,5 +30,26 @@ public class InfoFetchDAO {
 		List<InfoFetch> fetches = q.getResultList();
 		return fetches;
 	}
+	
+	public static List<InfoFetch> getDoWork(Long fetchJobId, int count, int offset){
+		String query = "select info from FetchJob fj join fj.fetches info where fetchJobId = :fetchJobId "
+				+ " and (info.urlCheck.workStatus = 'DO_WORK' or info.siteUpdate.workStatus = 'DO_WORK' or "
+				+ "info.siteCrawl.workStatus = 'DO_WORK' or info.amalgamation.workStatus = 'DO_WORK' or "
+				+ "info.textAnalysis.workStatus = 'DO_WORK' or info.docAnalysis.workStatus = 'DO_WORK' or "
+				+ "info.metaAnalysis.workStatus = 'DO_WORK' or info.placesPageFetch.workStatus = 'DO_WORK')";
+		Query q = JPA.em().createQuery(query, InfoFetch.class).setFirstResult(offset).setMaxResults(count);
+		q.setParameter("fetchJobId", fetchJobId);
+		List<InfoFetch> fetches = q.getResultList();
+		return fetches;
+	}
+	
+	public static List<InfoFetch> getDoWork(Long fetchJobId, String subtaskName, int count, int offset){
+		String query = "select info from FetchJob fj join fj.fetches info where fetchJobId = :fetchJobId "
+				+ " and (info." + subtaskName + ".workStatus = 'DO_WORK')";
+		Query q = JPA.em().createQuery(query, InfoFetch.class).setFirstResult(offset).setMaxResults(count);
+		q.setParameter("fetchJobId", fetchJobId);
+		List<InfoFetch> fetches = q.getResultList();
+		return fetches;
+	}
 
 }

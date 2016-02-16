@@ -36,7 +36,7 @@ public enum WorkType {
 	TEXT_ANALYSIS				(TextAnalysisWorker.class), 
 	MATCHES						, 
 	SUMMARY						, 
-	META_ANALYSIS				(MetaAnalysisWorker.class), 
+	META_ANALYSIS				(MetaAnalysisWorker.class),
 	PLACES_PAGE_FETCH			(GooglePlacesWorker.class),
 	CUSTOM						, 
 	BACKUP						(DataTransferWorker.class),

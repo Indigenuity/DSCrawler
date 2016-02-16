@@ -51,6 +51,8 @@ public class Temp {
 	
 	private String state;
 	
+	private Long infoFetchId;
+	
 	
 
 	public long getTempId() {
@@ -171,6 +173,14 @@ public class Temp {
 
 	public void setState(String state) {
 		this.state = state;
+	}
+
+	public Long getInfoFetchId() {
+		return infoFetchId;
+	}
+
+	public void setInfoFetchId(Long infoFetchId) {
+		this.infoFetchId = infoFetchId;
 	}
 
 	

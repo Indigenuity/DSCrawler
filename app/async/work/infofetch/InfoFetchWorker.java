@@ -16,6 +16,7 @@ import async.docanalysis.DocAnalysisWorkOrder;
 import async.docanalysis.DocAnalysisWorkResult;
 import async.docanalysis.DocAnalysisWorker;
 import async.monitoring.AsyncMonitor;
+import async.registration.WorkerRegistry;
 import async.textanalysis.TextAnalysisWorkOrder;
 import async.textanalysis.TextAnalysisWorkResult;
 import async.textanalysis.TextAnalysisWorker;
@@ -25,7 +26,6 @@ import async.work.WorkOrder;
 import async.work.WorkResult;
 import async.work.WorkStatus;
 import async.work.WorkType;
-import async.work.WorkerRegistry;
 import async.work.crawling.CrawlingWorker;
 import async.work.crawling.SiteCrawlWorkOrder;
 import async.work.crawling.SiteCrawlWorkResult;
@@ -164,7 +164,7 @@ public class InfoFetchWorker extends MultiStepJPAWorker {
 			if(!shouldSubtask(infoFetch.getSiteUpdate()))
 				return false;
 			if(infoFetch.getSiteId() == null) {
-				throw new IncompleteSubtaskException("Need site to perform site update");
+				throw new IllegalStateException("Need site to perform site update");
 			}
 			System.out.println("InfoFetchWorker doing SiteUpdate");
 			SiteUpdateWorkResult workResult = SiteUpdateWorker.doWorkOrder(new SiteUpdateWorkOrder(infoFetch.getSiteId()));
@@ -177,6 +177,8 @@ public class InfoFetchWorker extends MultiStepJPAWorker {
 				infoFetch.setUrlCheckId(workResult.getUrlCheckId());
 			}
 			return true;
+		}catch(IncompleteSubtaskException e){
+			throw e;
 		}catch(Exception e){
 			
 			String message = "siteUpdate : " + e.getMessage();

@@ -17,12 +17,12 @@ import async.datatransfer.DataTransferMaster;
 import async.docanalysis.DocAnalysisMaster;
 import async.metaanalysis.MetaAnalysisMaster;
 import async.monitoring.MonitoringListener;
+import async.registration.WorkerRegistry;
 import async.sniffer.SnifferListener;
 import async.sniffer.SnifferMaster;
 import async.textanalysis.TextAnalysisMaster;
 import async.work.UniqueMaster;
 import async.work.WorkType;
-import async.work.WorkerRegistry;
 import async.work.infofetch.InfoFetchWorker;
 
 public class Asyncleton {

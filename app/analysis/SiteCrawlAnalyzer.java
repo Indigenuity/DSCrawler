@@ -211,7 +211,7 @@ public class SiteCrawlAnalyzer {
 			File file = new File(Global.getCrawlStorageFolder() + "/" + siteCrawl.getStorageFolder() + "/" + pageCrawl.getFilename());
 			if(file.isFile() && !FilenameUtils.getExtension(file.getName()).equals("ser")) {
 				FileInputStream inputStream = new FileInputStream(file.getAbsolutePath());
-		        String text = IOUtils.toString(inputStream);
+		        String text = IOUtils.toString(inputStream, "UTF-8");
 		        inputStream.close();
 		        Document doc = Jsoup.parse(text);
 		        
@@ -245,24 +245,24 @@ public class SiteCrawlAnalyzer {
 		for(File file : storageFolder.listFiles()) {
 			if(file.isFile() && Amalgamater.isAmalgamation(file)){
 				FileInputStream inputStream = new FileInputStream(file.getAbsolutePath());
-		        String text = IOUtils.toString(inputStream);
+		        String text = IOUtils.toString(inputStream, "UTF-8");
 		        inputStream.close();
 
-		        System.out.println("extracting strings");
-		        Tim.start();
+//		        System.out.println("extracting strings");
+//		        Tim.start();
 		        siteCrawl.addExtractedStrings(extractStrings(text));
 		        
-		        System.out.println("new web providers");
-		        Tim.intermediate();
+//		        System.out.println("new web providers");
+//		        Tim.intermediate();
 		        siteCrawl.setWpAttributions(getWebProviderAttributions(text));
-		        System.out.println("old web providers");
-		        Tim.intermediate();
+//		        System.out.println("old web providers");
+//		        Tim.intermediate();
 		        siteCrawl.setWebProviders(getWebProviders(text));
-		        System.out.println("schedulers");
-		        Tim.intermediate();
+//		        System.out.println("schedulers");
+//		        Tim.intermediate();
 		        siteCrawl.setSchedulers(getSchedulers(text));
-		        System.out.println("general matches");
-		        Tim.intermediate();
+//		        System.out.println("general matches");
+//		        Tim.intermediate();
 		        siteCrawl.setGeneralMatches(getGeneralMatches(text));
 			}
 				
@@ -320,7 +320,7 @@ public class SiteCrawlAnalyzer {
 		}
 		FileInputStream inputStream = new FileInputStream(file.getAbsolutePath());
 		
-        String text = IOUtils.toString(inputStream);
+        String text = IOUtils.toString(inputStream, "UTF-8");
         inputStream.close();
         
         return extractStrings(text);
@@ -348,7 +348,7 @@ public class SiteCrawlAnalyzer {
 		}
 		FileInputStream inputStream = new FileInputStream(file.getAbsolutePath());
 		
-        String text = IOUtils.toString(inputStream);
+        String text = IOUtils.toString(inputStream, "UTF-8");
         Document doc = Jsoup.parse(text);
         inputStream.close();
         
