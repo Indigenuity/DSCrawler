@@ -1,5 +1,7 @@
 package async.work;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class WorkResult {
@@ -9,6 +11,14 @@ public class WorkResult {
 	protected Long uuid;
 	protected String note;
 	
+	protected WorkOrder workOrder;
+	protected Map<String, String> contextItems = new HashMap<String, String>();
+	
+	public WorkResult(WorkOrder workOrder) {
+		this.workOrder = workOrder;
+		this.workType = workOrder.workType;
+		this.workStatus = WorkStatus.NO_WORK;
+	}
 	public WorkResult() {
 		this.workType = WorkType.NO_WORK;
 		this.workStatus = WorkStatus.NO_WORK;
@@ -52,7 +62,20 @@ public class WorkResult {
 	public void setNote(String note) {
 		this.note = note;
 	}
-	
+	public synchronized Map<String, String> getContextItems() {
+		Map<String, String> returned = new HashMap<String, String>();
+		returned.putAll(contextItems);
+		return returned;
+	}
+	public synchronized String addContextItem(String name, String item) {
+		return contextItems.put(name, item);
+	}
+	public synchronized String removeContextItems(String name) {
+		return contextItems.remove(name);
+	}
+	public synchronized String getContextItem(String name) {
+		return contextItems.get(name);
+	}
 	
 	
 	

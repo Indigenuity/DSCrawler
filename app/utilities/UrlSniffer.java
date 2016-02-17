@@ -7,6 +7,8 @@ import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 
+import javax.swing.text.ChangedCharSetException;
+
 import global.Global;
 import persistence.UrlCheck;
 import play.Logger;
@@ -28,6 +30,10 @@ public class UrlSniffer {
 		UrlCheck check = new UrlCheck(seed);
 		try{
 			check = resolveCheck(check, numRecursions);
+			fillMeta(check);
+		}
+		catch(MalformedURLException e) {
+			check.setError(true);
 		}
 		catch(Exception e){
 			check.setError(true);
@@ -36,11 +42,40 @@ public class UrlSniffer {
 		}
 		if(check.getResolvedSeed() != null){
 			check.setResolvedSeed(check.getResolvedSeed().replace(":80", ""));
-			if(DSFormatter.equals(check.getSeed(), check.getResolvedSeed())){
-				check.setNoChange(true);
-			}
+			
 		}
 		return check;
+	}
+	
+	private static void fillMeta(UrlCheck check) {
+		URL url;
+		URL oldUrl;
+		try{
+			oldUrl = new URL(check.getSeed());
+			url = new URL(check.getResolvedSeed());
+		}
+		catch(MalformedURLException e) {
+			check.setValid(false);
+			return;
+		}
+		check.setStatusApproved((check.getStatusCode() == 200)? true:false);
+		check.setSeedHost(oldUrl.getHost());
+		check.setResolvedHost(url.getHost());
+		check.setDomainChanged(DSFormatter.equals(oldUrl.getHost(), url.getHost()));
+		check.setDomainApproved(DSFormatter.isApprovedDomain(url.getHost()));
+		
+		if(DSFormatter.equals(check.getSeed(), check.getResolvedSeed())){
+			check.setNoChange(true);
+		}
+		else if(isGenericRedirect(check.getResolvedSeed(), check.getSeed())){
+			check.setGenericChange(true);
+		}
+		
+		check.setQueryApproved(DSFormatter.isApprovedQuery(url));
+		check.setPathApproved(DSFormatter.isApprovedPath(url));
+		check.setLanguagePath(DSFormatter.isLanguagePath(url));
+		check.setLanguageQuery(DSFormatter.isLanguageQuery(url));
+		
 	}
 	
 	private static UrlCheck resolveCheck(UrlCheck check, int numRecursions) throws IOException {
@@ -81,6 +116,7 @@ public class UrlSniffer {
 		}
 		//If no redirect, just return what we get
 		check.setResolvedSeed(con.getURL().toString());
+		con.disconnect();
 		return check;
 	}
 	

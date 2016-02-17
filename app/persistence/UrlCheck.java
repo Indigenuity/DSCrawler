@@ -41,6 +41,9 @@ public class UrlCheck {
 	private boolean statusApproved;
 	private boolean domainApproved;
 	private boolean domainChanged;
+	private boolean valid = true;
+	private boolean languagePath;
+	private boolean languageQuery;
 	
 	private boolean noChange;
 	private boolean accepted;
@@ -49,6 +52,16 @@ public class UrlCheck {
 	public UrlCheck(String seed) {
 		this.seed = seed;
 	}
+	public boolean isAllApproved(){
+		return !this.isError() 
+				&& this.isValid()
+				&& this.isStatusApproved()
+				&& (this.isUnchanged() || this.isGenericChange())
+				&& this.isPathApproved()
+				&& this.isDomainApproved()
+				&& this.isQueryApproved();
+	}
+	
 	public long getUrlCheckId() {
 		return urlCheckId;
 	}
@@ -157,5 +170,24 @@ public class UrlCheck {
 	public void setNoChange(boolean noChange) {
 		this.noChange = noChange;
 	}
+	public boolean isValid() {
+		return valid;
+	}
+	public void setValid(boolean valid) {
+		this.valid = valid;
+	}
+	public boolean isLanguagePath() {
+		return languagePath;
+	}
+	public void setLanguagePath(boolean languagePath) {
+		this.languagePath = languagePath;
+	}
+	public boolean isLanguageQuery() {
+		return languageQuery;
+	}
+	public void setLanguageQuery(boolean languageQuery) {
+		this.languageQuery = languageQuery;
+	}
+	
 
 }

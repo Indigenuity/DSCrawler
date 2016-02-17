@@ -71,6 +71,7 @@ public class Site {
 	private boolean queryStringApproved = false;
 	
 	private Date redirectResolveDate;
+	private Date createdDate;
 	
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	private String suggestedHomepage; //For when the redirect resolver finds a different homepage
@@ -126,6 +127,8 @@ public class Site {
 	private Set<String> cities = new HashSet<String>();
 	
 	private boolean temp = false;
+	private Boolean languagePath = false;
+	private Boolean languageQuery = false;
 	
 	@Formula("homepageNeedsReview | reviewLater | invalidUrl | maybeDefunct | defunct | crawlerProtected | groupSite ")
 	private boolean invalid;
@@ -141,6 +144,22 @@ public class Site {
 
 	public void setSiteId(long siteId) {
 		this.siteId = siteId;
+	}
+
+	public Boolean getLanguagePath() {
+		return languagePath;
+	}
+
+	public void setLanguagePath(Boolean languagePath) {
+		this.languagePath = languagePath;
+	}
+
+	public Boolean getLanguageQuery() {
+		return languageQuery;
+	}
+
+	public void setLanguageQuery(Boolean languageQuery) {
+		this.languageQuery = languageQuery;
 	}
 
 	public String getDomain() {
@@ -482,6 +501,14 @@ public class Site {
 
 	public void setTemp(boolean temp) {
 		this.temp = temp;
+	}
+
+	public Date getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
 	}
 	
 	

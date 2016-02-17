@@ -53,6 +53,10 @@ public class Temp {
 	
 	private Long infoFetchId;
 	
+	private String accountLevel;
+	private String parentAccount;
+	private String phone;
+	private String street;
 	
 
 	public long getTempId() {

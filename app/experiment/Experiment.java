@@ -107,6 +107,7 @@ import persistence.SiteCrawl;
 import persistence.Temp;
 import persistence.UrlCheck;
 import persistence.stateful.FetchJob;
+import persistence.tasks.Task;
 import places.DataBuilder;
 import play.db.DB;
 import play.db.jpa.JPA;
@@ -119,7 +120,16 @@ import utilities.UrlSniffer;
 public class Experiment {
 	
 	public static void runExperiment() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
-		CSVGenerator.generateEvolioReport();
+		Task urlCheckTask = new Task();
+		urlCheckTask.setWorkType(WorkType.REDIRECT_RESOLVE);
+		urlCheckTask.addContextItem("seed", "http://www.goremotorshonda.com/");
+		Task siteImportTask = new Task();
+		siteImportTask.setWorkType(WorkType.SITE_IMPORT);
+		siteImportTask.addPrerequisite(urlCheckTask);
+		Task supertask = new Task();
+		supertask.setWorkType(WorkType.SUPERTASK);
+		supertask.addSubtask(urlCheckTask);
+		supertask.addSubtask(siteImportTask);
 	}
 	
 	public static void assignTemps() {

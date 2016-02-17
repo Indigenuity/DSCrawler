@@ -55,6 +55,8 @@ public class InfoFetch extends WorkOrder {
 	private Long urlCheckId;
 	@Column(nullable = true)
 	private Long placesPageId;
+	@Column(nullable = true)
+	private Long sfEntryId;
 	
 	@Transient
 	private Site siteObject;

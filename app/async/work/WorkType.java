@@ -24,6 +24,7 @@ public enum WorkType {
 	RESTORE						(DataTransferWorker.class), 
 	URL							, 
 	REDIRECT_RESOLVE			(UrlResolveWorker.class), 
+	SITE_IMPORT					(SiteImportWorker.class),
 	SITE_UPDATE					(SiteUpdateWorker.class),
 	CRAWL						(CrawlingWorker.class, 15), 
 	SMALL_CRAWL					(),
@@ -40,7 +41,8 @@ public enum WorkType {
 	PLACES_PAGE_FETCH			(GooglePlacesWorker.class),
 	CUSTOM						, 
 	BACKUP						(DataTransferWorker.class),
-	INFO_FETCH					(InfoFetchWorker.class, 20);
+	INFO_FETCH					(InfoFetchWorker.class, 20),
+	SUPERTASK					;
 
 	private static final int DEFAULT_NUM_WORKERS = 5;
 	private Class<?> defaultWorker;

@@ -39,7 +39,7 @@ import utilities.UrlSniffer;
 public class CSVImporter {
 	
 	public static void importTemp() throws IOException{
-		Reader in = new FileReader("C:\\Workspace\\DSStorage\\source/CanadaFranchise 2-11-16.csv");
+		Reader in = new FileReader("C:\\Workspace\\DSStorage\\source/All Franchise 2-16.csv");
 		Iterable<CSVRecord> records = CSVFormat.EXCEL.withHeader().parse(in);
 		
 		Temp entry;
@@ -75,31 +75,30 @@ public class CSVImporter {
 	}
 	
 	public static void importSf() throws IOException{
-		Reader in = new FileReader("C:\\Workspace\\DSStorage\\source/report1446049437609.csv");
+		Reader in = new FileReader("C:\\Workspace\\DSStorage\\source/All Franchise 2-16.csv");
 		Iterable<CSVRecord> records = CSVFormat.EXCEL.withHeader().parse(in);
 		
 		SFEntry entry;
-		Site site;
 		EntityManager em = JPA.em();
 		int total = 0;
 		for(CSVRecord record : records) {
 			
 			entry = new SFEntry();
 			entry.setAccountId(record.get("Salesforce Unique ID"));
-//			entry.setAccountAuto(record.get("Account Auto Number"));
-//			entry.setAccountType(record.get("Account Type"));
-//			entry.setName(record.get("Account Name"));
-//			entry.setState(record.get("Dealership State/Province"));
-			entry.setGivenUrl(record.get("Website"));
-			entry.setAccountLevel("Account Level");
-			entry.setParentAccount("Parent Account");
-			entry.setParentAccountId("Parent Account ID");
+			entry.setName(record.get("Account Name"));
+			entry.setWebsite(record.get("Website"));
+			entry.setAccountLevel(record.get("Account Level"));
+			entry.setParentAccount(record.get("Parent Account"));
+			entry.setParentAccountId(record.get("Parent Account ID"));
+			entry.setPhone(record.get("Phone"));
+			entry.setStreet(record.get("Dealership Street"));
+			entry.setCity(record.get("Dealership City"));
+			entry.setState(record.get("Dealership State/Province"));
+			entry.setPostal(record.get("Dealership Zip/Postal Code"));
+			entry.setCountry(record.get("Dealership Country"));
+			entry.setBrandAffiliations(record.get("Brand Affiliation"));
 			entry.setImportDate(new Date((new java.util.Date().getTime())));
-//			if(!DSFormatter.isEmpty(entry.getGivenUrl())){
-//				site = new Site();
-//				site.setHomepage(entry.getGivenUrl());
-//				entry.setMainSite(site);
-//			}
+			
 			total++;
 			
 			System.out.println("Imported : " + total);

@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import crawling.DealerCrawlController;
+import datadefinitions.NoCrawlDomain;
 import persistence.CrawlSet;
 import persistence.Site;
 import persistence.SiteCrawl;
@@ -24,30 +25,6 @@ import async.work.urlresolve.UrlResolveWorkResult;
 //For sending sites to crawl to individual threads
 public class CrawlingWorker extends SingleStepWorker { 
 	
-	public static final Set<String> NO_CRAWL_DOMAINS = new HashSet<String>();
-	static {
-		NO_CRAWL_DOMAINS.add("facebook.com");
-		NO_CRAWL_DOMAINS.add("plus.google.com");
-		NO_CRAWL_DOMAINS.add("jdbyrider.com");
-		NO_CRAWL_DOMAINS.add("carhop.com");
-		NO_CRAWL_DOMAINS.add("autotrader.com");
-		NO_CRAWL_DOMAINS.add("manheim.com");
-		NO_CRAWL_DOMAINS.add("adesa.com");
-		NO_CRAWL_DOMAINS.add("chevronwithtechron.com");
-		NO_CRAWL_DOMAINS.add("drivetime.com");
-		NO_CRAWL_DOMAINS.add("www.cars.com");
-		NO_CRAWL_DOMAINS.add("iaai.com");
-		NO_CRAWL_DOMAINS.add("www.honda.com");
-		NO_CRAWL_DOMAINS.add("www.hertzcarsales.com");
-		NO_CRAWL_DOMAINS.add("copart.com");
-		NO_CRAWL_DOMAINS.add("www.gm.com");
-		NO_CRAWL_DOMAINS.add("carmax.com");
-		NO_CRAWL_DOMAINS.add("paaco.com");
-		NO_CRAWL_DOMAINS.add("www.smart.com");
-		
-		
-	}
-	
 	private static int count = 0;
 	@Override
 	public WorkResult processWorkOrder(WorkOrder work) {
@@ -66,8 +43,8 @@ public class CrawlingWorker extends SingleStepWorker {
 				homepage[0] = temp.getHomepage();
 			});
 			boolean shouldCrawl = true;
-			for(String url : NO_CRAWL_DOMAINS) {
-				if(homepage[0].contains(url))
+			for(NoCrawlDomain domain : NoCrawlDomain.values()) {
+				if(homepage[0].contains(domain.definition))
 					shouldCrawl = false;
 			}
 			
@@ -84,7 +61,7 @@ public class CrawlingWorker extends SingleStepWorker {
 			}
 			else {
 				result.setWorkStatus(WorkStatus.NEEDS_REVIEW);
-				result.setNote("Site domain is in the NO_CRAWL_DOMAINS");
+				result.setNote("Site domain is in the NoCrawlDomains");
 			}
 			
 		}

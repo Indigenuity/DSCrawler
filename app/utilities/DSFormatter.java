@@ -8,28 +8,22 @@ import java.net.URLEncoder;
 
 import org.apache.commons.lang3.StringUtils;
 
+import datadefinitions.InvalidDomain;
+import datadefinitions.ValidPathMatch;
+import datadefinitions.ValidQueryMatch;
 import play.Logger;
 
 public class DSFormatter {
 
 	private final static String HAS_HTTP_REGEX= "(?i:http.*)";
-	private final static String OK_ENDINGS_REGEX = ".*(?i:index\\.htm|index\\.html|index\\.cfm|index\\.asp|index\\.php|index\\.shtml|default\\.htm|default\\.html|default\\.asp|default\\.aspx|default\\.cfm|default\\.php|home/|Home\\.aspx|home\\.html)";
+	private final static String OK_ENDINGS_REGEX = ".*(?i:index\\.htm|index\\.html|index\\.cfm|index\\.asp|index\\.php|index\\.shtml|default\\.htm|default\\.html|"
+			+ "default\\.asp|default\\.aspx|default\\.cfm|default\\.php|home/|Home\\.aspx|home\\.html)";
 	private final static String SLASHLESS_DOMAIN = "(?i:\\.com|\\.net|\\.biz|\\.us|\\.cc|\\.org|\\.info|\\.ca|\\.me|\\.car)";
 	private final static String SLASHED_DOMAIN = "(?i:\\.com/|\\.net/|\\.biz/|\\.us/|\\.cc/|\\.org/|\\.info/|\\.ca/|\\.me/|\\.car/)";
 	private final static String SLASHLESS_DOMAIN_ENDING = ".*" + SLASHLESS_DOMAIN + "$";
 	private final static String SLASHED_DOMAIN_ENDING = ".*" + SLASHED_DOMAIN + "$";
 	
 	private final static String WINDOWS_ILLEGAL_CHARACTERS = "[\\/:\"*?<>|]+";
-	
-	public enum ValidQueryMatch {
-		AUTO_SHOPPER(".*(autoshopper.com/dealers/?dealedrid).*");
-		
-		public final String definition;
-		
-		private ValidQueryMatch(String definition) {
-			this.definition = definition;
-		}
-	}
 	
 	public static boolean equals(String first, String second) {
 		if(first == null && second == null)
@@ -190,6 +184,21 @@ public class DSFormatter {
 		return false;
 	}
 	
+	public static boolean isApprovedPath(String original) {
+		if(original == null) {
+			return false;
+		}
+		String path = original.toLowerCase();
+		for(ValidPathMatch match : ValidPathMatch.values()) {
+			if(path.equals(match.definition)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	public static boolean isApprovedPath(URL url) {
+		return isApprovedPath(url.getPath());
+	}
 	public static boolean isApprovedQuery(String original) {
 		for(ValidQueryMatch match : ValidQueryMatch.values()) {
 			if(original.matches(match.definition)) {
@@ -197,6 +206,56 @@ public class DSFormatter {
 			}
 		}
 		return false;
+	}
+	public static boolean isApprovedQuery(URL url) {
+		return isApprovedQuery(url.getQuery());
+	}
+	
+	public static boolean isLanguagePath(String original) {
+		if(original == null) {
+			return false;
+		}
+		String path = original.toLowerCase();
+		for(ValidPathMatch match : ValidPathMatch.langValues()) {
+			if(path.equals(match.definition)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	public static boolean isLanguagePath(URL url) {
+		return isLanguagePath(url.getPath());
+	}
+	public static boolean isLanguageQuery(String original) {
+		if(original == null) {
+			return false;
+		}
+		String query = original.toLowerCase();
+		for(ValidQueryMatch match : ValidQueryMatch.langValues()) {
+			if(query.equals(match.definition)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	public static boolean isLanguageQuery(URL url) {
+		return isLanguageQuery(url.getQuery());
+	}
+	
+	public static boolean isApprovedDomain(String original) {
+		if(original == null) {
+			return false;
+		}
+		String domain = original.toLowerCase();
+		for(InvalidDomain match : InvalidDomain.values()) {
+			if(domain.contains(match.definition)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	public static boolean isApprovedDomain(URL url) {
+		return isApprovedDomain(url.getHost());
 	}
 	
 	public static String sqlify(String original) {

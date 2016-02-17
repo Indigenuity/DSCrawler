@@ -9,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
 @Entity
@@ -23,18 +24,24 @@ public class SFEntry {
 	private String accountAuto;
 	private String accountType;
 	private String name;
+	private String phone;
+	private String street;
+	private String city;
 	private String state;
+	private String postal;
+	private String country;
+	private String brandAffiliations;
 	private String accountLevel;
 	private String parentAccount;
 	private String parentAccountId;
 	
 	private Date importDate;
+	private boolean permanent;
 	
 	@Column(nullable = true, columnDefinition="varchar(4000)")
-	private String givenUrl;
+	private String website;
 	
-	@OneToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
-	@JoinColumn(name="SF_SITE_ID")
+	@ManyToOne
 	private Site mainSite;
 
 	public long getSfEntryId() {
@@ -75,14 +82,6 @@ public class SFEntry {
 
 	public void setState(String state) {
 		this.state = state;
-	}
-
-	public String getGivenUrl() {
-		return givenUrl;
-	}
-
-	public void setGivenUrl(String givenUrl) {
-		this.givenUrl = givenUrl;
 	}
 
 	public Site getMainSite() {
@@ -131,6 +130,70 @@ public class SFEntry {
 
 	public void setImportDate(Date importDate) {
 		this.importDate = importDate;
+	}
+
+	public String getStreet() {
+		return street;
+	}
+
+	public void setStreet(String street) {
+		this.street = street;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	public String getCountry() {
+		return country;
+	}
+
+	public void setCountry(String country) {
+		this.country = country;
+	}
+
+	public String getBrandAffiliations() {
+		return brandAffiliations;
+	}
+
+	public void setBrandAffiliations(String brandAffiliations) {
+		this.brandAffiliations = brandAffiliations;
+	}
+
+	public boolean isPermanent() {
+		return permanent;
+	}
+
+	public void setPermanent(boolean permanent) {
+		this.permanent = permanent;
+	}
+
+	public String getWebsite() {
+		return website;
+	}
+
+	public void setWebsite(String website) {
+		this.website = website;
+	}
+
+	public String getPostal() {
+		return postal;
+	}
+
+	public void setPostal(String postal) {
+		this.postal = postal;
+	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
 	}	
 	
 	
