@@ -44,6 +44,12 @@ public class Task {
 	private String note;
 	
 	@ManyToOne(cascade=CascadeType.DETACH)
+	@JoinTable(name="taskSet_task", 
+			joinColumns={@JoinColumn(name="taskId")},
+		    inverseJoinColumns={@JoinColumn(name="taskSetId")})
+	private TaskSet taskSet;
+	
+	@ManyToOne(cascade=CascadeType.DETACH)
 	@JoinTable(name="task_subtask", 
 			joinColumns={@JoinColumn(name="subtaskId")},
 		    inverseJoinColumns={@JoinColumn(name="superTaskId")})
@@ -61,6 +67,16 @@ public class Task {
 		    inverseJoinColumns={@JoinColumn(name="prereqTaskId")})
 	private Set<Task> prerequisites = new HashSet<Task>();
 	
+	private Boolean serialTask = true;
+	
+	public boolean prereqsSatisfied() {
+		for(Task prereq : prerequisites){
+			if(prereq.getWorkStatus() != WorkStatus.WORK_COMPLETED){
+				return false;
+			}
+		}
+		return true;
+	}
 	
 	public synchronized Map<String, String> getContextItems() {
 		Map<String, String> returned = new HashMap<String, String>();
@@ -121,5 +137,14 @@ public class Task {
 	public void setWorkType(WorkType workType) {
 		this.workType = workType;
 	}
+
+	public Boolean isSerialTask() {
+		return serialTask;
+	}
+
+	public void setSerialTask(Boolean serialTask) {
+		this.serialTask = serialTask;
+	}
+	
 	
 }

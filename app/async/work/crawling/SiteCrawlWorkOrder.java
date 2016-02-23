@@ -8,7 +8,7 @@ public class SiteCrawlWorkOrder extends WorkOrder {
 	private Long siteId; 
 	
 	public SiteCrawlWorkOrder(Long siteId) {
-		super(WorkType.CRAWL);
+		super(WorkType.SITE_CRAWL);
 		this.siteId = siteId;
 	}
 

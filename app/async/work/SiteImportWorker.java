@@ -25,7 +25,6 @@ public class SiteImportWorker extends SingleStepWorker {
 		try{
 			
 //			System.out.println("doing some site updatework");
-			SiteUpdateWorkOrder order = (SiteUpdateWorkOrder)workOrder;
 			Long urlCheckId = Long.parseLong(workOrder.getContextItem("urlCheckId"));
 			Boolean franchise = Boolean.parseBoolean(workOrder.getContextItem("franchise"));
 			
@@ -47,7 +46,7 @@ public class SiteImportWorker extends SingleStepWorker {
 						
 						JPA.em().persist(site);
 						result.setWorkStatus(WorkStatus.WORK_COMPLETED);
-						result.addContextItem("newSiteId", site.getSiteId() + "");
+						result.addContextItem("siteId", site.getSiteId() + "");
 					}
 					else {
 						result.setNote("URL not fully approved");
@@ -57,7 +56,7 @@ public class SiteImportWorker extends SingleStepWorker {
 				else {
 					result.setNote("Site already exists with this homepage");
 					result.setWorkStatus(WorkStatus.NEEDS_REVIEW);
-					result.addContextItem("existingSiteId", existingSite.getSiteId() + "");
+					result.addContextItem("siteId", existingSite.getSiteId() + "");
 				}
 			});
 			

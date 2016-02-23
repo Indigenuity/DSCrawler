@@ -81,7 +81,7 @@ public class JobController extends Controller {
 				Hibernate.initialize(crawlSet.getNeedMobile());
 				sites = crawlSet.getNeedMobile();
 			}
-			else if(workType == WorkType.CRAWL) {
+			else if(workType == WorkType.SITE_CRAWL) {
 				Hibernate.initialize(crawlSet.getUncrawled());
 				sites = crawlSet.getUncrawled();
 			}

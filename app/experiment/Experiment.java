@@ -85,6 +85,8 @@ import datatransfer.Cleaner;
 import akka.actor.ActorRef;
 import analysis.SiteCrawlAnalyzer;
 import async.Asyncleton;
+import async.tools.Tool;
+import async.tools.UrlResolveTool;
 import async.work.SiteWork;
 import async.work.WorkItem;
 import async.work.WorkSet;
@@ -120,16 +122,27 @@ import utilities.UrlSniffer;
 public class Experiment {
 	
 	public static void runExperiment() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
-		Task urlCheckTask = new Task();
-		urlCheckTask.setWorkType(WorkType.REDIRECT_RESOLVE);
-		urlCheckTask.addContextItem("seed", "http://www.goremotorshonda.com/");
-		Task siteImportTask = new Task();
-		siteImportTask.setWorkType(WorkType.SITE_IMPORT);
-		siteImportTask.addPrerequisite(urlCheckTask);
-		Task supertask = new Task();
-		supertask.setWorkType(WorkType.SUPERTASK);
-		supertask.addSubtask(urlCheckTask);
-		supertask.addSubtask(siteImportTask);
+		
+		Tool tool = new UrlResolveTool();
+		tool.getAbilities();
+		testing(tool);
+		UrlResolveTool second = new UrlResolveTool();
+		second.getAbilities();
+		testing(second);
+//		Task urlCheckTask = new Task();
+//		urlCheckTask.setWorkType(WorkType.REDIRECT_RESOLVE);
+//		urlCheckTask.addContextItem("seed", "http://www.goremotorshonda.com/");
+//		Task siteImportTask = new Task();
+//		siteImportTask.setWorkType(WorkType.SITE_IMPORT);
+//		siteImportTask.addPrerequisite(urlCheckTask);
+//		Task supertask = new Task();
+//		supertask.setWorkType(WorkType.SUPERTASK);
+//		supertask.addSubtask(urlCheckTask);
+//		supertask.addSubtask(siteImportTask);
+	}
+	
+	public static void testing(Tool tool) {
+		tool.getAbilities();
 	}
 	
 	public static void assignTemps() {

@@ -9,12 +9,12 @@ public class SiteCrawlWorkResult extends WorkResult {
 	private Long siteCrawlId;
 	
 	public SiteCrawlWorkResult() {
-		super(WorkType.CRAWL);
+		super(WorkType.SITE_CRAWL);
 		this.siteId = null;
 	}
 	
 	public SiteCrawlWorkResult(Long siteId) {
-		super(WorkType.CRAWL);
+		super(WorkType.SITE_CRAWL);
 		this.siteId = siteId;
 	}
 

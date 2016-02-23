@@ -7,11 +7,11 @@ import async.docanalysis.DocAnalysisWorker;
 import async.metaanalysis.MetaAnalysisWorker;
 import async.sniffer.SnifferWorker;
 import async.textanalysis.TextAnalysisWorker;
+import async.tools.UrlResolveTool;
 import async.work.crawling.CrawlingWorker;
 import async.work.googleplaces.GooglePlacesWorker;
 import async.work.infofetch.InfoFetchWorker;
 import async.work.siteupdate.SiteUpdateWorker;
-import async.work.urlresolve.UrlResolveWorker;
 import async.workers.MobileAnalysisWorker;
 import async.workers.MobileWorker;
 
@@ -23,10 +23,10 @@ public enum WorkType {
 	NO_WORK						,
 	RESTORE						(DataTransferWorker.class), 
 	URL							, 
-	REDIRECT_RESOLVE			(UrlResolveWorker.class), 
+	REDIRECT_RESOLVE			(UrlResolveTool.class), 
 	SITE_IMPORT					(SiteImportWorker.class),
 	SITE_UPDATE					(SiteUpdateWorker.class),
-	CRAWL						(CrawlingWorker.class, 15), 
+	SITE_CRAWL					(CrawlingWorker.class, 15), 
 	SMALL_CRAWL					(),
 	MOBILE_TEST					(MobileWorker.class),
 	MOBILE_ANALYSIS				(MobileAnalysisWorker.class),
