@@ -1,10 +1,9 @@
-package async.docanalysis;
+package agarbagefolder.textanalysis;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import persistence.SiteCrawl;
-import persistence.SiteInformationOld;
 import play.Logger;
 import akka.actor.ActorRef;
 import akka.actor.Props;
@@ -16,25 +15,24 @@ import akka.routing.Routee;
 import akka.routing.Router;
 import async.Asyncleton;
 import async.monitoring.AsyncMonitor;
-import async.tools.DocAnalysisTool;
-import async.tools.SiteCrawlTool;
+import async.tools.TextAnalysisTool;
 import async.work.SiteWork;
 
-public class DocAnalysisMaster extends UntypedActor {
+public class TextAnalysisMaster extends UntypedActor {
 
-	private final int numWorkers; 
+	private final int numWorkers;
 	
 	private Router router;
 	
 	private int numResults;
 
-	public DocAnalysisMaster(int numWorkers) { 
+	public TextAnalysisMaster(int numWorkers) {
 		this.numWorkers = numWorkers;
 		numResults = 0;
 		
 		List<Routee> routees = new ArrayList<Routee>();
 	    for (int i = 0; i < this.numWorkers; i++) {
-	      ActorRef r = getContext().actorOf(Props.create(DocAnalysisTool.class));
+	      ActorRef r = getContext().actorOf(Props.create(TextAnalysisTool.class));
 	      getContext().watch(r);
 	      routees.add(new ActorRefRoutee(r));
 	    }
@@ -46,17 +44,17 @@ public class DocAnalysisMaster extends UntypedActor {
 		try{
 			if(work instanceof SiteWork) {
 				SiteWork siteWork = (SiteWork) work;
-				if(siteWork.getDocAnalysisWork() == SiteWork.DO_WORK){
-					AsyncMonitor.instance().addWip("Doc Analysis", siteWork.getSiteCrawlId());
-					siteWork.setDocAnalysisWork(SiteWork.WORK_IN_PROGRESS);
+				if(siteWork.getTextAnalysisWork() == SiteWork.DO_WORK){
+					AsyncMonitor.instance().addWip("Text Analysis", siteWork.getSiteCrawlId());
+					siteWork.setTextAnalysisWork(SiteWork.WORK_IN_PROGRESS);
 					router.route(siteWork, getSelf());
 				}
-				else if(siteWork.getDocAnalysisWork() == SiteWork.WORK_COMPLETED){
-					AsyncMonitor.instance().finishWip("Doc Analysis", siteWork.getSiteCrawlId());
-					Asyncleton.instance().getMainMaster().tell(siteWork, getSelf());
+				else if(siteWork.getTextAnalysisWork() == SiteWork.WORK_COMPLETED){
+					AsyncMonitor.instance().finishWip("Text Analysis", siteWork.getSiteCrawlId());
+					Asyncleton.instance().getMainListener().tell(siteWork, getSelf());
 				}
-				else if(siteWork.getDocAnalysisWork() == SiteWork.WORK_IN_PROGRESS){	//Worker ended in error
-					AsyncMonitor.instance().finishWip("Doc Analysis", siteWork.getSiteCrawlId());
+				else if(siteWork.getTextAnalysisWork() == SiteWork.WORK_IN_PROGRESS){	//Worker ended in error
+					AsyncMonitor.instance().finishWip("Text Analysis", siteWork.getSiteCrawlId());
 				}
 				
 			}
@@ -64,16 +62,16 @@ public class DocAnalysisMaster extends UntypedActor {
 				router.route(work, getSelf());
 			}
 			else if(work instanceof Terminated) {
-				Logger.error("DocAnalysisMaster received terminated worker");
+				Logger.error("TextAnalysisMaster received terminated worker");
 				router = router.removeRoutee(((Terminated) work).actor());
-				ActorRef worker = getContext().actorOf(Props.create(DocAnalysisTool.class));
+				ActorRef worker = getContext().actorOf(Props.create(TextAnalysisTool.class));
 				getContext().watch(worker);
 				router = router.addRoutee(new ActorRefRoutee(worker));
 			}
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			Logger.error("Caught Exception in DocAnalysisMaster : " + e);
+			Logger.error("Caught Exception in TextAnalysisMaster : " + e);
 		}
 	}
 }

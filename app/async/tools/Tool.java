@@ -1,13 +1,11 @@
 package async.tools;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import async.registration.ContextItem;
 import async.work.WorkStatus;
 import async.work.WorkType;
 import persistence.tasks.Task;
-import play.db.jpa.JPA;
 
 public abstract class Tool {
 
@@ -15,8 +13,6 @@ public abstract class Tool {
 		if(!hasRequiredItems(task)){
 			return incompleteTask(task, "Task doesn't have all the required context items");
 		}
-		
-		
 		return safeDoTask(task);
 	}
 	
@@ -24,7 +20,7 @@ public abstract class Tool {
 		
 	public abstract Set<ContextItem> getRequiredItems(WorkType workType);
 	
-	public abstract Set<ContextItem> getReturnedItems(WorkType workType);
+	public abstract Set<ContextItem> getResultItems(WorkType workType);
 	
 	public abstract Set<WorkType> getAbilities();
 	

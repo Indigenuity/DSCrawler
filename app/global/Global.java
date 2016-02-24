@@ -6,16 +6,16 @@ import java.util.Date;
 
 import com.google.maps.GeoApiContext;
 
+import agarbagefolder.crawling.CrawlingListener;
+import agarbagefolder.crawling.CrawlingMaster;
+import agarbagefolder.sniffer.SnifferListener;
+import agarbagefolder.sniffer.SnifferMaster;
 import dao.SiteInformationDAO;
 import dao.SiteSummaryDAO;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import async.Asyncleton;
-import async.crawling.CrawlingListener;
-import async.crawling.CrawlingMaster;
-import async.sniffer.SnifferListener;
-import async.sniffer.SnifferMaster;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;

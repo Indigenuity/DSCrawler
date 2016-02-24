@@ -49,7 +49,7 @@ public class Worker {
 	private static Task fetchTask(Long taskId){
 		Task[] fetchedTask= new Task[1];
 		JPA.withTransaction( () -> {
-			Task task = JPA.em().find(Task.class, taskId);
+			fetchedTask[0] = JPA.em().find(Task.class, taskId);
 		});
 		return fetchedTask[0];
 	}

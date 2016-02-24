@@ -1,11 +1,6 @@
 package async.work.infofetch;
 
-import java.util.List;
-
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -14,9 +9,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
 import async.work.WorkOrder;
-import async.work.WorkStatus;
 import async.work.WorkType;
-import async.work.urlresolve.UrlResolveWorkOrder;
 import persistence.PlacesPage;
 import persistence.Site;
 import persistence.SiteCrawl;

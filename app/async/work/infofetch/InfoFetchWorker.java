@@ -4,38 +4,38 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import agarbagefolder.amalgamation.AmalgamationWorkOrder;
+import agarbagefolder.amalgamation.AmalgamationWorkResult;
+import agarbagefolder.crawlingnew.SiteCrawlWorkOrder;
+import agarbagefolder.crawlingnew.SiteCrawlWorkResult;
+import agarbagefolder.googleplaces.PlacesPageWorkOrder;
+import agarbagefolder.googleplaces.PlacesPageWorkResult;
+import agarbagefolder.siteupdate.SiteUpdateWorkOrder;
+import agarbagefolder.siteupdate.SiteUpdateWorkResult;
+import agarbagefolder.textanalysis.TextAnalysisWorkOrder;
+import agarbagefolder.textanalysis.TextAnalysisWorkResult;
+import agarbagefolder.urlresolve.UrlResolveWorkOrder;
+import agarbagefolder.urlresolve.UrlResolveWorkResult;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import analysis.MobileCrawlAnalyzer;
 import async.Asyncleton;
-import async.amalgamation.AmalgamationWorkOrder;
-import async.amalgamation.AmalgamationWorkResult;
-import async.amalgamation.AmalgamationWorker;
 import async.docanalysis.DocAnalysisWorkOrder;
 import async.docanalysis.DocAnalysisWorkResult;
-import async.docanalysis.DocAnalysisWorker;
 import async.monitoring.AsyncMonitor;
 import async.registration.WorkerRegistry;
-import async.textanalysis.TextAnalysisWorkOrder;
-import async.textanalysis.TextAnalysisWorkResult;
-import async.textanalysis.TextAnalysisWorker;
+import async.tools.AmalgamationTool;
+import async.tools.DocAnalysisTool;
+import async.tools.SiteCrawlTool;
+import async.tools.SiteUpdateTool;
+import async.tools.TextAnalysisTool;
 import async.work.MultiStepJPAWorker;
 import async.work.WorkItem;
 import async.work.WorkOrder;
 import async.work.WorkResult;
 import async.work.WorkStatus;
 import async.work.WorkType;
-import async.work.crawling.CrawlingWorker;
-import async.work.crawling.SiteCrawlWorkOrder;
-import async.work.crawling.SiteCrawlWorkResult;
-import async.work.googleplaces.PlacesPageWorkOrder;
-import async.work.googleplaces.PlacesPageWorkResult;
-import async.work.siteupdate.SiteUpdateWorkOrder;
-import async.work.siteupdate.SiteUpdateWorkResult;
-import async.work.siteupdate.SiteUpdateWorker;
-import async.work.urlresolve.UrlResolveWorkOrder;
-import async.work.urlresolve.UrlResolveWorkResult;
 import persistence.MobileCrawl;
 import persistence.UrlCheck;
 import play.Logger;
@@ -167,7 +167,8 @@ public class InfoFetchWorker extends MultiStepJPAWorker {
 				throw new IllegalStateException("Need site to perform site update");
 			}
 			System.out.println("InfoFetchWorker doing SiteUpdate");
-			SiteUpdateWorkResult workResult = SiteUpdateWorker.doWorkOrder(new SiteUpdateWorkOrder(infoFetch.getSiteId()));
+			SiteUpdateWorkResult workResult = null;
+//			SiteUpdateTool.doWorkOrder(new SiteUpdateWorkOrder(infoFetch.getSiteId()));
 			if(workResult.getWorkStatus() == WorkStatus.WORK_COMPLETED){
 				infoFetch.getSiteUpdate().workStatus = WorkStatus.WORK_COMPLETED;
 				infoFetch.setUrlCheckId(workResult.getUrlCheckId());
@@ -197,7 +198,8 @@ public class InfoFetchWorker extends MultiStepJPAWorker {
 				throw new IncompleteSubtaskException("Need site to perform site crawl");
 			}
 			System.out.println("InfoFetchWorker doing SiteCrawl");			
-			SiteCrawlWorkResult workResult = CrawlingWorker.doWorkOrder(new SiteCrawlWorkOrder(infoFetch.getSiteId()));
+			SiteCrawlWorkResult workResult = null;
+//			SiteCrawlTool.doWorkOrder(new SiteCrawlWorkOrder(infoFetch.getSiteId()));
 			if(workResult.getWorkStatus() == WorkStatus.WORK_COMPLETED){
 				infoFetch.getSiteCrawl().workStatus = WorkStatus.WORK_COMPLETED;
 				infoFetch.setSiteCrawlId(workResult.getSiteCrawlId());
@@ -223,7 +225,8 @@ public class InfoFetchWorker extends MultiStepJPAWorker {
 				throw new IncompleteSubtaskException("Need sitecrawl to perform amalgamation");
 			}
 			System.out.println("InfoFetchWorker doing Amalgamation");
-			AmalgamationWorkResult workResult = AmalgamationWorker.doWorkOrder(new AmalgamationWorkOrder(infoFetch.getSiteCrawlId()));
+			AmalgamationWorkResult workResult = null;
+//			AmalgamationTool.doWorkOrder(new AmalgamationWorkOrder(infoFetch.getSiteCrawlId()));
 			if(workResult.getWorkStatus() == WorkStatus.WORK_COMPLETED){
 				infoFetch.getAmalgamation().workStatus = WorkStatus.WORK_COMPLETED;
 			}
@@ -247,7 +250,8 @@ public class InfoFetchWorker extends MultiStepJPAWorker {
 				throw new IncompleteSubtaskException("Need sitecrawl to perform TextAnalysis");
 			}
 			System.out.println("InfoFetchWorker doing TextAnalysis");
-			TextAnalysisWorkResult workResult = TextAnalysisWorker.doWorkOrder(new TextAnalysisWorkOrder(infoFetch.getSiteCrawlId()));
+			TextAnalysisWorkResult workResult = null;
+//			TextAnalysisWorker.doWorkOrder(new TextAnalysisWorkOrder(infoFetch.getSiteCrawlId()));
 			if(workResult.getWorkStatus() == WorkStatus.WORK_COMPLETED){
 				infoFetch.getTextAnalysis().workStatus = WorkStatus.WORK_COMPLETED;
 			}
@@ -271,7 +275,8 @@ public class InfoFetchWorker extends MultiStepJPAWorker {
 			}
 			
 			System.out.println("InfoFetchWorker doing DocAnalysis");
-			DocAnalysisWorkResult workResult = DocAnalysisWorker.doWorkOrder(new DocAnalysisWorkOrder(infoFetch.getSiteCrawlId()));
+			DocAnalysisWorkResult workResult = null;
+//			DocAnalysisWorker.doWorkOrder(new DocAnalysisWorkOrder(infoFetch.getSiteCrawlId()));
 			if(workResult.getWorkStatus() == WorkStatus.WORK_COMPLETED){
 				infoFetch.getDocAnalysis().workStatus = WorkStatus.WORK_COMPLETED;
 			}

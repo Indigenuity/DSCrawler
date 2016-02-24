@@ -3,11 +3,7 @@ package async.registration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
-import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
-import async.Asyncleton;
 import async.tools.Tool;
 import async.work.WorkType;
 
@@ -37,10 +33,12 @@ public class WorkerRegistry {
 			RegistryEntry entry = new RegistryEntry();
 			entry.setClazz(tool.getClass());
 			for(ContextItem item : tool.getRequiredItems(workType)){
-				
+				entry.addRequiredContextItem(item);
+			}
+			for(ContextItem item : tool.getResultItems(workType)){
+				entry.addResultContextItem(item);
 			}
 		}
-		
 	}
 	
 	//Synchronize for multiple operations on the registry

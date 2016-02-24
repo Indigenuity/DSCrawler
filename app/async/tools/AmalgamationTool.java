@@ -1,37 +1,34 @@
 package async.tools;
 
-import java.util.Calendar;
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
-import async.registration.ContextItem;
-import async.work.WorkStatus;
-import async.work.WorkType;
-import persistence.UrlCheck;
+import datatransfer.Amalgamater;
+import global.Global;
+import persistence.SiteCrawl;
 import persistence.tasks.Task;
 import play.Logger;
 import play.db.jpa.JPA;
-import utilities.UrlSniffer;
+import async.registration.ContextItem;
+import async.work.WorkStatus;
+import async.work.WorkType;
 
-public class UrlResolveTool extends Tool { 
+public class AmalgamationTool extends Tool { 
 	
 
 
 	protected final static Set<ContextItem> requiredContextItems = new HashSet<ContextItem>();
 	static{
-		ContextItem item = new ContextItem("seed", String.class, false);
+		ContextItem item = new ContextItem("siteCrawlId", String.class, false);
 		requiredContextItems.add(item);
 	}
 	
 	protected final static Set<ContextItem> resultContextItems = new HashSet<ContextItem>();
-	static{
-		ContextItem item = new ContextItem("urlCheckId", Long.class, false);
-		resultContextItems.add(item);
-	}
 	
 	protected final static Set<WorkType> abilities = new HashSet<WorkType>();
 	static{
-		abilities.add(WorkType.REDIRECT_RESOLVE);
+		abilities.add(WorkType.AMALGAMATION);
 	}
 	
 	@Override
@@ -49,34 +46,30 @@ public class UrlResolveTool extends Tool {
 	public Set<ContextItem> getResultItems(WorkType workType) {
 		return resultContextItems;
 	}	
-
-
+	
 	@Override
 	protected Task safeDoTask(Task task) {
-		System.out.println("UrlResolveTool processing Task : " + task);
+		System.out.println("AmalgamationTool processing Task: " + task);
+		
 		try{
-			String seed = task.getContextItem("seed");
-			UrlCheck urlCheck = UrlSniffer.checkUrl(seed);
-			urlCheck.setCheckDate(new java.sql.Date(Calendar.getInstance().getTimeInMillis()));
+			Long siteCrawlId = Long.parseLong(task.getContextItem("siteCrawlId"));
+			
 			JPA.withTransaction( () -> {
-				JPA.em().persist(urlCheck);				
+				SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, siteCrawlId);
+				File storageFolder = new File(Global.getCrawlStorageFolder() + "/" + siteCrawl.getStorageFolder());
+				File destination = new File(Global.getCombinedStorageFolder() + "/" + siteCrawl.getStorageFolder());
+				Amalgamater.amalgamateFiles(storageFolder, destination);
+				siteCrawl.setAmalgamationDone(true);
 			});
-//			System.out.println("id after persist : " + urlCheck.getUrlCheckId());
-			task.addContextItem("urlCheckId", urlCheck.getUrlCheckId() + "");
 			task.setWorkStatus(WorkStatus.WORK_COMPLETED);
-//			System.out.println("UrlResolveWorker done processing work order");
 		}
 		catch(Exception e) {
-			Logger.error("Error in Url Resolve: " + e);
+			Logger.error("Error in Amalgamation: " + e);
 			e.printStackTrace();
 			task.setWorkStatus(WorkStatus.NEEDS_REVIEW);
 			task.setNote("Exception : " + e.getMessage());
 		}
 		return task;
 	}
-
-
-	
-	
 
 }

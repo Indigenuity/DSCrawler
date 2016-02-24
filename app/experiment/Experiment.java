@@ -67,6 +67,7 @@ import com.google.maps.model.AddressComponent;
 import com.google.maps.model.AddressComponentType;
 import com.google.maps.model.PlaceDetails;
 
+import agarbagefolder.urlresolve.UrlResolveWorkOrder;
 import crawling.DealerCrawlController;
 import crawling.GoogleCrawler;
 import crawling.MobileCrawler;
@@ -93,7 +94,6 @@ import async.work.WorkSet;
 import async.work.WorkStatus;
 import async.work.WorkType;
 import async.work.infofetch.InfoFetch;
-import async.work.urlresolve.UrlResolveWorkOrder;
 import persistence.CrawlSet;
 import persistence.Dealer;
 import persistence.ExtractedString;

@@ -42,7 +42,7 @@ public class DataView extends Controller {
 		for(InfoFetch fetch : fetches) {
 			fetch.initObjects();
 		}
-		return ok(views.html.reviewing.lists.infoFetchList.render(fetches));
+		return ok(views.html.reviewing.lists.infoFetchList.render(fetches)); 
 	}
 	
 	@Transactional

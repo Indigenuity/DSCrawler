@@ -2,11 +2,11 @@ package async.monitoring;
 
 import persistence.SiteInformationOld;
 import play.Logger;
+import agarbagefolder.sniffer.SnifferWorker;
 import akka.actor.UntypedActor;
 import async.Asyncleton;
 import async.monitoring.AsyncMonitor.CompletedWork;
 import async.monitoring.AsyncMonitor.WorkInProgress;
-import async.sniffer.SnifferWorker;
 import async.work.SiteWork;
 
 public class MonitoringListener extends UntypedActor {

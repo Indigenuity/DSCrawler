@@ -1,17 +1,16 @@
 package async.work;
 
-import async.MainWorker;
-import async.amalgamation.AmalgamationWorker;
-import async.datatransfer.DataTransferWorker;
-import async.docanalysis.DocAnalysisWorker;
-import async.metaanalysis.MetaAnalysisWorker;
-import async.sniffer.SnifferWorker;
-import async.textanalysis.TextAnalysisWorker;
+import async.tools.AmalgamationTool;
+import async.tools.DataTransferWorker;
+import async.tools.DocAnalysisTool;
+import async.tools.GooglePlacesWorker;
+import async.tools.MetaAnalysisTool;
+import async.tools.SiteCrawlTool;
+import async.tools.SiteImportTool;
+import async.tools.SiteUpdateTool;
+import async.tools.TextAnalysisTool;
 import async.tools.UrlResolveTool;
-import async.work.crawling.CrawlingWorker;
-import async.work.googleplaces.GooglePlacesWorker;
 import async.work.infofetch.InfoFetchWorker;
-import async.work.siteupdate.SiteUpdateWorker;
 import async.workers.MobileAnalysisWorker;
 import async.workers.MobileWorker;
 
@@ -24,20 +23,20 @@ public enum WorkType {
 	RESTORE						(DataTransferWorker.class), 
 	URL							, 
 	REDIRECT_RESOLVE			(UrlResolveTool.class), 
-	SITE_IMPORT					(SiteImportWorker.class),
-	SITE_UPDATE					(SiteUpdateWorker.class),
-	SITE_CRAWL					(CrawlingWorker.class, 15), 
+	SITE_IMPORT					(SiteImportTool.class),
+	SITE_UPDATE					(SiteUpdateTool.class),
+	SITE_CRAWL					(SiteCrawlTool.class, 15), 
 	SMALL_CRAWL					(),
 	MOBILE_TEST					(MobileWorker.class),
 	MOBILE_ANALYSIS				(MobileAnalysisWorker.class),
-	AMALGAMATION				(AmalgamationWorker.class),
-	DOC_ANALYSIS				(DocAnalysisWorker.class),
+	AMALGAMATION				(AmalgamationTool.class),
+	DOC_ANALYSIS				(DocAnalysisTool.class),
 	STRING_EXTRACTION			, 
 	STAFF_EXTRACTION			,
-	TEXT_ANALYSIS				(TextAnalysisWorker.class), 
+	TEXT_ANALYSIS				(TextAnalysisTool.class), 
 	MATCHES						, 
 	SUMMARY						, 
-	META_ANALYSIS				(MetaAnalysisWorker.class),
+	META_ANALYSIS				(MetaAnalysisTool.class),
 	PLACES_PAGE_FETCH			(GooglePlacesWorker.class),
 	CUSTOM						, 
 	BACKUP						(DataTransferWorker.class),

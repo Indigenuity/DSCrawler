@@ -2,9 +2,9 @@ package async.work;
 
 import java.util.UUID;
 
+import agarbagefolder.urlresolve.UrlResolveWorkOrder;
 import akka.actor.UntypedActor;
 import async.monitoring.AsyncMonitor;
-import async.work.urlresolve.UrlResolveWorkOrder;
 import persistence.UrlCheck;
 import play.Logger;
 import play.db.jpa.JPA;
