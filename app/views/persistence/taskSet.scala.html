@@ -1,0 +1,33 @@
+@import reporting.DashboardStats
+
+@(taskSet : _root_.persistence.tasks.TaskSet)
+
+@main("TaskSet " + taskSet.getTaskSetId() + " : " +  taskSet.getName()) {
+	<div>
+		<p>Task Set Started : @taskSet.getDateCreated()</p>
+		<p>@taskSet.getTasks().size() Tasks</p>
+	</div>
+	<div id="dashboard-stats">
+		
+	</div>
+	
+	<div id="work-form-wrapper">
+		<H2>Task Set Work</H2>
+		@helper.form(action = routes.JobController.taskSetWork, 'id -> "workForm") {
+			<input type="hidden" name="taskSetId" value="@taskSet.getTaskSetId()"/>
+			
+			<label name="numToProcess"># tasks to Process</label>
+			<input type="text" name="numToProcess" value="500" id="count-input">
+			<br>
+			<label name="offset">Offset</label>
+			<input type="text" name="offset" value = "0" id="offset-input">
+			<br>
+			<label name="offset">Number of Workers</label>
+			<input type="text" name="numWorkers" value = "25" id="offset-input">
+			<br>
+			<button type = "submit" id="workFormSubmit">Submit Job</button>
+		}
+	</div>
+	
+	
+}

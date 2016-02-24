@@ -1,4 +1,4 @@
-package async.docanalysis;
+package agarbagefolder.docanalysis;
 
 import async.work.WorkResult;
 

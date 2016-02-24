@@ -16,6 +16,16 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import async.Asyncleton;
+import async.registration.WorkerRegistry;
+import async.tools.AmalgamationTool;
+import async.tools.CustomTool;
+import async.tools.DocAnalysisTool;
+import async.tools.MetaAnalysisTool;
+import async.tools.SiteCrawlTool;
+import async.tools.SiteImportTool;
+import async.tools.SiteUpdateTool;
+import async.tools.TextAnalysisTool;
+import async.tools.UrlResolveTool;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;
@@ -76,6 +86,15 @@ public class Global extends GlobalSettings {
 //			System.out.println(e);
 //		}
 		
+		WorkerRegistry.getInstance().register(new UrlResolveTool());
+		WorkerRegistry.getInstance().register(new SiteImportTool());
+		WorkerRegistry.getInstance().register(new SiteUpdateTool());
+		WorkerRegistry.getInstance().register(new SiteCrawlTool());
+		WorkerRegistry.getInstance().register(new AmalgamationTool());
+		WorkerRegistry.getInstance().register(new TextAnalysisTool());
+		WorkerRegistry.getInstance().register(new DocAnalysisTool());
+		WorkerRegistry.getInstance().register(new MetaAnalysisTool());
+		WorkerRegistry.getInstance().register(new CustomTool());
 	}
 	
 	public void onStop(Application app) {

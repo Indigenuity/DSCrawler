@@ -1,4 +1,4 @@
-package async.docanalysis;
+package agarbagefolder.docanalysis;
 
 import java.util.ArrayList;
 import java.util.List;

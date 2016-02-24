@@ -6,53 +6,31 @@ import java.util.UUID;
 
 public class WorkResult {
 	
-	protected WorkType workType;
 	protected WorkStatus workStatus;
-	protected Long uuid;
 	protected String note;
-	
 	protected WorkOrder workOrder;
 	protected Map<String, String> contextItems = new HashMap<String, String>();
 	
 	public WorkResult(WorkOrder workOrder) {
 		this.workOrder = workOrder;
-		this.workType = workOrder.workType;
 		this.workStatus = WorkStatus.NO_WORK;
 	}
 	public WorkResult() {
-		this.workType = WorkType.NO_WORK;
 		this.workStatus = WorkStatus.NO_WORK;
 	}
 
 	public WorkResult(WorkType workType) {
-		this.workType = workType;
 		this.workStatus = WorkStatus.NO_WORK;
 	}
 	public WorkResult(WorkType workType, WorkStatus workStatus) {
-		this.workType = workType;
 		this.workStatus = workStatus;
 	}
 	
-	public WorkType getWorkType() {
-		return workType;
-	}
-
-	public void setWorkType(WorkType workType) {
-		this.workType = workType;
-	}
 	public WorkStatus getWorkStatus() {
 		return workStatus;
 	}
 	public void setWorkStatus(WorkStatus workStatus) {
 		this.workStatus = workStatus;
-	}
-
-	public Long getUuid() {
-		return uuid;
-	}
-
-	public void setUuid(Long uuid) {
-		this.uuid = uuid;
 	}
 
 	public String getNote() {
@@ -75,6 +53,12 @@ public class WorkResult {
 	}
 	public synchronized String getContextItem(String name) {
 		return contextItems.get(name);
+	}
+	public WorkOrder getWorkOrder() {
+		return workOrder;
+	}
+	public void setWorkOrder(WorkOrder workOrder) {
+		this.workOrder = workOrder;
 	}
 	
 	

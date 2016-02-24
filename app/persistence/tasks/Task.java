@@ -69,6 +69,12 @@ public class Task {
 	
 	private Boolean serialTask = true;
 	
+	public void initLazy(){
+		subtasks.size();
+		prerequisites.size();
+		contextItems.size();
+	}
+	
 	public boolean prereqsSatisfied() {
 		for(Task prereq : prerequisites){
 			if(prereq.getWorkStatus() != WorkStatus.WORK_COMPLETED){

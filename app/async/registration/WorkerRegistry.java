@@ -38,6 +38,7 @@ public class WorkerRegistry {
 			for(ContextItem item : tool.getResultItems(workType)){
 				entry.addResultContextItem(item);
 			}
+			registry.put(workType, entry);
 		}
 	}
 	

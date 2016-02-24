@@ -3,22 +3,23 @@ package async.registration;
 import java.util.ArrayList;
 import java.util.List;
 
+import async.tools.Tool;
 import async.work.WorkType;
 
 public class RegistryEntry {
 	
 	public final static Integer DEFAULT_NUM_WORKERS = 5;
 
-	private Class<?> clazz;
+	private Class<? extends Tool> clazz;
 	private List<ContextItem> requiredContextItems = new ArrayList<ContextItem>();
 	private List<ContextItem> resultContextItems = new ArrayList<ContextItem>();
 	private WorkType workType;
 	private Integer numWorkers = DEFAULT_NUM_WORKERS;
 	
-	public Class<?> getClazz() {
+	public Class<? extends Tool> getClazz() {
 		return clazz;
 	}
-	public void setClazz(Class<?> clazz) {
+	public void setClazz(Class<? extends Tool> clazz) {
 		this.clazz = clazz;
 	}
 	public List<ContextItem> getRequiredContextItems() {

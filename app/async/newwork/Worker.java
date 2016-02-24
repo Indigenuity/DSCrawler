@@ -4,6 +4,9 @@ package async.newwork;
 import java.util.HashSet;
 import java.util.Set;
 
+import akka.actor.UntypedActor;
+import async.tools.Tool;
+import async.tools.ToolGuide;
 import async.work.WorkOrder;
 import async.work.WorkResult;
 import async.work.WorkStatus;
@@ -11,10 +14,16 @@ import persistence.tasks.Task;
 import play.Logger;
 import play.db.jpa.JPA;
 
-public class Worker {
+public class Worker extends UntypedActor {
 
+	@Override
+	public void onReceive(Object arg0) throws Exception {
+		System.out.println("Worker received message");
+		WorkOrder workOrder = (WorkOrder) arg0;
+		getSender().tell(doWorkOrder(workOrder), getSelf());
+	}
+	
 	public static WorkResult doWorkOrder(WorkOrder workOrder) {
-		System.out.println("Doing supertask work");
 		WorkResult result = new WorkResult(workOrder);
 		Task task = null;
 		try{
@@ -27,12 +36,15 @@ public class Worker {
 			else{
 				task = doSingleTask(task);
 			}
+			task = saveTask(task);
 		}
 		catch(Exception e) {
 			Logger.error("Error in Worker: " + e);
 			e.printStackTrace();
 			if(task != null){
-				result.addContextItem("taskId", task.getTaskId() + "");
+				task.setWorkStatus(WorkStatus.NEEDS_REVIEW);
+				task.setNote("Exception : " + e.getMessage());
+				saveTask(task);
 			}
 			result.setWorkStatus(WorkStatus.NEEDS_REVIEW);
 			result.setNote("Exception : " + e.getMessage());
@@ -50,11 +62,21 @@ public class Worker {
 		Task[] fetchedTask= new Task[1];
 		JPA.withTransaction( () -> {
 			fetchedTask[0] = JPA.em().find(Task.class, taskId);
+			fetchedTask[0].initLazy();
 		});
 		return fetchedTask[0];
 	}
 	
+	private static Task saveTask(Task task) {
+		
+		JPA.withTransaction( () -> {
+			JPA.em().merge(task);
+		});
+		return task;
+	}
+	
 	private static Task doSupertask(Task task) {
+		System.out.println("Worker doing supertask");
 		Set<Task> doableTasks = getDoableTasks(task);
 		
 		if(doableTasks.size() < 1){	//No valid subtasks to do
@@ -77,7 +99,9 @@ public class Worker {
 	}
 	
 	private static Task doSingleTask(Task task) {
-		
+		System.out.println("Worker doing single task");
+		Tool tool = ToolGuide.findTool(task.getWorkType());
+		task = tool.doTask(task);
 		return task;
 	}
 	
@@ -128,5 +152,7 @@ public class Worker {
 		}
 		return false;
 	}
+
+	
 	
 }

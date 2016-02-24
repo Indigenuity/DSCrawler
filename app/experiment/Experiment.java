@@ -87,6 +87,7 @@ import akka.actor.ActorRef;
 import analysis.SiteCrawlAnalyzer;
 import async.Asyncleton;
 import async.tools.Tool;
+import async.tools.ToolGuide;
 import async.tools.UrlResolveTool;
 import async.work.SiteWork;
 import async.work.WorkItem;
@@ -104,12 +105,14 @@ import persistence.MobileCrawl;
 import persistence.PageCrawl;
 import persistence.PlacesDealer;
 import persistence.PlacesPage;
+import persistence.SFEntry;
 import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.Temp;
 import persistence.UrlCheck;
 import persistence.stateful.FetchJob;
 import persistence.tasks.Task;
+import persistence.tasks.TaskSet;
 import places.DataBuilder;
 import play.db.DB;
 import play.db.jpa.JPA;
@@ -121,20 +124,32 @@ import utilities.UrlSniffer;
 
 public class Experiment {
 	
-	public static void runExperiment() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
+	public static void runExperiment() {
+		System.out.println("finding tool : " + ToolGuide.findTool(WorkType.AMALGAMATION));
+	}
+	
+	public static void createTaskSet() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
 		
-		Tool tool = new UrlResolveTool();
-		tool.getAbilities();
-		testing(tool);
-		UrlResolveTool second = new UrlResolveTool();
-		second.getAbilities();
-		testing(second);
-//		Task urlCheckTask = new Task();
-//		urlCheckTask.setWorkType(WorkType.REDIRECT_RESOLVE);
-//		urlCheckTask.addContextItem("seed", "http://www.goremotorshonda.com/");
-//		Task siteImportTask = new Task();
-//		siteImportTask.setWorkType(WorkType.SITE_IMPORT);
-//		siteImportTask.addPrerequisite(urlCheckTask);
+//		TaskSet taskSet = new TaskSet();
+//		taskSet.setName("First Task Set");
+//		JPA.em().persist(taskSet);
+//		
+//		System.out.println("retrieving sfs");
+//		List<SFEntry> sfs = JPA.em().createQuery("from SFEntry sf").getResultList();
+//		System.out.println("sfs : " + sfs.size());
+//		for(SFEntry sf : sfs){
+//			if(!StringUtils.isEmpty(sf.getWebsite())){
+//				Task urlCheckTask = new Task();
+//				urlCheckTask.setWorkType(WorkType.CUSTOM);
+//				urlCheckTask.addContextItem("seed", sf.getWebsite());
+//				JPA.em().persist(urlCheckTask);
+//				taskSet.addTask(urlCheckTask);
+////				Task siteImportTask = new Task();
+////				siteImportTask.setWorkType(WorkType.SITE_IMPORT);
+////				siteImportTask.addPrerequisite(urlCheckTask);				
+//			}
+//		}
+		
 //		Task supertask = new Task();
 //		supertask.setWorkType(WorkType.SUPERTASK);
 //		supertask.addSubtask(urlCheckTask);

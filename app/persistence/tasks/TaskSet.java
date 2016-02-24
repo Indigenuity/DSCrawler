@@ -1,5 +1,6 @@
 package persistence.tasks;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,6 +30,48 @@ public class TaskSet {
 			joinColumns={@JoinColumn(name="taskSetId")},
 		    inverseJoinColumns={@JoinColumn(name="taskId")})
 	private Set<Task> tasks = new HashSet<Task>();
+
+	public TaskSet() {
+		this.name = null;
+		this.dateCreated = Calendar.getInstance().getTime();
+	}
+	
+	public Long getTaskSetId() {
+		return taskSetId;
+	}
+
+	public void setTaskSetId(Long taskSetId) {
+		this.taskSetId = taskSetId;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Date getDateCreated() {
+		return dateCreated;
+	}
+
+	public void setDateCreated(Date dateCreated) {
+		this.dateCreated = dateCreated;
+	}
+
+	public Set<Task> getTasks() {
+		return tasks;
+	}
+
+	public void setTasks(Set<Task> tasks) {
+		this.tasks.clear();
+		this.tasks.addAll(tasks);
+	}
+	
+	public boolean addTask(Task task){
+		return this.tasks.add(task);
+	}
 	
 	
 }

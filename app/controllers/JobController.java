@@ -13,9 +13,11 @@ import akka.actor.ActorRef;
 import analysis.SiteCrawlAnalyzer;
 import analysis.LogAnalyzer;
 import async.Asyncleton;
+import async.tasks.TaskMaster;
 import async.work.SiteWork;
 import async.work.WorkItem;
 import async.work.WorkSet;
+import async.work.WorkStatus;
 import async.work.WorkType;
 import async.work.infofetch.InfoFetch;
 import dao.InfoFetchDAO;
@@ -27,6 +29,8 @@ import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.SiteInformationOld;
 import persistence.stateful.FetchJob;
+import persistence.tasks.Task;
+import persistence.tasks.TaskSet;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.db.jpa.JPA;
@@ -36,6 +40,33 @@ import play.mvc.Result;
 
 public class JobController extends Controller {
 
+	
+	@Transactional
+	public static Result taskSetWork() {
+		try{
+			System.out.println("received task set work"); 
+			DynamicForm requestData = Form.form().bindFromRequest();
+			Long taskSetId = Long.parseLong(requestData.get("taskSetId"));
+			Integer numToProcess = Integer.parseInt(requestData.get("numToProcess"));
+			Integer offset = Integer.parseInt(requestData.get("offset"));
+			Integer numWorkers = Integer.parseInt(requestData.get("numWorkers"));
+			
+			
+			TaskSet taskSet = JPA.em().find(TaskSet.class, taskSetId);
+			
+			TaskMaster.doTaskSetWork(taskSet, numWorkers, numToProcess, offset);
+			
+					
+			
+			return DataView.dashboard("Submitted Task Set Work");
+		}
+		catch(Exception e) {
+			return internalServerError(e.getMessage());
+		}
+		
+	}
+	
+	
 	@Transactional 
 	public static Result fetchJobWork() {
 		try{

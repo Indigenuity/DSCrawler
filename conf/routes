@@ -27,6 +27,8 @@ GET		/reviewDupDomains				controllers.DataView.reviewDupDomains(numToProcess : I
 POST	/viewSiteList					controllers.DataView.viewSiteList()
 GET		/fetchJobs						controllers.DataView.fetchJobs()
 GET		/fetchJob						controllers.DataView.fetchJob(fetchJobId : Long)	
+GET		/taskSets						controllers.DataView.taskSets()
+GET		/taskSet						controllers.DataView.taskSet(taskSetId : Long)
 
 GET		/reviewInfoFetches				controllers.DataView.reviewInfoFetches(subtaskName : String, fetchJobId : Long, numToProcess : Integer ?= 20, offset : Integer ?= 0)
 
@@ -45,6 +47,7 @@ GET		/inferUninferred/:numToProcess			controllers.JobController.inferUninferred(
 GET		/smallCrawl/:numToProcess				controllers.JobController.smallCrawl(numToProcess : Integer)
 POST	/crawlSetWork							controllers.JobController.crawlSetWork()
 POST	/fetchJobWork							controllers.JobController.fetchJobWork()
+POST	/taskSetWork							controllers.JobController.taskSetWork()
 
 GET		/monitoringQueues				controllers.DataView.getMonitoringQueues()
 #GET		/snifferQueue					controllers.DataView.getSniffingQueue()

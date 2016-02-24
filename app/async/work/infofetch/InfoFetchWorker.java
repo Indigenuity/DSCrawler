@@ -8,6 +8,8 @@ import agarbagefolder.amalgamation.AmalgamationWorkOrder;
 import agarbagefolder.amalgamation.AmalgamationWorkResult;
 import agarbagefolder.crawlingnew.SiteCrawlWorkOrder;
 import agarbagefolder.crawlingnew.SiteCrawlWorkResult;
+import agarbagefolder.docanalysis.DocAnalysisWorkOrder;
+import agarbagefolder.docanalysis.DocAnalysisWorkResult;
 import agarbagefolder.googleplaces.PlacesPageWorkOrder;
 import agarbagefolder.googleplaces.PlacesPageWorkResult;
 import agarbagefolder.siteupdate.SiteUpdateWorkOrder;
@@ -21,8 +23,6 @@ import akka.actor.Props;
 import akka.actor.UntypedActor;
 import analysis.MobileCrawlAnalyzer;
 import async.Asyncleton;
-import async.docanalysis.DocAnalysisWorkOrder;
-import async.docanalysis.DocAnalysisWorkResult;
 import async.monitoring.AsyncMonitor;
 import async.registration.WorkerRegistry;
 import async.tools.AmalgamationTool;
@@ -121,7 +121,7 @@ public class InfoFetchWorker extends MultiStepJPAWorker {
 //		System.out.println("InfoFetchWorker generating work result");
 		WorkResult workResult = new WorkResult();
 //		System.out.println("results uuid : " + this.getWorkOrderUuid());
-		workResult.setUuid(this.getWorkOrderUuid());
+//		workResult.setUuid(this.getWorkOrderUuid());
 		return workResult;
 	}
 	

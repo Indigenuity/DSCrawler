@@ -10,9 +10,11 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import async.registration.RegistryEntry;
+import async.newwork.Worker;
 import async.registration.ContextItem;
 import async.registration.WorkerRegistry;
 import async.tools.AmalgamationTool;
+import async.tools.CustomTool;
 import async.tools.DocAnalysisTool;
 import async.tools.MetaAnalysisTool;
 import async.tools.SiteCrawlTool;
@@ -40,14 +42,18 @@ public class Asyncleton {
 	
 	protected Asyncleton(){
 		initialize();
-		for(Entry<WorkType, RegistryEntry> entry: WorkerRegistry.getInstance().getRegistry().entrySet()){
-			ActorRef master = mainSystem.actorOf(Props.create(GenericMaster.class, entry.getValue().getNumWorkers(), mainListener, entry.getValue().getClazz()));
-			masters.put(entry.getKey(), master);
-		}
+//		for(Entry<WorkType, RegistryEntry> entry: WorkerRegistry.getInstance().getRegistry().entrySet()){
+//			ActorRef master = mainSystem.actorOf(Props.create(GenericMaster.class, entry.getValue().getNumWorkers(), mainListener, entry.getValue().getClazz()));
+//			masters.put(entry.getKey(), master);
+//		}
 	}
 	
 	public ActorRef getMaster(WorkType workType) {
 		return masters.get(workType);
+	}
+	
+	public ActorRef getGenericMaster(int numWorkers) {
+		return mainSystem.actorOf(Props.create(GenericMaster.class, numWorkers, mainListener, Worker.class));
 	}
 	
 	public void doTask(Task task, ActorRef sender, boolean checkRequiredContextItems) {
@@ -77,15 +83,6 @@ public class Asyncleton {
 			mainMaster = mainSystem.actorOf(Props.create(MainMaster.class, 60, mainListener));
 			Logger.info("Main async system ready for jobs");
 			 
-			WorkerRegistry.getInstance().register(new UrlResolveTool());
-			WorkerRegistry.getInstance().register(new SiteImportTool());
-			WorkerRegistry.getInstance().register(new SiteUpdateTool());
-			WorkerRegistry.getInstance().register(new SiteCrawlTool());
-			WorkerRegistry.getInstance().register(new AmalgamationTool());
-			WorkerRegistry.getInstance().register(new TextAnalysisTool());
-			WorkerRegistry.getInstance().register(new DocAnalysisTool());
-			WorkerRegistry.getInstance().register(new MetaAnalysisTool());
-			
 		}
 	}
 

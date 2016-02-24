@@ -36,6 +36,7 @@ public class GenericMaster extends UntypedActor {
 	private WaitingRoom waitingRoom;
 	
 	public GenericMaster(int numWorkers, ActorRef listener, Class<?> clazz) {
+		System.out.println("Generic master starting with " + numWorkers + " workers of type " + clazz);
 		this.numWorkers = numWorkers;
 		this.listener = listener;
 		this.clazz = clazz;
@@ -71,7 +72,7 @@ public class GenericMaster extends UntypedActor {
 			}
 			else if (work instanceof WorkOrder) {
 				WorkOrder workOrder = (WorkOrder) work;
-//				System.out.println("got work order: " + workOrder);
+				System.out.println("GenericMaster got work order: " + workOrder);
 				if(!waitingRoom.add(workOrder.getUuid(), getSender())){
 					//TODO figure out what to do when duplicate work order is sent in
 					return;
@@ -80,7 +81,8 @@ public class GenericMaster extends UntypedActor {
 			}
 			else if(work instanceof WorkResult) {
 				WorkResult workResult = (WorkResult) work;
-				ActorRef customer = waitingRoom.remove(workResult.getUuid());
+				System.out.println("GenericMaster got work result: " + workResult);
+				ActorRef customer = waitingRoom.remove(workResult.getWorkOrder().getUuid());
 				if(customer == null){
 					//TODO figure out what to do when receiving work result for no customer
 					return;

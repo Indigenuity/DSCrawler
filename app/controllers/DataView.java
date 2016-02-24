@@ -24,6 +24,7 @@ import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.SiteInformationOld;
 import persistence.stateful.FetchJob;
+import persistence.tasks.TaskSet;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.db.jpa.JPA;
@@ -35,6 +36,20 @@ import views.html.*;
 import org.apache.commons.beanutils.*;
 
 public class DataView extends Controller { 
+	
+	@Transactional
+	public static Result taskSets() {
+		List<TaskSet> taskSets = JPA.em().createQuery("from TaskSet ts", TaskSet.class).getResultList();
+		System.out.println("taskSets : " + taskSets.size());
+		return ok(views.html.persistence.taskSets.render(taskSets));
+	}
+	
+	@Transactional
+	public static Result taskSet(long taskSetId) {
+		TaskSet taskSet = JPA.em().find(TaskSet.class, taskSetId);
+//		DashboardStats stats = StatsDAO.getFetchJobStats(taskSet);
+		return ok(views.html.persistence.taskSet.render(taskSet));
+	}
 	
 	@Transactional
 	public static Result reviewInfoFetches(String subtaskName, Long fetchJobId, int numToProcess, int offset) {
