@@ -1,7 +1,9 @@
 package persistence.tasks;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,11 +19,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import org.apache.commons.lang.StringUtils;
 
+import async.tasks.MissingContextItemException;
 import async.work.WorkStatus;
 import async.work.WorkType;
 
@@ -51,21 +55,21 @@ public class Task {
 	
 	@ManyToOne(cascade=CascadeType.DETACH)
 	@JoinTable(name="task_subtask", 
-			joinColumns={@JoinColumn(name="subtaskId")},
+			joinColumns={@JoinColumn(name="subtaskId", unique=false)},
 		    inverseJoinColumns={@JoinColumn(name="superTaskId")})
 	private Task supertask;
 	
 	@OneToMany(fetch=FetchType.LAZY)
 	@JoinTable(name="task_subtask", 
 			joinColumns={@JoinColumn(name="supertaskId")},
-		    inverseJoinColumns={@JoinColumn(name="subtaskId")})
-	private Set<Task> subtasks = new HashSet<Task>();
+		    inverseJoinColumns={@JoinColumn(name="subtaskId", unique=false)})
+	private List<Task> subtasks = new ArrayList<Task>();
 	
-	@OneToMany(fetch=FetchType.LAZY)
+	@ManyToMany(fetch=FetchType.LAZY)
 	@JoinTable(name="task_prereqTask", 
 			joinColumns={@JoinColumn(name="taskId")},
-		    inverseJoinColumns={@JoinColumn(name="prereqTaskId")})
-	private Set<Task> prerequisites = new HashSet<Task>();
+		    inverseJoinColumns={@JoinColumn(name="prereqTaskId", unique=false)})
+	private List<Task> prerequisites = new ArrayList<Task>();
 	
 	private Boolean serialTask = true;
 	
@@ -73,6 +77,9 @@ public class Task {
 		subtasks.size();
 		prerequisites.size();
 		contextItems.size();
+		for(Task subtask : subtasks) {
+			subtask.initLazy();
+		}
 	}
 	
 	public boolean prereqsSatisfied() {
@@ -90,9 +97,13 @@ public class Task {
 		return returned;
 	}
 	public synchronized String addContextItem(String name, String item) {
-		if(StringUtils.length(item) > 4000){
+		if(name == null){
+			throw new MissingContextItemException("Cannot store context item with null name");
+		}
+		if(StringUtils.length(item) > 4000 || StringUtils.length(name) > 4000){
 			throw new IllegalArgumentException("Can't have context item longer than 4000 characters");
 		}
+		
 		return contextItems.put(name, item);
 	}
 	public synchronized String removeContextItems(String name) {
@@ -125,13 +136,13 @@ public class Task {
 	public void setSupertask(Task supertask) {
 		this.supertask = supertask;
 	}
-	public Set<Task> getSubtasks() {
+	public List<Task> getSubtasks() {
 		return subtasks;
 	}
 	public boolean addSubtask(Task subtask) {
 		return this.subtasks.add(subtask);
 	}
-	public Set<Task> getPrerequisites() {
+	public List<Task> getPrerequisites() {
 		return prerequisites;
 	}
 	public boolean addPrerequisite(Task prereqTask) {

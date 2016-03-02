@@ -23,6 +23,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.LazyCollection;
@@ -74,6 +75,11 @@ public class SiteCrawl {
 		joinColumns={@JoinColumn(name="SiteCrawl_siteCrawlId")},
 		inverseJoinColumns={@JoinColumn(name="pageCrawls_pageCrawlId")})
 	private Set<PageCrawl> pageCrawls = new HashSet<PageCrawl>();
+	
+	@OneToOne
+	private PageCrawl newInventoryPage;
+	@OneToOne
+	private PageCrawl usedInventoryPage;
 	
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	@ElementCollection(fetch=FetchType.LAZY)

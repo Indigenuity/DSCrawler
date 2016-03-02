@@ -66,16 +66,16 @@ public class WaitingRoom {
 		return workSets.remove(workItem);
 	}
 	
-	public  boolean contains(WorkItem workItem) {
-		return workSets.containsKey(workItem);
+	public  boolean contains(ActorRef customer) {
+		return customers.containsKey(customer);
 	}
 	
 	public  int size() {
-		return workSets.size();
+		return customers.size();
 	}
 	
 	public  void clear() {
-		workSets.clear();
+		customers.clear();
 	}
 	
 }

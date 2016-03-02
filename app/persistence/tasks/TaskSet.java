@@ -5,7 +5,10 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -13,6 +16,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
+
+import async.work.WorkType;
 
 @Entity
 public class TaskSet {
@@ -30,6 +35,10 @@ public class TaskSet {
 			joinColumns={@JoinColumn(name="taskSetId")},
 		    inverseJoinColumns={@JoinColumn(name="taskId")})
 	private Set<Task> tasks = new HashSet<Task>();
+	
+	@ElementCollection
+	@Enumerated(EnumType.STRING)
+	private Set<WorkType> workTypes = new HashSet<WorkType>();
 
 	public TaskSet() {
 		this.name = null;
@@ -71,6 +80,15 @@ public class TaskSet {
 	
 	public boolean addTask(Task task){
 		return this.tasks.add(task);
+	}
+
+	public Set<WorkType> getWorkTypes() {
+		return workTypes;
+	}
+
+	public void setWorkTypes(Set<WorkType> workTypes) {
+		this.workTypes.clear();
+		this.workTypes.addAll(workTypes);
 	}
 	
 	

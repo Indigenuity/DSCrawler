@@ -250,20 +250,20 @@ public class SiteCrawlAnalyzer {
 
 //		        System.out.println("extracting strings");
 //		        Tim.start();
-		        siteCrawl.addExtractedStrings(extractStrings(text));
+//		        siteCrawl.addExtractedStrings(extractStrings(text));
 		        
 //		        System.out.println("new web providers");
 //		        Tim.intermediate();
 		        siteCrawl.setWpAttributions(getWebProviderAttributions(text));
 //		        System.out.println("old web providers");
 //		        Tim.intermediate();
-		        siteCrawl.setWebProviders(getWebProviders(text));
+//		        siteCrawl.setWebProviders(getWebProviders(text));
 //		        System.out.println("schedulers");
 //		        Tim.intermediate();
-		        siteCrawl.setSchedulers(getSchedulers(text));
+//		        siteCrawl.setSchedulers(getSchedulers(text));
 //		        System.out.println("general matches");
 //		        Tim.intermediate();
-		        siteCrawl.setGeneralMatches(getGeneralMatches(text));
+//		        siteCrawl.setGeneralMatches(getGeneralMatches(text));
 			}
 				
 		}

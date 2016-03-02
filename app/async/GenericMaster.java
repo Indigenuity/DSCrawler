@@ -72,7 +72,7 @@ public class GenericMaster extends UntypedActor {
 			}
 			else if (work instanceof WorkOrder) {
 				WorkOrder workOrder = (WorkOrder) work;
-				System.out.println("GenericMaster got work order: " + workOrder);
+//				System.out.println("GenericMaster got work order: " + workOrder);
 				if(!waitingRoom.add(workOrder.getUuid(), getSender())){
 					//TODO figure out what to do when duplicate work order is sent in
 					return;
@@ -81,8 +81,8 @@ public class GenericMaster extends UntypedActor {
 			}
 			else if(work instanceof WorkResult) {
 				WorkResult workResult = (WorkResult) work;
-				System.out.println("GenericMaster got work result: " + workResult);
-				ActorRef customer = waitingRoom.remove(workResult.getWorkOrder().getUuid());
+//				System.out.println("GenericMaster got work result: " + workResult);
+				ActorRef customer = waitingRoom.remove(workResult.getWorkOrder().getUuid()); 
 				if(customer == null){
 					//TODO figure out what to do when receiving work result for no customer
 					return;
@@ -92,7 +92,10 @@ public class GenericMaster extends UntypedActor {
 					return;
 				}
 				customer.tell(workResult, getSelf());
-				
+				if(waitingRoom.size() == 0) {
+					System.out.println("shutting down master and children");
+					context().stop(getSelf());
+				}
 			}
 //			else if (work instanceof InfoFetch) {
 //				ActorRef r = getContext().actorOf(Props.create(clazz));

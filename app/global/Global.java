@@ -21,6 +21,7 @@ import async.tools.AmalgamationTool;
 import async.tools.CustomTool;
 import async.tools.DocAnalysisTool;
 import async.tools.MetaAnalysisTool;
+import async.tools.SfLinkTool;
 import async.tools.SiteCrawlTool;
 import async.tools.SiteImportTool;
 import async.tools.SiteUpdateTool;
@@ -58,7 +59,7 @@ public class Global extends GlobalSettings {
 	private ActorRef snifferMaster;
 	
 	private static boolean useProxy = true;
-	private static String proxyUrl = "52.33.96.24";
+	private static String proxyUrl = "52.37.156.63";
 	private static int proxyPort = 8888;
 
 	public static final Date STALE_DATE;
@@ -88,6 +89,7 @@ public class Global extends GlobalSettings {
 		
 		WorkerRegistry.getInstance().register(new UrlResolveTool());
 		WorkerRegistry.getInstance().register(new SiteImportTool());
+		WorkerRegistry.getInstance().register(new SfLinkTool());
 		WorkerRegistry.getInstance().register(new SiteUpdateTool());
 		WorkerRegistry.getInstance().register(new SiteCrawlTool());
 		WorkerRegistry.getInstance().register(new AmalgamationTool());

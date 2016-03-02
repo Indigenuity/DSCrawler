@@ -53,7 +53,7 @@ public class SiteImportTool extends Tool {
 	
 	@Override
 	protected Task safeDoTask(Task task) {
-		System.out.println("SiteImportTool importing with task : " + task);
+		System.out.println("SiteImportTool importing with task : " + task.getTaskId());
 		try{
 			Long urlCheckId = Long.parseLong(task.getContextItem("urlCheckId"));
 			Boolean franchise = Boolean.parseBoolean(task.getContextItem("franchise"));
@@ -85,17 +85,17 @@ public class SiteImportTool extends Tool {
 				}
 				else {
 					task.setNote("Site already exists with this homepage");
-					task.setWorkStatus(WorkStatus.NEEDS_REVIEW);
+					task.setWorkStatus(WorkStatus.WORK_COMPLETED);
 					task.addContextItem("siteId", existingSite.getSiteId() + "");
 				}
 			});
 			
 		}
 		catch(Exception e) {
-			Logger.error("Error in Site Import Worker: " + e);
+			Logger.error("Error in Site Import T: " + e);
 			e.printStackTrace();
 			task.setWorkStatus(WorkStatus.NEEDS_REVIEW);
-			task.setNote("Exception : " + e.getMessage());
+			task.setNote(e.getClass().getSimpleName() + " : " + e.getMessage());
 		}
 		return task;
 	}

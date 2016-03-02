@@ -8,8 +8,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.persistence.Column;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
+import async.work.WorkStatus;
+import datadefinitions.newdefinitions.WPAttribution;
 import persistence.Site;
 import persistence.SiteCrawl;
 import play.db.jpa.JPA;
@@ -25,6 +28,16 @@ public class SiteCrawlDAO {
 //			}
 //		}
 //	}
+	
+	public static Integer countWPAttribution(Long siteCrawlId, WPAttribution wp) {
+		String query = "select count(sc) from SiteCrawl sc where sc.siteCrawlId = :siteCrawlId and :wp member of sc.wpAttributions";
+		Query q = JPA.em().createQuery(query);
+		q.setParameter("siteCrawlId", siteCrawlId);
+		q.setParameter("wp", wp);
+		Integer value = Integer.parseInt(q.getSingleResult() + "");
+		
+		return value;
+	}
 	
 	
 	public static Integer getCount(long crawlSetId) {

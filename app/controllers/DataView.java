@@ -38,6 +38,24 @@ import org.apache.commons.beanutils.*;
 public class DataView extends Controller { 
 	
 	@Transactional
+	public static Result wpTesting() {
+		List<SiteCrawl> siteCrawls = JPA.em().createQuery("from SiteCrawl sc", SiteCrawl.class).getResultList();
+		
+		DashboardStats stats = StatsDAO.getWpAttributionStats(siteCrawls);
+		System.out.println("stats : " + stats.getStats().size());
+		return ok(views.html.persistence.viewStats.render(stats));
+	}
+	
+	@Transactional
+	public static Result wpTestingNone() {
+		List<SiteCrawl> siteCrawls = JPA.em().createQuery("from SiteCrawl sc where wp is empty", SiteCrawl.class).getResultList();
+		
+		DashboardStats stats = StatsDAO.getWpAttributionStats(siteCrawls);
+		System.out.println("stats : " + stats.getStats().size());
+		return ok(views.html.persistence.viewStats.render(stats));
+	}
+	
+	@Transactional
 	public static Result taskSets() {
 		List<TaskSet> taskSets = JPA.em().createQuery("from TaskSet ts", TaskSet.class).getResultList();
 		System.out.println("taskSets : " + taskSets.size());
@@ -47,8 +65,8 @@ public class DataView extends Controller {
 	@Transactional
 	public static Result taskSet(long taskSetId) {
 		TaskSet taskSet = JPA.em().find(TaskSet.class, taskSetId);
-//		DashboardStats stats = StatsDAO.getFetchJobStats(taskSet);
-		return ok(views.html.persistence.taskSet.render(taskSet));
+		DashboardStats stats = StatsDAO.getTaskSetStats(taskSet);
+		return ok(views.html.persistence.taskSet.render(taskSet, stats));
 	}
 	
 	@Transactional

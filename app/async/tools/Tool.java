@@ -25,7 +25,6 @@ public abstract class Tool {
 	public abstract Set<WorkType> getAbilities();
 	
 	public boolean hasRequiredItems(Task task) {
-		
 		for(ContextItem item : getRequiredItems(task.getWorkType())){
 			if(task.getContextItem(item.getName()) == null){
 				return false;

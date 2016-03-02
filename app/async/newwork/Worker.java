@@ -5,6 +5,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 import akka.actor.UntypedActor;
+import async.registration.ContextItem;
+import async.registration.RegistryEntry;
+import async.registration.WorkerRegistry;
+import async.tasks.MissingContextItemException;
 import async.tools.Tool;
 import async.tools.ToolGuide;
 import async.work.WorkOrder;
@@ -18,9 +22,10 @@ public class Worker extends UntypedActor {
 
 	@Override
 	public void onReceive(Object arg0) throws Exception {
-		System.out.println("Worker received message");
+//		System.out.println("Worker received message");
 		WorkOrder workOrder = (WorkOrder) arg0;
-		getSender().tell(doWorkOrder(workOrder), getSelf());
+		WorkResult workResult = doWorkOrder(workOrder);
+		getSender().tell(workResult, getSelf());
 	}
 	
 	public static WorkResult doWorkOrder(WorkOrder workOrder) {
@@ -29,6 +34,7 @@ public class Worker extends UntypedActor {
 		try{
 			Long taskId = Long.parseLong(workOrder.getContextItem("taskId"));
 			task = fetchTask(taskId);
+			
 			
 			if(task.getSubtasks().size() > 0){
 				task = doSupertask(task);
@@ -39,24 +45,18 @@ public class Worker extends UntypedActor {
 			task = saveTask(task);
 		}
 		catch(Exception e) {
-			Logger.error("Error in Worker: " + e);
+			Logger.error("Error in Worker doing work order: " + e);
 			e.printStackTrace();
 			if(task != null){
 				task.setWorkStatus(WorkStatus.NEEDS_REVIEW);
-				task.setNote("Exception : " + e.getMessage());
+				task.setNote(e.getClass().getSimpleName() + " : " + e.getMessage());
 				saveTask(task);
 			}
 			result.setWorkStatus(WorkStatus.NEEDS_REVIEW);
-			result.setNote("Exception : " + e.getMessage());
+			result.setNote(e.getClass().getSimpleName() + " : " + e.getMessage());
 		}
 		return result;
 	}
-	
-	private static void doSubtask(Task subtask) {
-		
-	}
-	
-	
 	
 	private static Task fetchTask(Long taskId){
 		Task[] fetchedTask= new Task[1];
@@ -67,6 +67,12 @@ public class Worker extends UntypedActor {
 		return fetchedTask[0];
 	}
 	
+	private static void initTask(Task task) {
+		JPA.withTransaction( () -> {
+			task.initLazy();
+		});
+	}
+	
 	private static Task saveTask(Task task) {
 		
 		JPA.withTransaction( () -> {
@@ -75,34 +81,102 @@ public class Worker extends UntypedActor {
 		return task;
 	}
 	
-	private static Task doSupertask(Task task) {
-		System.out.println("Worker doing supertask");
-		Set<Task> doableTasks = getDoableTasks(task);
-		
-		if(doableTasks.size() < 1){	//No valid subtasks to do
-			if(needsReview(task)){	//The reason is because a subtask needs review	
-				task.setWorkStatus(WorkStatus.NEEDS_REVIEW);
-				task.setNote("Subtask(s) need review");
-			}
-			else if(hasMoreWork(task)){	// The reason is because prereq tangle or some other reason 
-				task.setWorkStatus(WorkStatus.NEEDS_REVIEW);
-				task.setNote("Subtasks are in prereq tangle");
-			}
-		}
-		else {
-			for(Task subtask: doableTasks) {
-				doSubtask(subtask);
-			}
-		}
-		
-		return task;
-	}
-	
 	private static Task doSingleTask(Task task) {
-		System.out.println("Worker doing single task");
+//		System.out.println("Worker doing single task : " + task.getTaskId());
 		Tool tool = ToolGuide.findTool(task.getWorkType());
 		task = tool.doTask(task);
 		return task;
+	}
+	
+	private static Task doSupertask(Task supertask) {
+//		System.out.println("Worker doing supertask : " + supertask.getTaskId());
+		
+		while(doSingleStep(supertask));
+		
+		return supertask;
+	}
+	
+	private static boolean doSingleStep(Task supertask){
+//		System.out.println("Worker doing single step of supertask : " + supertask.getTaskId());
+		if(needsReview(supertask)){	
+			supertask.setWorkStatus(WorkStatus.NEEDS_REVIEW);
+			supertask.setNote("Subtask(s) need review");
+			return false;
+		}
+		if(!hasMoreWork(supertask)){ 
+			supertask.setWorkStatus(WorkStatus.WORK_COMPLETED);
+			supertask.setNote("No more work to complete");
+			return false;
+		}
+		
+		Task doableTask = getNextSubtask(supertask);
+		if(doableTask == null){		//Means there is some tangle of prerequisites or something	
+			supertask.setWorkStatus(WorkStatus.NEEDS_REVIEW);
+			supertask.setNote("Subtasks are in prereq tangle");
+			return false;
+		}
+		
+		return doSubtask(doableTask);
+	}
+	
+	private static boolean doSubtask(Task subtask) {
+//		System.out.println("Worker doing subtask : " + subtask.getTaskId());
+		Task supertask = subtask.getSupertask();
+		try{
+			loadContextItems(subtask);
+			subtask = doSingleTask(subtask);
+			if(subtask.getWorkStatus() != WorkStatus.WORK_COMPLETED){
+				supertask.setWorkStatus(WorkStatus.NEEDS_REVIEW);
+				supertask.setNote("Subtask did not complete : " + subtask.getNote());
+				saveTask(subtask);
+				saveTask(supertask);
+				return false;
+			}
+			
+			unloadContextItems(subtask);
+			saveTask(subtask);
+			saveTask(supertask);
+			return true;
+		}
+		catch(Exception e) {
+			Logger.error("Error in Worker doing subtask : " + e);
+			e.printStackTrace();
+			subtask.setWorkStatus(WorkStatus.NEEDS_REVIEW);
+			subtask.setNote(e.getClass().getSimpleName() + " : " + e.getMessage());
+			
+			supertask.setWorkStatus(WorkStatus.NEEDS_REVIEW);
+			supertask.setNote("Subtask needs Review");
+			saveTask(subtask);
+			saveTask(supertask);
+			return false;
+		}
+		
+	}
+	
+	private static void loadContextItems(Task subtask) {
+		Task supertask = subtask.getSupertask();
+		RegistryEntry entry = WorkerRegistry.getInstance().getRegistrant(subtask.getWorkType());
+		for(ContextItem item : entry.getRequiredContextItems()){
+			if(subtask.getContextItem(item.getName()) == null) {
+				String superContextItem = supertask.getContextItem(item.getName());
+				if(superContextItem == null && !item.isNullable()){
+					throw new MissingContextItemException("Task missing required context item : " + item.getName());
+				}
+				subtask.addContextItem(item.getName(), superContextItem);
+			}
+		}
+	}
+	
+	private static void unloadContextItems(Task subtask) {
+		Task supertask = subtask.getSupertask();
+		RegistryEntry entry = WorkerRegistry.getInstance().getRegistrant(subtask.getWorkType());
+		for(ContextItem item : entry.getResultContextItems()){
+			String resultContextItem = subtask.getContextItem(item.getName());
+			if(resultContextItem == null && !item.isNullable()){
+				throw new MissingContextItemException("Task missing result context item : " + item.getName());
+			}
+			supertask.addContextItem(item.getName(), resultContextItem);
+		}
 	}
 	
 	private static Set<Task> getDoableTasks(Task supertask) {

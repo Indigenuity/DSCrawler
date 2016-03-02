@@ -1,0 +1,17 @@
+@import reporting.DashboardStats
+
+@(stats : DashboardStats)
+
+
+<h2>Stats</h2>
+
+<table>
+	@for((key, value) <- stats.getStats()){
+		<tr>
+			<td>@key</td>
+			<td>
+				@value
+			</td>
+		</tr>
+	}
+</table>

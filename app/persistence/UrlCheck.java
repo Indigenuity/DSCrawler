@@ -56,7 +56,7 @@ public class UrlCheck {
 		return !this.isError() 
 				&& this.isValid()
 				&& this.isStatusApproved()
-				&& (this.isUnchanged() || this.isGenericChange())
+				&& (this.isNoChange() || this.isGenericChange())
 				&& this.isPathApproved()
 				&& this.isDomainApproved()
 				&& this.isQueryApproved();
@@ -97,12 +97,6 @@ public class UrlCheck {
 	}
 	public void setStatusCode(int statusCode) {
 		this.statusCode = statusCode;
-	}
-	public boolean isUnchanged() {
-		return unchanged;
-	}
-	public void setUnchanged(boolean unchanged) {
-		this.unchanged = unchanged;
 	}
 	public boolean isGenericChange() {
 		return genericChange;

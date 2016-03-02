@@ -29,6 +29,8 @@ public class UrlSniffer {
 	private static UrlCheck checkUrl(String seed, int numRecursions){
 		UrlCheck check = new UrlCheck(seed);
 		try{
+			String httpSeed = DSFormatter.toHttp(seed);
+			check.setResolvedSeed(httpSeed);
 			check = resolveCheck(check, numRecursions);
 			fillMeta(check);
 		}
@@ -61,7 +63,7 @@ public class UrlSniffer {
 		check.setStatusApproved((check.getStatusCode() == 200)? true:false);
 		check.setSeedHost(oldUrl.getHost());
 		check.setResolvedHost(url.getHost());
-		check.setDomainChanged(DSFormatter.equals(oldUrl.getHost(), url.getHost()));
+		check.setDomainChanged(!DSFormatter.equals(oldUrl.getHost(), url.getHost()));
 		check.setDomainApproved(DSFormatter.isApprovedDomain(url.getHost()));
 		
 		if(DSFormatter.equals(check.getSeed(), check.getResolvedSeed())){

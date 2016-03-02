@@ -53,7 +53,7 @@ public class UrlResolveTool extends Tool {
 
 	@Override
 	protected Task safeDoTask(Task task) {
-		System.out.println("UrlResolveTool processing Task : " + task);
+		System.out.println("UrlResolveTool processing Task : " + task.getTaskId());
 		try{
 			String seed = task.getContextItem("seed");
 			UrlCheck urlCheck = UrlSniffer.checkUrl(seed);

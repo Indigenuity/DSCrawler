@@ -42,7 +42,8 @@ public enum WorkType {
 	BACKUP						(DataTransferWorker.class),
 	INFO_FETCH					(InfoFetchWorker.class, 20),
 	TASK						,	
-	SUPERTASK					;
+	SUPERTASK					,
+	SF_LINK						;
 
 	private static final int DEFAULT_NUM_WORKERS = 5;
 	private Class<?> defaultWorker;

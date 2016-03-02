@@ -200,6 +200,9 @@ public class DSFormatter {
 		return isApprovedPath(url.getPath());
 	}
 	public static boolean isApprovedQuery(String original) {
+		if(original == null) {
+			return true;
+		}
 		for(ValidQueryMatch match : ValidQueryMatch.values()) {
 			if(original.matches(match.definition)) {
 				return true;

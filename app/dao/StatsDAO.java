@@ -1,23 +1,62 @@
 package dao;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.persistence.Column;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import async.work.WorkStatus;
+import async.work.WorkType;
+import datadefinitions.newdefinitions.WPAttribution;
 import persistence.CrawlSet;
 import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.stateful.FetchJob;
+import persistence.tasks.TaskSet;
 import play.db.jpa.JPA;
 import reporting.DashboardStats;
 
 public class StatsDAO {
+	
+	public static DashboardStats getWpAttributionStats(Collection<SiteCrawl> siteCrawls) {
+		DashboardStats stats = new DashboardStats();
+		Map<WPAttribution, Integer> counts = new HashMap<WPAttribution, Integer>();
+		int noneCount = 0;
+		for(SiteCrawl siteCrawl : siteCrawls) {
+			if(siteCrawl.getWpAttributions().size() == 0){
+				noneCount++;
+			}
+			else{
+				for(WPAttribution wp : siteCrawl.getWpAttributions()){
+					counts.put(wp, counts.getOrDefault(wp, 0) + 1);
+				}
+			}
+		}
+	
+		for(Entry<WPAttribution, Integer> entry : counts.entrySet()){
+			stats.put(entry.getKey().name(), entry.getValue());
+		}
+		stats.put("No WPAttribution", noneCount);
+		return stats;
+	}
+	
+	public static DashboardStats getTaskSetStats(TaskSet taskSet) {
+		DashboardStats stats = new DashboardStats();
+		
+		stats.put("Tasks", taskSet.getTasks().size());
+		stats.put("Supertasks", TaskDAO.countWorkType(taskSet.getTaskSetId(), WorkType.SUPERTASK));
+		stats.put("Tasks To Do", TaskDAO.countWorkStatus(taskSet.getTaskSetId(), WorkStatus.DO_WORK));
+		stats.put("Tasks Completed", TaskDAO.countWorkStatus(taskSet.getTaskSetId(), WorkStatus.WORK_COMPLETED));
+		stats.put("Tasks Need Review", TaskDAO.countWorkStatus(taskSet.getTaskSetId(), WorkStatus.NEEDS_REVIEW));
+		
+		return stats;
+	}
 
 	public DashboardStats getDashboardStats() {
 		DashboardStats stats = new DashboardStats();

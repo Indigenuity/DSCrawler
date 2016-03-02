@@ -1,6 +1,6 @@
 @import reporting.DashboardStats
 
-@(taskSet : _root_.persistence.tasks.TaskSet)
+@(taskSet : _root_.persistence.tasks.TaskSet, stats : DashboardStats)
 
 @main("TaskSet " + taskSet.getTaskSetId() + " : " +  taskSet.getName()) {
 	<div>
@@ -8,7 +8,7 @@
 		<p>@taskSet.getTasks().size() Tasks</p>
 	</div>
 	<div id="dashboard-stats">
-		
+		@viewStats(stats)
 	</div>
 	
 	<div id="work-form-wrapper">

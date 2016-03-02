@@ -73,6 +73,7 @@ import crawling.GoogleCrawler;
 import crawling.MobileCrawler;
 import dao.SitesDAO;
 import dao.StatsDAO;
+import dao.TaskDAO;
 import datadefinitions.GeneralMatch;
 import datadefinitions.Scheduler;
 import datadefinitions.StringExtraction;
@@ -124,37 +125,68 @@ import utilities.UrlSniffer;
 
 public class Experiment {
 	
-	public static void runExperiment() {
-		System.out.println("finding tool : " + ToolGuide.findTool(WorkType.AMALGAMATION));
+	public static void runExperiment() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
+		createTaskSet();
 	}
+	
+	public static void modifyTaskSet() {
+		TaskSet taskSet = JPA.em().find(TaskSet.class, 3L);
+		
+		for(Task supertask : taskSet.getTasks()){
+			Task textAnalysisTask = new Task();
+			textAnalysisTask.setWorkType(WorkType.TEXT_ANALYSIS);
+			textAnalysisTask.addContextItem("siteCrawlId", supertask.getSubtasks().get(0).getContextItem("siteCrawlId"));
+			JPA.em().persist(textAnalysisTask);
+			supertask.addSubtask(textAnalysisTask);
+		}
+	}
+	
+	
 	
 	public static void createTaskSet() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
 		
-//		TaskSet taskSet = new TaskSet();
-//		taskSet.setName("First Task Set");
-//		JPA.em().persist(taskSet);
-//		
-//		System.out.println("retrieving sfs");
-//		List<SFEntry> sfs = JPA.em().createQuery("from SFEntry sf").getResultList();
-//		System.out.println("sfs : " + sfs.size());
-//		for(SFEntry sf : sfs){
-//			if(!StringUtils.isEmpty(sf.getWebsite())){
-//				Task urlCheckTask = new Task();
-//				urlCheckTask.setWorkType(WorkType.CUSTOM);
-//				urlCheckTask.addContextItem("seed", sf.getWebsite());
-//				JPA.em().persist(urlCheckTask);
-//				taskSet.addTask(urlCheckTask);
-////				Task siteImportTask = new Task();
-////				siteImportTask.setWorkType(WorkType.SITE_IMPORT);
-////				siteImportTask.addPrerequisite(urlCheckTask);				
-//			}
-//		}
+		TaskSet taskSet = new TaskSet();
+		taskSet.setName("WP Experiment Task Set");
+		JPA.em().persist(taskSet);
 		
-//		Task supertask = new Task();
-//		supertask.setWorkType(WorkType.SUPERTASK);
-//		supertask.addSubtask(urlCheckTask);
-//		supertask.addSubtask(siteImportTask);
+		System.out.println("retrieving sitecrawls");
+		List<SiteCrawl> siteCrawls = JPA.em().createQuery("from SiteCrawl sc where sc.amalgamationDone = true", SiteCrawl.class).getResultList();
+		System.out.println("siteCrawls : " + siteCrawls.size());
+		for(SiteCrawl siteCrawl : siteCrawls){
+//			siteCrawl.initAll();
+			if(siteCrawl.getPageCrawls().size() > 10){
+				Task supertask = new Task();
+				supertask.setWorkType(WorkType.SUPERTASK);
+				JPA.em().persist(supertask);
+				taskSet.addTask(supertask);
+				
+				Task textAnalysisTask = new Task();
+				textAnalysisTask.setWorkType(WorkType.TEXT_ANALYSIS);
+				textAnalysisTask.addContextItem("siteCrawlId", siteCrawl.getSiteCrawlId() + "");
+				JPA.em().persist(textAnalysisTask);
+				supertask.addSubtask(textAnalysisTask);
+				
+//				Task docAnalysisTask = new Task();
+//				docAnalysisTask.setWorkType(WorkType.DOC_ANALYSIS);
+//				docAnalysisTask.addContextItem("siteCrawlId", siteCrawl.getSiteCrawlId() + "");
+//				JPA.em().persist(docAnalysisTask);
+//				supertask.addSubtask(docAnalysisTask);
+//				
+//				Task metaAnalysisTask = new Task();
+//				metaAnalysisTask.setWorkType(WorkType.META_ANALYSIS);
+//				metaAnalysisTask.addPrerequisite(docAnalysisTask);
+//				metaAnalysisTask.addPrerequisite(textAnalysisTask);
+//				JPA.em().persist(metaAnalysisTask);
+//				supertask.addSubtask(metaAnalysisTask);
+				
+				
+//				Task siteImportTask = new Task();
+//				siteImportTask.setWorkType(WorkType.SITE_IMPORT);
+//				siteImportTask.addPrerequisite(urlCheckTask);				
+			}
+		}
 	}
+	
 	
 	public static void testing(Tool tool) {
 		tool.getAbilities();
