@@ -28,6 +28,7 @@ import global.Global;
 import persistence.ExtractedString;
 import persistence.ExtractedUrl;
 import persistence.ImageTag;
+import persistence.InventoryNumber;
 import persistence.PageCrawl;
 import persistence.SiteCrawl;
 import persistence.Staff;
@@ -215,11 +216,15 @@ public class SiteCrawlAnalyzer {
 		        inputStream.close();
 		        Document doc = Jsoup.parse(text);
 		        
+		        
 		        PageCrawlAnalyzer.fillPageStats(siteCrawl, pageCrawl, doc);
 		        Set<Staff> allStaff = StaffExtractor.extractStaff(doc, siteCrawl.getWebProviders());
 		        siteCrawl.addStaff(allStaff);
 //		        System.out.println("allstaff after set : " + siteCrawl.getAllStaff().size());
 		        siteCrawl.addExtractedUrls(extractUrls(doc));
+		        Set<InventoryNumber> invNumbers = InventoryAnalyzer.getInventoryNumbers(text);
+		        pageCrawl.setInventoryNumbers(invNumbers);
+		        siteCrawl.addInventoryNumbers(invNumbers);
 		        
 		        numFiles++;
 		        
@@ -255,6 +260,7 @@ public class SiteCrawlAnalyzer {
 //		        System.out.println("new web providers");
 //		        Tim.intermediate();
 		        siteCrawl.setWpAttributions(getWebProviderAttributions(text));
+		        
 //		        System.out.println("old web providers");
 //		        Tim.intermediate();
 //		        siteCrawl.setWebProviders(getWebProviders(text));

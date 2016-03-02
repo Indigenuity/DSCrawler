@@ -123,6 +123,8 @@ public class PageCrawl {
 	@Column(nullable = false, columnDefinition="boolean default false")
 	private boolean urlClean = false;
 	
+	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER, orphanRemoval=true)
+	private Set<InventoryNumber> inventoryNumbers = new HashSet<InventoryNumber>();
 	
 
 	public long getPageCrawlId() {
@@ -437,6 +439,15 @@ public class PageCrawl {
 
 	public void setMetaDescriptionMakeQualifier(boolean metaDescriptionMakeQualifier) {
 		this.metaDescriptionMakeQualifier = metaDescriptionMakeQualifier;
+	}
+
+	public Set<InventoryNumber> getInventoryNumbers() {
+		return inventoryNumbers;
+	}
+
+	public void setInventoryNumbers(Set<InventoryNumber> inventoryNumbers) {
+		this.inventoryNumbers.clear();
+		this.inventoryNumbers.addAll(inventoryNumbers);
 	}
 	
 	

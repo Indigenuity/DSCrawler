@@ -175,6 +175,9 @@ public class SiteCrawl {
 	@ManyToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
 	private List<ImageTag> imageTags = new ArrayList<ImageTag>();
 	
+	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, orphanRemoval=true)
+	private Set<InventoryNumber> inventoryNumbers = new HashSet<InventoryNumber>();
+	
 	private int uniqueUrlScore = 0;
 	private int uniqueTitleScore = 0;
 	private int uniqueH1Score = 0;
@@ -217,6 +220,7 @@ public class SiteCrawl {
 		generalMatches.size();
 		schedulers.size();
 		webProviders.size();
+		inventoryNumbers.size();
 	}
 
 	public Site getSite() {
@@ -723,7 +727,17 @@ public class SiteCrawl {
 		this.urlReadableScore = urlReadableScore;
 	}
 	
-	
+	public Set<InventoryNumber> getInventoryNumbers() {
+		return inventoryNumbers;
+	}
+
+	public void setInventoryNumbers(Set<InventoryNumber> inventoryNumbers) {
+		this.inventoryNumbers.clear();
+		this.inventoryNumbers.addAll(inventoryNumbers);
+	}
+	public void addInventoryNumbers(Set<InventoryNumber> inventoryNumbers) {
+		this.inventoryNumbers.addAll(inventoryNumbers);
+	}
 
 	public Set<WPAttribution> getWpAttributions() {
 		return wpAttributions;
@@ -752,6 +766,7 @@ public class SiteCrawl {
 		fbPages.size();
 		metatags.size();
 		imageTags.size();
+		inventoryNumbers.size();
 	}
 	
 	public void initAll() {

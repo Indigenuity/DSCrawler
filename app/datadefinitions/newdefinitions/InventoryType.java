@@ -2,6 +2,7 @@ package datadefinitions.newdefinitions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public enum InventoryType {
 
@@ -25,6 +26,7 @@ public enum InventoryType {
 	private final WebProvider wp;
 	private final String description;
 	private final String notes;
+	private final Pattern pattern;
 	
 	private InventoryType(boolean ajax, String newPath, String usedPath, String regex, WebProvider wp) {
 		this.ajax = ajax;
@@ -34,6 +36,7 @@ public enum InventoryType {
 		this.description = "";
 		this.notes = "";
 		this.wp = wp;
+		this.pattern = Pattern.compile(regex);
 	}
 	
 	private InventoryType(String newPath, String usedPath, String regex, WebProvider wp) {
@@ -44,6 +47,7 @@ public enum InventoryType {
 		this.description = "";
 		this.notes = "";
 		this.wp = wp;
+		this.pattern = Pattern.compile(regex);
 	}
 	
 	private InventoryType(String newPath, String usedPath, String regex, WebProvider wp, String description, String notes) {
@@ -54,6 +58,7 @@ public enum InventoryType {
 		this.description = description;
 		this.notes = notes;
 		this.wp = wp;
+		this.pattern = Pattern.compile(regex);
 	}
 
 	public String getDescription() {
@@ -82,6 +87,12 @@ public enum InventoryType {
 
 	public String getUsedPath() {
 		return usedPath;
+	}
+	
+	
+
+	public Pattern getPattern() {
+		return pattern;
 	}
 
 	public static List<InventoryType> byWP(WebProvider wp) {

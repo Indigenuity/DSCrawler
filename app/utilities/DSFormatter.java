@@ -54,7 +54,7 @@ public class DSFormatter {
 			}
 			if(original.length() > length){
 				String trunc = "TRUNCATED" + original.substring(0, length-9); 
-				Logger.info("Truncating String : " + trunc);
+//				Logger.info("Truncating String : " + trunc);
 				return trunc;
 			}
 		}

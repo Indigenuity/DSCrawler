@@ -126,7 +126,11 @@ import utilities.UrlSniffer;
 public class Experiment {
 	
 	public static void runExperiment() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
-		createTaskSet();
+		SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, 324L);
+		siteCrawl.initAll();
+		SiteCrawlAnalyzer.docAnalysis(siteCrawl);
+		
+		System.out.println("sitcrawl invNumbers : " + siteCrawl.getInventoryNumbers().size());
 	}
 	
 	public static void modifyTaskSet() {
