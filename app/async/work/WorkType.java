@@ -43,7 +43,9 @@ public enum WorkType {
 	INFO_FETCH					(InfoFetchWorker.class, 20),
 	TASK						,	
 	SUPERTASK					,
-	SF_LINK						;
+	SF_LINK						,
+	INVENTORY_COUNT
+	;
 
 	private static final int DEFAULT_NUM_WORKERS = 5;
 	private Class<?> defaultWorker;

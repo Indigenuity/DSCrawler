@@ -3,7 +3,9 @@ package datadefinitions.newdefinitions;
 public enum WPClue {
 
 	COBALT_NITRA			("assets.cobaltnitra.com", WebProvider.CDK_COBALT),
-	DEALER_DOT_COM			("program: 'DealerDotCom'", WebProvider.DEALER_COM);
+	DEALER_DOT_COM			("program: 'DealerDotCom'", WebProvider.DEALER_COM),
+	CLICK_MOTIVE			("assets.clickmotive.com", WebProvider.CLICK_MOTIVE)
+	;
 	
 
 	private final String description;

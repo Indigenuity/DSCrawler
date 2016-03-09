@@ -2,14 +2,18 @@ package persistence;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -18,10 +22,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyEnumerated;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
+import datadefinitions.OEM;
 import utilities.DSFormatter;
 
 
@@ -43,13 +49,24 @@ public class PageCrawl {
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	private String url;
 	
+	@Column(nullable = true, columnDefinition="varchar(4000)")
+	private String path;
+	
+	@Column(nullable = true, columnDefinition="varchar(4000)")
+	private String query;
+	
 	@Column(nullable = true, columnDefinition="varchar(1000)")
 	private String filename;
+	
+	private boolean largeFile = false;
 	
 	private int httpStatus;
 	
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	private String redirectedUrl;
+	
+	@Column(nullable = true, columnDefinition="varchar(4000)")
+	private String errorMessage;
 	
 	private String title;
 	private String h1;
@@ -62,15 +79,12 @@ public class PageCrawl {
 	@ElementCollection(fetch=FetchType.EAGER)
 	private Set<String> links = new HashSet<String>();
 	
-	@Column(nullable = true, columnDefinition="varchar(4000)")
-	private String errorMessage;
-	
 //	@Transient 
 	@ManyToMany(cascade=CascadeType.ALL,fetch=FetchType.EAGER)
-	private List<Metatag> metatags = new ArrayList<Metatag>();
+	private Set<Metatag> metatags = new HashSet<Metatag>();
 	
 	@ManyToMany(cascade=CascadeType.ALL,fetch=FetchType.EAGER)
-	private List<ImageTag> imageTags = new ArrayList<ImageTag>();
+	private Set<ImageTag> imageTags = new HashSet<ImageTag>();
 	
 	@OneToOne(cascade=CascadeType.ALL,fetch=FetchType.EAGER)
 	private Metatag metaTitle = null;
@@ -78,14 +92,9 @@ public class PageCrawl {
 	@OneToOne(cascade=CascadeType.ALL,fetch=FetchType.EAGER)
 	private Metatag metaDescription = null;
 	
-	@Column(nullable = false, columnDefinition="boolean default false")
-	private boolean dupH1 = false;
-	@Column(nullable = false, columnDefinition="boolean default false")
-	private boolean dupDescription = false;
-	@Column(nullable = false, columnDefinition="boolean default false")
-	private boolean dupTitle = false;
-	@Column(nullable = false, columnDefinition="boolean default false")
-	private boolean dupUrl = false;
+	@ElementCollection
+	@MapKeyEnumerated(EnumType.STRING)
+	private Map<OEM, Integer> brandMatchCounts = new HashMap<OEM, Integer>();
 	
 	@Column(nullable = false, columnDefinition="boolean default false")
 	private boolean urlCityQualifier = false;
@@ -114,8 +123,6 @@ public class PageCrawl {
 	
 	@Column(nullable = false, columnDefinition="boolean default false")
 	private boolean descriptionLength = false;
-	@Column(nullable = false, columnDefinition="boolean default false")
-	private boolean descriptionCallToAction = false;
 	@Column(nullable = false, columnDefinition="boolean default false")
 	private boolean titleLength = false;
 	@Column(nullable = false, columnDefinition="boolean default false")
@@ -206,7 +213,7 @@ public class PageCrawl {
 		return this.links.add(DSFormatter.truncate(link, 4000));
 	}
 	
-	public List<Metatag> getMetatags() {
+	public Set<Metatag> getMetatags() {
 		return metatags;
 	}
 
@@ -243,7 +250,7 @@ public class PageCrawl {
 		this.errorMessage = DSFormatter.truncate(errorMessage, 4000);
 	}
 
-	public List<ImageTag> getImageTags() {
+	public Set<ImageTag> getImageTags() {
 		return imageTags;
 	}
 
@@ -254,38 +261,6 @@ public class PageCrawl {
 	
 	public boolean addImageTag(ImageTag imageTag) {
 		return imageTags.add(imageTag);
-	}
-
-	public boolean isDupH1() {
-		return dupH1;
-	}
-
-	public void setDupH1(boolean dupH1) {
-		this.dupH1 = dupH1;
-	}
-
-	public boolean isDupDescription() {
-		return dupDescription;
-	}
-
-	public void setDupDescription(boolean dupDescription) {
-		this.dupDescription = dupDescription;
-	}
-
-	public boolean isDupTitle() {
-		return dupTitle;
-	}
-
-	public void setDupTitle(boolean dupTitle) {
-		this.dupTitle = dupTitle;
-	}
-
-	public boolean isDupUrl() {
-		return dupUrl;
-	}
-
-	public void setDupUrl(boolean dupUrl) {
-		this.dupUrl = dupUrl;
 	}
 
 	public Metatag getMetaTitle() {
@@ -334,14 +309,6 @@ public class PageCrawl {
 
 	public void setDescriptionLength(boolean descriptionLength) {
 		this.descriptionLength = descriptionLength;
-	}
-
-	public boolean isDescriptionCallToAction() {
-		return descriptionCallToAction;
-	}
-
-	public void setDescriptionCallToAction(boolean descriptionCallToAction) {
-		this.descriptionCallToAction = descriptionCallToAction;
 	}
 
 	public boolean isTitleLength() {
@@ -449,6 +416,41 @@ public class PageCrawl {
 		this.inventoryNumbers.clear();
 		this.inventoryNumbers.addAll(inventoryNumbers);
 	}
+
+	public Map<OEM, Integer> getBrandMatchCounts() {
+		return brandMatchCounts;
+	}
+
+	public void setBrandMatchCounts(Map<OEM, Integer> brandMatchCounts) {
+		this.brandMatchCounts.clear();
+		this.brandMatchCounts.putAll(brandMatchCounts);
+	}
+
+	public boolean isLargeFile() {
+		return largeFile;
+	}
+
+	public void setLargeFile(boolean largeFile) {
+		this.largeFile = largeFile;
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = DSFormatter.truncate(path);
+	}
+
+	public String getQuery() {
+		return query;
+	}
+
+	public void setQuery(String query) {
+		this.query = DSFormatter.truncate(query);
+	}
+	
+	
 	
 	
 	

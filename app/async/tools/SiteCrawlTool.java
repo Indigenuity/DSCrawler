@@ -91,7 +91,7 @@ public class SiteCrawlTool extends Tool {
 			Logger.error("error while crawling : " + e);
 			e.printStackTrace();
 			task.setWorkStatus(WorkStatus.NEEDS_REVIEW);
-			task.setNote("Exception : " + e.getMessage());
+			task.setNote(e.getClass().getSimpleName() + " : " + e.getMessage());
 		}
 		
 		return task;

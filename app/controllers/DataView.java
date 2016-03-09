@@ -1,14 +1,8 @@
 package controllers;
 
-import forms.CrawlSetJob;
-import global.Global;
 
-import java.io.File;
-import java.math.BigInteger;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.persistence.metamodel.EntityType;
 
 import org.apache.commons.lang3.StringUtils;
@@ -18,12 +12,13 @@ import dao.SitesDAO;
 import dao.StatsDAO;
 import datatransfer.FileMover;
 import async.monitoring.AsyncMonitor;
+import async.work.WorkStatus;
 import async.work.infofetch.InfoFetch;
 import persistence.CrawlSet;
 import persistence.Site;
 import persistence.SiteCrawl;
-import persistence.SiteInformationOld;
 import persistence.stateful.FetchJob;
+import persistence.tasks.Task;
 import persistence.tasks.TaskSet;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -31,11 +26,18 @@ import play.db.jpa.JPA;
 import play.db.jpa.Transactional;
 import play.mvc.*;
 import reporting.DashboardStats;
-import views.html.*;
 
-import org.apache.commons.beanutils.*;
 
 public class DataView extends Controller { 
+	
+	@Transactional
+	public static Result reviewTasks(long taskSetId, int count, int offset){
+		List<Task> tasks = JPA.em().createQuery("select t from TaskSet ts join ts.tasks t where ts.taskSetId = :taskSetId and t.workStatus = :workStatus", Task.class)
+				.setParameter("taskSetId", taskSetId).setParameter("workStatus", WorkStatus.NEEDS_REVIEW)
+				.setFirstResult(offset).setMaxResults(count).getResultList();
+		
+		return ok(views.html.reviewing.lists.taskList.render(tasks));
+	}
 	
 	@Transactional
 	public static Result wpTesting() {
@@ -116,9 +118,9 @@ public class DataView extends Controller {
 	}
 
 	public static Result getUncrawled(){
-		int offset = 0;
-		int maxResults = 0;
-		List<SiteInformationOld> sites = JPA.em().createQuery("from SiteInformation si where si.crawlDate is not null", SiteInformationOld.class).setFirstResult(offset).setMaxResults(maxResults).getResultList();
+//		int offset = 0;
+//		int maxResults = 0;
+//		List<SiteInformationOld> sites = JPA.em().createQuery("from SiteInformation si where si.crawlDate is not null", SiteInformationOld.class).setFirstResult(offset).setMaxResults(maxResults).getResultList();
 		
 		return ok();
 	}

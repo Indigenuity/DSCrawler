@@ -76,6 +76,9 @@ public class ImageTag {
 		if (getClass() != obj.getClass())
 			return false;
 		ImageTag other = (ImageTag) obj;
+		if(this.imageTagId == other.getMetatagId()){
+			return true;
+		}
 		if (alt == null) {
 			if (other.alt != null)
 				return false;

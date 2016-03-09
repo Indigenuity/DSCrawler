@@ -6,7 +6,7 @@ public enum WPAttribution {
 	DEALER_COM2				("Website by Dealer.com", WebProvider.DEALER_COM),
 	DEALER_COM3				("Web site by Dealer.com", WebProvider.DEALER_COM),
 	VIN_SOLUTIONS			("Powered by Vinsolutions.com", WebProvider.VIN_SOLUTIONS),
-	VIN_SOLUTIONS2			("Website Powered By <a href=\"http://www.vinsolutions.com", WebProvider.VIN_SOLUTIONS),
+	VIN_SOLUTIONS2			("Powered By <a href=\"http://www.vinsolutions.com", WebProvider.VIN_SOLUTIONS),
 	CDK_GLOBAL				("&copy 2015 CDK Global", WebProvider.CDK_COBALT, "", "Not usually visible except through source code"),
 	AUTO_123_FR				("Membre d'Auto123.com", WebProvider.EVOLIO),
 	AUTO_123				("Member of Auto123.com", WebProvider.EVOLIO),
@@ -18,7 +18,10 @@ public enum WPAttribution {
 	DEALER_ON_2016			("2016 by&nbsp;</span><span class=\"copyrightProvider\"> <a href=\"http://www.dealeron.com", WebProvider.DEALER_ON),
 	DEALER_FIRE				("<a href=\"http://www.dealerfire.com\" target=\"_blank\">Responsive Dealer Website by", WebProvider.DEALER_FIRE),
 	AUTO_TRADER_CA			("http://www.autotrader.ca/ \" target=\"_blank\">autoTrader.ca", WebProvider.AUTO_TRADER_CA),
-	DEALER_ZOOM_LOGO		("<img src=\"/img/dealerzoom_logo.jpg", WebProvider.DEALER_ZOOM)
+	DEALER_ZOOM_LOGO		("<img src=\"/img/dealerzoom_logo.jpg", WebProvider.DEALER_ZOOM),
+	E_DEALER_CA				("http://websites.edealer.ca/assets/logos/eDealerlogo1.png", WebProvider.E_DEALER_CA),
+	DEALER_INSPIRE			("Websites by <a href=\"http://www.dealerinspire.com", WebProvider.DEALER_INSPIRE),
+	DEALER_DNA				("Powered by <a href=\"http://www.dealerdna.com", WebProvider.DEALER_DNA)
 	
 	
 	;

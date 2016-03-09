@@ -20,6 +20,8 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.StringUtils;
 
+import async.work.WorkStatus;
+import async.work.WorkType;
 import async.work.infofetch.InfoFetch;
 import dao.PlacesPageDAO;
 import datadefinitions.GeneralMatch;
@@ -31,6 +33,7 @@ import persistence.ExtractedString;
 import persistence.FBPage;
 import persistence.MobileCrawl;
 import persistence.PlacesPage;
+import persistence.SFEntry;
 import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.SiteInformationOld;
@@ -38,10 +41,113 @@ import persistence.SiteSummary;
 import persistence.Staff;
 import persistence.Temp;
 import persistence.UrlCheck;
+import persistence.tasks.Task;
+import persistence.tasks.TaskSet;
 import play.db.jpa.JPA;
 import scaffolding.Scaffolder;
 
 public class CSVGenerator {
+	
+
+	public static void generateInventoryCountReport() throws IOException {
+		List<String[]> CSVRows = new ArrayList<String[]>();
+		List<String> values = new ArrayList<String>();
+		values.add("Salesforce Unique ID");
+		values.add("Account Name");
+		values.add("Current SalesForce Primary Website URL:");
+		values.add("Web Provider");
+		values.add("Inventory Type");
+		values.add("New Inventory URL");
+		values.add("New Inventory Count");
+		values.add("Used Inventory URL");
+		values.add("Used Inventory Count");
+		values.add("Largest Inventory Count");
+		values.add("Brand Affiliation Averages");
+		CSVRows.add((String[])values.toArray(new String[values.size()]));
+		
+		TaskSet taskSet = JPA.em().find(TaskSet.class, 1L);
+		int count = 0;
+		for(Task supertask : taskSet.getTasks()){
+			String sfIdString = supertask.getContextItem("sfEntryId");
+			String siteCrawlIdString = supertask.getContextItem("siteCrawlId");
+			
+			SFEntry sf = JPA.em().find(SFEntry.class, Long.parseLong(sfIdString));
+			SiteCrawl siteCrawl = null;
+			if(siteCrawlIdString != null && !siteCrawlIdString.equals("")){
+				siteCrawl = JPA.em().find(SiteCrawl.class, Long.parseLong(siteCrawlIdString));
+			}
+			
+			values = new ArrayList<String>();
+			values.add(sf.getAccountId());
+			values.add(sf.getName());
+			values.add(sf.getWebsite());
+			if(siteCrawl != null){
+				values.add(siteCrawl.getSeed());
+				values.add(siteCrawl.getInventoryType() + "");
+				String wp = "";
+				String delim = "";
+				for(WPAttribution item : siteCrawl.getWpAttributions()){
+					wp += delim + item.name();
+					delim = ", ";
+				}
+				values.add(wp);
+				if(siteCrawl.getNewInventoryPage() != null){
+					values.add(siteCrawl.getNewInventoryPage().getUrl());
+					if(siteCrawl.getNewInventoryPage().getInventoryNumbers().size() > 0){
+						values.add(siteCrawl.getNewInventoryPage().getInventoryNumbers().toArray()[0] + "");
+					}
+					else{
+						values.add("");
+					}
+				}
+				else{
+					values.add("");
+					values.add("");
+				}
+				
+				
+				if(siteCrawl.getUsedInventoryPage() != null){
+					values.add(siteCrawl.getUsedInventoryPage().getUrl());
+					if(siteCrawl.getUsedInventoryPage().getInventoryNumbers().size() > 0){
+						values.add(siteCrawl.getUsedInventoryPage().getInventoryNumbers().toArray()[0] + "");
+					}
+					else{
+						values.add("");
+					}
+				}
+				else{
+					values.add("");
+					values.add("");
+				}
+				
+				values.add(siteCrawl.getMaxInventoryCount() + "");
+			}
+			else {
+				values.add("");
+				values.add("");
+				values.add("");
+				values.add("");
+				values.add("");
+				values.add("");
+				values.add("");
+			}
+			
+			CSVRows.add((String[])values.toArray(new String[values.size()]));
+			if(++count % 500 == 0) {
+				System.out.println("count : " + count);
+			}
+		}
+		System.out.println("Writing to file ");
+		
+		String targetFilename = Global.getReportsStorageFolder() + "/invreport" + System.currentTimeMillis() + ".csv";  
+		File target = new File(targetFilename);
+		FileWriter fileOut = new FileWriter(target);
+		CSVPrinter printer = new CSVPrinter(fileOut, CSVFormat.EXCEL);
+		printer.printRecords(CSVRows);
+		printer.close();
+		fileOut.close();
+		
+	}
 	
 public static void generateEvolioReport() throws IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
 		
@@ -303,16 +409,16 @@ public static void generateEvolioReport() throws IOException, IllegalAccessExcep
 			else{
 				values.add("");
 			}
-			values.add("" + siteCrawl.getAltImageScore());
-			values.add("" + siteCrawl.getContentMetaDescriptionScore());
-			values.add("" + siteCrawl.getContentUrlScore());
-			values.add("" + siteCrawl.getContentTitleScore());
-			values.add("" + siteCrawl.getLengthMetaDescriptionScore());
-			values.add("" + siteCrawl.getLengthTitleScore());
-			values.add("" + siteCrawl.getUniqueH1Score());
-			values.add("" + siteCrawl.getUniqueMetaDescriptionScore());
-			values.add("" + siteCrawl.getUniqueTitleScore());
-			values.add("" + siteCrawl.getUniqueUrlScore());
+//			values.add("" + siteCrawl.getAltImageScore());
+//			values.add("" + siteCrawl.getContentMetaDescriptionScore());
+//			values.add("" + siteCrawl.getContentUrlScore());
+//			values.add("" + siteCrawl.getContentTitleScore());
+//			values.add("" + siteCrawl.getLengthMetaDescriptionScore());
+//			values.add("" + siteCrawl.getLengthTitleScore());
+//			values.add("" + siteCrawl.getUniqueH1Score());
+//			values.add("" + siteCrawl.getUniqueMetaDescriptionScore());
+//			values.add("" + siteCrawl.getUniqueTitleScore());
+//			values.add("" + siteCrawl.getUniqueUrlScore());
 			values.add("" + mobileCrawl.isResponsive());
 			values.add("" + mobileCrawl.isAdaptive());
 			values.add("" + mobileCrawl.isMostlyResponsive());

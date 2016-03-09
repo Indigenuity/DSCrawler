@@ -73,6 +73,15 @@ public class Task {
 	
 	private Boolean serialTask = true;
 	
+	public Task getSubtask(WorkType workType){
+		for(Task subtask : subtasks){
+			if(subtask.workType == workType){
+				return subtask;
+			}
+		}
+		return null;
+	}
+	
 	public void initLazy(){
 		subtasks.size();
 		prerequisites.size();

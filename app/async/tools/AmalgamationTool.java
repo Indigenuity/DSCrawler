@@ -67,7 +67,7 @@ public class AmalgamationTool extends Tool {
 			Logger.error("Error in Amalgamation: " + e);
 			e.printStackTrace();
 			task.setWorkStatus(WorkStatus.NEEDS_REVIEW);
-			task.setNote("Exception : " + e.getMessage());
+			task.setNote(e.getClass().getSimpleName() + " : " + e.getMessage());
 		}
 		return task;
 	}

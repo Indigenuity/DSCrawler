@@ -20,6 +20,7 @@ import async.registration.WorkerRegistry;
 import async.tools.AmalgamationTool;
 import async.tools.CustomTool;
 import async.tools.DocAnalysisTool;
+import async.tools.InventoryTool;
 import async.tools.MetaAnalysisTool;
 import async.tools.SfLinkTool;
 import async.tools.SiteCrawlTool;
@@ -97,6 +98,7 @@ public class Global extends GlobalSettings {
 		WorkerRegistry.getInstance().register(new DocAnalysisTool());
 		WorkerRegistry.getInstance().register(new MetaAnalysisTool());
 		WorkerRegistry.getInstance().register(new CustomTool());
+		WorkerRegistry.getInstance().register(new InventoryTool());
 	}
 	
 	public void onStop(Application app) {

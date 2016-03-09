@@ -1,0 +1,9 @@
+@(urlCheck : _root_.persistence.UrlCheck)
+
+<div class="review-urlcheck">
+	<h4> UrlCheck @urlCheck.getUrlCheckId()</h4>
+	<p>Seed : <a href="@urlCheck.getSeed()" target="_blank">@urlCheck.getSeed()</a></p>
+	<p>Seed : <a href="@urlCheck.getResolvedSeed()" target="_blank">@urlCheck.getResolvedSeed()</a></p>
+	<p>Status : @urlCheck.getStatusCode()</p>
+	<p>Error : @urlCheck.getErrorMessage()</p>
+</div>

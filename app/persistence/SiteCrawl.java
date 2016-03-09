@@ -3,8 +3,10 @@ package persistence;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -22,6 +24,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyEnumerated;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
@@ -34,9 +37,12 @@ import persistence.converters.SchedulerConverter;
 import persistence.converters.WebProviderConverter;
 import utilities.DSFormatter;
 import datadefinitions.GeneralMatch;
+import datadefinitions.OEM;
 import datadefinitions.Scheduler;
 import datadefinitions.WebProvider;
+import datadefinitions.newdefinitions.InventoryType;
 import datadefinitions.newdefinitions.WPAttribution;
+import datadefinitions.newdefinitions.WPClue;
 
 //Lazy fetch all collections
 
@@ -60,6 +66,10 @@ public class SiteCrawl {
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	private String resolvedSeed;
 	
+	@OneToOne
+	@JoinColumn(name="siteCrawlStatsId")
+	private SiteCrawlStats siteCrawlStats;
+	
 	@Column(nullable = false, columnDefinition="boolean default true")
 	private boolean followNonUnique = true;
 	
@@ -76,10 +86,20 @@ public class SiteCrawl {
 		inverseJoinColumns={@JoinColumn(name="pageCrawls_pageCrawlId")})
 	private Set<PageCrawl> pageCrawls = new HashSet<PageCrawl>();
 	
+	@Enumerated(EnumType.STRING)
+	private InventoryType inventoryType;
+	
 	@OneToOne
 	private PageCrawl newInventoryPage;
 	@OneToOne
 	private PageCrawl usedInventoryPage;
+	
+	@OneToOne
+	private InventoryNumber maxInventoryCount;
+	
+	@ElementCollection(fetch=FetchType.LAZY)
+	@MapKeyEnumerated(EnumType.STRING)
+	private Map<OEM, Double> brandMatchAverages = new HashMap<OEM, Double>();
 	
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	@ElementCollection(fetch=FetchType.LAZY)
@@ -122,6 +142,10 @@ public class SiteCrawl {
 	@Enumerated(EnumType.STRING)
 	@ElementCollection(fetch=FetchType.LAZY)
 	protected Set<WPAttribution> wpAttributions = new HashSet<WPAttribution>();
+	
+	@Enumerated(EnumType.STRING)
+	@ElementCollection(fetch=FetchType.LAZY)
+	protected Set<WPClue> wpClues = new HashSet<WPClue>();
 	
 	@Convert(converter = SchedulerConverter.class)
 	@ElementCollection(fetch=FetchType.LAZY)
@@ -169,31 +193,10 @@ public class SiteCrawl {
 	@ManyToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
 	protected Set<FBPage> fbPages = new HashSet<FBPage>();
 	
-	@ManyToMany(cascade=CascadeType.ALL)
-	private List<Metatag> metatags = new ArrayList<Metatag>();
-	
-	@ManyToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
-	private List<ImageTag> imageTags = new ArrayList<ImageTag>();
-	
 	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, orphanRemoval=true)
 	private Set<InventoryNumber> inventoryNumbers = new HashSet<InventoryNumber>();
 	
-	private int uniqueUrlScore = 0;
-	private int uniqueTitleScore = 0;
-	private int uniqueH1Score = 0;
-	private int uniqueMetaDescriptionScore = 0;
 	
-	private int contentUrlScore = 0;
-	private int contentTitleScore = 0;
-	private int contentH1Score = 0;
-	private int contentSRPH1Score = 0;
-	private int contentMetaDescriptionScore = 0;
-	
-	private int lengthTitleScore = 0;
-	private int lengthMetaDescriptionScore = 0;
-	
-	private int altImageScore = 0;
-	private int urlReadableScore = 0;
 	
 	
 //	@Column(columnDefinition="varchar(1000)")
@@ -589,142 +592,12 @@ public class SiteCrawl {
 		this.pageCrawls.add(pageCrawl);
 	}
 	
-	public List<ImageTag> getImageTags() {
-		return imageTags;
-	}
-
-	public void setImageTags(Collection<ImageTag> imageTags) {
-		this.imageTags.clear();
-		this.imageTags.addAll(imageTags);
-	}
-	
-	public boolean addImageTag(ImageTag imageTag) {
-		return imageTags.add(imageTag);
-	}
-	
-	public List<Metatag> getMetatags() {
-		return metatags;
-	}
-
-	public void setMetatags(Collection<Metatag> metatags) {
-		this.metatags.clear();
-		this.metatags.addAll(metatags);
-	}
-	
-	public boolean addMetatag(Metatag metatag) {
-		return this.metatags.add(metatag);
-	}
-
 	public boolean isMetaAnalysisDone() {
 		return metaAnalysisDone;
 	}
 
 	public void setMetaAnalysisDone(boolean metaAnalysisDone) {
 		this.metaAnalysisDone = metaAnalysisDone;
-	}
-	
-	public int getUniqueUrlScore() {
-		return uniqueUrlScore;
-	}
-
-	public void setUniqueUrlScore(int uniqueUrlScore) {
-		this.uniqueUrlScore = uniqueUrlScore;
-	}
-
-	public int getUniqueTitleScore() {
-		return uniqueTitleScore;
-	}
-
-	public void setUniqueTitleScore(int uniqueTitleScore) {
-		this.uniqueTitleScore = uniqueTitleScore;
-	}
-
-	public int getUniqueH1Score() {
-		return uniqueH1Score;
-	}
-
-	public void setUniqueH1Score(int uniqueH1Score) {
-		this.uniqueH1Score = uniqueH1Score;
-	}
-
-	public int getUniqueMetaDescriptionScore() {
-		return uniqueMetaDescriptionScore;
-	}
-
-	public void setUniqueMetaDescriptionScore(int uniqueMetaDescriptionScore) {
-		this.uniqueMetaDescriptionScore = uniqueMetaDescriptionScore;
-	}
-
-	public int getContentUrlScore() {
-		return contentUrlScore;
-	}
-
-	public void setContentUrlScore(int contentUrlScore) {
-		this.contentUrlScore = contentUrlScore;
-	}
-
-	public int getContentTitleScore() {
-		return contentTitleScore;
-	}
-
-	public void setContentTitleScore(int contentTitleScore) {
-		this.contentTitleScore = contentTitleScore;
-	}
-
-	public int getContentH1Score() {
-		return contentH1Score;
-	}
-
-	public void setContentH1Score(int contentH1Score) {
-		this.contentH1Score = contentH1Score;
-	}
-
-	public int getContentSRPH1Score() {
-		return contentSRPH1Score;
-	}
-
-	public void setContentSRPH1Score(int contentSRPH1Score) {
-		this.contentSRPH1Score = contentSRPH1Score;
-	}
-
-	public int getContentMetaDescriptionScore() {
-		return contentMetaDescriptionScore;
-	}
-
-	public void setContentMetaDescriptionScore(int contentMetaDescriptionScore) {
-		this.contentMetaDescriptionScore = contentMetaDescriptionScore;
-	}
-
-	public int getLengthTitleScore() {
-		return lengthTitleScore;
-	}
-
-	public void setLengthTitleScore(int lengthTitleScore) {
-		this.lengthTitleScore = lengthTitleScore;
-	}
-
-	public int getLengthMetaDescriptionScore() {
-		return lengthMetaDescriptionScore;
-	}
-
-	public void setLengthMetaDescriptionScore(int lengthMetaDescriptionScore) {
-		this.lengthMetaDescriptionScore = lengthMetaDescriptionScore;
-	}
-
-	public int getAltImageScore() {
-		return altImageScore;
-	}
-
-	public void setAltImageScore(int altImageScore) {
-		this.altImageScore = altImageScore;
-	}
-
-	public int getUrlReadableScore() {
-		return urlReadableScore;
-	}
-
-	public void setUrlReadableScore(int urlReadableScore) {
-		this.urlReadableScore = urlReadableScore;
 	}
 	
 	public Set<InventoryNumber> getInventoryNumbers() {
@@ -744,7 +617,81 @@ public class SiteCrawl {
 	}
 
 	public void setWpAttributions(Set<WPAttribution> wpAttributions) {
-		this.wpAttributions = wpAttributions;
+		this.wpAttributions.clear();
+		this.wpAttributions.addAll(wpAttributions);
+	}
+	
+	public boolean addWpAttribution(WPAttribution wp){
+		return this.wpAttributions.add(wp);
+	}
+	
+	public Set<WPClue> getWpClues() {
+		return wpClues;
+	}
+
+	public void setWpClues(Set<WPClue> wpClues) {
+		this.wpClues.clear();
+		this.wpClues.addAll(wpClues);
+	}
+	
+	public boolean addWpClue(WPClue wp){
+		return this.wpClues.add(wp);
+	}
+	
+	public PageCrawl getNewInventoryPage() {
+		return newInventoryPage;
+	}
+
+	public void setNewInventoryPage(PageCrawl newInventoryPage) {
+		if(newInventoryPage != null)
+			pageCrawls.add(newInventoryPage);
+		this.newInventoryPage = newInventoryPage;
+	}
+
+	public PageCrawl getUsedInventoryPage() {
+		return usedInventoryPage;
+	}
+
+	public void setUsedInventoryPage(PageCrawl usedInventoryPage) {
+		if(usedInventoryPage != null)
+			pageCrawls.add(usedInventoryPage);
+		this.usedInventoryPage = usedInventoryPage;
+	}
+	
+
+	public InventoryType getInventoryType() {
+		return inventoryType;
+	}
+
+	public void setInventoryType(InventoryType inventoryType) {
+		this.inventoryType = inventoryType;
+	}
+	
+	public Map<OEM, Double> getBrandMatchAverages() {
+		return brandMatchAverages;
+	}
+
+	public void setBrandMatchAverages(Map<OEM, Double> brandMatchAverages) {
+		this.brandMatchAverages.clear();
+		this.brandMatchAverages.putAll(brandMatchAverages);
+	}
+	
+	public InventoryNumber getMaxInventoryCount() {
+		return maxInventoryCount;
+	}
+
+	public void setMaxInventoryCount(InventoryNumber maxInventoryCount) {
+		this.maxInventoryCount = maxInventoryCount;
+	}
+	
+	
+
+	public SiteCrawlStats getSiteCrawlStats() {
+		return siteCrawlStats;
+	}
+
+	public void setSiteCrawlStats(SiteCrawlStats siteCrawlStats) {
+		this.siteCrawlStats = siteCrawlStats;
 	}
 
 	public void initPageData() {
@@ -764,9 +711,8 @@ public class SiteCrawl {
 		extractedUrls.size();
 		allStaff.size();
 		fbPages.size();
-		metatags.size();
-		imageTags.size();
 		inventoryNumbers.size();
+		brandMatchAverages.size();
 	}
 	
 	public void initAll() {

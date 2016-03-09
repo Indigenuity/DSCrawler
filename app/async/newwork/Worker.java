@@ -55,6 +55,7 @@ public class Worker extends UntypedActor {
 			result.setWorkStatus(WorkStatus.NEEDS_REVIEW);
 			result.setNote(e.getClass().getSimpleName() + " : " + e.getMessage());
 		}
+		System.gc();
 		return result;
 	}
 	
@@ -120,7 +121,7 @@ public class Worker extends UntypedActor {
 	}
 	
 	private static boolean doSubtask(Task subtask) {
-//		System.out.println("Worker doing subtask : " + subtask.getTaskId());
+		System.out.println("Worker doing subtask : " + subtask.getTaskId());
 		Task supertask = subtask.getSupertask();
 		try{
 			loadContextItems(subtask);

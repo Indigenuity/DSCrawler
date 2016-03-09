@@ -39,6 +39,12 @@ public class InventoryNumber {
 	public void setCount(Integer count) {
 		this.count = count;
 	}
+	
+	@Override 
+	public String toString(){
+		return count + "";
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

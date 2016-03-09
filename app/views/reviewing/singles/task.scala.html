@@ -1,0 +1,36 @@
+@import _root_.async.work.WorkStatus
+@(task : _root_.persistence.tasks.Task)
+
+<div class="review-task">
+	<h3>Task @task.getTaskId()</h3>
+	<p>WorkType : @task.getWorkType()</p>
+	<p>WorkStatus : @task.getWorkStatus()</p>
+	<p>Note : @task.getNote()</p>
+	<table>
+		@for((key,value) <- task.getContextItems()){
+			<tr>
+				<td>@key</td>
+				<td>@value</td>
+			</tr>
+		}
+	</table>
+	@if(task.getSubtasks().size() > 0){
+		<div class="subtasks">
+		<h3>Subtasks</h3>
+			@for(subtask <- task.getSubtasks()){
+				@if(subtask.getWorkStatus() == WorkStatus.NEEDS_REVIEW){
+				
+					<div class="indented subtask">
+						@reviewing.singles.task(subtask)
+						<div class="context-items">
+							@for((key, value) <- subtask.getContextItems()){
+								@reviewing.singles.contextItem(key, value)
+							}
+						</div>
+					</div>
+				}
+			}
+		</div>
+	
+	}
+</div>

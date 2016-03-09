@@ -74,11 +74,13 @@ import crawling.MobileCrawler;
 import dao.SitesDAO;
 import dao.StatsDAO;
 import dao.TaskDAO;
+import dao.TaskSetDAO;
 import datadefinitions.GeneralMatch;
 import datadefinitions.Scheduler;
 import datadefinitions.StringExtraction;
 import datadefinitions.UrlExtraction;
 import datadefinitions.WebProvider;
+import datadefinitions.newdefinitions.InventoryType;
 import datadefinitions.newdefinitions.WPAttribution;
 import datatransfer.Amalgamater;
 import datatransfer.CSVGenerator;
@@ -87,6 +89,7 @@ import datatransfer.Cleaner;
 import akka.actor.ActorRef;
 import analysis.SiteCrawlAnalyzer;
 import async.Asyncleton;
+import async.tools.InventoryTool;
 import async.tools.Tool;
 import async.tools.ToolGuide;
 import async.tools.UrlResolveTool;
@@ -102,6 +105,7 @@ import persistence.ExtractedString;
 import persistence.ExtractedUrl;
 import persistence.FBPage;
 import persistence.GoogleCrawl;
+import persistence.ImageTag;
 import persistence.MobileCrawl;
 import persistence.PageCrawl;
 import persistence.PlacesDealer;
@@ -126,22 +130,76 @@ import utilities.UrlSniffer;
 public class Experiment {
 	
 	public static void runExperiment() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
-		SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, 324L);
+//		CSVGenerator.generateInventoryCountReport();
+		
+		Set<ImageTag> images = new HashSet<ImageTag>();
+		ImageTag imageTag = new ImageTag();
+		imageTag.setRaw("this is some raw");
+		imageTag.setAlt("This is some alt");
+		imageTag.setSrc("This is some src");
+		
+		ImageTag imageTag2 = new ImageTag();
+		imageTag2.setRaw("this is some raw");
+		imageTag2.setAlt("This is some alt");
+		imageTag2.setSrc("This is some src");
+		
+		System.out.println("add first : " + images.add(imageTag));
+		System.out.println("add second: " + images.add(imageTag2));
+	}
+	
+	public static void invTask() throws Exception {
+		runAnalysis();
+		Task task = new Task();
+		task.setWorkType(WorkType.INVENTORY_COUNT);
+		task.addContextItem("siteCrawlId", 76 + "");
+		InventoryTool.doathing(task);
+		System.out.println("task : " + task.getWorkStatus());
+		System.out.println("task : " + task.getNote());
+	}
+	
+	public static void runAnalysis() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
+		SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, 2L);
 		siteCrawl.initAll();
 		SiteCrawlAnalyzer.docAnalysis(siteCrawl);
-		
-		System.out.println("sitcrawl invNumbers : " + siteCrawl.getInventoryNumbers().size());
+//		InventoryTool.doExperiment(siteCrawl);
+//		System.out.println("sitcrawl invNumbers : " + siteCrawl.getInventoryNumbers().size()); 
 	}
 	
 	public static void modifyTaskSet() {
-		TaskSet taskSet = JPA.em().find(TaskSet.class, 3L);
+		TaskSet taskSet = JPA.em().find(TaskSet.class, 1L);
 		
+		Task doc = null;
+		Task inv = null;
+		int count = 1;
 		for(Task supertask : taskSet.getTasks()){
-			Task textAnalysisTask = new Task();
-			textAnalysisTask.setWorkType(WorkType.TEXT_ANALYSIS);
-			textAnalysisTask.addContextItem("siteCrawlId", supertask.getSubtasks().get(0).getContextItem("siteCrawlId"));
-			JPA.em().persist(textAnalysisTask);
-			supertask.addSubtask(textAnalysisTask);
+			for(Task subtask : supertask.getSubtasks()){
+				if(subtask.getWorkType() == WorkType.DOC_ANALYSIS){
+					doc = subtask;
+					break;
+				}
+			}
+			for(Task subtask : supertask.getSubtasks()){
+				if(subtask.getWorkType() == WorkType.INVENTORY_COUNT){
+					inv = subtask;
+					break;
+				}
+			}
+			if(inv != null && inv.getWorkStatus() == WorkStatus.NEEDS_REVIEW){
+				supertask.setWorkStatus(WorkStatus.DO_WORK);
+				doc.setWorkStatus(WorkStatus.DO_WORK);
+				inv.setWorkStatus(WorkStatus.DO_WORK);
+				
+			}
+			else{
+//				System.out.println("Couldn't find inv");
+			}
+			
+			count++;
+			if(count %500 == 0){
+				System.out.println("count : " + count);
+				JPA.em().getTransaction().commit();
+				JPA.em().getTransaction().begin();
+			}
 		}
 	}
 	

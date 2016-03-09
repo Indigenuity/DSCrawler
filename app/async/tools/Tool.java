@@ -6,6 +6,7 @@ import async.registration.ContextItem;
 import async.work.WorkStatus;
 import async.work.WorkType;
 import persistence.tasks.Task;
+import play.Logger;
 
 public abstract class Tool {
 
@@ -13,10 +14,18 @@ public abstract class Tool {
 		if(!hasRequiredItems(task)){
 			return incompleteTask(task, "Task doesn't have all the required context items");
 		}
-		return safeDoTask(task);
+		
+		try{
+			return safeDoTask(task);
+		}
+		catch(Exception e) {
+			Logger.error("error in "  + this.getClass().getSimpleName() + " : " + e);
+			e.printStackTrace();
+			return incompleteTask(task, e.getClass().getSimpleName() + " : " + e.getMessage());
+		}
 	}
 	
-	protected abstract Task safeDoTask(Task task);
+	protected abstract Task safeDoTask(Task task) throws Exception;
 		
 	public abstract Set<ContextItem> getRequiredItems(WorkType workType);
 	

@@ -2,6 +2,7 @@ package crawling;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -130,13 +131,16 @@ public class DealerCrawler extends WebCrawler {
 		siteCrawl.addPageCrawl(pageCrawl);
 		
 		try {
+			String urlString = page.getWebURL().getURL();
+			URL url = new URL(urlString);
 			
-			String url = page.getWebURL().getURL();
-			String path = page.getWebURL().getPath();
-			String safePath = DSFormatter.makeSafePath(path);
+			String path = url.getPath();
+			String query = url.getQuery();
+			String pathAndQuery = path + "?" + query;
+			String safePath = DSFormatter.makeSafePath(pathAndQuery);
 			String filename = storageFolder.getAbsolutePath() + "/" + safePath;
 			
-			pageCrawl.setUrl(url);
+			pageCrawl.setUrl(urlString);
 			pageCrawl.setHttpStatus(page.getStatusCode());
 			 
 //			System.out.println("visiting page : " + url);

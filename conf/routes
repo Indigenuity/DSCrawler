@@ -30,6 +30,8 @@ GET		/fetchJob						controllers.DataView.fetchJob(fetchJobId : Long)
 GET		/taskSets						controllers.DataView.taskSets()
 GET		/taskSet						controllers.DataView.taskSet(taskSetId : Long)
 
+GET		/reviewTasks					controllers.DataView.reviewTasks(taskSetId : Long, count : Integer = 20, offset : Integer = 20)
+
 GET		/wp								controllers.DataView.wpTesting()
 
 GET		/reviewInfoFetches				controllers.DataView.reviewInfoFetches(subtaskName : String, fetchJobId : Long, numToProcess : Integer ?= 20, offset : Integer ?= 0)
