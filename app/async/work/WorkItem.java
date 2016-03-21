@@ -2,6 +2,7 @@ package async.work;
 
 import java.util.UUID;
 
+import agarbagefolder.WorkSet;
 import persistence.UrlCheck;
 
 public class WorkItem {

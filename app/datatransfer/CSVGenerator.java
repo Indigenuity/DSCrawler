@@ -5,46 +5,34 @@ import global.Global;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.lang3.StringUtils;
 
 import async.work.WorkStatus;
-import async.work.WorkType;
-import async.work.infofetch.InfoFetch;
-import dao.PlacesPageDAO;
 import datadefinitions.GeneralMatch;
+import datadefinitions.OEM;
 import datadefinitions.Scheduler;
 import datadefinitions.WebProvider;
 import datadefinitions.newdefinitions.WPAttribution;
 import persistence.Dealer;
 import persistence.ExtractedString;
 import persistence.FBPage;
-import persistence.MobileCrawl;
 import persistence.PlacesPage;
 import persistence.SFEntry;
 import persistence.Site;
 import persistence.SiteCrawl;
-import persistence.SiteInformationOld;
-import persistence.SiteSummary;
 import persistence.Staff;
-import persistence.Temp;
-import persistence.UrlCheck;
 import persistence.tasks.Task;
 import persistence.tasks.TaskSet;
 import play.db.jpa.JPA;
-import scaffolding.Scaffolder;
 
 public class CSVGenerator {
 	
@@ -54,12 +42,18 @@ public class CSVGenerator {
 		List<String> values = new ArrayList<String>();
 		values.add("Salesforce Unique ID");
 		values.add("Account Name");
+		values.add("Task status");
 		values.add("Current SalesForce Primary Website URL:");
+		values.add("Resolved URL");
 		values.add("Web Provider");
 		values.add("Inventory Type");
+		values.add("Web Provider Attributions");
 		values.add("New Inventory URL");
+//		values.add("New Inventory Filename");
+//		values.add("PageCrawlId");
 		values.add("New Inventory Count");
 		values.add("Used Inventory URL");
+//		values.add("Used Inventory Filename");
 		values.add("Used Inventory Count");
 		values.add("Largest Inventory Count");
 		values.add("Brand Affiliation Averages");
@@ -68,6 +62,9 @@ public class CSVGenerator {
 		TaskSet taskSet = JPA.em().find(TaskSet.class, 1L);
 		int count = 0;
 		for(Task supertask : taskSet.getTasks()){
+			if(supertask.getWorkStatus() != WorkStatus.WORK_COMPLETED){
+				continue;
+			}
 			String sfIdString = supertask.getContextItem("sfEntryId");
 			String siteCrawlIdString = supertask.getContextItem("siteCrawlId");
 			
@@ -80,9 +77,11 @@ public class CSVGenerator {
 			values = new ArrayList<String>();
 			values.add(sf.getAccountId());
 			values.add(sf.getName());
+			values.add(supertask.getWorkStatus() + "");
 			values.add(sf.getWebsite());
 			if(siteCrawl != null){
 				values.add(siteCrawl.getSeed());
+				values.add(siteCrawl.getWebProvider() + "");
 				values.add(siteCrawl.getInventoryType() + "");
 				String wp = "";
 				String delim = "";
@@ -93,11 +92,13 @@ public class CSVGenerator {
 				values.add(wp);
 				if(siteCrawl.getNewInventoryPage() != null){
 					values.add(siteCrawl.getNewInventoryPage().getUrl());
-					if(siteCrawl.getNewInventoryPage().getInventoryNumbers().size() > 0){
-						values.add(siteCrawl.getNewInventoryPage().getInventoryNumbers().toArray()[0] + "");
+//					values.add(siteCrawl.getStorageFolder() + "/" + siteCrawl.getNewInventoryPage().getFilename());
+//					values.add(siteCrawl.getNewInventoryPage().getPageCrawlId() + "");
+					if(siteCrawl.getNewInventoryPage().getInventoryNumber() != null){
+						values.add(siteCrawl.getNewInventoryPage().getInventoryNumber().getCount() + "");
 					}
 					else{
-						values.add("");
+						values.add("Could not fetch");
 					}
 				}
 				else{
@@ -108,11 +109,12 @@ public class CSVGenerator {
 				
 				if(siteCrawl.getUsedInventoryPage() != null){
 					values.add(siteCrawl.getUsedInventoryPage().getUrl());
-					if(siteCrawl.getUsedInventoryPage().getInventoryNumbers().size() > 0){
-						values.add(siteCrawl.getUsedInventoryPage().getInventoryNumbers().toArray()[0] + "");
+//					values.add(siteCrawl.getStorageFolder() + "/" + siteCrawl.getUsedInventoryPage().getFilename());
+					if(siteCrawl.getUsedInventoryPage().getInventoryNumber() != null){
+						values.add(siteCrawl.getUsedInventoryPage().getInventoryNumber().getCount() + "");
 					}
 					else{
-						values.add("");
+						values.add("Could not fetch");
 					}
 				}
 				else{
@@ -121,8 +123,19 @@ public class CSVGenerator {
 				}
 				
 				values.add(siteCrawl.getMaxInventoryCount() + "");
+				delim = "";
+				String brand = "";
+				for(Entry<OEM, Double> entry : siteCrawl.getBrandMatchAverages().entrySet()){
+					if(entry.getValue() > 0){
+						brand += delim;
+						delim = "; ";
+						brand += entry.getKey() + " : " +entry.getValue();
+					}
+				}
+				values.add(brand);
 			}
 			else {
+				values.add("");
 				values.add("");
 				values.add("");
 				values.add("");
@@ -149,322 +162,6 @@ public class CSVGenerator {
 		
 	}
 	
-public static void generateEvolioReport() throws IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-		
-		List<String[]> CSVRows = new ArrayList<String[]>();
-		List<String> values = new ArrayList<String>();
-		values.add("Salesforce Unique ID");
-		values.add("Account Name");
-		values.add("Current SalesForce Primary Website URL:");
-		values.add("New Verified URL");
-		CSVRows.add((String[])values.toArray(new String[values.size()]));
-		
-		List<InfoFetch> fetches = JPA.em().createQuery("from InfoFetch info where info.fetchJob.fetchJobId = 6").getResultList();
-		List<Temp> sfs = JPA.em().createQuery("from Temp t where t.projectId = 1").getResultList();
-		int count = 0;
-		for(Temp temp : sfs) {
-			if(temp.getInfoFetchId() == null) {
-				continue;
-			}
-			InfoFetch fetch = JPA.em().find(InfoFetch.class, temp.getInfoFetchId());
-			fetch.initObjects();
-			UrlCheck urlCheck = fetch.getUrlCheckObject();
-			Site site = fetch.getSiteObject();
-			SiteCrawl siteCrawl = fetch.getSiteCrawlObject();
-			if(siteCrawl == null){
-				continue;
-			}
-			boolean evolio = false;
-			for(WPAttribution wp : siteCrawl.getWpAttributions()){
-				if(wp.getWp() == datadefinitions.newdefinitions.WebProvider.EVOLIO){
-					evolio = true;
-				}
-			}
-			
-			if(!evolio){
-				continue;
-			}
-			
-			values = new ArrayList<String>();
-			values.add(temp.getSfId());
-			values.add(temp.getName());
-			values.add(temp.getGivenUrl());
-			values.add(site.getHomepage());
-			
-			CSVRows.add((String[])values.toArray(new String[values.size()]));
-			if(++count % 500 == 0) {
-				System.out.println("count : " + count);
-			}
-		}
-		System.out.println("Writing to file ");
-		
-		String targetFilename = Global.getReportsStorageFolder() + "/evolioreport" + System.currentTimeMillis() + ".csv";  
-		File target = new File(targetFilename);
-		FileWriter fileOut = new FileWriter(target);
-		CSVPrinter printer = new CSVPrinter(fileOut, CSVFormat.EXCEL);
-		printer.printRecords(CSVRows);
-		printer.close();
-		fileOut.close();
-	}
-	
-	public static void generateSourceQualityReport() throws IOException {
-		
-		List<Temp> sfs = JPA.em().createQuery("from Temp t where t.givenUrl != ''").getResultList();
-		System.out.println("sfs : " + sfs.size());
-		List<String[]> CSVRows = new ArrayList<String[]>();
-		List<String> values = new ArrayList<String>();
-		values.add("Salesforce Unique ID");
-		values.add("tempId");
-		values.add("Account Name");
-		values.add("Given URL:");
-		values.add("Intermediate URL");
-		values.add("Standardized URL");
-		values.add("Domain");
-		values.add("Suggested URL");
-		values.add("Suggested Source");
-		values.add("Problem");
-		
-		
-		CSVRows.add((String[])values.toArray(new String[values.size()]));
-		int count = 0;
-		for(Temp temp : sfs){
-			values = new ArrayList<String>();
-			values.add(temp.getSfId());
-			values.add(temp.getTempId() + "");
-			values.add(temp.getName());
-			values.add(temp.getGivenUrl());
-			values.add(temp.getIntermediateUrl());
-			values.add(temp.getStandardizedUrl());
-			values.add(temp.getDomain());
-			values.add(temp.getSuggestedUrl());
-			values.add(temp.getSuggestedSource());
-			values.add(temp.getProblem());
-			
-			CSVRows.add((String[])values.toArray(new String[values.size()]));
-			if(++count % 500 == 0) {
-				System.out.println("count : " + count);
-				System.gc();
-			}
-			if(count > 1000){
-//				break;
-			}
-		}
-		
-		System.out.println("Writing to file ");
-		
-		String targetFilename = Global.getReportsStorageFolder() + "/dataqualityreport" + System.currentTimeMillis() + ".csv";  
-		File target = new File(targetFilename);
-		FileWriter fileOut = new FileWriter(target);
-		CSVPrinter printer = new CSVPrinter(fileOut, CSVFormat.EXCEL);
-		printer.printRecords(CSVRows);
-		printer.close();
-		fileOut.close();
-	}
-	
-	public static void generateTempsReport() throws IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-		
-		List<String[]> CSVRows = new ArrayList<String[]>();
-		List<String> values = new ArrayList<String>();
-		values.add("Salesforce Unique ID");
-		values.add("Account Name");
-		values.add("Primary Website URL:");
-		values.add("New Verified URL");
-		values.add("URL changed");
-		values.add("Google Places Page");
-		values.add("Google Places Rating");
-		values.add("Suggested URL");
-		values.add("Reason Suggested");
-		values.add("Problem");
-		CSVRows.add((String[])values.toArray(new String[values.size()]));
-		
-		List<Temp> sfs = JPA.em().createQuery("from Temp t where t.givenUrl != ''").getResultList();
-		int count = 0;
-		String problem = "";
-		for(Temp temp : sfs) {
-			values = new ArrayList<String>();
-			values.add(temp.getSfId());
-			values.add(temp.getName());
-			values.add(temp.getGivenUrl());
-			if(temp.getSite() == null){
-				values.add("");
-				values.add("");
-				values.add("");
-				values.add("");
-				values.add(temp.getSuggestedUrl());
-				values.add(temp.getSuggestedSource());
-			}
-			else{
-				Site site = temp.getSite();
-				values.add(site.getHomepage());
-				if(site.getHomepage().equals(temp.getGivenUrl())){
-					values.add("No Change");
-				}
-				else if(site.getHomepage().equals(temp.getStandardizedUrl())){
-					values.add("Only URL standardization");
-				}
-				else {
-					values.add("Changed");
-				}
-				if(site.getPlacesPage() != null){
-					values.add(site.getPlacesPage().getGoogleUrl());
-					values.add(site.getPlacesPage().getRating() + "");
-				}
-				else {
-					values.add("");
-					values.add("");
-				}
-				values.add("");
-				values.add("");
-			}
-			
-			if(temp.getProblem() != null){
-				problem += " " + temp.getProblem();
-			}
-			values.add(problem);
-			problem = "";
-			
-			CSVRows.add((String[])values.toArray(new String[values.size()]));
-			if(++count % 500 == 0) {
-				System.out.println("count : " + count);
-			}
-		}
-		System.out.println("Writing to file ");
-		
-		String targetFilename = Global.getReportsStorageFolder() + "/places and url report.csv";  
-		File target = new File(targetFilename);
-		FileWriter fileOut = new FileWriter(target);
-		CSVPrinter printer = new CSVPrinter(fileOut, CSVFormat.EXCEL);
-		printer.printRecords(CSVRows);
-		printer.close();
-		fileOut.close();
-	}
-	
-	public static void generateSpecialProjectReport() throws IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-		String query = "select s from CrawlSet cs join cs.completedCrawls s where cs.crawlSetId = 7";
-		List<SiteCrawl> siteCrawls = JPA.em().createQuery(query).getResultList();
-		List<Temp> sfs = JPA.em().createQuery("from Temp t").getResultList();
-		
-		Map<String, Object> fields = Scaffolder.getBasicFields(siteCrawls.get(0));
-		List<String[]> CSVRows = new ArrayList<String[]>();
-		List<String> values = new ArrayList<String>();
-		values.add("Salesforce Unique ID");
-		values.add("Account Name");
-		values.add("Primary Website URL:");
-		values.add("Inferred Website Provider");
-		values.add("Alt. Image Tag Score");
-		
-		values.add("Meta Description Content Score");
-		values.add("URL Location Qualifier Score");
-		values.add("Title Tag Content Score");
-		
-		values.add("Meta Description Length Score");
-		values.add("Title Tag Length Score");
-		
-		values.add("Unique H1 Score");
-		values.add("Unique Meta Description Score");
-		values.add("Unique Title Tag Score");
-		values.add("Unique URL Score");
-		
-		values.add("Passes Responsive Test");
-		values.add("Passes Adaptive Test");
-		values.add("Almost Responsive");
-		values.add("Almost Adaptive");
-		values.add("Is Mobile Site");
-		values.add("Mobile URL");
-//		values.add("Primary Website Provider");
-		
-		
-		
-		
-		
-		CSVRows.add((String[])values.toArray(new String[values.size()]));
-		int count = 0;
-		query = "from Temp t where t.standardizedUrl = :standardizedUrl";
-		TypedQuery<Temp> q = JPA.em().createQuery(query, Temp.class);
-		
-		for(SiteCrawl siteCrawl : siteCrawls){
-			fields = Scaffolder.getBasicFields(siteCrawl);
-			values = new ArrayList<String>();
-			Temp match = null;
-			MobileCrawl mobileCrawl = null;
-			
-			for(Temp sf: sfs) {
-				if(StringUtils.equals(siteCrawl.getSeed(), sf.getStandardizedUrl())){
-					match = sf;
-					break;
-				}
-			}
-			mobileCrawl = siteCrawl.getSite().getLatestMobileCrawl();
-			if(match == null || mobileCrawl == null || siteCrawl.getNumRetrievedFiles() < 10) {
-				continue;
-			}
-			
-			
-			values.add(match.getSfId());
-			values.add(match.getName());
-			values.add(match.getStandardizedUrl());
-			if(siteCrawl.getInferredWebProvider() != null){
-				values.add(siteCrawl.getInferredWebProvider().getDescription());
-			}
-			else{
-				values.add("");
-			}
-//			values.add("" + siteCrawl.getAltImageScore());
-//			values.add("" + siteCrawl.getContentMetaDescriptionScore());
-//			values.add("" + siteCrawl.getContentUrlScore());
-//			values.add("" + siteCrawl.getContentTitleScore());
-//			values.add("" + siteCrawl.getLengthMetaDescriptionScore());
-//			values.add("" + siteCrawl.getLengthTitleScore());
-//			values.add("" + siteCrawl.getUniqueH1Score());
-//			values.add("" + siteCrawl.getUniqueMetaDescriptionScore());
-//			values.add("" + siteCrawl.getUniqueTitleScore());
-//			values.add("" + siteCrawl.getUniqueUrlScore());
-			values.add("" + mobileCrawl.isResponsive());
-			values.add("" + mobileCrawl.isAdaptive());
-			values.add("" + mobileCrawl.isMostlyResponsive());
-			values.add("" + mobileCrawl.isMostlyAdaptive());
-			values.add("" + mobileCrawl.isMobiSite());
-			if(mobileCrawl.isMobiSite()){
-				values.add(mobileCrawl.getResolvedSeed());
-			} else {
-				values.add("");
-			}
-			
-//			if(siteCrawl.getInferredWebProvider() != null){
-//				values.add(siteCrawl.getInferredWebProvider().name());				
-//			}
-//			else {
-//				values.add("Couldn't infer WP");
-//			}
-			
-			
-//			q.setParameter("standardizedUrl", siteCrawl.getSeed());
-//			List<Temp> temps =  q.getResultList();
-//			if(temps.size() > 0 ){
-//				values.add(temps.get(0).getSfId());
-//			}
-//			else {
-//				values.add("No SalesForce");
-//			}
-			
-			CSVRows.add((String[])values.toArray(new String[values.size()]));
-			if(++count % 500 == 0) {
-				System.out.println("count : " + count);
-			}
-		}
-		
-		System.out.println("Writing to file ");
-		
-		String targetFilename = Global.getReportsStorageFolder() + "/testing.csv";  
-		File target = new File(targetFilename);
-		FileWriter fileOut = new FileWriter(target);
-		CSVPrinter printer = new CSVPrinter(fileOut, CSVFormat.EXCEL);
-		printer.printRecords(CSVRows);
-		printer.close();
-		fileOut.close();
-	}
-	
-	
 	public static void generateNonOemPlacesDealers() throws IOException {
 		
 		String query = "from Dealer d where d.datasource = 'GooglePlacesAPI' and d.oemDealer = false "
@@ -473,7 +170,7 @@ public static void generateEvolioReport() throws IOException, IllegalAccessExcep
 				+ "and d.address not like '%British Virgin Islands%' "
 				+ "and d.address not like '%, Mexico%' "
 				+ "and d.address not like '%, Canada%' ";
-		List<Dealer> dealers = JPA.em().createQuery(query).getResultList();
+		List<Dealer> dealers = JPA.em().createQuery(query, Dealer.class).getResultList();
 		System.out.println("size : "  + dealers.size());
 		createClean(dealers, "Non OEM Places Dealers");
 	}
@@ -481,18 +178,17 @@ public static void generateEvolioReport() throws IOException, IllegalAccessExcep
 	public static void generatePlacesDealers() throws IOException {
 		
 		String query = "from Dealer d where d.datasource = 'GooglePlacesAPI'";
-		List<Dealer> dealers = JPA.em().createQuery(query).getResultList();
-		createClean(JPA.em().createQuery(query).getResultList(), "Places Dealers");
+		createClean(JPA.em().createQuery(query, Dealer.class).getResultList(), "Places Dealers");
 	}
 	
 	public static void generateCapdbDealers() throws IOException {
 		String query = "from Dealer d where d.datasource = 'CapDB'";
-		createClean(JPA.em().createQuery(query).getResultList(), "CapDB Dealers");
+		createClean(JPA.em().createQuery(query, Dealer.class).getResultList(), "CapDB Dealers");
 	}
 	
 	public static void generateSpecialStaff() throws IOException {
 		String query = "from Dealer d where d.mainSite is not null and d.datasource = 'Special_Project'";
-		List<Dealer> dealers = JPA.em().createQuery(query).getResultList();
+		List<Dealer> dealers = JPA.em().createQuery(query, Dealer.class).getResultList();
 		generateStaff(dealers, "RequestedDealersStaff");
 		int fordDirect = WebProvider.FORD_DIRECT.getId();
 		query = "from Dealer d where d.datasource != 'Special_Project' and "
@@ -500,13 +196,13 @@ public static void generateEvolioReport() throws IOException, IllegalAccessExcep
 				+ "(from Site s where s = d.mainSite and exists "
 				+ "(from SiteCrawl sc where sc member of s.crawls and " 
 				+ fordDirect + " member of sc.webProviders))";
-		dealers = JPA.em().createQuery(query).getResultList();
+		dealers = JPA.em().createQuery(query, Dealer.class).getResultList();
 		generateStaff(dealers, "Other Ford Direct Dealers Staff");
 	}
 	
 	public static void generateAllStaff() throws IOException {
 		String query = "from Dealer d where d.mainSite is not null";
-		List<Dealer> dealers = JPA.em().createQuery(query).getResultList();
+		List<Dealer> dealers = JPA.em().createQuery(query, Dealer.class).getResultList();
 		generateStaff(dealers, "AllStaff");
 	}
 	
@@ -656,12 +352,6 @@ public static void generateEvolioReport() throws IOException, IllegalAccessExcep
 					sb.append(", ");
 				}
 				String emailString = sb.toString();
-				
-				String inferredWp;
-				if(siteCrawl.getInferredWebProvider() == null)
-					inferredWp = WebProvider.NONE.getDescription();
-				else
-					inferredWp = siteCrawl.getInferredWebProvider().getDescription();
 				
 				Set<String> fbEmailSet = new HashSet<String>();
 				for(FBPage page : siteCrawl.getFbPages()){

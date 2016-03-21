@@ -84,6 +84,7 @@ public class SiteCrawl {
 	@JoinTable(name="sitecrawl_pagecrawl",
 		joinColumns={@JoinColumn(name="SiteCrawl_siteCrawlId")},
 		inverseJoinColumns={@JoinColumn(name="pageCrawls_pageCrawlId")})
+	@LazyCollection(LazyCollectionOption.EXTRA)
 	private Set<PageCrawl> pageCrawls = new HashSet<PageCrawl>();
 	
 	@Enumerated(EnumType.STRING)
@@ -94,12 +95,16 @@ public class SiteCrawl {
 	@OneToOne
 	private PageCrawl usedInventoryPage;
 	
-	@OneToOne
+	@OneToOne(cascade=CascadeType.ALL)
 	private InventoryNumber maxInventoryCount;
 	
 	@ElementCollection(fetch=FetchType.LAZY)
 	@MapKeyEnumerated(EnumType.STRING)
 	private Map<OEM, Double> brandMatchAverages = new HashMap<OEM, Double>();
+	
+	@ElementCollection(fetch=FetchType.LAZY)
+	@MapKeyEnumerated(EnumType.STRING)
+	private Map<OEM, Double> metaBrandMatchAverages = new HashMap<OEM, Double>();
 	
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	@ElementCollection(fetch=FetchType.LAZY)
@@ -142,6 +147,9 @@ public class SiteCrawl {
 	@Enumerated(EnumType.STRING)
 	@ElementCollection(fetch=FetchType.LAZY)
 	protected Set<WPAttribution> wpAttributions = new HashSet<WPAttribution>();
+	
+	@Enumerated(EnumType.STRING)
+	protected datadefinitions.newdefinitions.WebProvider webProvider;
 	
 	@Enumerated(EnumType.STRING)
 	@ElementCollection(fetch=FetchType.LAZY)
@@ -676,6 +684,15 @@ public class SiteCrawl {
 		this.brandMatchAverages.putAll(brandMatchAverages);
 	}
 	
+	public Map<OEM, Double> getMetaBrandMatchAverages() {
+		return metaBrandMatchAverages;
+	}
+
+	public void setMetaBrandMatchAverages(Map<OEM, Double> metaBrandMatchAverages) {
+		this.metaBrandMatchAverages.clear();
+		this.metaBrandMatchAverages.putAll(brandMatchAverages);
+	}
+	
 	public InventoryNumber getMaxInventoryCount() {
 		return maxInventoryCount;
 	}
@@ -692,6 +709,14 @@ public class SiteCrawl {
 
 	public void setSiteCrawlStats(SiteCrawlStats siteCrawlStats) {
 		this.siteCrawlStats = siteCrawlStats;
+	}
+	
+	public datadefinitions.newdefinitions.WebProvider getWebProvider() {
+		return webProvider;
+	}
+
+	public void setWebProvider(datadefinitions.newdefinitions.WebProvider webProvider) {
+		this.webProvider = webProvider;
 	}
 
 	public void initPageData() {

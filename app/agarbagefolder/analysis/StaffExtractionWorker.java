@@ -2,9 +2,9 @@ package agarbagefolder.analysis;
 
 import persistence.SiteInformationOld;
 import play.Logger;
+import agarbagefolder.SiteWork;
 import akka.actor.UntypedActor;
 import analysis.SiteAnalyzer;
-import async.work.SiteWork;
 
 public class StaffExtractionWorker extends UntypedActor {
 

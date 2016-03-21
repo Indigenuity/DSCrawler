@@ -4,14 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import async.newwork.SuperTaskContext;
-
 public class WorkOrder {
 	
 	protected WorkType workType;
 	protected Long uuid = UUID.randomUUID().getLeastSignificantBits();
 	protected Map<String, String> contextItems = new HashMap<String, String>();
-	protected SuperTaskContext superTaskContext;
 	
 	
 	public WorkOrder(WorkType workType) {
@@ -32,12 +29,6 @@ public class WorkOrder {
 
 	public void setUuid(Long uuid) {
 		this.uuid = uuid;
-	}
-	public SuperTaskContext getSuperTaskContext() {
-		return superTaskContext;
-	}
-	public void setSuperTaskContext(SuperTaskContext superTaskContext) {
-		this.superTaskContext = superTaskContext;
 	}
 	
 	public synchronized Map<String, String> getContextItems() {

@@ -3,6 +3,7 @@ package agarbagefolder.sniffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import agarbagefolder.SiteWork;
 import persistence.SiteInformationOld;
 import play.Logger;
 import akka.actor.ActorRef;
@@ -13,11 +14,10 @@ import akka.routing.ActorRefRoutee;
 import akka.routing.RoundRobinRoutingLogic;
 import akka.routing.Routee;
 import akka.routing.Router;
-import async.Asyncleton;
+import async.async.Asyncleton;
 import async.monitoring.AsyncMonitor;
 import async.monitoring.AsyncMonitor.CompletedWork;
 import async.monitoring.AsyncMonitor.WorkInProgress;
-import async.work.SiteWork;
 
 public class SnifferMaster extends UntypedActor {
 	private int numWorkers;

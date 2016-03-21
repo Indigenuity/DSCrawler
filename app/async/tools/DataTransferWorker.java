@@ -4,8 +4,8 @@ import datatransfer.FileMover;
 import persistence.SiteCrawl;
 import play.Logger;
 import play.db.jpa.JPA;
+import agarbagefolder.SiteWork;
 import akka.actor.UntypedActor;
-import async.work.SiteWork;
 
 public class DataTransferWorker extends UntypedActor {
 

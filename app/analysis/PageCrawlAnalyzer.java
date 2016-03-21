@@ -3,9 +3,6 @@ package analysis;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,15 +23,20 @@ import persistence.ImageTag;
 import persistence.InventoryNumber;
 import persistence.Metatag;
 import persistence.PageCrawl;
+import persistence.SiteCrawl;
 
 public class PageCrawlAnalyzer {
 	
 	public static void fullAnalysis(PageCrawl pageCrawl) throws IOException{
+		fullAnalysis(pageCrawl, pageCrawl.getSiteCrawl());
+	}
+	
+	public static void fullAnalysis(PageCrawl pageCrawl, SiteCrawl siteCrawl) throws IOException{
 		if(StringUtils.isEmpty(pageCrawl.getFilename())){
 			return;
 		}
 		
-		File file = new File(Global.getCrawlStorageFolder() + "/" + pageCrawl.getSiteCrawl().getStorageFolder() + "/" + pageCrawl.getFilename());
+		File file = new File(Global.getCrawlStorageFolder() + "/" + siteCrawl.getStorageFolder() + "/" + pageCrawl.getFilename());
 		if(file.isFile() && !FilenameUtils.getExtension(file.getName()).equals("ser")) {
 			FileInputStream inputStream = new FileInputStream(file.getAbsolutePath());
 	        String text = IOUtils.toString(inputStream, "UTF-8");
@@ -44,6 +46,7 @@ public class PageCrawlAnalyzer {
 	        
 	        textAnalysis(pageCrawl, text);
 	        docAnalysis(pageCrawl, text);
+	        postDocAnalysis(pageCrawl, text);
 	        metaAnalysis(pageCrawl);
 		}
 	}
@@ -56,27 +59,32 @@ public class PageCrawlAnalyzer {
 	
 	public static void textAnalysis(PageCrawl pageCrawl, String text){
 		getInventoryNumbers(pageCrawl, text);
-		getBrandMatchCounts(pageCrawl, text);
 	}	
 	
 	public static void getInventoryNumbers(PageCrawl pageCrawl, String text) {
+//		System.out.println("getting inventory numbers");
+		InventoryNumber invNumber = null;
 		for(InventoryType enumElement : InventoryType.values()){
 			Matcher matcher = enumElement.getPattern().matcher(text);
 	    	while (matcher.find()) {
-	    		InventoryNumber invNumber = new InventoryNumber();
+	    		if(invNumber != null){
+	    			throw new IllegalStateException("Found multiple inventory values for a single page with id : " + pageCrawl.getPageCrawlId());
+	    		}
+	    		if(pageCrawl.getInventoryNumber() != null){
+	    			invNumber = pageCrawl.getInventoryNumber();
+	    			
+	    		}else {
+	    			invNumber = new InventoryNumber();
+	    		}
 	    		invNumber.setInventoryType(enumElement);
 	    		invNumber.setCount(Integer.parseInt(matcher.group(1)));
-	    		pageCrawl.getInventoryNumbers().add(invNumber);
+	    		pageCrawl.setInventoryNumber(invNumber);
 	    	}
 		}
 	}
 	
-	public static void getBrandMatchCounts(PageCrawl pageCrawl, String text){
-		for(OEM oem : OEM.values()){
-			Integer count = StringUtils.countMatches(text, oem.definition);
-			pageCrawl.getBrandMatchCounts().put(oem, count);
-		}
-	}
+	
+	
 	
 	
 	
@@ -145,12 +153,35 @@ public class PageCrawlAnalyzer {
 	
 	
 	
+	
+	
+	
+	/************ Post Doc Analysis *********************************/
+	public static void postDocAnalysis(PageCrawl pageCrawl, String text){
+		getBrandMatchCounts(pageCrawl, text);
+	}
+	
+	public static void getBrandMatchCounts(PageCrawl pageCrawl, String text){
+		for(OEM oem : OEM.values()){
+			Integer metaCount = 0;
+			for(Metatag metatag : pageCrawl.getMetatags()){
+				metaCount += StringUtils.countMatches(metatag.getRaw(), oem.definition);
+			}
+			pageCrawl.getMetaBrandMatchCounts().put(oem, metaCount);
+			Integer count = StringUtils.countMatches(text, oem.definition);
+			pageCrawl.getBrandMatchCounts().put(oem, count);
+		}
+	}
+	
+	
+	
+	
 	/*************  Meta Analysis ******************************/
 	public static void metaAnalysis(PageCrawl pageCrawl){
 		countImages(pageCrawl);
 		checkForMakes(pageCrawl);
 		checkForStates(pageCrawl);
-		checkForCities(pageCrawl);
+//		checkForCities(pageCrawl);
 		checkLengths(pageCrawl);
 	}
 	

@@ -1,23 +1,14 @@
 package global;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
 
 import com.google.maps.GeoApiContext;
 
-import agarbagefolder.crawling.CrawlingListener;
-import agarbagefolder.crawling.CrawlingMaster;
-import agarbagefolder.sniffer.SnifferListener;
-import agarbagefolder.sniffer.SnifferMaster;
-import dao.SiteInformationDAO;
-import dao.SiteSummaryDAO;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
-import akka.actor.Props;
-import async.Asyncleton;
 import async.registration.WorkerRegistry;
 import async.tools.AmalgamationTool;
+import async.tools.AnalysisTool;
 import async.tools.CustomTool;
 import async.tools.DocAnalysisTool;
 import async.tools.InventoryTool;
@@ -31,7 +22,6 @@ import async.tools.UrlResolveTool;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;
-import play.db.DB;
 
 
 public class Global extends GlobalSettings {
@@ -60,7 +50,7 @@ public class Global extends GlobalSettings {
 	private ActorRef snifferMaster;
 	
 	private static boolean useProxy = true;
-	private static String proxyUrl = "52.37.156.63";
+	private static String proxyUrl = "52.10.123.94";
 	private static int proxyPort = 8888;
 
 	public static final Date STALE_DATE;
@@ -99,6 +89,7 @@ public class Global extends GlobalSettings {
 		WorkerRegistry.getInstance().register(new MetaAnalysisTool());
 		WorkerRegistry.getInstance().register(new CustomTool());
 		WorkerRegistry.getInstance().register(new InventoryTool());
+		WorkerRegistry.getInstance().register(new AnalysisTool());
 	}
 	
 	public void onStop(Application app) {

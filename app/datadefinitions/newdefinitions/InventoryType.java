@@ -6,11 +6,12 @@ import java.util.regex.Pattern;
 
 public enum InventoryType {
 
-	DEALER_COM			("/new-inventory/index.htm", "/used-inventory/index.htm", "vehicle-count[^0-9<]+([0-9]+)", WebProvider.DEALER_COM), 
+	MULTIPLE			(true, true, "###### Never match","###### Never match","###### Never match", WebProvider.NONE),
+	DEALER_COM			("/new-inventory/index.htm", "/used-inventory/index.htm", "vehicle-count[^0-9<(]+([0-9]+)", WebProvider.DEALER_COM), 
 	VIN_SOLUTIONS 		(true, false, "/Inventory/?cid=2", "/Inventory/?cid=5", "data-reactid[^>]+>[0-9]+[^0-9<]+[0-9]+[^0-9<]+([0-9]+) matched vehicle", WebProvider.VIN_SOLUTIONS),
 	CDK_GLOBAL			("/VehicleSearchResults?search=new", "/VehicleSearchResults?search=preowned","inv_search_count_container[^0-9<]+([0-9]+)",  WebProvider.CDK_COBALT),
 	DEALER_DIRECT		("/new-inventory/?vehicle_type=All", "/used-inventory/?vehicle_type=All", "([0-9]+) exact matches", WebProvider.DEALER_DIRECT),
-	DEALER_ON			("/searchnew.aspx", "/searchused.aspx", "srpVehicleCount[^0-9<]+[0-9]+[^0-9<]+[0-9]+[^0-9<]+([0-9]+)", WebProvider.DEALER_ON),
+	DEALER_ON			("/searchnew.aspx", "/searchused.aspx", "srpVehicleCount[\\s\">(]+[0-9]+[^0-9<]+[0-9]+[^0-9<]+([0-9]+)", WebProvider.DEALER_ON),
 	AUTO_TRADER_CA		("/new-inventory/index.htm", "/used-inventory/index.htm", "([0-9]+) Items Matching", WebProvider.AUTO_TRADER_CA),
 	E_DEALER_CA			("/new/", "/used/", "total-vehicle-number[^0-9<]+([0-9]+)", WebProvider.E_DEALER_CA),
 	CLICK_MOTIVE		(false, true, "local blah/For-Sale/New/", "local blah/For-Sale/Used/", "results-count[^0-9]+<h4>([0-9]+)", WebProvider.CLICK_MOTIVE),

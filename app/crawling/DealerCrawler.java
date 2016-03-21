@@ -141,6 +141,8 @@ public class DealerCrawler extends WebCrawler {
 			String filename = storageFolder.getAbsolutePath() + "/" + safePath;
 			
 			pageCrawl.setUrl(urlString);
+			pageCrawl.setPath(path);
+			pageCrawl.setQuery(query);
 			pageCrawl.setHttpStatus(page.getStatusCode());
 			 
 //			System.out.println("visiting page : " + url);

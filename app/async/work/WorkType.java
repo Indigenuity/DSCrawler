@@ -1,18 +1,18 @@
 package async.work;
 
+import agarbagefolder.InfoFetchWorker;
 import async.tools.AmalgamationTool;
 import async.tools.DataTransferWorker;
 import async.tools.DocAnalysisTool;
 import async.tools.GooglePlacesWorker;
 import async.tools.MetaAnalysisTool;
+import async.tools.MobileAnalysisWorker;
+import async.tools.MobileWorker;
 import async.tools.SiteCrawlTool;
 import async.tools.SiteImportTool;
 import async.tools.SiteUpdateTool;
 import async.tools.TextAnalysisTool;
 import async.tools.UrlResolveTool;
-import async.work.infofetch.InfoFetchWorker;
-import async.workers.MobileAnalysisWorker;
-import async.workers.MobileWorker;
 
  
 //The types of work to be done by workers in this program.
@@ -30,6 +30,7 @@ public enum WorkType {
 	MOBILE_TEST					(MobileWorker.class),
 	MOBILE_ANALYSIS				(MobileAnalysisWorker.class),
 	AMALGAMATION				(AmalgamationTool.class),
+	ANALYSIS					,
 	DOC_ANALYSIS				(DocAnalysisTool.class),
 	STRING_EXTRACTION			, 
 	STAFF_EXTRACTION			,

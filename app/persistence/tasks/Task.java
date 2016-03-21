@@ -171,6 +171,14 @@ public class Task {
 	public void setSerialTask(Boolean serialTask) {
 		this.serialTask = serialTask;
 	}
+
+	public TaskSet getTaskSet() {
+		return taskSet;
+	}
+
+	public void setTaskSet(TaskSet taskSet) {
+		this.taskSet = taskSet;
+	}
 	
 	
 }

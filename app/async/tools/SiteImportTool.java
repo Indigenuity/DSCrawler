@@ -63,7 +63,7 @@ public class SiteImportTool extends Tool {
 				Site existingSite = SitesDAO.getFirst("homepage", urlCheck.getResolvedSeed(), 0);
 				
 				if(existingSite == null) {
-					if(urlCheck.isAllApproved()){
+					if(urlCheck.isAllApproved() || urlCheck.isManuallyApproved()){
 						Site site = new Site();
 						site.setHomepage(urlCheck.getResolvedSeed());
 						site.setDomain(urlCheck.getResolvedHost());

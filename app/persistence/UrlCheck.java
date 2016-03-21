@@ -20,6 +20,7 @@ public class UrlCheck {
 	
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	private String seed;
+	
 	private String seedHost;
 
 	@Column(nullable = true, columnDefinition="varchar(4000)")
@@ -40,6 +41,7 @@ public class UrlCheck {
 	private boolean queryApproved;
 	private boolean statusApproved;
 	private boolean domainApproved;
+	private boolean manuallyApproved;
 	private boolean domainChanged;
 	private boolean valid = true;
 	private boolean languagePath;
@@ -181,6 +183,12 @@ public class UrlCheck {
 	}
 	public void setLanguageQuery(boolean languageQuery) {
 		this.languageQuery = languageQuery;
+	}
+	public boolean isManuallyApproved() {
+		return manuallyApproved;
+	}
+	public void setManuallyApproved(boolean manuallyApproved) {
+		this.manuallyApproved = manuallyApproved;
 	}
 	
 

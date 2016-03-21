@@ -10,10 +10,10 @@ import java.util.Calendar;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.conn.ConnectTimeoutException;
 
+import agarbagefolder.SiteWork;
 import dao.SiteInformationDAO;
 import akka.actor.UntypedActor;
-import async.Asyncleton;
-import async.work.SiteWork;
+import async.async.Asyncleton;
 import async.work.WorkItem;
 import async.work.WorkStatus;
 import persistence.CrawlSet;

@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,38 +26,40 @@ import datadefinitions.GeneralMatch;
 import datadefinitions.OEM;
 import datadefinitions.Scheduler;
 import datadefinitions.StringExtraction;
-import datadefinitions.StringMatch;
 import datadefinitions.UrlExtraction;
-import datadefinitions.WebProvider;
-import datadefinitions.WebProviderInference;
 import datadefinitions.newdefinitions.InventoryType;
 import datadefinitions.newdefinitions.WPAttribution;
 import datadefinitions.newdefinitions.WPClue;
+import datadefinitions.newdefinitions.WebProvider;
 import datatransfer.Amalgamater;
 import global.Global;
 import persistence.ExtractedString;
 import persistence.ExtractedUrl;
-import persistence.ImageTag;
 import persistence.InventoryNumber;
 import persistence.PageCrawl;
 import persistence.SiteCrawl;
-import persistence.SiteCrawlStats;
 import persistence.Staff;
 import utilities.DSFormatter;
-import utilities.Tim;
 
 public class SiteCrawlAnalyzer {
 	
-	public static void doFull(SiteCrawl siteCrawl) throws IOException {
-		doPageCrawlAnalysis(siteCrawl);
-		doBlobTextAnalysis(siteCrawl);
+	public static void doFull(SiteCrawl siteCrawl) throws IOException { 
+//		doPageCrawlAnalysis(siteCrawl);
+//		doBlobTextAnalysis(siteCrawl);
 		aggregatePageCrawlData(siteCrawl);
+//		metaAnalysis(siteCrawl);
 	}
 	
 	public static void doPageCrawlAnalysis(SiteCrawl siteCrawl) throws IOException{
 		for(PageCrawl pageCrawl : siteCrawl.getPageCrawls()) {
 			PageCrawlAnalyzer.fullAnalysis(pageCrawl);
 		}
+//		if(siteCrawl.getNewInventoryPage() != null){
+//			PageCrawlAnalyzer.fullAnalysis(siteCrawl.getNewInventoryPage());
+//		}
+//		if(siteCrawl.getUsedInventoryPage() != null){
+//			PageCrawlAnalyzer.fullAnalysis(siteCrawl.getUsedInventoryPage());
+//		}
 	}
 	
 	
@@ -113,13 +116,49 @@ public class SiteCrawlAnalyzer {
 	/**************************** Aggregation  ************************************/
 	
 	public static void aggregatePageCrawlData(SiteCrawl siteCrawl){
-		aggregateInventoryNumbers(siteCrawl);
+		getBrandMatchAverages(siteCrawl);
+//		aggregateInventoryNumbers(siteCrawl);
+	}
+	
+	public static void getBrandMatchAverages(SiteCrawl siteCrawl){
+		Map<OEM, Integer> counts = new HashMap<OEM, Integer>();
+		Map<OEM, Integer> metaCounts = new HashMap<OEM, Integer>();
+		for(PageCrawl pageCrawl : siteCrawl.getPageCrawls()){
+			for(Entry<OEM, Integer> entry : pageCrawl.getBrandMatchCounts().entrySet()){
+				if(counts.containsKey(entry.getKey())){
+					counts.put(entry.getKey(), entry.getValue() + counts.get(entry.getKey()));
+				}
+				else{
+					counts.put(entry.getKey(), entry.getValue());
+				}
+			}
+			for(Entry<OEM, Integer> entry : pageCrawl.getMetaBrandMatchCounts().entrySet()){
+				if(metaCounts.containsKey(entry.getKey())){
+					metaCounts.put(entry.getKey(), entry.getValue() + metaCounts.get(entry.getKey()));
+				}
+				else{
+					metaCounts.put(entry.getKey(), entry.getValue());
+				}
+			}
+		}
+		Map<OEM, Double> averages = siteCrawl.getBrandMatchAverages();
+		Map<OEM, Double> metaAverages = siteCrawl.getMetaBrandMatchAverages();
+		Double size = siteCrawl.getPageCrawls().size() * 1.0;
+		for(Entry<OEM, Integer> entry : counts.entrySet()){
+			Double average = entry.getValue() / size;
+			averages.put(entry.getKey(), average);
+		}
+		for(Entry<OEM, Integer> entry : metaCounts.entrySet()){
+			Double average = entry.getValue() / size;
+			metaAverages.put(entry.getKey(), average);
+		}
 	}
 	
 	public static void aggregateInventoryNumbers(SiteCrawl siteCrawl) {
 		for(PageCrawl pageCrawl : siteCrawl.getPageCrawls()){
-			for(InventoryNumber invNumber : pageCrawl.getInventoryNumbers()){
-				siteCrawl.getInventoryNumbers().add(invNumber);
+			InventoryNumber invNumber = pageCrawl.getInventoryNumber();
+			if(invNumber != null){
+				siteCrawl.getInventoryNumbers().add(pageCrawl.getInventoryNumber());
 			}
 		}
 	}
@@ -197,11 +236,63 @@ public class SiteCrawlAnalyzer {
 //		checkLength(siteCrawl);
 //		checkContent(siteCrawl);
 //		checkImages(siteCrawl);
-		siteCrawl.setInferredWebProvider(inferWebProvider(siteCrawl));
+//		
+		inferWP(siteCrawl);
 		getExistingInventoryPage(true, siteCrawl);
 		getExistingInventoryPage(false, siteCrawl);
+		getMaxInventoryCount(siteCrawl);
+		
 //		uniqueContentScores(siteCrawl);
 //		contentLengthScores(siteCrawl);
+	}
+	
+	public static void inferWP(SiteCrawl siteCrawl) {
+		if(siteCrawl.getWpAttributions().size() == 1){
+			WPAttribution wpAttribution = (WPAttribution)siteCrawl.getWpAttributions().toArray()[0];
+			siteCrawl.setWebProvider(wpAttribution.getWp());
+		}
+		else if(siteCrawl.getWpAttributions().size() > 1){
+			siteCrawl.setWebProvider(WebProvider.MULTIPLE);
+		}
+		else{
+			inferFromClues(siteCrawl);
+		}
+	}
+	
+	public static void inferFromClues(SiteCrawl siteCrawl){
+		if(siteCrawl.getWpClues().size() == 1){
+			siteCrawl.setWebProvider(((WPClue)siteCrawl.getWpClues().toArray()[0]).getWp());
+		}
+		else if(siteCrawl.getWpClues().size() > 1){
+			//TODO fill in some nice inferences here
+		}
+	}
+	
+	public static void getInventoryType(SiteCrawl siteCrawl) {
+		List<InventoryType> invTypes = new ArrayList<InventoryType>();
+		for(InventoryNumber num : siteCrawl.getInventoryNumbers()){
+			InventoryType temp = num.getInventoryType();
+			if(!invTypes.contains(temp)){
+				invTypes.add(temp);
+			}
+		}
+		siteCrawl.setInventoryType(inferInvTypeFromMultiple(invTypes));
+	}
+	
+	protected static InventoryType inferInvTypeFromMultiple(List<InventoryType> invTypes){
+		if(invTypes.size() == 0)
+			return null;
+		if(invTypes.size() == 1){
+			return invTypes.get(0);
+		}
+		
+		//General patterns -- e.g. Sites often have a secondary page that matches auto trader, but their main inventory is dealer.com
+		boolean dealerCom = invTypes.contains(InventoryType.DEALER_COM);
+		boolean autoTrader = invTypes.contains(InventoryType.AUTO_TRADER_CA);
+		if(invTypes.size() == 2 && dealerCom && autoTrader){
+			return InventoryType.DEALER_COM;
+		}
+		return InventoryType.MULTIPLE;
 	}
 	
 	public static void getExistingInventoryPage(boolean used, SiteCrawl siteCrawl) throws MalformedURLException{
@@ -210,21 +301,29 @@ public class SiteCrawlAnalyzer {
 			return;
 		}
 		for(PageCrawl pageCrawl : siteCrawl.getPageCrawls()){
-			URL url = new URL(pageCrawl.getUrl());
-			String path = url.getPath();
-			String query = "";
-			if(url.getQuery() != null){
-				query = "?" + url.getQuery();
+			String path = pageCrawl.getPath();
+			String query = pageCrawl.getQuery();
+			if(query != null){
+				query = "?" + query;
 			}
 			String pathAndQuery = path + query;
-			if(used && invType.getUsedPath().equals(pathAndQuery)){
-				return pageCrawl;
+			if(used && invType.getUsedPath().equals(pathAndQuery)){ 
+				siteCrawl.setUsedInventoryPage(pageCrawl);
 			}
 			if(!used && invType.getNewPath().equals(pathAndQuery)){
-				return pageCrawl;
+				siteCrawl.setNewInventoryPage(pageCrawl);
 			}
 		}
-		return null;
+	}
+	
+	public static void getMaxInventoryCount(SiteCrawl siteCrawl) {
+		InventoryNumber max = null; 
+		for(InventoryNumber invNumber: siteCrawl.getInventoryNumbers()){
+			if(max == null || invNumber.getCount() > max.getCount()){
+				max = invNumber;
+			}
+		}
+		siteCrawl.setMaxInventoryCount(max);
 	}
 	
 	public static void calculateScores(SiteCrawl siteCrawl){
@@ -409,23 +508,23 @@ public class SiteCrawlAnalyzer {
 			}
 		}
 		
-		siteCrawl.setBrandMatchAverages(getBrandMatchAverages(siteCrawl));
+//		siteCrawl.setBrandMatchAverages(getBrandMatchAverages(siteCrawl));
 		siteCrawl.setNumRetrievedFiles(numFiles);
 		siteCrawl.setNumLargeFiles(numLargeFiles);
 	}
 	
 	
 	
-	private static Set<WebProvider> getWebProviders(String text) {
-		Set<WebProvider> matches = new HashSet<WebProvider>();
-		for(WebProvider wp : WebProvider.values()){
-			if(text.contains(wp.getDefinition()) && !matches.contains(wp.getDefinition())){
-//				System.out.println("matched : " + wp);
-				matches.add(wp);
-			}
-		}
-		return matches;
-	}
+//	private static Set<WebProvider> getWebProviders(String text) {
+//		Set<WebProvider> matches = new HashSet<WebProvider>();
+//		for(WebProvider wp : WebProvider.values()){
+//			if(text.contains(wp.getDefinition()) && !matches.contains(wp.getDefinition())){
+////				System.out.println("matched : " + wp);
+//				matches.add(wp);
+//			}
+//		}
+//		return matches;
+//	}
 	
 	private static Set<Scheduler> getSchedulers(String text) {
 		Set<Scheduler> matches = new HashSet<Scheduler>();
@@ -478,26 +577,7 @@ public class SiteCrawlAnalyzer {
 	
 	
 	
-	public static Map<OEM, Double> getBrandMatchAverages(SiteCrawl siteCrawl){
-		Map<OEM, Integer> counts = new HashMap<OEM, Integer>();
-		for(PageCrawl pageCrawl : siteCrawl.getPageCrawls()){
-			for(Entry<OEM, Integer> entry : pageCrawl.getBrandMatchCounts().entrySet()){
-				if(counts.containsKey(entry.getKey())){
-					counts.put(entry.getKey(), entry.getValue() + counts.get(entry.getKey()));
-				}
-				else{
-					counts.put(entry.getKey(), entry.getValue());
-				}
-			}
-		}
-		Map<OEM, Double> averages = new HashMap<OEM, Double>();
-		Double size = siteCrawl.getPageCrawls().size() * 1.0;
-		for(Entry<OEM, Integer> entry : counts.entrySet()){
-			Double average = entry.getValue() / size;
-			averages.put(entry.getKey(), average);
-		}
-		return averages;
-	}
+	
 	
 	
 	public static Set<ExtractedUrl> extractUrls(File file) throws IOException{
@@ -527,47 +607,47 @@ public class SiteCrawlAnalyzer {
 		return extractedUrls;
 	}
 	
-	public static WebProvider inferWebProvider(SiteCrawl siteCrawl) {
-		Set<WebProvider> wps = siteCrawl.getWebProviders();
-//		System.out.println("wp size : " + wps.size());
-//		for(WebProvider wp : wps) {
-//			System.out.println("wp : " + wp);
+//	public static WebProvider inferWebProvider(SiteCrawl siteCrawl) {
+//		Set<WebProvider> wps = siteCrawl.getWebProviders();
+////		System.out.println("wp size : " + wps.size());
+////		for(WebProvider wp : wps) {
+////			System.out.println("wp : " + wp);
+////		}
+//		
+//		if(wps.size() == 1) {
+//			WebProvider wp = wps.iterator().next();
+//			if(!wp.equals(WebProvider.NONE)){
+//				System.out.println("returning");
+//				return wp;
+//			}
 //		}
-		
-		if(wps.size() == 1) {
-			WebProvider wp = wps.iterator().next();
-			if(!wp.equals(WebProvider.NONE)){
-				System.out.println("returning");
-				return wp;
-			}
-		}
-		
-		WebProvider result = WebProviderInference.inferFromManualRules(siteCrawl);
-		if(result != null && result != WebProvider.NONE) {
-			System.out.println("Inferred from manual rules");
-			return result;
-		}
-		for(WebProviderInference criteria : WebProviderInference.probableInferences) {
-//			System.out.println("checking criteria : " + criteria.getConfirmingMatches());
-			boolean criteriaMet = true;
-			for(StringMatch sm : criteria.getConfirmingMatches()){
-//				System.out.println("checking : " + sm);
-				if(!wps.contains(sm)){
-					criteriaMet = false;
-				}
-			}
-			
-			if(criteriaMet) {
-//				System.out.println("criteria met");
-				if(result != null && result != WebProvider.NONE){
-					return WebProvider.NONE;
-				}
-				result = criteria.getPrimaryMatch();
-			}
-		}
-		
-		return result;
-	}
+//		
+//		WebProvider result = WebProviderInference.inferFromManualRules(siteCrawl);
+//		if(result != null && result != WebProvider.NONE) {
+//			System.out.println("Inferred from manual rules");
+//			return result;
+//		}
+//		for(WebProviderInference criteria : WebProviderInference.probableInferences) {
+////			System.out.println("checking criteria : " + criteria.getConfirmingMatches());
+//			boolean criteriaMet = true;
+//			for(StringMatch sm : criteria.getConfirmingMatches()){
+////				System.out.println("checking : " + sm);
+//				if(!wps.contains(sm)){
+//					criteriaMet = false;
+//				}
+//			}
+//			
+//			if(criteriaMet) {
+////				System.out.println("criteria met");
+//				if(result != null && result != WebProvider.NONE){
+//					return WebProvider.NONE;
+//				}
+//				result = criteria.getPrimaryMatch();
+//			}
+//		}
+//		
+//		return result;
+//	}
 	
 	public static void textAnalysis(SiteCrawl siteCrawl) throws IOException {
 		

@@ -11,7 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
-import async.work.infofetch.InfoFetch;
+import agarbagefolder.InfoFetch;
 
 @Entity
 public class FetchJob {

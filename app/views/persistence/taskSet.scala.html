@@ -1,4 +1,6 @@
 @import reporting.DashboardStats
+@import _root_.async.work.WorkType
+@import _root_.async.work.WorkStatus
 
 @(taskSet : _root_.persistence.tasks.TaskSet, stats : DashboardStats)
 
@@ -11,7 +13,7 @@
 		@viewStats(stats)
 	</div>
 	
-	<div id="work-form-wrapper">
+	<div id="work-form-wrapper" class="content-block">
 		<H2>Task Set Work</H2>
 		@helper.form(action = routes.JobController.taskSetWork, 'id -> "workForm") {
 			<input type="hidden" name="taskSetId" value="@taskSet.getTaskSetId()"/>
@@ -27,6 +29,39 @@
 			<br>
 			<button type = "submit" id="workFormSubmit">Submit Job</button>
 		}
+	</div>
+	<div id="taskset-settings-form-wrapper" class="content-block">
+		<form id="taskset-settings-form" action="" method="POST">
+			<input type="hidden" value="@taskSet.getTaskSetId()" name="taskSetId"/>
+			<p>
+				<label name="workType">Work Type</label>
+				<select name = "workType">
+					@for(workType <- WorkType.values()){
+						<option value="@workType">@workType</option>
+					}
+				</select>
+			</p>
+			<p>
+				<label name="currentWorkStatus">Current Work Status</label>
+				<select name = "currentWorkStatus">
+					@for(workStatus <- WorkStatus.values()){
+						<option value="@workStatus">@workStatus</option>
+					}
+				</select>
+			</p>
+			
+			<p>
+				<label name="targetWorkStatus">Target Work Status</label>
+				<select name = "targetWorkStatus">
+					@for(workStatus <- WorkStatus.values()){
+						<option value="@workStatus">@workStatus</option>
+					}
+				</select>
+			</p>
+			<button type = "submit" id="set-work-status">Set Subtask Work Status</button>
+		
+		</form>
+	
 	</div>
 	<br>
 	<br>

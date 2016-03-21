@@ -63,14 +63,20 @@ public class UrlResolveTool extends Tool {
 			});
 //			System.out.println("id after persist : " + urlCheck.getUrlCheckId());
 			task.addContextItem("urlCheckId", urlCheck.getUrlCheckId() + "");
-			task.setWorkStatus(WorkStatus.WORK_COMPLETED);
+			if(urlCheck.isAllApproved()){
+				task.setWorkStatus(WorkStatus.WORK_COMPLETED);
+			}
+			else{
+				task.setWorkStatus(WorkStatus.NEEDS_REVIEW);
+				task.setNote("URL not approved");
+			}
 //			System.out.println("UrlResolveWorker done processing work order");
 		}
 		catch(Exception e) {
 			Logger.error("Error in Url Resolve: " + e);
 			e.printStackTrace();
 			task.setWorkStatus(WorkStatus.NEEDS_REVIEW);
-			task.setNote("Exception : " + e.getMessage());
+			task.setNote(e.getClass().getSimpleName() + " : " + e.getMessage());
 		}
 		return task;
 	}

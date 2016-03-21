@@ -5,7 +5,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.persistence.metamodel.EntityType;
@@ -14,8 +16,8 @@ import javax.persistence.metamodel.ManagedType;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import agarbagefolder.InfoFetch;
 import async.work.WorkStatus;
-import async.work.infofetch.InfoFetch;
 import datadefinitions.WebProvider;
 import datatransfer.Cleaner;
 import global.Global.HomepageAction;
@@ -26,6 +28,7 @@ import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.Temp;
 import persistence.UrlCheck;
+import persistence.tasks.Task;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -37,6 +40,35 @@ import play.mvc.Results;
 import utilities.DSFormatter;
 
 public class DataEditor extends Controller{
+	
+	@Transactional
+	public static Result reviewTask(){
+		DynamicForm data = Form.form().bindFromRequest();
+		String instruction = data.get("instruction");
+		Long taskId = Long.parseLong(data.get("taskId"));
+		Map<String, String> contextItems = new HashMap<String, String>();
+		contextItems.putAll(data.data());
+		
+		return ok();
+	}
+	
+	@Transactional
+	public static Result resetTask(){
+		DynamicForm data = Form.form().bindFromRequest();
+		Long taskId = Long.parseLong(data.get("taskId"));
+		String supertaskIdString = data.get("supertaskId");
+		
+		Task task = JPA.em().find(Task.class, taskId);
+		task.setWorkStatus(WorkStatus.DO_WORK);
+		
+		if(supertaskIdString != null) {
+			Task supertask = JPA.em().find(Task.class, Long.parseLong(supertaskIdString));
+			supertask.setWorkStatus(WorkStatus.DO_WORK);
+		}
+		
+		return ok();
+	}
+	
 	
 	@Transactional
 	public static Result editFetchJobOptions(){

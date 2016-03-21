@@ -3,6 +3,7 @@ package agarbagefolder.analysis;
 import java.util.ArrayList;
 import java.util.List;
 
+import agarbagefolder.SiteWork;
 import persistence.SiteInformationOld;
 import play.Logger;
 import akka.actor.ActorRef;
@@ -13,8 +14,7 @@ import akka.routing.ActorRefRoutee;
 import akka.routing.RoundRobinRoutingLogic;
 import akka.routing.Routee;
 import akka.routing.Router;
-import async.Asyncleton;
-import async.work.SiteWork;
+import async.async.Asyncleton;
 
 public class StringExtractionMaster extends UntypedActor {
 

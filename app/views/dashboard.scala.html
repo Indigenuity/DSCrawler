@@ -24,54 +24,41 @@ $(document).ready(function(){
 	})
 	
 	$("#crawl-one-site-button").click(function() {
-		$("#crawl-one-site-label").load("@(controllers.routes.JobController.crawlUncrawled(1))")
 	});
 	$("#crawl-five-sites-button").click(function() {
-		$("#crawl-five-sites-label").load("@(controllers.routes.JobController.crawlUncrawled(5))")
 	});
 	$("#crawl-multiple-sites-button").click(function() {
 		var count = $("#crawl-multiple-sites-input").val();
-		$("#crawl-multiple-sites-label").load("@(controllers.routes.JobController.crawlUncrawled(0))" + count);
 	});
 	$("#small-crawl-multiple-sites-button").click(function() {
 		var count = $("#small-crawl-multiple-sites-input").val();
-		$("#small-crawl-multiple-sites-label").load("@(controllers.routes.JobController.smallCrawl(0))" + count);
 	});
 	$("#crawl-empty-sites-button").click(function() {
 		var count = $("#crawl-empty-sites-input").val();
-		$("#crawl-empty-sites-label").load("@(controllers.routes.JobController.recrawlEmpties(0))" + count);
 	});
 	$("#fix-multiple-sites-button").click(function() {
 		var count = $("#fix-multiple-sites-input").val();
-		$("#fix-multiple-sites-label").load("@(controllers.routes.JobController.fixUnfixedUrls(0))" + count);
 	});
 	$("#resolve-multiple-sites-button").click(function() {
 		var count = $("#resolve-multiple-sites-input").val();
-		$("#resolve-multiple-sites-label").load("@(controllers.routes.JobController.resolveUnresolvedUrls(0))" + count);
 	});
 	$("#match-multiple-sites-button").click(function() {
 		var count = $("#match-multiple-sites-input").val();
-		$("#match-multiple-sites-label").load("@(controllers.routes.JobController.matchUnmatched(0))" + count);
 	});
 	$("#string-extract-multiple-sites-button").click(function() {
 		var count = $("#string-extract-multiple-sites-input").val();
-		$("#string-extract-multiple-sites-label").load("@(controllers.routes.JobController.stringExtractions(0))" + count);
 	});
 	$("#staff-extract-multiple-sites-button").click(function() {
 		var count = $("#staff-extract-multiple-sites-input").val();
-		$("#staff-extract-multiple-sites-label").load("@(controllers.routes.JobController.staffExtractions(0))" + count);
 	});
 	$("#summarize-multiple-sites-button").click(function() {
 		var count = $("#summarize-multiple-sites-input").val();
-		$("#summarize-multiple-sites-label").load("@(controllers.routes.JobController.summarizeUnsummarized(0))" + count);
 	});
 	$("#inferences-button").click(function() {
 		var count = $("#inferences-input").val();
-		$("#inferences-label").load("@(controllers.routes.JobController.inferUninferred(0))" + count);
 	});
 	$("#all-work-button").click(function() {
 		var count = $("#all-work-input").val();
-		$("#all-work-label").load("@(controllers.routes.JobController.doAllWork(0))" + count);
 	});
 	
 	

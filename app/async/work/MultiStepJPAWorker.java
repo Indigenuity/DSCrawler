@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
-import async.Asyncleton;
+import async.async.Asyncleton;
 import async.monitoring.AsyncMonitor;
 import play.Logger;
 import play.db.jpa.JPA;

@@ -3,6 +3,7 @@ package agarbagefolder.docanalysis;
 import java.util.ArrayList;
 import java.util.List;
 
+import agarbagefolder.SiteWork;
 import persistence.SiteCrawl;
 import persistence.SiteInformationOld;
 import play.Logger;
@@ -14,11 +15,10 @@ import akka.routing.ActorRefRoutee;
 import akka.routing.RoundRobinRoutingLogic;
 import akka.routing.Routee;
 import akka.routing.Router;
-import async.Asyncleton;
+import async.async.Asyncleton;
 import async.monitoring.AsyncMonitor;
 import async.tools.DocAnalysisTool;
 import async.tools.SiteCrawlTool;
-import async.work.SiteWork;
 
 public class DocAnalysisMaster extends UntypedActor {
 

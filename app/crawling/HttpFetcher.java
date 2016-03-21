@@ -58,10 +58,12 @@ public class HttpFetcher {
 			String filename = storageFolder.getAbsolutePath() + "/" + safePath;
 			 
 			File out = new File(filename);
-			if(!out.exists()){
+//			if(!out.exists()){
 				Files.write(pageText.getBytes(), new File(filename));
-			}
+//			}
 			pageCrawl.setFilename(safePath);
+			pageCrawl.setPath(path);
+			pageCrawl.setQuery(query);
 		}
 		catch(Exception e) {
 			e.printStackTrace();

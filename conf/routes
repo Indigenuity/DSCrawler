@@ -4,73 +4,28 @@
 
 # Home page
 GET     /                           	controllers.Application.index()
-GET 	/experiment						controllers.Application.experiment()
-GET 	/runExperiment					controllers.Application.runExperiment()
 POST	/runExperiment					controllers.Application.runExperiment()
-GET		/confirmHomepages				controllers.Application.tempConfirmHomepages(numToProcess : Integer ?= 20, offset : Integer ?= 0, crawlSetId : Long ?= -1)
-GET		/reviewCrawls					controllers.Application.reviewSmallCrawls(numToProcess : Integer ?= 20, offset : Integer ?= 0)
-GET		/inferWebProviders				controllers.Application.inferWebProviders(numToProcess : Integer ?= 20, offset : Integer ?= 0)
-GET		/sitelessDealers				controllers.Application.sitelessDealers(numToProcess : Integer ?= 20, offset : Integer ?= 0)
 GET		/groupSites						controllers.Application.groupSites(numToProcess : Integer ?= 20, offset : Integer ?= 0)
-GET		/crawlSets						controllers.Application.crawlSets(numToProcess : Integer ?= 20, offset : Integer ?= 0)
-GET		/continueCrawlSet				controllers.Application.continueCrawlSet(numToProcess : Integer, crawlSetId : Long)
 GET		/runGc							controllers.Application.runGc()
 GET		/duplicateDomains				controllers.Application.duplicateDomains(numToProcess : Integer ?= 20, offset : Integer ?= 0)
+
+POST	/subtaskWorkStatus				controllers.TaskSetController.setSubtaskWorkStatus()
 
 GET		/viewEntity						controllers.DataView.viewEntity(entityClass : String, entityId : Long ?= 0)
 GET		/dashboard						controllers.DataView.dashboard(message : String ?= "")
 GET		/dashboardStats					controllers.DataView.dashboardStats()
-GET		/crawlSetStats					controllers.DataView.crawlSetStats(crawlSetId : Long)
-GET		/crawlSet						controllers.DataView.crawlSet(crawlSetId : Long)
-GET		/reviewSites					controllers.DataView.reviewSites(crawlSetId : Long, numToProcess : Integer ?= 20, offset : Integer ?= 0)
 GET		/reviewDupDomains				controllers.DataView.reviewDupDomains(numToProcess : Integer ?= 20, offset : Integer ?= 0)
 POST	/viewSiteList					controllers.DataView.viewSiteList()
-GET		/fetchJobs						controllers.DataView.fetchJobs()
-GET		/fetchJob						controllers.DataView.fetchJob(fetchJobId : Long)	
 GET		/taskSets						controllers.DataView.taskSets()
 GET		/taskSet						controllers.DataView.taskSet(taskSetId : Long)
 
-GET		/reviewTasks					controllers.DataView.reviewTasks(taskSetId : Long, count : Integer = 20, offset : Integer = 20)
-
-GET		/wp								controllers.DataView.wpTesting()
-
-GET		/reviewInfoFetches				controllers.DataView.reviewInfoFetches(subtaskName : String, fetchJobId : Long, numToProcess : Integer ?= 20, offset : Integer ?= 0)
+GET		/reviewTasks					controllers.DataView.reviewTasks(taskSetId : Long, count : Integer = 20, offset : Integer = 0)
 
 
-GET		/crawlUncrawled/:numToCrawl				controllers.JobController.crawlUncrawled(numToCrawl : Integer)
-GET		/recrawlEmpties/:numToProcess			controllers.JobController.recrawlEmpties(numToProcess : Integer)
-GET		/fixUnfixedUrls/:numToFix				controllers.JobController.fixUnfixedUrls(numToFix : Integer)
-GET		/resolveUnresolvedUrls/:numToResolve	controllers.JobController.resolveUnresolvedUrls(numToResolve : Integer)
-GET		/matchUnmatched/:numToMatch				controllers.JobController.matchUnmatched(numToMatch : Integer)
-GET		/stringExtractions/:numToExtract		controllers.JobController.stringExtractions(numToExtract : Integer)
-GET		/staffExtractions/:numToExtract			controllers.JobController.staffExtractions(numToExtract : Integer)
-GET		/summarizeUnsummarized/:numToSummarize	controllers.JobController.summarizeUnsummarized(numToSummarize : Integer)
-GET 	/doAllWork/:numToWork					controllers.JobController.doAllWork(numToWork : Integer)
-GET		/fillFailedUrls							controllers.JobController.fillFailedUrls()
-GET		/inferUninferred/:numToProcess			controllers.JobController.inferUninferred(numToProcess : Integer)
-GET		/smallCrawl/:numToProcess				controllers.JobController.smallCrawl(numToProcess : Integer)
-POST	/crawlSetWork							controllers.JobController.crawlSetWork()
-POST	/fetchJobWork							controllers.JobController.fetchJobWork()
 POST	/taskSetWork							controllers.JobController.taskSetWork()
 
 GET		/monitoringQueues				controllers.DataView.getMonitoringQueues()
-#GET		/snifferQueue					controllers.DataView.getSniffingQueue()
-#GET		/crawlQueue						controllers.DataView.getCrawlQueue()
-#GET		/docAnalysisQueue				controllers.DataView.getDocAnalysisQueue()
-#GET		/metaAnalysisQueue				controllers.DataView.getMetaAnalysisQueue()
-#GET		/amalgamationQueue				controllers.DataView.getAmalgamationQueue()
-#GET		/textAnalysisQueue				controllers.DataView.getTextAnalysisQueue()
-#GET		/inferenceQueue					controllers.DataView.getInferenceQueue()
 
-
-
-#GET		/snifferQueueSize				controllers.DataView.checkSniffingQueue()
-#GET		/crawlQueueSize					controllers.DataView.checkCrawlQueue()
-#GET		/docAnalysisQueueSize			controllers.DataView.checkDocAnalysisQueue()
-#GET		/metaAnalysisQueueSize			controllers.DataView.checkMetaAnalysisQueue()
-#GET		/amalgamationQueueSize			controllers.DataView.checkAmalgamationQueue()
-#GET		/TextAnalysisQueueSize			controllers.DataView.checkTextAnalysisQueue()
-#GET		/inferenceQueueSize				controllers.DataView.checkInferenceQueue()
 
 
 POST	/editEntity						controllers.DataEditor.editEntity()
@@ -87,10 +42,7 @@ GET		/fillStandardizedFormat			controllers.DataEditor.fillStandardizedFormat()
 GET		/fillPlacesDomain				controllers.DataEditor.fillPlacesDomain()
 GET		/combineOnDomain				controllers.DataEditor.combineOnDomain(siteId : Long)
 
-GET		/hideFromMatt					controllers.DataEditor.hideFromMatt(siteId : Long)
 GET		/addGroupUrl					controllers.DataEditor.addGroupUrl(siteId : Long, url : String)
-GET		/createCrawlSet					controllers.DataEditor.createCrawlSet()
-GET		/deleteCrawlSet					controllers.DataEditor.deleteCrawlSet(crawlSetId : Long)
 
 POST	/setHomepage					controllers.DataEditor.setHomepage()
 POST 	/acceptSuggested				controllers.DataEditor.acceptSuggested()

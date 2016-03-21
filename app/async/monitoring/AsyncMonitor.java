@@ -10,10 +10,10 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
+import agarbagefolder.SiteWork;
 import persistence.Site;
 import persistence.SiteCrawl;
 import play.Logger;
-import async.work.SiteWork;
 
 public class AsyncMonitor {
 	

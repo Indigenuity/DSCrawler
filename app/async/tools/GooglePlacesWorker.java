@@ -5,11 +5,11 @@ import com.google.maps.PlaceDetailsRequest;
 import com.google.maps.PlacesApi;
 import com.google.maps.model.PlaceDetails;
 
+import agarbagefolder.SingleStepJPAWorker;
 import agarbagefolder.googleplaces.PlacesPageWorkOrder;
 import agarbagefolder.googleplaces.PlacesPageWorkResult;
 import agarbagefolder.urlresolve.UrlResolveWorkOrder;
 import agarbagefolder.urlresolve.UrlResolveWorkResult;
-import async.work.SingleStepJPAWorker;
 import async.work.WorkOrder;
 import async.work.WorkResult;
 import async.work.WorkStatus;

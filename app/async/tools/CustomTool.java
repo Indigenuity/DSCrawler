@@ -6,14 +6,16 @@ import java.util.Set;
 import async.registration.ContextItem;
 import async.work.WorkStatus;
 import async.work.WorkType;
+import persistence.Site;
 import persistence.tasks.Task;
 import play.Logger;
+import play.db.jpa.JPA;
 
 public class CustomTool extends Tool { 
 
 	protected final static Set<ContextItem> requiredContextItems = new HashSet<ContextItem>();
 	static{
-		ContextItem item = new ContextItem("seed", String.class, false);
+		ContextItem item = new ContextItem("siteCrawlId", String.class, false);
 		requiredContextItems.add(item);
 	}
 	
@@ -50,12 +52,11 @@ public class CustomTool extends Tool {
 		
 		try{
 			String seed = task.getContextItem("seed");
-//			JPA.withTransaction( () -> {
-//				SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, siteCrawlId);
-//				siteCrawl.initAll();
-//				SiteCrawlAnalyzer.textAnalysis(siteCrawl);
-//				siteCrawl.setTextAnalysisDone(true);
-//			});
+			Long siteId = 1L;
+			JPA.withTransaction( () -> {
+				Site site= JPA.em().find(Site.class, siteId);
+				site.setDomain("www.stackoverflow.com");
+			});
 			System.out.println("did work on seed : " + seed);
 //			if(true)
 //				throw new IllegalStateException("This is a purposeful error");

@@ -1,4 +1,5 @@
 @import _root_.async.work.WorkStatus
+@import _root_.async.work.WorkType
 @(task : _root_.persistence.tasks.Task)
 
 <div class="review-task">
@@ -14,6 +15,20 @@
 			</tr>
 		}
 	</table>
+	<form class="task-review-form" method="POST">
+	
+		<input type="hidden" name="taskId" value="@task.getTaskId()"/>
+		@if(task.getTaskSet() != null){
+			<input type="hidden" name="taskSetId" value="@task.getTaskSet().getTaskSetId()"/>
+		}
+		@if(task.getSupertask() != null){
+			<input type="hidden" name="supertaskId" value="@task.getSupertask().getTaskId()"/>
+		}
+		
+		@for((key,value) <- task.getContextItems()){
+			@reviewing.singles.contextItem(key, value)
+		}
+	</form>
 	@if(task.getSubtasks().size() > 0){
 		<div class="subtasks">
 		<h3>Subtasks</h3>
@@ -33,4 +48,5 @@
 		</div>
 	
 	}
+	
 </div>

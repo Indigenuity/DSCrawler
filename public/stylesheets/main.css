@@ -274,3 +274,9 @@ div.subtask .context-items{
 .indented {
 	margin-left:45px;
 }
+
+.content-block {
+	display:inline-block;
+	margin-left:15px;
+	margin-right:15px;
+}

@@ -18,7 +18,7 @@ public class InventoryNumber {
 	
 	@Enumerated(EnumType.STRING)
 	private InventoryType inventoryType;
-	private Integer count;
+	private Integer count = 0;
 	
 	
 	public long getInventoryNumberId() {

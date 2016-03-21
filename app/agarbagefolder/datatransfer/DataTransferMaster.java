@@ -3,6 +3,7 @@ package agarbagefolder.datatransfer;
 import java.util.ArrayList;
 import java.util.List;
 
+import agarbagefolder.SiteWork;
 import persistence.SiteCrawl;
 import play.Logger;
 import akka.actor.ActorRef;
@@ -13,11 +14,10 @@ import akka.routing.ActorRefRoutee;
 import akka.routing.RoundRobinRoutingLogic;
 import akka.routing.Routee;
 import akka.routing.Router;
-import async.Asyncleton;
+import async.async.Asyncleton;
 import async.monitoring.AsyncMonitor;
 import async.tools.DataTransferWorker;
 import async.tools.SiteCrawlTool;
-import async.work.SiteWork;
 
 public class DataTransferMaster extends UntypedActor {
 

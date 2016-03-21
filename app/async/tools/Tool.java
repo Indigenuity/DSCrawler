@@ -49,4 +49,10 @@ public abstract class Tool {
 		return task;
 	}
 	
+	public Task impossibleTask(Task task, String note){
+		task.setNote(note);
+		task.setWorkStatus(WorkStatus.COULD_NOT_COMPLETE);
+		return task;
+	}
+	
 }

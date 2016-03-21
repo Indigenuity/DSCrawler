@@ -76,25 +76,29 @@ public class PageCrawl {
 	
 
 	@Column(nullable = true, columnDefinition="varchar(4000)")
-	@ElementCollection(fetch=FetchType.EAGER)
+	@ElementCollection(fetch=FetchType.LAZY)
 	private Set<String> links = new HashSet<String>();
 	
 //	@Transient 
 	@ManyToMany(cascade=CascadeType.ALL,fetch=FetchType.EAGER)
 	private Set<Metatag> metatags = new HashSet<Metatag>();
 	
-	@ManyToMany(cascade=CascadeType.ALL,fetch=FetchType.EAGER)
+	@ManyToMany(cascade=CascadeType.ALL,fetch=FetchType.LAZY)
 	private Set<ImageTag> imageTags = new HashSet<ImageTag>();
 	
-	@OneToOne(cascade=CascadeType.ALL,fetch=FetchType.EAGER)
+	@OneToOne(cascade=CascadeType.ALL,fetch=FetchType.LAZY)
 	private Metatag metaTitle = null;
 	 
-	@OneToOne(cascade=CascadeType.ALL,fetch=FetchType.EAGER)
+	@OneToOne(cascade=CascadeType.ALL,fetch=FetchType.LAZY)
 	private Metatag metaDescription = null;
 	
-	@ElementCollection
+	@ElementCollection(fetch=FetchType.EAGER)
 	@MapKeyEnumerated(EnumType.STRING)
 	private Map<OEM, Integer> brandMatchCounts = new HashMap<OEM, Integer>();
+	
+	@ElementCollection(fetch=FetchType.EAGER)
+	@MapKeyEnumerated(EnumType.STRING)
+	private Map<OEM, Integer> metaBrandMatchCounts = new HashMap<OEM, Integer>();
 	
 	@Column(nullable = false, columnDefinition="boolean default false")
 	private boolean urlCityQualifier = false;
@@ -130,9 +134,8 @@ public class PageCrawl {
 	@Column(nullable = false, columnDefinition="boolean default false")
 	private boolean urlClean = false;
 	
-	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER, orphanRemoval=true)
-	private Set<InventoryNumber> inventoryNumbers = new HashSet<InventoryNumber>();
-	
+	@OneToOne(cascade=CascadeType.ALL, fetch=FetchType.EAGER, orphanRemoval=false)
+	private InventoryNumber inventoryNumber = new InventoryNumber();
 
 	public long getPageCrawlId() {
 		return pageCrawlId;
@@ -408,15 +411,6 @@ public class PageCrawl {
 		this.metaDescriptionMakeQualifier = metaDescriptionMakeQualifier;
 	}
 
-	public Set<InventoryNumber> getInventoryNumbers() {
-		return inventoryNumbers;
-	}
-
-	public void setInventoryNumbers(Set<InventoryNumber> inventoryNumbers) {
-		this.inventoryNumbers.clear();
-		this.inventoryNumbers.addAll(inventoryNumbers);
-	}
-
 	public Map<OEM, Integer> getBrandMatchCounts() {
 		return brandMatchCounts;
 	}
@@ -424,6 +418,15 @@ public class PageCrawl {
 	public void setBrandMatchCounts(Map<OEM, Integer> brandMatchCounts) {
 		this.brandMatchCounts.clear();
 		this.brandMatchCounts.putAll(brandMatchCounts);
+	}
+	
+	public Map<OEM, Integer> getMetaBrandMatchCounts() {
+		return metaBrandMatchCounts;
+	}
+
+	public void setMetaBrandMatchCounts(Map<OEM, Integer> metaBrandMatchCounts) {
+		this.metaBrandMatchCounts.clear();
+		this.metaBrandMatchCounts.putAll(metaBrandMatchCounts);
 	}
 
 	public boolean isLargeFile() {
@@ -448,6 +451,14 @@ public class PageCrawl {
 
 	public void setQuery(String query) {
 		this.query = DSFormatter.truncate(query);
+	}
+
+	public InventoryNumber getInventoryNumber() {
+		return inventoryNumber;
+	}
+
+	public void setInventoryNumber(InventoryNumber inventoryNumber) {
+		this.inventoryNumber = inventoryNumber;
 	}
 	
 	

@@ -2,6 +2,8 @@ package datadefinitions.newdefinitions;
 
 public enum WebProvider {
 	
+	NONE,
+	MULTIPLE,
 	DEALER_COM,
 	FRESH_INPUT,
 	JAZEL_AUTOS,

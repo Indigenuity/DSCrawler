@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.persistence.Query;
 
-import async.work.infofetch.InfoFetch;
+import agarbagefolder.InfoFetch;
 import play.db.jpa.JPA;
 
 public class InfoFetchDAO {

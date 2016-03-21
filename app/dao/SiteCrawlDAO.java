@@ -29,6 +29,7 @@ public class SiteCrawlDAO {
 //		}
 //	}
 	
+	
 	public static Integer countWPAttribution(Long siteCrawlId, WPAttribution wp) {
 		String query = "select count(sc) from SiteCrawl sc where sc.siteCrawlId = :siteCrawlId and :wp member of sc.wpAttributions";
 		Query q = JPA.em().createQuery(query);

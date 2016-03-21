@@ -1,7 +1,7 @@
 package async.tasks;
 
 import akka.actor.ActorRef;
-import async.Asyncleton;
+import async.async.Asyncleton;
 import async.work.WorkOrder;
 import async.work.WorkStatus;
 import async.work.WorkType;
