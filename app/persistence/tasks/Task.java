@@ -28,6 +28,7 @@ import org.apache.commons.lang.StringUtils;
 import async.tasks.MissingContextItemException;
 import async.work.WorkStatus;
 import async.work.WorkType;
+import dao.TaskDAO;
 
 @Entity
 public class Task {
@@ -70,6 +71,10 @@ public class Task {
 			joinColumns={@JoinColumn(name="taskId")},
 		    inverseJoinColumns={@JoinColumn(name="prereqTaskId", unique=false)})
 	private List<Task> prerequisites = new ArrayList<Task>();
+	
+	@ElementCollection
+	@Enumerated(EnumType.STRING)
+	private Set<WorkType> subtaskWorkTypes = new HashSet<WorkType>();
 	
 	private Boolean serialTask = true;
 	
@@ -149,12 +154,18 @@ public class Task {
 		return subtasks;
 	}
 	public boolean addSubtask(Task subtask) {
-		return this.subtasks.add(subtask);
+		if(this.subtasks.add(subtask)){
+			this.subtaskWorkTypes.add(subtask.getWorkType());
+			return true;
+		}
+		return false;
 	}
 	public List<Task> getPrerequisites() {
 		return prerequisites;
 	}
 	public boolean addPrerequisite(Task prereqTask) {
+		if(this.prerequisites.contains(prereqTask))
+			return false;
 		return this.prerequisites.add(prereqTask);
 	}
 	public WorkType getWorkType() {
@@ -179,6 +190,17 @@ public class Task {
 	public void setTaskSet(TaskSet taskSet) {
 		this.taskSet = taskSet;
 	}
+
+	public Set<WorkType> getSubtaskWorkTypes() {
+		Set<WorkType> returned = new HashSet<WorkType>();
+		returned.addAll(subtaskWorkTypes);
+		return returned;
+	}
+
+	public void refreshWorkTypes() {
+		this.subtaskWorkTypes.clear();
+		this.subtaskWorkTypes.addAll(TaskDAO.getSubtaskWorkTypes(this.taskId));
+	}	
 	
 	
 }

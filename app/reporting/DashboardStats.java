@@ -7,6 +7,9 @@ import java.util.Map;
 public class DashboardStats {
 	
 	private Map<String, Object> stats = new LinkedHashMap<String, Object>();
+	private Map<String, DashboardStats> sections = new LinkedHashMap<String, DashboardStats>();
+	
+	private String title;
 
 	private String totalDealers;
 	private String	totalSites;
@@ -25,6 +28,10 @@ public class DashboardStats {
 	
 	public DashboardStats(Map<String, Object> stats) {
 		this.stats.putAll(stats);
+	}
+	
+	public DashboardStats(String title) {
+		this.title = title;
 	}
 	
 	public DashboardStats() {}
@@ -122,7 +129,20 @@ public class DashboardStats {
 		this.inferenceFailed = inferenceFailed;
 	}
 
-	
-	
+	public Map<String, DashboardStats> getSections() {
+		return sections;
+	}
+
+	public DashboardStats addSection(String name, DashboardStats section) {
+		return this.sections.put(name, section);
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
 	
 }

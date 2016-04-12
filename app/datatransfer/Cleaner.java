@@ -124,7 +124,7 @@ public class Cleaner {
 		
 		System.out.println("Num sites : "+ sites.size());
 		for(Site site : sites) {
-			site.setDomain(DSFormatter.removeWww(site.getDomain()));
+//			site.setDomain(DSFormatter.removeWww(site.getDomain()));
 		}
 	}
 	
@@ -195,10 +195,10 @@ public static void markOems() {
 					System.out.println("small crawl************");
 					site.getCrawls().remove(siteCrawl);
 					JPA.em().remove(siteCrawl);
-					site.setHomepageNeedsReview(false);
+//					site.setHomepageNeedsReview(false);
 					site.setRedirectResolveDate(null);
-					site.setReviewLater(false);
-					site.setSuggestedHomepage(null);
+//					site.setReviewLater(false);
+//					site.setSuggestedHomepage(null);
 				}
 				else{
 //					System.out.println("not small");
@@ -221,17 +221,17 @@ public static void markOems() {
 				System.out.println("Filling by past redirect : " + pastRedirect);
 				site.addRedirectUrl(site.getHomepage());
 				site.setHomepage(pastRedirect);
-				site.setHomepageNeedsReview(false);
+//				site.setHomepageNeedsReview(false);
 			}
-			else if(StringUtils.isNotBlank(site.getSuggestedHomepage())) {
-				String pastApproved = Utility.getPastApproval(site.getSuggestedHomepage());
-				if(StringUtils.isNotBlank(pastApproved)){
-					site.addRedirectUrl(site.getHomepage());
-					site.setHomepage(pastApproved);
-					site.setHomepageNeedsReview(false);
-					site.setRedirectResolveDate(new java.sql.Date(Calendar.getInstance().getTimeInMillis()));
-				}
-			}
+//			else if(StringUtils.isNotBlank(site.getSuggestedHomepage())) {
+//				String pastApproved = Utility.getPastApproval(site.getSuggestedHomepage());
+//				if(StringUtils.isNotBlank(pastApproved)){
+//					site.addRedirectUrl(site.getHomepage());
+//					site.setHomepage(pastApproved);
+//					site.setHomepageNeedsReview(false);
+//					site.setRedirectResolveDate(new java.sql.Date(Calendar.getInstance().getTimeInMillis()));
+//				}
+//			}
 					
 		}
 		

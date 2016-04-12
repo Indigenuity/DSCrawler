@@ -15,8 +15,11 @@ import java.util.Set;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.lang3.StringUtils;
 
 import async.work.WorkStatus;
+import async.work.WorkType;
+import dao.SitesDAO;
 import datadefinitions.GeneralMatch;
 import datadefinitions.OEM;
 import datadefinitions.Scheduler;
@@ -30,11 +33,100 @@ import persistence.SFEntry;
 import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.Staff;
+import persistence.UrlCheck;
 import persistence.tasks.Task;
 import persistence.tasks.TaskSet;
 import play.db.jpa.JPA;
 
 public class CSVGenerator {
+	
+	public static void generateSiteImportReport(TaskSet taskSet) throws IOException {
+		CSVReport report = new CSVReport("Site Import Report");
+		List<String> values = new ArrayList<String>();
+		values.add("Salesforce Unique ID");
+		values.add("Account Name");
+		values.add("Current SalesForce Primary Website URL:");
+		values.add("Resolved URL");
+		values.add("Status Code");
+		values.add("Accepted");
+		values.add("No change");
+		values.add("Changed but accepted");
+		//values.add("Manually Changed");
+		values.add("Manually Approved");
+		values.add("Shared Site");
+		values.add("Needs Attention");
+		values.add("Shares homepage with");
+		values.add("Shares domain with");
+		report.setHeaderValues(values);
+		
+		int count = 0;
+		for(Task task : taskSet.getTasks()){
+			values = new ArrayList<String>();
+			
+			if(task.getWorkType() != WorkType.SUPERTASK){
+				continue;
+			}
+			Task urlTask = task.getSubtask(WorkType.REDIRECT_RESOLVE);
+			Task siteImportTask = task.getSubtask(WorkType.SITE_IMPORT);
+			if(urlTask == null || siteImportTask == null){
+				continue;
+			}
+			String sfEntryIdString = task.getContextItem("sfEntryId");
+			String urlCheckIdString = urlTask.getContextItem("urlCheckId");
+			String siteIdString = siteImportTask.getContextItem("siteId");
+			if(StringUtils.isEmpty(urlCheckIdString) || StringUtils.isEmpty(sfEntryIdString)){
+				continue;
+			}
+			SFEntry sf =JPA.em().find(SFEntry.class, Long.parseLong(sfEntryIdString));
+			UrlCheck urlCheck = JPA.em().find(UrlCheck.class, Long.parseLong(urlCheckIdString));
+			Site site = null;
+			if(siteIdString != null){
+				site = JPA.em().find(Site.class, Long.parseLong(siteIdString));
+			}
+			
+			values.add(sf.getAccountId());
+			values.add(sf.getName());
+			values.add(sf.getWebsite());
+			values.add(urlCheck.getResolvedSeed());
+			values.add(urlCheck.getStatusCode() + "");
+			values.add(urlCheck.isAccepted() + "");
+			values.add(urlCheck.isNoChange() + "");
+			values.add((!urlCheck.isNoChange() && urlCheck.isAccepted()) + "");
+			values.add(urlCheck.isManuallyApproved() + "");
+			values.add(urlCheck.isSharedSite() + "");
+			if(site == null){
+				values.add("");
+				values.add("");
+			} else {
+//				List<Site> dupHomepages = SitesDAO.getList("homepage", site.getHomepage(), 20, 0);
+//				for(Site dup : dupHomepages){
+//					SFEntry = 
+//				}
+			}
+			report.addRow(values);
+			if(++count % 500 == 0) {
+				System.out.println("count : " + count);
+			}
+		}
+		writeReport(report);
+	}
+	
+	public static void writeReport(CSVReport report) throws IOException{
+		System.out.println("Writing to file ");
+		
+		String targetFilename = Global.getReportsStorageFolder() + "/" + report.getName();
+		if(report.isAppendDate()){
+			targetFilename += System.currentTimeMillis();  
+		}
+		targetFilename += ".csv";
+		File target = new File(targetFilename);
+		FileWriter fileOut = new FileWriter(target);
+		CSVPrinter printer = new CSVPrinter(fileOut, CSVFormat.EXCEL);
+		printer.printRecords(report.getRows());
+		printer.close();
+		fileOut.close();
+	}
+	
 	
 
 	public static void generateInventoryCountReport() throws IOException {
@@ -126,7 +218,7 @@ public class CSVGenerator {
 				delim = "";
 				String brand = "";
 				for(Entry<OEM, Double> entry : siteCrawl.getBrandMatchAverages().entrySet()){
-					if(entry.getValue() > 0){
+					if(entry.getKey() == OEM.GM ? entry.getValue() > 20 : entry.getValue() >= 10){
 						brand += delim;
 						delim = "; ";
 						brand += entry.getKey() + " : " +entry.getValue();
@@ -367,7 +459,7 @@ public class CSVGenerator {
 						site.getDomain(),
 						dealer.getAddress(),
 						dealer.getPhone(),
-						String.valueOf(site.isHomepageNeedsReview() | site.isReviewLater()),
+//						String.valueOf(site.isHomepageNeedsReview() | site.isReviewLater()),
 						String.valueOf(site.isMaybeDefunct() | site.isDefunct()),
 						String.valueOf(dealer.isSharesAddress()),
 						String.valueOf(dealer.isSharesDomain()),

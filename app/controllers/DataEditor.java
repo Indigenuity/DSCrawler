@@ -18,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import agarbagefolder.InfoFetch;
 import async.work.WorkStatus;
+import async.work.WorkType;
 import datadefinitions.WebProvider;
 import datatransfer.Cleaner;
 import global.Global.HomepageAction;
@@ -40,6 +41,20 @@ import play.mvc.Results;
 import utilities.DSFormatter;
 
 public class DataEditor extends Controller{
+	
+	@Transactional
+	public static Result createTaskSet() {
+		DynamicForm data = Form.form().bindFromRequest();
+		String[] workTypeStrings =  request().body().asFormUrlEncoded().get("workTypes[]");
+		List<WorkType> workTypes = new ArrayList<WorkType>();
+		for(String workTypeString : workTypeStrings){
+			workTypes.add(WorkType.valueOf(workTypeString));
+		}
+		for(WorkType workType : workTypes){
+			System.out.println("worktype : " + workType);
+		}
+		return ok();
+	}
 	
 	@Transactional
 	public static Result reviewTask(){
@@ -171,19 +186,6 @@ public class DataEditor extends Controller{
 	}
 	
 	@Transactional
-	public static Result hideFromMatt(long siteId) {
-		System.out.println("Hiding from Matt : " + siteId);
-		Site site = JPA.em().find(Site.class, siteId);
-		if(site == null) {
-			Logger.error("Could not find site to hide from Matt");
-		}
-		else {
-			site.setShowToMatt(false);
-		}
-		return ok();
-	}
-	
-	@Transactional
 	public static Result addGroupUrl(long siteId, String url) {
 		System.out.println("Adding group url (site " + siteId + ") : " + url);
 		Site site = JPA.em().find(Site.class, siteId);
@@ -238,7 +240,7 @@ public class DataEditor extends Controller{
 			try{
 				System.out.println(count++ + " : " + site.getHomepage());
 //				site.setStandardizedHomepage(DSFormatter.standardizeUrl(site.getHomepage()));
-				site.setDomain(DSFormatter.getDomain(site.getHomepage()));
+//				site.setDomain(DSFormatter.getDomain(site.getHomepage()));
 			} catch(Exception e) {
 				System.out.println("error : " + e);
 			}
@@ -319,10 +321,10 @@ public class DataEditor extends Controller{
 		
 		site.addRedirectUrl(site.getHomepage());
 		site.setHomepage(decodedUrl);
-		site.setHomepageNeedsReview(false);
-		site.setReviewLater(false);
-		site.setReviewReason(null);
-		site.setSuggestedHomepage(null);
+//		site.setHomepageNeedsReview(false);
+//		site.setReviewLater(false);
+//		site.setReviewReason(null);
+//		site.setSuggestedHomepage(null);
 		
 		if(!StringUtils.isEmpty(infoFetchIdString)){
 			InfoFetch infoFetch = JPA.em().find(InfoFetch.class, Long.parseLong(infoFetchIdString));
@@ -394,9 +396,9 @@ public class DataEditor extends Controller{
 		Logger.info("Ignoring suggested for Site " + site.getSiteId() + ". (CrawlSet : " + crawlSet.getCrawlSetId() + ")");
 		System.out.println("Ignoring suggested for Site " + site.getSiteId() + ". (CrawlSet : " + crawlSet.getCrawlSetId() + ")");
 		
-		site.setHomepageNeedsReview(false);
-		site.setSuggestedHomepage(null);
-		site.setReviewReason(null);
+//		site.setHomepageNeedsReview(false);
+//		site.setSuggestedHomepage(null);
+//		site.setReviewReason(null);
 		crawlSet.getNeedRedirectResolve().remove(site);
 		
 		return ok();
@@ -443,8 +445,8 @@ public class DataEditor extends Controller{
 		Logger.info("Marking to review later for Site " + site.getSiteId() + ". (CrawlSet : " + crawlSet.getCrawlSetId() + ")");
 		System.out.println("Marking to review later for Site " + site.getSiteId() + ". (CrawlSet : " + crawlSet.getCrawlSetId() + ")");
 		
-		site.setReviewLater(true);
-		site.setHomepageNeedsReview(false);
+//		site.setReviewLater(true);
+//		site.setHomepageNeedsReview(false);
 		crawlSet.getNeedRedirectResolve().remove(site);
 		
 		return ok();
@@ -460,8 +462,8 @@ public class DataEditor extends Controller{
 		System.out.println("Marking as crawl protected on Site " + site.getSiteId() + ". (CrawlSet : " + crawlSet.getCrawlSetId() + ")");
 		
 		site.setCrawlerProtected(true);
-		site.setReviewLater(false);
-		site.setHomepageNeedsReview(false);
+//		site.setReviewLater(false);
+//		site.setHomepageNeedsReview(false);
 		crawlSet.getUncrawled().remove(site);
 		crawlSet.getNeedMobile().remove(site);
 		
@@ -529,45 +531,45 @@ public class DataEditor extends Controller{
 		
 		
 		Site site  = JPA.em().find(Site.class, siteId);
-		System.out.println(action + " (" + site.getHomepage() + ") Suggested : " + site.getSuggestedHomepage());
+//		System.out.println(action + " (" + site.getHomepage() + ") Suggested : " + site.getSuggestedHomepage());
 		if(action.equals("IGNORE")) {
-			site.setSuggestedHomepage(null);
-			site.setHomepageNeedsReview(false);
+//			site.setSuggestedHomepage(null);
+//			site.setHomepageNeedsReview(false);
 			site.setRedirectResolveDate(new java.sql.Date(Calendar.getInstance().getTimeInMillis()));
 		}
 		else if(action.equals("MARK_FOR_CLOSING")) {
 			site.setMaybeDefunct(true);
-			site.setHomepageNeedsReview(false);
+//			site.setHomepageNeedsReview(false);
 			site.setRedirectResolveDate(new java.sql.Date(Calendar.getInstance().getTimeInMillis()));
 		}
 		else if(action.equals("MARK_FOR_REVIEW")) {
-			site.setHomepageNeedsReview(false);
-			site.setReviewLater(true);
+//			site.setHomepageNeedsReview(false);
+//			site.setReviewLater(true);
 			
 		}
 		else if(action.equals("ACCEPT")) {
 			site.getRedirectUrls().add(site.getHomepage());
-			site.setHomepage(site.getSuggestedHomepage());
-			site.setSuggestedHomepage(null);
-			site.setHomepageNeedsReview(false);
-			site.setQueryStringApproved(true);
-			site.setHompageValidUrlConfirmed(true);
+//			site.setHomepage(site.getSuggestedHomepage());
+//			site.setSuggestedHomepage(null);
+//			site.setHomepageNeedsReview(false);
+//			site.setQueryStringApproved(true);
+//			site.setHompageValidUrlConfirmed(true);
 			site.setRedirectResolveDate(new java.sql.Date(Calendar.getInstance().getTimeInMillis()));
 		}
 		else if(action.equals("ACCEPT_AND_MARK_CHANGE")) {
 			site.getRedirectUrls().add(site.getHomepage());
-			site.setHomepage(site.getSuggestedHomepage());
-			site.setSuggestedHomepage(null);
-			site.setNotableChange(true);
-			site.setQueryStringApproved(true);
-			site.setHomepageNeedsReview(false);
-			site.setHompageValidUrlConfirmed(true);
+//			site.setHomepage(site.getSuggestedHomepage());
+//			site.setSuggestedHomepage(null);
+//			site.setNotableChange(true);
+//			site.setQueryStringApproved(true);
+//			site.setHomepageNeedsReview(false);
+//			site.setHompageValidUrlConfirmed(true);
 			site.setRedirectResolveDate(new java.sql.Date(Calendar.getInstance().getTimeInMillis()));
 		}
 		else if(action.equals("NEW_SITE")) {
-			site.setNotableChange(true);
-			site.setReviewLater(true);
-			site.setHomepageNeedsReview(false);
+//			site.setNotableChange(true);
+//			site.setReviewLater(true);
+//			site.setHomepageNeedsReview(false);
 		}
 		return ok();
 	}

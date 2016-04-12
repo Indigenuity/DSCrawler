@@ -151,18 +151,18 @@ public class MainWorker extends UntypedActor {
 		Site site = siteWork.getSite();
 		//Nothing to do if there isn't a url; mark the site as such 
 		if(site.getHomepage() == null || site.getHomepage().equals("")){
-			site.setHomepageNeedsReview(true);
+//			site.setHomepageNeedsReview(true);
 		}
 		
 		String intermediateUrl = DSFormatter.toHttp(site.getHomepage());
 		intermediateUrl = DSFormatter.removeQueryString(intermediateUrl);
 		if(!DSFormatter.isApprovedUrl(intermediateUrl)){
 			System.out.println("unapproved url : " + intermediateUrl);
-			site.setHomepageNeedsReview(true);
+//			site.setHomepageNeedsReview(true);
 		}
 		else {
 			site.setHomepage(intermediateUrl);
-			site.setHomepageNeedsReview(false);
+//			site.setHomepageNeedsReview(false);
 		}
 		
 		

@@ -16,6 +16,30 @@ import persistence.tasks.TaskSet;
 import play.db.jpa.JPA;
 
 public class TaskDAO {
+	
+	public static List<WorkType> getWorkTypes(Long taskSetId) {
+		String query = "select distinct t.workType from TaskSet ts join ts.tasks t where ts.taskSetId = :taskSetId";
+		TypedQuery<WorkType> q = JPA.em().createQuery(query, WorkType.class);
+		q.setParameter("taskSetId", taskSetId);
+		List<WorkType> workTypes = q.getResultList();
+		return workTypes;
+	}
+	
+	public static List<WorkType> getTaskSetSubtaskWorkTypes(Long taskSetId) {
+		String query = "select distinct st.workType from TaskSet ts join ts.tasks t join t.subtasks st where ts.taskSetId = :taskSetId";
+		TypedQuery<WorkType> q = JPA.em().createQuery(query, WorkType.class);
+		q.setParameter("taskSetId", taskSetId);
+		List<WorkType> workTypes = q.getResultList();
+		return workTypes;
+	}
+	
+	public static List<WorkType> getSubtaskWorkTypes(Long taskId) {
+		String query = "select distinct st.workType from Task t join t.subtasks st where t.taskId = :taskId";
+		TypedQuery<WorkType> q = JPA.em().createQuery(query, WorkType.class);
+		q.setParameter("taskId", taskId);
+		List<WorkType> workTypes = q.getResultList();
+		return workTypes;
+	}
 
 	public static Integer countWorkStatus(Long taskSetId, WorkStatus workStatus) {
 		String query = "select count(t) from TaskSet ts join ts.tasks t where ts.taskSetId = :taskSetId and t.workStatus = :workStatus";
@@ -32,6 +56,28 @@ public class TaskDAO {
 		Query q = JPA.em().createQuery(query);
 		q.setParameter("taskSetId", taskSetId);
 		q.setParameter("workStatus", workStatus);
+		Integer value = Integer.parseInt(q.getSingleResult() + "");
+		
+		return value;
+	}
+	
+	public static Integer countWorkStatusByWorkType(Long taskSetId, WorkStatus workStatus, WorkType workType) {
+		String query = "select count(t) from TaskSet ts join ts.tasks t where ts.taskSetId = :taskSetId and t.workStatus = :workStatus and t.workType = :workType";
+		Query q = JPA.em().createQuery(query);
+		q.setParameter("taskSetId", taskSetId);
+		q.setParameter("workStatus", workStatus);
+		q.setParameter("workType", workType);
+		Integer value = Integer.parseInt(q.getSingleResult() + "");
+		
+		return value;
+	}
+	
+	public static Integer countWorkStatusSubtasksByWorkType(Long taskSetId, WorkStatus workStatus, WorkType workType) {
+		String query = "select count(s) from TaskSet ts join ts.tasks t join t.subtasks s where ts.taskSetId = :taskSetId and s.workStatus = :workStatus and s.workType = :workType";
+		Query q = JPA.em().createQuery(query);
+		q.setParameter("taskSetId", taskSetId);
+		q.setParameter("workStatus", workStatus);
+		q.setParameter("workType", workType);
 		Integer value = Integer.parseInt(q.getSingleResult() + "");
 		
 		return value;

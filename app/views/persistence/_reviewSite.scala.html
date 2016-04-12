@@ -11,27 +11,9 @@
 			<span class="recent-crawl-num-files">(@site.getLatestCrawl().getNumRetrievedFiles() Retrieved Files)</span>
 			<span class="recent-crawl-num-files"> -- @site.getLatestCrawl().getSeed()</span>
 			<p class="recent-redirect-resolve"> Last Redirect Resolve : @site.getRedirectResolveDate()</p>
-			<p class="review-reason">Reasons for Review: @site.getReviewReason()</p>
 		}
 	</div>
 	<div class="site-review">
-		@if(site.getSuggestedHomepage() != null) {
-		<div class="redirect-resolve-review">
-			<h4>Suggested by Redirect Resolve</h4>
-			<p class="site-suggested-homepage"><a href="@site.getSuggestedHomepage()" target="_blank">@site.getSuggestedHomepage()</a></p>
-			<div class="homepage-action-buttons">
-				
-				@helper.form(action = routes.DataEditor.acceptSuggested, 'id -> "acceptSuggestedForm", 'class -> "faux-submit") {
-					<input type="hidden" name="crawlSetId" value="@crawlSet.getCrawlSetId()"/>
-					<input type="hidden" name="siteId" value="@site.getSiteId()"/>
-					<input type="hidden" name="isNotable" value="false"/>
-					<button type="submit" name="accept-button">Accept</button>
-					<button type="submit" name="accept-and-mark-button" onclick="this.form.elements['isNotable'].value = 'true';">Notable Accept</button>
-					<button type="submit" name="ignore-button" onclick="this.form.action='@routes.DataEditor.ignoreSuggested'">Ignore</button>
-				}
-			</div>
-		</div>
-		}
 		<div class="general-review">
 			<h4>General Site Review</h4>
 			@helper.form(action = routes.DataEditor.setHomepage, 'id -> "acceptSuggestedForm", 'class -> "faux-submit") {

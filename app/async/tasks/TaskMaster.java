@@ -15,7 +15,7 @@ public class TaskMaster {
 		System.out.println("TaskMaster initializing master with " + numWorkers + " workers");
 		ActorRef master = Asyncleton.getInstance().getGenericMaster(numWorkers);
 		for(Task task : taskSet.getTasks()) {
-			if(count < numToProcess && task.getWorkStatus() == WorkStatus.DO_WORK){
+			if(count < numToProcess && (task.getWorkStatus() == WorkStatus.DO_WORK || task.getWorkStatus()== WorkStatus.MORE_WORK)){
 				count++;
 				if(count < offset){
 					continue;

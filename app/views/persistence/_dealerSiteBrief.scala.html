@@ -19,27 +19,7 @@
 	<div>
 		<span class="site-homepage"><a href="@dealer.getMainSite().getHomepage()" target="_blank">@dealer.getMainSite().getHomepage()</a></span>
 		
-		@if(dealer.getMainSite().getSuggestedHomepage() != null) {
-			<br>
-			<span class="site-suggested-homepage"><a href="@dealer.getMainSite().getSuggestedHomepage()" target="_blank">@dealer.getMainSite().getSuggestedHomepage()</a></span>
-			<div class="homepage-action-buttons">
-				<button type="button" class="ignore-button"<button type="button" class="ignore-button" onclick="$.get('/confirmHomepage?siteId=@dealer.getMainSite().getSiteId()&action=IGNORE')">Ignore</button>
-				<button type="button" class="mark-for-closing-button" onclick="$.get('/confirmHomepage?siteId=@dealer.getMainSite().getSiteId()&action=MARK_FOR_CLOSING')">Mark to Close</button>
-				<button type="button" class="mark-for-review-button" onclick="$.get('/confirmHomepage?siteId=@dealer.getMainSite().getSiteId()&action=MARK_FOR_REVIEW')">Mark to Review</button>
-				<button type="button" class="accept-button" onclick="$.get('/confirmHomepage?siteId=@dealer.getMainSite().getSiteId()&action=ACCEPT')">Accept</button>
-				<button type="button" class="accept-and-mark-button" onclick="$.get('/confirmHomepage?siteId=@dealer.getMainSite().getSiteId()&action=ACCEPT_AND_MARK_CHANGE')">Accept and Mark</button>
-				<button type="button" class="new-site-button" onclick="$.get('/confirmHomepage?siteId=@dealer.getMainSite().getSiteId()&action=NEW_SITE')">New Site</button>
-			</div>
-		}
-		@if(dealer.getMainSite().isHomepageNeedsReview || dealer.getMainSite().getCrawls().size() > 0) {
-			<br>
-			<div class="review-reason">Review Reason: @dealer.getMainSite().getReviewReason()</div>
-			<input type="text" class="homepage-input" value="@dealer.getMainSite().getHomepage()"/>
-			<button type="button" class="homepage-input-button" onclick="setHomepage($(this), @dealer.getMainSite().getSiteId(), true);">Set & Recheck</button>
-			<button type="button" class="homepage-input-button" onclick="setHomepage($(this), @dealer.getMainSite().getSiteId(), false);">Set & No Check</button>
-			<button type="button" class="mark-for-review-button" onclick="$.get('/confirmHomepage?siteId=@dealer.getMainSite().getSiteId()&action=MARK_FOR_REVIEW')">Mark to Review</button>
-			<button type="button" class="mark-for-closing-button" onclick="$.get('/confirmHomepage?siteId=@dealer.getMainSite().getSiteId()&action=MARK_FOR_CLOSING')">Mark to Close</button>
-		}
+		
 		@if(dealer.getMainSite().getCrawls().size() > 0) {
 			<div class="crawl-review-container">
 				<button type="button" class="approve-small-crawl-button" onclick="approveSmallCrawl(@dealer.getMainSite().getSiteId())">Approve Small Crawl</button>

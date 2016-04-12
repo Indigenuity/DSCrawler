@@ -54,51 +54,47 @@ public class SiteImportTool extends Tool {
 	@Override
 	protected Task safeDoTask(Task task) {
 		System.out.println("SiteImportTool importing with task : " + task.getTaskId());
-		try{
-			Long urlCheckId = Long.parseLong(task.getContextItem("urlCheckId"));
-			Boolean franchise = Boolean.parseBoolean(task.getContextItem("franchise"));
-			
-			JPA.withTransaction( () -> {
-				UrlCheck urlCheck = JPA.em().find(UrlCheck.class, urlCheckId);
-				Site existingSite = SitesDAO.getFirst("homepage", urlCheck.getResolvedSeed(), 0);
-				
-				if(existingSite == null) {
-					if(urlCheck.isAllApproved() || urlCheck.isManuallyApproved()){
-						Site site = new Site();
-						site.setHomepage(urlCheck.getResolvedSeed());
-						site.setDomain(urlCheck.getResolvedHost());
-						site.setFranchise(franchise);
-						site.setCreatedDate(new java.sql.Date(Calendar.getInstance().getTime().getTime()));
-						site.setRedirectResolveDate(new java.sql.Date(Calendar.getInstance().getTime().getTime()));
-						site.setLanguagePath(urlCheck.isLanguagePath());
-						site.setLanguageQuery(urlCheck.isLanguageQuery());
-						urlCheck.setAccepted(true);
-						
-						JPA.em().persist(site);
-						task.setWorkStatus(WorkStatus.WORK_COMPLETED);
-						task.addContextItem("siteId", site.getSiteId() + "");
-					}
-					else {
-						task.setNote("URL not fully approved");
-						task.setWorkStatus(WorkStatus.NEEDS_REVIEW);
-					}
+		Long urlCheckId = Long.parseLong(task.getContextItem("urlCheckId"));
+		Boolean franchise = Boolean.parseBoolean(task.getContextItem("franchise"));
+		
+		JPA.withTransaction( () -> {
+			UrlCheck urlCheck = JPA.em().find(UrlCheck.class, urlCheckId);
+			Site existingSite = SitesDAO.getFirst("homepage", urlCheck.getResolvedSeed(), 0);
+			if(existingSite == null) {
+				if(urlCheck.isAllApproved() || urlCheck.isManuallyApproved()){
+					Site site = new Site();
+					site.setHomepage(urlCheck.getResolvedSeed());
+//					site.setDomain(urlCheck.getResolvedHost());
+					site.setFranchise(franchise);
+					site.setCreatedDate(new java.sql.Date(Calendar.getInstance().getTime().getTime()));
+					site.setRedirectResolveDate(new java.sql.Date(Calendar.getInstance().getTime().getTime()));
+					site.setLanguagePath(urlCheck.isLanguagePath());
+					site.setLanguageQuery(urlCheck.isLanguageQuery());
+					site.setSharedSite(urlCheck.isSharedSite());
+					urlCheck.setAccepted(true);
+					
+					JPA.em().persist(site);
+					task.setWorkStatus(WorkStatus.WORK_COMPLETED);
+					task.addContextItem("siteId", site.getSiteId() + "");
 				}
 				else {
-					task.setNote("Site already exists with this homepage");
-					task.setWorkStatus(WorkStatus.WORK_COMPLETED);
-					task.addContextItem("siteId", existingSite.getSiteId() + "");
+					task.setNote("URL not fully approved");
+					task.setWorkStatus(WorkStatus.NEEDS_REVIEW);
 				}
-			});
+			}
+			else {
+				task.setNote("Site already exists with this homepage");
+				task.setWorkStatus(WorkStatus.WORK_COMPLETED);
+				task.addContextItem("siteId", existingSite.getSiteId() + "");
+			}
+		});
 			
-		}
-		catch(Exception e) {
-			Logger.error("Error in Site Import T: " + e);
-			e.printStackTrace();
-			task.setWorkStatus(WorkStatus.NEEDS_REVIEW);
-			task.setNote(e.getClass().getSimpleName() + " : " + e.getMessage());
-		}
 		return task;
 	}
 
+	@Override
+	protected Task safeDoMore(Task task){
+		return safeDoTask(task);
+	}
 
 }

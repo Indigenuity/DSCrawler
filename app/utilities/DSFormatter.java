@@ -149,13 +149,24 @@ public class DSFormatter {
 		return returned;
 	}
 	
+	public static String removeHttp(String original) {
+		
+		String returned = original.toLowerCase();
+		returned = returned.replaceAll("http://", "");
+		returned = returned.replaceAll("https://", "");
+		
+		return returned;
+	}
+	
 	public static String removeLanguage(String original) {
 		String returned = original.toLowerCase();
+		for(ValidPathMatch langPath : ValidPathMatch.langValues()){
+			returned = returned.replaceAll(langPath.definition + "$", "/");	//We only want to replace paths at the end of the string
+		}
+		for(ValidQueryMatch langQuery : ValidQueryMatch.langValues()){
+			returned = returned.replace("?" + langQuery.definition, "");			//Leave rest of query intact, excluding '?' character.  This may result in invalid URL.
+		}
 //		System.out.println("original :" + original);
-		returned = returned.replaceAll("/en$", "/");
-		returned = returned.replaceAll("/fr$", "/");
-		returned = returned.replaceAll("/en/$", "/");
-		returned = returned.replaceAll("/fr/$", "/");
 //		System.out.println("removed : " + returned);
 		return returned;
 	}
@@ -251,7 +262,7 @@ public class DSFormatter {
 		}
 		String domain = original.toLowerCase();
 		for(InvalidDomain match : InvalidDomain.values()) {
-			if(domain.contains(match.definition)) {
+			if(domain.matches(match.definition)) {
 				return false;
 			}
 		}

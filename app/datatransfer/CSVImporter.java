@@ -415,7 +415,7 @@ public class CSVImporter {
 			System.out.println("getting redirect");
 			homepage = UrlSniffer.getRedirectedUrl(homepage);
 			newSite.setHomepage(url);
-			newSite.setDomain(DSFormatter.getDomain(homepage));
+//			newSite.setDomain(DSFormatter.getDomain(homepage));
 			
 			newDealer.setDatasource(Datasource.OEM);
 			newDealer.setDealerName(name);

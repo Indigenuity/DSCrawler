@@ -89,7 +89,6 @@ public class GenericMaster extends UntypedActor {
 				customer.tell(workResult, getSelf());
 				if(waitingRoom.size() == 0) {
 					System.out.println("shutting down master and children");
-					CSVGenerator.generateInventoryCountReport();
 					context().stop(getSelf());
 				}
 			}

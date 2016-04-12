@@ -2,6 +2,7 @@ package async.work;
 
 
 import java.util.HashSet;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import akka.actor.ActorRef;
@@ -20,7 +21,6 @@ public class Worker extends UntypedActor {
 
 	@Override
 	public void onReceive(Object arg0) throws Exception {
-		System.out.println("arg0 : " + arg0);
 		WorkOrder workOrder = (WorkOrder) arg0;
 		WorkResult workResult = doWorkOrder(workOrder);
 		getSender().tell(workResult, ActorRef.noSender());
@@ -78,7 +78,14 @@ public class Worker extends UntypedActor {
 	private static Task doSingleTask(Task task) {
 //		System.out.println("Worker doing single task : " + task.getTaskId());
 		Tool tool = ToolGuide.findTool(task.getWorkType());
-		task = tool.doTask(task);
+		
+		if(task.getWorkStatus() == WorkStatus.DO_WORK){
+			task = tool.doTask(task);
+		} else if(task.getWorkStatus() == WorkStatus.MORE_WORK){
+			task = tool.doMore(task);
+		} else{
+			throw new IllegalStateException("Worker attempting to perform illegal task : " + task.getTaskId());
+		}
 		return task;
 	}
 	
@@ -119,6 +126,7 @@ public class Worker extends UntypedActor {
 		try{
 			loadContextItems(subtask);
 			subtask = doSingleTask(subtask);
+			unloadContextItems(subtask);
 			if(subtask.getWorkStatus() != WorkStatus.WORK_COMPLETED){
 				supertask.setWorkStatus(WorkStatus.NEEDS_REVIEW);
 				supertask.setNote("Subtask did not complete : " + subtask.getNote());
@@ -127,7 +135,7 @@ public class Worker extends UntypedActor {
 				return false;
 			}
 			
-			unloadContextItems(subtask);
+			
 			saveTask(subtask);
 			saveTask(supertask);
 			return true;
@@ -151,11 +159,14 @@ public class Worker extends UntypedActor {
 		Task supertask = subtask.getSupertask();
 		RegistryEntry entry = WorkerRegistry.getInstance().getRegistrant(subtask.getWorkType());
 		for(ContextItem item : entry.getRequiredContextItems()){
-			if(subtask.getContextItem(item.getName()) == null) {
-				String superContextItem = supertask.getContextItem(item.getName());
-				if(superContextItem == null && !item.isNullable()){
+			String superContextItem = supertask.getContextItem(item.getName());
+			if(superContextItem == null){
+				if(!item.isNullable() && subtask.getContextItem(item.getName()) == null){
 					throw new MissingContextItemException("Task missing required context item : " + item.getName());
 				}
+				// Else do nothing because task already has required item, no need to worry about missing item
+			}
+			else{	//Overwrite existing item
 				subtask.addContextItem(item.getName(), superContextItem);
 			}
 		}
@@ -170,6 +181,9 @@ public class Worker extends UntypedActor {
 				throw new MissingContextItemException("Task missing result context item : " + item.getName());
 			}
 			supertask.addContextItem(item.getName(), resultContextItem);
+		}
+		for(Entry<String, String> temp : subtask.getContextItems().entrySet()){
+			supertask.addContextItem(temp.getKey(), temp.getValue());
 		}
 	}
 	
@@ -186,7 +200,7 @@ public class Worker extends UntypedActor {
 	
 	private static Task getNextSubtask(Task supertask){
 		for(Task subtask : supertask.getSubtasks()){
-			if(subtask.getWorkStatus() == WorkStatus.DO_WORK && subtask.prereqsSatisfied()){
+			if((subtask.getWorkStatus() == WorkStatus.DO_WORK || subtask.getWorkStatus() == WorkStatus.MORE_WORK) && subtask.prereqsSatisfied()){
 				return subtask;
 			}
 		}
@@ -214,7 +228,7 @@ public class Worker extends UntypedActor {
 	
 	private static boolean hasMoreWork(Task supertask) {
 		for(Task subtask : supertask.getSubtasks()){
-			if(subtask.getWorkStatus() == WorkStatus.DO_WORK){
+			if(subtask.getWorkStatus() == WorkStatus.DO_WORK || subtask.getWorkStatus() == WorkStatus.MORE_WORK){
 				return true;
 			}
 		}

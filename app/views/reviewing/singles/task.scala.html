@@ -1,13 +1,31 @@
 @import _root_.async.work.WorkStatus
 @import _root_.async.work.WorkType
+@import play.db.jpa.JPA
+@import _root_.persistence.UrlCheck
 @(task : _root_.persistence.tasks.Task)
 
-<div class="review-task">
+<div class="review-task faux-submit-container">
 	<h3>Task @task.getTaskId()</h3>
-	<p>WorkType : @task.getWorkType()</p>
-	<p>WorkStatus : @task.getWorkStatus()</p>
-	<p>Note : @task.getNote()</p>
-	<table>
+	<table class="attributes">
+		<tr>
+			<td>WorkType</td>
+			<td>@task.getWorkType()</td>
+		</tr>
+		<tr>
+			<td>WorkStatus</td>
+			<td>@task.getWorkStatus()</td>
+		</tr>
+		<tr>
+			<td>Note</td>
+			<td>@task.getNote()</td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+		</tr>
+		
+	</table>
+	<table class="context-items">
 		@for((key,value) <- task.getContextItems()){
 			<tr>
 				<td>@key</td>
@@ -15,9 +33,10 @@
 			</tr>
 		}
 	</table>
-	<form class="task-review-form" method="POST">
+	<form class="task-review-form faux-submit" method="POST" action="/submitTaskReview">
 	
 		<input type="hidden" name="taskId" value="@task.getTaskId()"/>
+		<input type="hidden" name="action" value="none"/>
 		@if(task.getTaskSet() != null){
 			<input type="hidden" name="taskSetId" value="@task.getTaskSet().getTaskSetId()"/>
 		}
@@ -25,9 +44,15 @@
 			<input type="hidden" name="supertaskId" value="@task.getSupertask().getTaskId()"/>
 		}
 		
-		@for((key,value) <- task.getContextItems()){
-			@reviewing.singles.contextItem(key, value)
+		@if(task.getWorkType() == WorkType.REDIRECT_RESOLVE){
+			@if(task.getContextItem("urlCheckId") != null){
+				@reviewing.singles.urlCheck(JPA.em().find(classOf[UrlCheck], Long.parseLong(task.getContextItem("urlCheckId"))))
+			} else {
+				<p>No UrlCheckId</p>
+			}
+			
 		}
+		<button type="submit" class="more-button">Send Back for More</button>
 	</form>
 	@if(task.getSubtasks().size() > 0){
 		<div class="subtasks">
@@ -37,11 +62,6 @@
 				
 					<div class="indented subtask">
 						@reviewing.singles.task(subtask)
-						<div class="context-items">
-							@for((key, value) <- subtask.getContextItems()){
-								@reviewing.singles.contextItem(key, value)
-							}
-						</div>
 					</div>
 				}
 			}

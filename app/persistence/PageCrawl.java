@@ -23,9 +23,14 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyEnumerated;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import datadefinitions.OEM;
 import utilities.DSFormatter;
@@ -34,6 +39,13 @@ import utilities.DSFormatter;
 // Eager fetch all collections.  Any time you're dealing with individual pages, assume you need data
 
 @Entity
+@NamedEntityGraph(name="pageCrawlFull", attributeNodes={
+		@NamedAttributeNode("links"),
+		@NamedAttributeNode("metatags"),
+		@NamedAttributeNode("imageTags"),
+		@NamedAttributeNode("brandMatchCounts"),
+		@NamedAttributeNode("metaBrandMatchCounts")
+})
 public class PageCrawl {
 	
 	@Id
@@ -77,27 +89,32 @@ public class PageCrawl {
 
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	@ElementCollection(fetch=FetchType.LAZY)
+	@Fetch(FetchMode.SELECT)
 	private Set<String> links = new HashSet<String>();
 	
 //	@Transient 
-	@ManyToMany(cascade=CascadeType.ALL,fetch=FetchType.EAGER)
+	@ManyToMany(cascade=CascadeType.ALL,fetch=FetchType.LAZY)
+	@Fetch(FetchMode.SELECT)
 	private Set<Metatag> metatags = new HashSet<Metatag>();
 	
 	@ManyToMany(cascade=CascadeType.ALL,fetch=FetchType.LAZY)
+	@Fetch(FetchMode.SELECT)
 	private Set<ImageTag> imageTags = new HashSet<ImageTag>();
 	
-	@OneToOne(cascade=CascadeType.ALL,fetch=FetchType.LAZY)
+	@OneToOne(cascade=CascadeType.ALL)
 	private Metatag metaTitle = null;
 	 
-	@OneToOne(cascade=CascadeType.ALL,fetch=FetchType.LAZY)
+	@OneToOne(cascade=CascadeType.ALL)
 	private Metatag metaDescription = null;
 	
-	@ElementCollection(fetch=FetchType.EAGER)
+	@ElementCollection(fetch=FetchType.LAZY)
 	@MapKeyEnumerated(EnumType.STRING)
+	@Fetch(FetchMode.SELECT)
 	private Map<OEM, Integer> brandMatchCounts = new HashMap<OEM, Integer>();
 	
-	@ElementCollection(fetch=FetchType.EAGER)
+	@ElementCollection(fetch=FetchType.LAZY)
 	@MapKeyEnumerated(EnumType.STRING)
+	@Fetch(FetchMode.SELECT)
 	private Map<OEM, Integer> metaBrandMatchCounts = new HashMap<OEM, Integer>();
 	
 	@Column(nullable = false, columnDefinition="boolean default false")
@@ -134,7 +151,7 @@ public class PageCrawl {
 	@Column(nullable = false, columnDefinition="boolean default false")
 	private boolean urlClean = false;
 	
-	@OneToOne(cascade=CascadeType.ALL, fetch=FetchType.EAGER, orphanRemoval=false)
+	@OneToOne(cascade=CascadeType.ALL, orphanRemoval=false)
 	private InventoryNumber inventoryNumber = new InventoryNumber();
 
 	public long getPageCrawlId() {

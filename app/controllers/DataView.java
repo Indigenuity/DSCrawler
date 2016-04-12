@@ -1,6 +1,7 @@
 package controllers;
 
 
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.persistence.metamodel.EntityType;
@@ -12,6 +13,7 @@ import dao.StatsDAO;
 import datatransfer.FileMover;
 import async.monitoring.AsyncMonitor;
 import async.work.WorkStatus;
+import async.work.WorkType;
 import persistence.CrawlSet;
 import persistence.Site;
 import persistence.SiteCrawl;
@@ -28,10 +30,21 @@ import reporting.DashboardStats;
 public class DataView extends Controller { 
 	
 	@Transactional
-	public static Result reviewTasks(long taskSetId, int count, int offset){
-		List<Task> tasks = JPA.em().createQuery("select t from TaskSet ts join ts.tasks t where ts.taskSetId = :taskSetId and t.workStatus = :workStatus", Task.class)
-				.setParameter("taskSetId", taskSetId).setParameter("workStatus", WorkStatus.NEEDS_REVIEW)
+	public static Result reviewTasks(long taskSetId, int count, int offset, String workType){
+		List<Task> tasks = JPA.em().createQuery("select tOuter from Task tOuter where (select count(s) from TaskSet ts join ts.tasks t join t.subtasks s where ts.taskSetId = :taskSetId and s.workStatus = :workStatus and s.workType = :workType and t.taskId = tOuter.taskId) > 0", Task.class)
+				.setParameter("taskSetId", taskSetId).setParameter("workStatus", WorkStatus.NEEDS_REVIEW).setParameter("workType", WorkType.valueOf(workType))
 				.setFirstResult(offset).setMaxResults(count).getResultList();
+		System.out.println("count : " + count);
+		System.out.println("offset : " + offset);
+		System.out.println("reviewing " + tasks.size() + " tasks");
+		return ok(views.html.reviewing.lists.taskList.render(tasks));
+	}
+	
+	@Transactional
+	public static Result reviewSubtasks(long taskSetId, int count, int offset, String workType){
+		List<Task> tasks = JPA.em().createQuery("select t from TaskSet ts join ts.tasks t st where ts.taskSetId = :taskSetId and t.workStatus = :taskWorkStatus and st.workStatus = :subtaskWorkStatus and st.workType = :workType", Task.class)
+				.setParameter("taskSetId", taskSetId).setParameter("subtaskWorkStatus", WorkStatus.NEEDS_REVIEW).setParameter("workType", WorkType.valueOf(workType))
+				.setParameter("taskWorkStatus", WorkStatus.NEEDS_REVIEW).setFirstResult(offset).setMaxResults(count).getResultList();
 		System.out.println("count : " + count);
 		System.out.println("offset : " + offset);
 		System.out.println("reviewing " + tasks.size() + " tasks");
@@ -46,7 +59,7 @@ public class DataView extends Controller {
 	}
 	
 	@Transactional
-	public static Result taskSet(long taskSetId) {
+	public static Result taskSet(long taskSetId) throws SQLException {
 		TaskSet taskSet = JPA.em().find(TaskSet.class, taskSetId);
 		DashboardStats stats = StatsDAO.getTaskSetStats(taskSet);
 		return ok(views.html.persistence.taskSet.render(taskSet, stats));
@@ -100,7 +113,7 @@ public class DataView extends Controller {
 	public static Result dashboardStats() {
 		DashboardStats franchiseStats = StatsDAO.getSiteStats(true);
 		DashboardStats independentStats = StatsDAO.getSiteStats(false);
-		return ok(views.html.dashboardstats.render(franchiseStats, independentStats)); 
+		return ok(views.html.viewstats.dashboardstats.render(franchiseStats, independentStats)); 
 	}
 	
 	public static Result getMonitoringQueues() {

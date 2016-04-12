@@ -141,6 +141,11 @@ public class Application extends Controller {
     	return ok(views.html.duplicateDomains.render(items));
     }
     
+    public static Result createTaskSetForm(){
+    	
+    	return ok(views.html.tasks.newTaskSetForm.render());
+    }
+    
     @Transactional
     public static Result groupSites(int numToProcess, int offset) {
     	String query = "from Site s where s.groupSite = true and showToMatt = true";

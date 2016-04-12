@@ -55,7 +55,6 @@ public class CustomTool extends Tool {
 			Long siteId = 1L;
 			JPA.withTransaction( () -> {
 				Site site= JPA.em().find(Site.class, siteId);
-				site.setDomain("www.stackoverflow.com");
 			});
 			System.out.println("did work on seed : " + seed);
 //			if(true)

@@ -1,11 +1,7 @@
 package agarbagefolder;
 
-import persistence.SiteInformationOld;
 import play.Logger;
-import agarbagefolder.sniffer.SnifferWorker;
 import akka.actor.UntypedActor;
-import async.async.Asyncleton;
-import async.monitoring.AsyncMonitor;
 import async.monitoring.AsyncMonitor.CompletedWork;
 import async.monitoring.AsyncMonitor.WorkInProgress;
 

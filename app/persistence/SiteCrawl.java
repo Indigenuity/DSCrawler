@@ -25,10 +25,15 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyEnumerated;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
+import javax.persistence.NamedSubgraph;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -47,76 +52,48 @@ import datadefinitions.newdefinitions.WPClue;
 //Lazy fetch all collections
 
 @Entity
+@NamedEntityGraph(name="siteCrawlFull", 
+	attributeNodes={
+		@NamedAttributeNode(value="pageCrawls", subgraph="pageCrawlFull"),
+		
+	}, 
+	subgraphs = {
+		@NamedSubgraph(name="pageCrawlFull", attributeNodes = {
+			@NamedAttributeNode("links"),
+			@NamedAttributeNode("metatags"),
+			@NamedAttributeNode("imageTags"),
+			@NamedAttributeNode("brandMatchCounts"),
+			@NamedAttributeNode("metaBrandMatchCounts")
+		})
+}
+	
+)
 public class SiteCrawl {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	protected long siteCrawlId;
 	
-	
-	@ManyToOne(cascade=CascadeType.DETACH)
+	@ManyToOne(cascade=CascadeType.DETACH, fetch=FetchType.LAZY)
 	@JoinTable(name="site_sitecrawl", 
 			joinColumns={@JoinColumn(name="crawls_siteCrawlId")},
 		    inverseJoinColumns={@JoinColumn(name="Site_siteId")})
-//	@Transient
 	private Site site;
 	
+	/**************Crawl Basics and Config***********************************************/
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	private String seed;
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	private String resolvedSeed;
 	
-	@OneToOne
-	@JoinColumn(name="siteCrawlStatsId")
-	private SiteCrawlStats siteCrawlStats;
-	
-	@Column(nullable = false, columnDefinition="boolean default true")
-	private boolean followNonUnique = true;
-	
 	private Date crawlDate;
-	
 	private int crawlDepth;
-	
-	@Column(nullable = false, columnDefinition="boolean default false")
+	private boolean followNonUnique = true;
 	private boolean homepageCrawl = false;
 	
-	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval= true)
-	@JoinTable(name="sitecrawl_pagecrawl",
-		joinColumns={@JoinColumn(name="SiteCrawl_siteCrawlId")},
-		inverseJoinColumns={@JoinColumn(name="pageCrawls_pageCrawlId")})
-	@LazyCollection(LazyCollectionOption.EXTRA)
-	private Set<PageCrawl> pageCrawls = new HashSet<PageCrawl>();
-	
-	@Enumerated(EnumType.STRING)
-	private InventoryType inventoryType;
-	
-	@OneToOne
-	private PageCrawl newInventoryPage;
-	@OneToOne
-	private PageCrawl usedInventoryPage;
-	
-	@OneToOne(cascade=CascadeType.ALL)
-	private InventoryNumber maxInventoryCount;
-	
-	@ElementCollection(fetch=FetchType.LAZY)
-	@MapKeyEnumerated(EnumType.STRING)
-	private Map<OEM, Double> brandMatchAverages = new HashMap<OEM, Double>();
-	
-	@ElementCollection(fetch=FetchType.LAZY)
-	@MapKeyEnumerated(EnumType.STRING)
-	private Map<OEM, Double> metaBrandMatchAverages = new HashMap<OEM, Double>();
-	
-	@Column(nullable = true, columnDefinition="varchar(4000)")
-	@ElementCollection(fetch=FetchType.LAZY)
-	private Set<String> allLinks = new HashSet<String>();
-	@Column(nullable = true, columnDefinition="varchar(4000)")
-	@ElementCollection(fetch=FetchType.LAZY)
-	private Set<String> intrasiteLinks = new HashSet<String>();
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	@ElementCollection(fetch=FetchType.LAZY)
 	private Set<String> uniqueCrawledPageUrls = new HashSet<String>();		//Involves chopping off query strings
-	
-	
 	@Column(columnDefinition="varchar(4000)")
 	@ElementCollection(fetch=FetchType.LAZY)
 	private Set<String> crawledUrls = new HashSet<String>();		//Includes failed urls
@@ -127,29 +104,63 @@ public class SiteCrawl {
 	@Column(nullable = true, columnDefinition="varchar(1000)")
 	private String storageFolder;
 	
-	@Column(nullable = false, columnDefinition="boolean default false")
 	private boolean maxPagesReached = false;
-	@Column(nullable = false, columnDefinition="int(11) default 0")
 	private int numRepeatedUrls = 0;
-	@Column(nullable = false, columnDefinition="int(11) default 0")
 	private int numRetrievedFiles = 0;
-	@Column(nullable = false, columnDefinition="int(11) default 0")
 	private int numLargeFiles = 0;
-	@Column(nullable = false, columnDefinition="boolean default false")
 	private boolean smallCrawlApproved = false;
-	@Column(nullable = false, columnDefinition="boolean default false")
+	
+	/****************************************  Stateful metadata ***********************/
+	
 	private boolean reviewLater = false;
-
-	@Convert(converter = WebProviderConverter.class)
-	@ElementCollection(fetch=FetchType.LAZY)
-	protected Set<WebProvider> webProviders = new HashSet<WebProvider>();
+	protected boolean crawlingDone = false;
+	protected boolean docAnalysisDone = false;
+	protected boolean amalgamationDone = false;
+	protected boolean textAnalysisDone = false;
+	protected boolean metaAnalysisDone = false;
+	protected boolean inferencesDone = false;
+	protected boolean filesMoved = false;
+	protected boolean filesDeleted = false;
+	protected boolean maybeDuplicate = false;
 	
-	@Enumerated(EnumType.STRING)
-	@ElementCollection(fetch=FetchType.LAZY)
-	protected Set<WPAttribution> wpAttributions = new HashSet<WPAttribution>();
 	
-	@Enumerated(EnumType.STRING)
-	protected datadefinitions.newdefinitions.WebProvider webProvider;
+	/********************************************* Relationships *********************************/
+	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval= true)
+	@JoinTable(name="sitecrawl_pagecrawl",
+		joinColumns={@JoinColumn(name="SiteCrawl_siteCrawlId")},
+		inverseJoinColumns={@JoinColumn(name="pageCrawls_pageCrawlId")})
+	@LazyCollection(LazyCollectionOption.EXTRA)
+	private Set<PageCrawl> pageCrawls = new HashSet<PageCrawl>();
+	@ManyToOne(fetch=FetchType.LAZY)
+	private PageCrawl newInventoryPage;
+	@ManyToOne(fetch=FetchType.LAZY)
+	private PageCrawl usedInventoryPage;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="siteCrawlStatsId")
+	private SiteCrawlStats siteCrawlStats;
+	
+	@ManyToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
+	protected Set<FBPage> fbPages = new HashSet<FBPage>();
+	
+	
+	/******************************************  Calculated Attributes Collections ***********************************/
+	
+	@Column(nullable = true, columnDefinition="varchar(4000)")
+	@ElementCollection(fetch=FetchType.LAZY)
+	private Set<String> allLinks = new HashSet<String>();
+	
+	@Column(nullable = true, columnDefinition="varchar(4000)")
+	@ElementCollection(fetch=FetchType.LAZY)
+	private Set<String> intrasiteLinks = new HashSet<String>();
+	
+	@ElementCollection(fetch=FetchType.LAZY)
+	@MapKeyEnumerated(EnumType.STRING)
+	private Map<OEM, Double> metaBrandMatchAverages = new HashMap<OEM, Double>();
+	
+	@ElementCollection(fetch=FetchType.LAZY)
+	@MapKeyEnumerated(EnumType.STRING)
+	private Map<OEM, Double> brandMatchAverages = new HashMap<OEM, Double>();
 	
 	@Enumerated(EnumType.STRING)
 	@ElementCollection(fetch=FetchType.LAZY)
@@ -165,47 +176,23 @@ public class SiteCrawl {
 	
 	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, orphanRemoval=true)
 	protected Set<ExtractedString> extractedStrings = new HashSet<ExtractedString>();
+	
 	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, orphanRemoval=true)
 	protected Set<ExtractedUrl> extractedUrls = new HashSet<ExtractedUrl>();
+	
+	@Convert(converter = WebProviderConverter.class)
+	@ElementCollection(fetch=FetchType.LAZY)
+	protected Set<WebProvider> webProviders = new HashSet<WebProvider>();
+	
+	@Enumerated(EnumType.STRING)
+	@ElementCollection(fetch=FetchType.LAZY)
+	protected Set<WPAttribution> wpAttributions = new HashSet<WPAttribution>();
 	
 	@OneToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval=true)
 	protected Set<Staff> allStaff = new HashSet<Staff>();
 	
-	@Convert(converter = WebProviderConverter.class)
-	@Column(nullable = true)
-	protected WebProvider inferredWebProvider;
-	
-	
-	@Column(nullable = false, columnDefinition="boolean default false")
-	protected boolean crawlingDone = false;
-	@Column(nullable = false, columnDefinition="boolean default false")
-	protected boolean docAnalysisDone = false;
-	@Column(nullable = false, columnDefinition="boolean default false")
-	protected boolean amalgamationDone = false;
-	@Column(nullable = false, columnDefinition="boolean default false")
-	protected boolean textAnalysisDone = false;
-	@Column(nullable = false, columnDefinition="boolean default false")
-	protected boolean metaAnalysisDone = false;
-	@Column(nullable = false, columnDefinition="boolean default false")
-	protected boolean inferencesDone = false;
-	 
-	@Column(nullable = false, columnDefinition="boolean default false")
-	protected boolean filesMoved = false;
-	
-	@Column(nullable = false, columnDefinition="boolean default false")
-	protected boolean filesDeleted = false;
-	
-	@Column(nullable = false, columnDefinition="boolean default false")
-	protected boolean maybeDuplicate = false;
-	
-	@ManyToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
-	protected Set<FBPage> fbPages = new HashSet<FBPage>();
-	
 	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, orphanRemoval=true)
 	private Set<InventoryNumber> inventoryNumbers = new HashSet<InventoryNumber>();
-	
-	
-	
 	
 //	@Column(columnDefinition="varchar(1000)")
 //	@ElementCollection(fetch=FetchType.LAZY)
@@ -214,6 +201,34 @@ public class SiteCrawl {
 //	@Column(columnDefinition="varchar(4000)")
 //	@ElementCollection(fetch=FetchType.LAZY)
 //	private Set<String> titles = new HashSet<String>();
+	
+	
+	/******************************************  Calculated Attributes Singles ***********************************/
+	@Enumerated(EnumType.STRING)
+	private InventoryType inventoryType;
+	
+	@Enumerated(EnumType.STRING)
+	protected datadefinitions.newdefinitions.WebProvider webProvider;
+	
+	@ManyToOne(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
+	private InventoryNumber maxInventoryCount;
+	
+	@Convert(converter = WebProviderConverter.class)
+	@Column(nullable = true)
+	protected WebProvider inferredWebProvider;
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
 	
 	
 	public SiteCrawl(String seed) {

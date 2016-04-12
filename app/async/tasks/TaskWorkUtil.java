@@ -1,5 +1,6 @@
 package async.tasks;
 
+import java.util.Collection;
 import java.util.Map.Entry;
 
 import async.registration.ContextItem;
@@ -7,6 +8,7 @@ import async.registration.RegistryEntry;
 import async.registration.WorkerRegistry;
 import async.work.WorkOrder;
 import async.work.WorkResult;
+import async.work.WorkType;
 import persistence.tasks.Task;
 
 public class TaskWorkUtil {
@@ -33,5 +35,9 @@ public class TaskWorkUtil {
 		for(Entry<String, String> entry : workResult.getContextItems().entrySet()){
 			task.addContextItem(entry.getKey(), entry.getValue());
 		}
+	}
+	
+	public static void createTaskSet(Collection<WorkType> workTypes){
+		
 	}
 }

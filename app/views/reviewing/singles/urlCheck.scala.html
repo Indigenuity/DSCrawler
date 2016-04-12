@@ -1,10 +1,32 @@
+@import _root_.utilities.DSFormatter
 @(urlCheck : _root_.persistence.UrlCheck)
 
 <div class="review-urlcheck">
 	<h4> UrlCheck @urlCheck.getUrlCheckId()</h4>
 	<input type="hidden" name="urlCheckId" value="@urlCheck.getUrlCheckId()">
-	<p>Seed : <a href="@urlCheck.getSeed()" target="_blank">@urlCheck.getSeed()</a></p>
-	<p>Seed : <a href="@urlCheck.getResolvedSeed()" target="_blank">@urlCheck.getResolvedSeed()</a></p>
-	<p>Status : @urlCheck.getStatusCode()</p>
-	<p>Error : @urlCheck.getErrorMessage()</p>
+	<input type="hidden" name="sharedSite" value="false">
+	<table class="attributes">
+		<tr>
+			<td>Seed</td>
+			<td><a href="@DSFormatter.toHttp(urlCheck.getSeed())" target="_blank">@urlCheck.getSeed()</a></td>
+		</tr>
+		<tr>
+			<td>Resolved Seed</td>
+			<td><a href="@urlCheck.getResolvedSeed()" target="_blank">@urlCheck.getResolvedSeed()</a></td>
+		</tr>
+		<tr>
+			<td>Status</td>
+			<td>@urlCheck.getStatusCode()</td>
+		</tr>
+		<tr>
+			<td>Error</td>
+			<td> @urlCheck.getErrorMessage()</td>
+		</tr>
+	</table>
+	<p><input type="text" name="manualSeed"  class="url-input" value="@urlCheck.getResolvedSeed()"> <button type="submit" class="manual-seed-button">Manually Resolve</button></p>
+	<button type="submit" class="approve-resolved-button">Approve Resolved</button>
+	<button type="submit" class="shared-site-button">Approve Shared Site</button>
+	<button type="submit" class="mark-defunct-button">Mark Defunct</button>
+	<button type="submit" class="recheck-button">Recheck</button>
+	
 </div>

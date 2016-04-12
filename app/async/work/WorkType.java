@@ -1,5 +1,7 @@
 package async.work;
 
+import java.util.Map;
+
 import agarbagefolder.InfoFetchWorker;
 import async.tools.AmalgamationTool;
 import async.tools.DataTransferWorker;
@@ -13,12 +15,14 @@ import async.tools.SiteImportTool;
 import async.tools.SiteUpdateTool;
 import async.tools.TextAnalysisTool;
 import async.tools.UrlResolveTool;
+import play.libs.F.Option;
+import play.mvc.QueryStringBindable;
 
  
 //The types of work to be done by workers in this program.
 //ORDER MATTERS. 
 //Higher tasks may need to be completed before lower tasks are possible to complete
-public enum WorkType {
+public enum WorkType{
 	NO_WORK						,
 	RESTORE						(DataTransferWorker.class), 
 	URL							, 
@@ -73,4 +77,5 @@ public enum WorkType {
 	public int getNumWorker() {
 		return this.numWorkers;
 	}
+
 }

@@ -18,6 +18,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 
 import async.work.WorkType;
+import dao.TaskDAO;
 
 @Entity
 public class TaskSet {
@@ -70,26 +71,35 @@ public class TaskSet {
 	}
 
 	public Set<Task> getTasks() {
-		return tasks;
+		Set<Task> returned = new HashSet<Task>();
+		returned.addAll(this.tasks);
+		return returned;
 	}
 
 	public void setTasks(Set<Task> tasks) {
 		this.tasks.clear();
-		this.tasks.addAll(tasks);
+		for(Task task : tasks){
+			addTask(task);
+		}
 	}
 	
 	public boolean addTask(Task task){
-		return this.tasks.add(task);
+		if(this.tasks.add(task)){
+			this.workTypes.add(task.getWorkType());
+			return true;
+		}
+		return false;
 	}
-
+	
 	public Set<WorkType> getWorkTypes() {
-		return workTypes;
+		Set<WorkType> returned = new HashSet<WorkType>();
+		returned.addAll(workTypes);
+		return returned;
+	}
+	
+	public void refreshWorkTypes() {
+		this.workTypes.clear();
+		this.workTypes.addAll(TaskDAO.getWorkTypes(this.taskSetId));
 	}
 
-	public void setWorkTypes(Set<WorkType> workTypes) {
-		this.workTypes.clear();
-		this.workTypes.addAll(workTypes);
-	}
-	
-	
 }

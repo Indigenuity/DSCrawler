@@ -11,6 +11,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
+import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
@@ -39,6 +40,9 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.ParameterExpression;
+import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.EntityType;
 
 import org.apache.commons.csv.CSVFormat;
@@ -135,10 +139,72 @@ public class Experiment {
 	
 	public static void runExperiment() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException, InterruptedException {
 		
+		TaskSet taskSet = JPA.em().find(TaskSet.class, 1L);
+		CSVGenerator.generateSiteImportReport(taskSet);
+		
+//		String with = "www.495chryslerjeepdodge.net";
+//		String wik = "http://www.495chryslerjeepdodge.net";
+//		System.out.println("generic : " + UrlSniffer.isGenericRedirect(wik, with));
+//		String without = with.replaceAll("/en/$", "/");
+//		System.out.println("without : " + without);
+//		String domain = "http://www.honda.com";
+//		System.out.println("approved domain : " + DSFormatter.isApprovedDomain(domain));
+//		fetchingBenchmark();
 //		modifyTaskSet();
-		CSVGenerator.generateInventoryCountReport();
+//		CSVGenerator.generateInventoryCountReport();
 //		PageCrawl pageCrawl = JPA.em().find(PageCrawl.class, 8798L);
 //		System.out.println("pagecrawl inventory : " + pageCrawl.getInventoryNumber());
+	}
+	
+	public static void fetchingBenchmark(){
+		Tim.start();
+		int count = 5000;
+		int offset = 0;
+		
+//		List<PageCrawl> pageCrawls = JPA.em().createQuery("from PageCrawl pc", PageCrawl.class).setMaxResults(count).setFirstResult(offset)
+//				.setHint("pageCrawlFull", JPA.em().getEntityGraph("pageCrawlFull"))
+//				.getResultList();
+		CriteriaBuilder builder = JPA.em().getCriteriaBuilder();
+		CriteriaQuery<SiteCrawl> q = builder.createQuery(SiteCrawl.class);
+		Root<SiteCrawl> root = q.from(SiteCrawl.class);
+		ParameterExpression<Long> id = builder.parameter(Long.class);
+//		root.fetch("pageCrawls");
+//		root.fetch("allLinks", JoinType.LEFT);
+//		root.fetch("uniqueCrawledPageUrls", JoinType.LEFT);
+//		root.fetch("crawledUrls", JoinType.LEFT);
+//		root.fetch("failedUrls", JoinType.LEFT);
+//		root.fetch("webProviders", JoinType.LEFT);
+//		root.fetch("schedulers", JoinType.LEFT);
+//		root.fetch("generalMatches", JoinType.LEFT);
+//		root.fetch("extractedStrings", JoinType.LEFT);
+//		root.fetch("extractedUrls", JoinType.LEFT);
+//		root.fetch("allStaff", JoinType.LEFT);
+//		root.fetch("fbPages", JoinType.LEFT);
+//		root.fetch("inventoryNumbers", JoinType.LEFT);
+//		root.fetch("brandMatchAverages", JoinType.LEFT);
+		
+		q.select(root).where(builder.equal(root.get("siteCrawlId"), id))
+		
+		;
+		
+		TypedQuery<SiteCrawl> typed = JPA.em().createQuery(q)
+//				.setHint("javax.persistence.loadgraph", JPA.em().getEntityGraph("siteCrawlFull"))
+				.setParameter(id, 5000L);
+		
+//		SiteCrawl siteCrawl = typed.getSingleResult();
+		List<SiteCrawl> siteCrawls = JPA.em().createQuery("from SiteCrawl sc", SiteCrawl.class).setMaxResults(count).getResultList();
+		Tim.intermediate();
+		for(SiteCrawl siteCrawl : siteCrawls){
+			siteCrawl.getSite().getHomepage();
+//			siteCrawl.initAll();
+		}
+//		System.out.println("siteCrawl : " + siteCrawls.get(0).getUniqueCrawledPageUrls().toArray()[0]);
+//		System.out.println("pagecrawl : " + ((PageCrawl)siteCrawl.getPageCrawls().toArray()[5]).getImageTags().size());
+//		Tim.intermediate();
+//		List<PageCrawl> pageCrawls = JPA.em().createQuery("from PageCrawl pc", PageCrawl.class)
+////				.setHint("javax.persistence.loadgraph", JPA.em().getEntityGraph("pageCrawlFull"))
+//				.setMaxResults(count).getResultList();
+		Tim.end();
 	}
 	
 	public static void invTask() throws Exception {
@@ -189,11 +255,7 @@ public class Experiment {
 				}
 			}
 			
-			if(supertask.getWorkStatus() == WorkStatus.WORK_COMPLETED){
-				analysis.setWorkStatus(WorkStatus.DO_WORK);
-//				inv.setWorkStatus(WorkStatus.DO_WORK);
-				supertask.setWorkStatus(WorkStatus.DO_WORK);
-			}
+			analysis.addPrerequisite(siteCrawl);
 			
 			
 			
@@ -582,7 +644,7 @@ public class Experiment {
 				String host = url.getHost().replace("www.", "");
 //				System.out.println("domain : " + site.getDomain());
 				System.out.println("host : "  + host);
-				site.setDomain(host);
+//				site.setDomain(host);
 			} catch (MalformedURLException e) {
 				System.out.println("Malformed url");
 			}

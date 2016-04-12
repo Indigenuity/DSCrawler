@@ -49,12 +49,13 @@ public class UrlSniffer {
 		return check;
 	}
 	
-	private static void fillMeta(UrlCheck check) {
+	public static void fillMeta(UrlCheck check) {
 		URL url;
 		URL oldUrl;
 		try{
-			oldUrl = new URL(check.getSeed());
+			oldUrl = new URL(DSFormatter.toHttp(check.getSeed()));
 			url = new URL(check.getResolvedSeed());
+			check.setValid(true);
 		}
 		catch(MalformedURLException e) {
 			check.setValid(false);
@@ -69,7 +70,7 @@ public class UrlSniffer {
 		if(DSFormatter.equals(check.getSeed(), check.getResolvedSeed())){
 			check.setNoChange(true);
 		}
-		else if(isGenericRedirect(check.getResolvedSeed(), check.getSeed())){
+		else if(isGenericRedirect(check.getSeed(), check.getResolvedSeed())){
 			check.setGenericChange(true);
 		}
 		
@@ -77,7 +78,6 @@ public class UrlSniffer {
 		check.setPathApproved(DSFormatter.isApprovedPath(url));
 		check.setLanguagePath(DSFormatter.isLanguagePath(url));
 		check.setLanguageQuery(DSFormatter.isLanguageQuery(url));
-		
 	}
 	
 	private static UrlCheck resolveCheck(UrlCheck check, int numRecursions) throws IOException {
@@ -159,20 +159,24 @@ public class UrlSniffer {
 		return con.getURL().toString().replace(":80", "");
 	}
 	
-	//Checks for www redirects, top-level (.com, .net) redirects, and language query strings
+	//Checks for http(s) additions/changes, www redirects, top-level (.com, .net) redirects, and language path and query string changes
 	public static boolean isGenericRedirect(String redirectUrl, String original) {
 		
 		if(redirectUrl == null || original == null)
 			return false;
 		if(redirectUrl.equals(original))
 			return true;
-		String sansRedirectUrl = DSFormatter.removeWww(redirectUrl);
-		String sansOriginal = DSFormatter.removeWww(original);
-		if(sansRedirectUrl.equals(sansOriginal))
+		String sansHttpRedirectUrl = DSFormatter.removeHttp(redirectUrl);
+		String sansHttpOriginal= DSFormatter.removeHttp(original);
+		if(sansHttpRedirectUrl.equals(sansHttpOriginal))
+			return true;
+		String sansWwwRedirectUrl = DSFormatter.removeWww(sansHttpRedirectUrl);
+		String sansWwwOriginal = DSFormatter.removeWww(sansHttpOriginal);
+		if(sansWwwRedirectUrl.equals(sansWwwOriginal))
 			return true;
 		
-		String comRedirectUrl = DSFormatter.toCom(sansRedirectUrl);
-		String comOriginal = DSFormatter.toCom(sansOriginal);
+		String comRedirectUrl = DSFormatter.toCom(sansWwwRedirectUrl);
+		String comOriginal = DSFormatter.toCom(sansWwwOriginal);
 		
 		if(comRedirectUrl.equals(comOriginal))
 			return true;
@@ -182,18 +186,10 @@ public class UrlSniffer {
 		if(langRedirectUrl.equals(langOriginal))
 			return true;
 		
-		
-		try {
-			URL validRedirectUrl = new URL(comRedirectUrl);
-			URL validOriginal = new URL(comOriginal);
-			String hostRedirectUrl = validRedirectUrl.getHost();
-			String hostOriginal = validOriginal.getHost();
-			if(hostRedirectUrl.equals(hostOriginal))
-				return true;
-		} catch (MalformedURLException e) {
-			return false;
-		}
-		
+		String noTrailingSlashRedirectUrl = langRedirectUrl.replaceAll("/$", "");
+		String noTrailingSlashOriginalUrl = langOriginal.replaceAll("/$", "");
+		if(noTrailingSlashRedirectUrl.equals(noTrailingSlashOriginalUrl))
+			return true;
 		
 		
 		return false;

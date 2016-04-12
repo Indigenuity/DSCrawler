@@ -54,34 +54,45 @@ public class UrlResolveTool extends Tool {
 	@Override
 	protected Task safeDoTask(Task task) {
 		System.out.println("UrlResolveTool processing Task : " + task.getTaskId());
-		try{
-			String seed = task.getContextItem("seed");
-			UrlCheck urlCheck = UrlSniffer.checkUrl(seed);
-			urlCheck.setCheckDate(new java.sql.Date(Calendar.getInstance().getTimeInMillis()));
-			JPA.withTransaction( () -> {
-				JPA.em().persist(urlCheck);				
-			});
+		String seed = task.getContextItem("seed");
+		UrlCheck urlCheck = UrlSniffer.checkUrl(seed);
+		urlCheck.setCheckDate(new java.sql.Date(Calendar.getInstance().getTimeInMillis()));
+		JPA.withTransaction( () -> {
+			JPA.em().persist(urlCheck);				
+		});
 //			System.out.println("id after persist : " + urlCheck.getUrlCheckId());
-			task.addContextItem("urlCheckId", urlCheck.getUrlCheckId() + "");
+		task.addContextItem("urlCheckId", urlCheck.getUrlCheckId() + "");
+		if(urlCheck.isAllApproved()){
+			task.setWorkStatus(WorkStatus.WORK_COMPLETED);
+		}
+		else{
+			task.setWorkStatus(WorkStatus.NEEDS_REVIEW);
+			task.setNote("URL not approved");
+		}
+//			System.out.println("UrlResolveWorker done processing work order");
+		return task;
+	}
+
+
+	//Doing 'more' work on a URL entails just re-checking approvals of URL form
+	@Override
+	protected Task safeDoMore(Task task) throws Exception{
+		System.out.println("UrlResolveTool processing Task : " + task.getTaskId());
+		
+		JPA.withTransaction( () -> {
+			UrlCheck urlCheck = JPA.em().find(UrlCheck.class, Long.parseLong(task.getContextItem("urlCheckId")));
+			UrlSniffer.fillMeta(urlCheck);
+			
 			if(urlCheck.isAllApproved()){
 				task.setWorkStatus(WorkStatus.WORK_COMPLETED);
 			}
 			else{
 				task.setWorkStatus(WorkStatus.NEEDS_REVIEW);
 				task.setNote("URL not approved");
-			}
-//			System.out.println("UrlResolveWorker done processing work order");
-		}
-		catch(Exception e) {
-			Logger.error("Error in Url Resolve: " + e);
-			e.printStackTrace();
-			task.setWorkStatus(WorkStatus.NEEDS_REVIEW);
-			task.setNote(e.getClass().getSimpleName() + " : " + e.getMessage());
-		}
+			}	
+		});
 		return task;
 	}
-
-
 	
 	
 

@@ -1,6 +1,6 @@
 package datadefinitions;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 
@@ -24,11 +24,14 @@ public enum ValidPathMatch {
 	HOME3		("/home.html"),
 	HOME4		("/Home.aspx"),
 	FRENCH		("/fr/", true),
-	ENGLISH		("/en/", true);
+	FRENCH2		("/fr", true),
+	ENGLISH		("/en/", true),
+	ENGLISH2	("/en", true),
+	ENGLISH3	("/eng/", true);
 	
 	public final String definition;
 	public final boolean language;
-	private static final Set<ValidPathMatch> langPaths = new HashSet<ValidPathMatch>();
+	private static final Set<ValidPathMatch> langPaths = new LinkedHashSet<ValidPathMatch>();
 	static {
 		for(ValidPathMatch match : values()){
 			if(match.language){
@@ -47,7 +50,7 @@ public enum ValidPathMatch {
 	}
 	
 	public static Set<ValidPathMatch> langValues() {
-		Set<ValidPathMatch> returned = new HashSet<ValidPathMatch>();
+		Set<ValidPathMatch> returned = new LinkedHashSet<ValidPathMatch>();
 		returned.addAll(langPaths);
 		return returned;
 	}

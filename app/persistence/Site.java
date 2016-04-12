@@ -1,6 +1,8 @@
 package persistence;
 
 import java.lang.reflect.Field;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -35,6 +37,8 @@ public class Site {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long siteId;
 	
+	/************************* Basics ***************************************/
+	
 	private String domain;
 	
 	@Column(nullable = true, columnDefinition="varchar(4000)")
@@ -43,9 +47,9 @@ public class Site {
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	private String standardizedHomepage;
 	
-	@Column(nullable = false, columnDefinition="boolean default true")
-	private boolean standaloneSite = true;	//If this site is the only one on the domain, as opposed to PAACO sites
+	private Date createdDate;
 	
+	/**************************************  Relationships **********************************/
 	@ManyToOne
 	private PlacesPage placesPage;
 	
@@ -61,20 +65,11 @@ public class Site {
 		    inverseJoinColumns={@JoinColumn(name="mobileCrawls_mobileCrawlId")})
 	private List<MobileCrawl> mobileCrawls = new ArrayList<MobileCrawl>();
 	
-	@Column(nullable = false, columnDefinition="boolean default false")
-	private boolean homepageNeedsReview = false;
 	
-	@Column(nullable = false, columnDefinition="boolean default false")
-	private boolean hompageValidUrlConfirmed = false;
 	
-	@Column(nullable = false, columnDefinition="boolean default false")
-	private boolean queryStringApproved = false;
 	
-	private Date redirectResolveDate;
-	private Date createdDate;
 	
-	@Column(nullable = true, columnDefinition="varchar(4000)")
-	private String suggestedHomepage; //For when the redirect resolver finds a different homepage
+	/******************************* Collections *************************************************/
 	
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	@ElementCollection(fetch=FetchType.LAZY)
@@ -84,49 +79,23 @@ public class Site {
 	@ElementCollection(fetch=FetchType.LAZY)
 	private Set<String> groupUrls = new HashSet<String>();
 	
-	@Column(nullable = false, columnDefinition="boolean default false")
-	private boolean notableChange = false;
-	
-	@Column(nullable = false, columnDefinition="boolean default false")
-	private boolean maybeDefunct = false;
-	@Column(nullable = false, columnDefinition="boolean default false")
-	private boolean defunct = false;
-	
-	@Column(nullable = false, columnDefinition="boolean default false")
-	private boolean reviewLater = false;
-	
-	@Column(nullable = false, columnDefinition="boolean default false")
-	private boolean invalidUrl = false;
-	
-	private String reviewReason;
-	
-	@Column(nullable = false, columnDefinition="boolean default false")
-	private boolean notInterested = false;
-	
-	@Column(nullable = false, columnDefinition="boolean default false")
-	private boolean oemSite = false;
-	@Column(nullable = false, columnDefinition="boolean default false")
-	private boolean franchise = false;
-	
-	@Column(nullable = false, columnDefinition="boolean default false")
-	private boolean groupSite = false;
-	@Column(nullable = false, columnDefinition="boolean default false")
-	private boolean crawlerProtected = false;
-	
-	@Column(nullable = false, columnDefinition="boolean default false")
-	private boolean recrawl = false;
-	
-	@Column(nullable = false, columnDefinition="boolean default false")
-	private boolean locationPage = false;
-	
-	@Column(nullable = false, columnDefinition="boolean default true")
-	private boolean showToMatt = true;
-
 	@Column(nullable = true, columnDefinition="varchar(255)")
 	@ElementCollection(fetch=FetchType.LAZY)
 	private Set<String> cities = new HashSet<String>();
 	
-	private boolean temp = false;
+	/************************* Single Attributes *****************************************/
+	
+	private boolean sharedSite = false;	//If this site is the only one on the domain, as opposed to PAACO sites
+	
+	private Date redirectResolveDate;
+	
+	private boolean maybeDefunct = false;
+	private boolean defunct = false;
+	private boolean notInterested = false;
+	private boolean oemSite = false;
+	private boolean franchise = false;
+	private boolean groupSite = false;
+	private boolean crawlerProtected = false;
 	private Boolean languagePath = false;
 	private Boolean languageQuery = false;
 	
@@ -166,7 +135,7 @@ public class Site {
 		return domain;
 	}
 
-	public void setDomain(String domain) { 
+	private void setDomain(String domain) { 
 		this.domain = domain;
 	}
 
@@ -178,15 +147,13 @@ public class Site {
 		if(homepage == null || homepage.length() > 4000){
 			throw new IllegalArgumentException("Can't set URL with length > 4000 as homepage of Site");
 		}
+		try {
+			URL url = new URL(homepage);
+			this.setDomain(DSFormatter.removeWww(url.getHost()));
+		} catch (MalformedURLException e) {
+			throw new IllegalArgumentException("Can't have malformed url as homepage : " + homepage);
+		}
 		this.homepage = homepage;
-	}
-
-	public boolean isStandaloneSite() {
-		return standaloneSite;
-	}
-
-	public void setStandaloneSite(boolean standaloneSite) {
-		this.standaloneSite = standaloneSite;
 	}
 
 	public List<SiteCrawl> getCrawls() {
@@ -264,13 +231,6 @@ public class Site {
 		this.redirectResolveDate = homepageConfirmed;
 	}
 
-	public boolean isHomepageNeedsReview() {
-		return homepageNeedsReview;
-	}
-
-	public void setHomepageNeedsReview(boolean homepageNeedsReview) {
-		this.homepageNeedsReview = homepageNeedsReview;
-	}
 
 	public Set<String> getRedirectUrls() {
 		return redirectUrls;
@@ -301,22 +261,6 @@ public class Site {
 		this.groupUrls.add(DSFormatter.truncate(groupUrl, 4000));
 	}
 
-	public String getSuggestedHomepage() {
-		return suggestedHomepage;
-	}
-
-	public void setSuggestedHomepage(String suggestedHomepage) {
-		this.suggestedHomepage = DSFormatter.truncate(suggestedHomepage, 4000);
-	}
-
-	public boolean isNotableChange() {
-		return notableChange;
-	}
-
-	public void setNotableChange(boolean notableChange) {
-		this.notableChange = notableChange;
-	}
-
 	public boolean isMaybeDefunct() {
 		return maybeDefunct;
 	}
@@ -333,14 +277,6 @@ public class Site {
 		this.defunct = defunct;
 	}
 
-	public boolean isReviewLater() {
-		return reviewLater;
-	}
-
-	public void setReviewLater(boolean reviewLater) {
-		this.reviewLater = reviewLater;
-	}
-
 	public String getStandardizedHomepage() {
 		return standardizedHomepage;
 	}
@@ -349,38 +285,6 @@ public class Site {
 		this.standardizedHomepage = standardizedHomepage;
 	}
 
-	public boolean isHompageValidUrlConfirmed() {
-		return hompageValidUrlConfirmed;
-	}
-
-	public void setHompageValidUrlConfirmed(boolean hompageValidUrlConfirmed) {
-		this.hompageValidUrlConfirmed = hompageValidUrlConfirmed;
-	}
-
-	public boolean isInvalidUrl() {
-		return invalidUrl;
-	}
-
-	public void setInvalidUrl(boolean invalidUrl) {
-		this.invalidUrl = invalidUrl;
-	}
-
-	public boolean isQueryStringApproved() {
-		return queryStringApproved;
-	}
-
-	public void setQueryStringApproved(boolean queryStringApproved) {
-		this.queryStringApproved = queryStringApproved;
-	}
-
-	public String getReviewReason() {
-		return reviewReason;
-	}
-
-	public void setReviewReason(String reviewReason) {
-		this.reviewReason = reviewReason;
-	}
-	
 	public void addCrawls(List<SiteCrawl> siteCrawls) {
 		this.crawls.addAll(siteCrawls);
 	}
@@ -417,22 +321,6 @@ public class Site {
 		this.crawlerProtected = crawlerProtected;
 	}
 
-	public boolean isRecrawl() {
-		return recrawl;
-	}
-
-	public void setRecrawl(boolean recrawl) {
-		this.recrawl = recrawl;
-	}
-
-	public boolean isShowToMatt() {
-		return showToMatt;
-	}
-
-	public void setShowToMatt(boolean showToMatt) {
-		this.showToMatt = showToMatt;
-	}
-
 	public boolean isFranchise() {
 		return franchise;
 	}
@@ -449,24 +337,12 @@ public class Site {
 		this.invalid = isValid;
 	}
 	
-	
-	
-	
-	
 	public PlacesPage getPlacesPage() {
 		return placesPage;
 	}
 
 	public void setPlacesPage(PlacesPage placesPage) {
 		this.placesPage = placesPage;
-	}
-
-	public boolean isLocationPage() {
-		return locationPage;
-	}
-
-	public void setLocationPage(boolean locationPage) {
-		this.locationPage = locationPage;
 	}
 
 	public Set<String> getCities() {
@@ -485,6 +361,21 @@ public class Site {
 	public void setStaleRedirect(boolean staleRedirect) {
 		this.staleRedirect = staleRedirect;
 	}
+	public Date getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
+	}
+
+	public boolean isSharedSite() {
+		return sharedSite;
+	}
+
+	public void setSharedSite(boolean sharedSite) {
+		this.sharedSite = sharedSite;
+	}
 
 	public static boolean isBoolean(String fieldName) {
 		for(Field field : Site.class.getDeclaredFields()) {
@@ -495,21 +386,7 @@ public class Site {
 		return false;
 	}
 
-	public boolean isTemp() {
-		return temp;
-	}
-
-	public void setTemp(boolean temp) {
-		this.temp = temp;
-	}
-
-	public Date getCreatedDate() {
-		return createdDate;
-	}
-
-	public void setCreatedDate(Date createdDate) {
-		this.createdDate = createdDate;
-	}
+	
 	
 	
 }

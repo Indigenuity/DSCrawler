@@ -1,0 +1,20 @@
+@(section : _root_.reporting.DashboardStats)
+
+<h3>@section.getTitle()</h3>
+
+<table>
+	@for((key, value) <- section.getStats()){
+		<tr>
+			<td>@key</td>
+			<td>
+				@value
+			</td>
+		</tr>
+	}
+</table>
+
+<div class="stats-subsections-container">
+	@for(subsection <- section.getSections().values()){
+		@statsSection(subsection)
+	}
+</div>

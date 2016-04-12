@@ -25,7 +25,26 @@ public abstract class Tool {
 		}
 	}
 	
+	public Task doMore(Task task){
+		if(!hasRequiredItems(task)){
+			return incompleteTask(task, "Task doesn't have all the required context items");
+		}
+		
+		try{
+			return safeDoMore(task);
+		}
+		catch(Exception e) {
+			Logger.error("error in "  + this.getClass().getSimpleName() + " : " + e);
+			e.printStackTrace();
+			return incompleteTask(task, e.getClass().getSimpleName() + " : " + e.getMessage());
+		}
+	}
+	
 	protected abstract Task safeDoTask(Task task) throws Exception;
+	
+	protected Task safeDoMore(Task task) throws Exception{
+		throw new UnsupportedOperationException("This tool is not equipped to perform subsequent task work on task : " + task.getTaskId());
+	}
 		
 	public abstract Set<ContextItem> getRequiredItems(WorkType workType);
 	

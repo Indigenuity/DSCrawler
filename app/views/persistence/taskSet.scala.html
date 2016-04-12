@@ -10,7 +10,7 @@
 		<p>@taskSet.getTasks().size() Tasks</p>
 	</div>
 	<div id="dashboard-stats">
-		@viewStats(stats)
+		@viewstats.viewStats(stats)
 	</div>
 	
 	<div id="work-form-wrapper" class="content-block">
@@ -31,7 +31,7 @@
 		}
 	</div>
 	<div id="taskset-settings-form-wrapper" class="content-block">
-		<form id="taskset-settings-form" action="" method="POST">
+		<form id="taskset-settings-form" action="/subtaskWorkStatus" method="POST">
 			<input type="hidden" value="@taskSet.getTaskSetId()" name="taskSetId"/>
 			<p>
 				<label name="workType">Work Type</label>
@@ -58,6 +58,16 @@
 					}
 				</select>
 			</p>
+			
+			<p>
+				<label name="supertaskTargetWorkStatus">Supertask Target Work Status</label>
+				<select name = "supertaskTargetWorkStatus">
+					<option value="NO_CHANGE" selected="selected">No Change</option>
+					@for(workStatus <- WorkStatus.values()){
+						<option value="@workStatus">@workStatus</option>
+					}
+				</select>
+			</p>
 			<button type = "submit" id="set-work-status">Set Subtask Work Status</button>
 		
 		</form>
@@ -66,7 +76,28 @@
 	<br>
 	<br>
 	<br>
-	<p><a href="/reviewTasks?taskSetId=@taskSet.getTaskSetId()" target="_blank">Review Tasks &raquo;</a></p>
+	<div id="review-forms-container" class="content-block">
+		<h3>Review Tasks</h3>
+		<form id="review-tasks-form" method="GET" action="/reviewTasks">
+			<input type="hidden" name="taskSetId" value="@taskSet.getTaskSetId()">
+			<select name = "workType">
+				@for(workType <- WorkType.values()){
+					<option value="@workType">@workType</option>
+				}
+			</select>
+			<button type="submit">Submit</button>
+		</form>
+		<h3>Review Subtasks</h3>
+		<form id="review-subtasks-form" method="GET" action="/reviewSubtasks">
+			<input type="hidden" name="taskSetId" value="@taskSet.getTaskSetId()">
+			<select name = "workType">
+				@for(workType <- WorkType.values()){
+					<option value="@workType">@workType</option>
+				}
+			</select>
+			<button type="submit">Submit</button>
+		</form>
+	</div>
 	
 	
 }

@@ -1,6 +1,11 @@
 package dao;
 
 import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +24,7 @@ import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.stateful.FetchJob;
 import persistence.tasks.TaskSet;
+import play.db.DB;
 import play.db.jpa.JPA;
 import reporting.DashboardStats;
 
@@ -46,8 +52,11 @@ public class StatsDAO {
 		return stats;
 	}
 	
-	public static DashboardStats getTaskSetStats(TaskSet taskSet) {
-		DashboardStats stats = new DashboardStats();
+	public static DashboardStats getTaskSetStats(TaskSet taskSet) throws SQLException {
+		DashboardStats stats = new DashboardStats("TaskSet Summary");
+		
+		stats.addSection("Task Statuses", getTaskSetTaskStats(taskSet));
+		stats.addSection("Subtask Statuses", getTaskSetSubtaskStats(taskSet));
 		
 		stats.put("Tasks", taskSet.getTasks().size());
 		stats.put("Supertasks", TaskDAO.countWorkType(taskSet.getTaskSetId(), WorkType.SUPERTASK));
@@ -55,6 +64,53 @@ public class StatsDAO {
 		stats.put("Tasks Completed", TaskDAO.countWorkStatus(taskSet.getTaskSetId(), WorkStatus.WORK_COMPLETED));
 		stats.put("Tasks Need Review", TaskDAO.countWorkStatus(taskSet.getTaskSetId(), WorkStatus.NEEDS_REVIEW));
 		
+		return stats;
+	}
+	
+	public static DashboardStats getTaskSetSubtaskStats(TaskSet taskSet) throws SQLException {
+		String query = "select t2.workType, t2.workStatus, count(*) as numTasks from taskset ts " + 
+				"join taskset_task tst on ts.tasksetid = tst.tasksetid " + 
+				"join task t on tst.taskid = t.taskid " + 
+				"join task_subtask sub on t.taskid = sub.supertaskid " + 
+				"join task t2 on sub.subtaskid = t2.taskid " + 
+				"where ts.tasksetid = 1 " + 
+				"group by t2.workType, t2.workstatus " + 
+				"order by t2.workstatus";
+		
+		Connection connection = DB.getConnection();
+		Statement statement = connection.createStatement();
+		ResultSet rs= statement.executeQuery(query);
+		
+		DashboardStats stats = new DashboardStats("Subtask Statuses");
+		while(rs.next()){
+			ResultSetMetaData meta = rs.getMetaData();
+			String workStatus = rs.getString("workStatus");
+			String workType = rs.getString("workType");
+			Integer numTasks = rs.getInt("numTasks");
+			stats.put(workType + " " + workStatus, numTasks);
+		}
+		return stats;
+	}
+	
+	public static DashboardStats getTaskSetTaskStats(TaskSet taskSet) throws SQLException {
+		String query = "select t.workType, t.workStatus, count(*) as numTasks from taskset ts " + 
+				"join taskset_task tst on ts.tasksetid = tst.tasksetid " + 
+				"join task t on tst.taskid = t.taskid " + 
+				"where ts.tasksetid = 1 " + 
+				"group by t.workType, t.workstatus " + 
+				"order by t.workstatus";
+		
+		Connection connection = DB.getConnection();
+		Statement statement = connection.createStatement();
+		ResultSet rs= statement.executeQuery(query);
+		
+		DashboardStats stats = new DashboardStats("Task Statuses");
+		while(rs.next()){
+			String workStatus = rs.getString("workStatus");
+			String workType = rs.getString("workType");
+			Integer numTasks = rs.getInt("numTasks");
+			stats.put(workType + " " + workStatus, numTasks);
+		}
 		return stats;
 	}
 

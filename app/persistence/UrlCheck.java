@@ -34,7 +34,6 @@ public class UrlCheck {
 	
 	private int statusCode;
 
-	private boolean unchanged;
 	private boolean genericChange;
 	private boolean error;
 	private boolean pathApproved;
@@ -47,8 +46,12 @@ public class UrlCheck {
 	private boolean languagePath;
 	private boolean languageQuery;
 	
+	private boolean sharedSite = false;
+	
 	private boolean noChange;
 	private boolean accepted;
+	
+	private boolean markedDefunct = false;
 	
 	public UrlCheck(){}
 	public UrlCheck(String seed) {
@@ -61,7 +64,8 @@ public class UrlCheck {
 				&& (this.isNoChange() || this.isGenericChange())
 				&& this.isPathApproved()
 				&& this.isDomainApproved()
-				&& this.isQueryApproved();
+				&& this.isQueryApproved()
+				&& !this.isMarkedDefunct();
 	}
 	
 	public long getUrlCheckId() {
@@ -189,6 +193,18 @@ public class UrlCheck {
 	}
 	public void setManuallyApproved(boolean manuallyApproved) {
 		this.manuallyApproved = manuallyApproved;
+	}
+	public boolean isSharedSite() {
+		return sharedSite;
+	}
+	public void setSharedSite(boolean sharedSite) {
+		this.sharedSite = sharedSite;
+	}
+	public boolean isMarkedDefunct() {
+		return markedDefunct;
+	}
+	public void setMarkedDefunct(boolean markedDefunct) {
+		this.markedDefunct = markedDefunct;
 	}
 	
 

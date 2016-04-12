@@ -3,7 +3,7 @@
 @(stats : DashboardStats)
 
 
-<h2>Stats</h2>
+<h2>@stats.getTitle()</h2>
 
 <table>
 	@for((key, value) <- stats.getStats()){
@@ -15,3 +15,9 @@
 		</tr>
 	}
 </table>
+
+<div class="stats-subsections-container">
+	@for(section <- stats.getSections().values()){
+		@statsSection(section)
+	}
+</div>

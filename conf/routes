@@ -4,10 +4,11 @@
 
 # Home page
 GET     /                           	controllers.Application.index()
-POST	/runExperiment					controllers.Application.runExperiment()
+GET		/runExperiment					controllers.Application.runExperiment()
 GET		/groupSites						controllers.Application.groupSites(numToProcess : Integer ?= 20, offset : Integer ?= 0)
 GET		/runGc							controllers.Application.runGc()
 GET		/duplicateDomains				controllers.Application.duplicateDomains(numToProcess : Integer ?= 20, offset : Integer ?= 0)
+GET		/createTaskSetForm				controllers.Application.createTaskSetForm()
 
 POST	/subtaskWorkStatus				controllers.TaskSetController.setSubtaskWorkStatus()
 
@@ -19,7 +20,8 @@ POST	/viewSiteList					controllers.DataView.viewSiteList()
 GET		/taskSets						controllers.DataView.taskSets()
 GET		/taskSet						controllers.DataView.taskSet(taskSetId : Long)
 
-GET		/reviewTasks					controllers.DataView.reviewTasks(taskSetId : Long, count : Integer = 20, offset : Integer = 0)
+GET		/reviewTasks					controllers.DataView.reviewTasks(taskSetId : Long, count : Integer = 20, offset : Integer = 0, workType : String)
+GET		/reviewSubtasks					controllers.DataView.reviewTasks(taskSetId : Long, count : Integer = 20, offset : Integer = 0, workType : String)
 
 
 POST	/taskSetWork							controllers.JobController.taskSetWork()
@@ -33,6 +35,7 @@ GET		/mainUsableSpace				controllers.DataView.mainUsableSpace()
 GET		/secondaryUsableSpace			controllers.DataView.secondaryUsableSpace()
 GET 	/siteCrawl/:siteCrawlId			controllers.DataView.viewSiteCrawl(siteCrawlId : Long)
 
+POST	/createTaskSet					controllers.DataEditor.createTaskSet()
 GET		/deDupHomepages					controllers.DataEditor.deDupHomepages()
 GET		/confirmHomepage				controllers.DataEditor.confirmHomepage(siteId : Long, action : String ?= "NO_ACTION")
 GET		/setWebProvider					controllers.DataEditor.setWebProvider(siteCrawlId : Long, webProviderId : Integer)
@@ -55,6 +58,8 @@ POST	/markGroupSite					controllers.DataEditor.markGroupSite()
 POST	/markCrawlProtected				controllers.DataEditor.markCrawlProtected()
 POST	/markRecrawl					controllers.DataEditor.markRecrawl()
 POST	/editFetchJobOptions			controllers.DataEditor.editFetchJobOptions()
+
+POST	/submitTaskReview				controllers.TaskSetController.submitTaskReview()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

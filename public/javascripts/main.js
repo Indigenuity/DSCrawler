@@ -1,52 +1,84 @@
 $(document).ready(function() {
-				$(".accordion").accordion({
-			      collapsible: true,
-			      active: false
-			    });
-				
-				$(".single-action-container button").click(function() {
-					$(this).parents(".single-action-container").slideUp(50);
-				})
-				
-				$(".site-brief button").click(function() {
-					$(this).parents(".site-brief").slideUp(50);
-				});
-				
-				$(".site-crawls button").click(function() {
-					$(this).parents("tr").slideUp(50);
-				})
-				
-				$(".faux-submit").submit(function(event) {
-					var form = $(this);
-					$.post(form.attr("action"), form.serialize());
-					form.slideUp(50);
-					return false;
-				});
-				
-				$(".hide-from-matt-button").click(function() {
-					$(this).parents(".site-group-url-wrapper").slideUp(50);
-				})
-				$(".hide-from-travis-button").click(function() {
-					$(this).parents(".site-group-url-wrapper").slideUp(50);
-					var count = 0;
-					while(true){
-						$("html").animate({"background-color":"black"}, 5);
-						$("html").animate({"background-color":"white"}, 5);
-					}
-				})
-				$(".accept-temp").click(function() {
-					var form = $(this).parents(".single-action-container").find("form");
-					var siteContainer = $(this).parents(".indented-container");
-					var input = form.find("input[name=suggestedUrl]");
-					var inputSource = form.find("input[name=suggestedSource]");
-					var value = siteContainer.find(".site-homepage").text();
-					input.val(value);
-					inputSource.val("Domain similarity to Redirect URL");
-					form.addClass("faux-submit");
-					form.submit()
-				});
-			});
+	
+	$(".accordion").accordion({
+      collapsible: true,
+      active: false
+    });
+	
+	$(".single-action-container button").click(function() {
+		$(this).parents(".single-action-container").slideUp(50);
+	})
+	
+	$(".site-brief button").click(function() {
+		$(this).parents(".site-brief").slideUp(50);
+	});
+	
+	$(".site-crawls button").click(function() {
+		$(this).parents("tr").slideUp(50);
+	});
+	
+	$(".faux-submit").submit(function(event) {
+		var form = $(this);
+		$.post(form.attr("action"), form.serialize());
+		form.parents(".faux-submit-container").slideUp(50);
+		return false;
+	});
+	
+	
+	
+	$(".accept-temp").click(function() {
+		var form = $(this).parents(".single-action-container").find("form");
+		var siteContainer = $(this).parents(".indented-container");
+		var input = form.find("input[name=suggestedUrl]");
+		var inputSource = form.find("input[name=suggestedSource]");
+		var value = siteContainer.find(".site-homepage").text();
+		input.val(value);
+		inputSource.val("Domain similarity to Redirect URL");
+		form.addClass("faux-submit");
+		form.submit()
+	});
+	$(".checkbox-container").click(function() {
+		alert("here");
+		var checkbox = $(this).find("input[type=checkbox]");
+		alert("checkbox : " + checkbox);
+		if(checkbox.prop('checked', true)){
+			checkbox.prop('checked', false);
+		}else {
+			checkbox.prop('checked', true);
+		}
+	});
+	
+	/***************************   Task Reviewing ***********************/
+	$(".approve-resolved-button").click(function() {
+		var form = this.form
+		$(form).find("input[name='action']").val("APPROVE_RESOLVED");
+	});
+	$(".manual-seed-button").click(function() {
+		var form = this.form
+		$(form).find("input[name='action']").val("MANUAL_SEED");
+	});
+	$(".shared-site-button").click(function() {
+		var form = this.form;
+		$(form).find("input[name='sharedSite']").val("true");
+		$(form).find("input[name='action']").val("APPROVE_RESOLVED");
+	});
+	$(".more-button").click(function() {
+		var form = this.form
+		$(form).find("input[name='action']").val("MORE_WORK");
+	});
+	$(".mark-defunct-button").click(function() {
+		var form = this.form
+		$(form).find("input[name='action']").val("MARK_DEFUNCT");
+	});
+	$(".recheck-button").click(function() {
+		var form = this.form
+		$(form).find("input[name='action']").val("RECHECK");
+	});
+	
+	/*******************  End Task Reviewing *********************/
+});
 
+	
 			function combineOnDomain(siteId){
 				var endpoint = "/combineOnDomain?siteId=" + siteId;
 				
@@ -66,9 +98,6 @@ $(document).ready(function() {
 				$(button).next(".make-site-results").load("/makeSite?dealerId=" + dealerId + "&url=" + url, function(responseText, textStatus, jqXHR) {
 					$(button).next(".make-site-results").html(responseText);
 				})
-			}
-			function hideFromMatt(siteId) {
-				$.get("/hideFromMatt?siteId=" + siteId)
 			}
 			function addGroupUrl(button, siteId) {
 				var url = encodeURI($(button).prev(".group-url-input").val());
