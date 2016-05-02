@@ -10,12 +10,12 @@ public class SchedulerConverter  implements AttributeConverter<Scheduler, Intege
 
 	@Override
 	public Integer convertToDatabaseColumn(Scheduler wp) {
-		return wp.getId();
+		return 0;
 	}
 
 	@Override
 	public Scheduler convertToEntityAttribute(Integer id) {
-		return Scheduler.getTypeFromId(id);
+		return Scheduler.ACUITY_SCHEDULER;
 	}
 
 }

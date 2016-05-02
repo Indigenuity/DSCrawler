@@ -1,17 +1,13 @@
 package persistence;
 
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -29,17 +25,10 @@ import javax.persistence.NamedAttributeNode;
 import javax.persistence.NamedEntityGraph;
 import javax.persistence.NamedSubgraph;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
-import persistence.converters.GeneralMatchConverter;
-import persistence.converters.SchedulerConverter;
-import persistence.converters.WebProviderConverter;
 import utilities.DSFormatter;
 import datadefinitions.GeneralMatch;
 import datadefinitions.OEM;
@@ -166,11 +155,11 @@ public class SiteCrawl {
 	@ElementCollection(fetch=FetchType.LAZY)
 	protected Set<WPClue> wpClues = new HashSet<WPClue>();
 	
-	@Convert(converter = SchedulerConverter.class)
+	@Enumerated(EnumType.STRING)
 	@ElementCollection(fetch=FetchType.LAZY)
 	protected Set<Scheduler> schedulers = new HashSet<Scheduler>();
 	
-	@Convert(converter = GeneralMatchConverter.class)
+	@Enumerated(EnumType.STRING)
 	@ElementCollection(fetch=FetchType.LAZY)
 	protected Set<GeneralMatch> generalMatches = new HashSet<GeneralMatch>();
 	
@@ -180,7 +169,7 @@ public class SiteCrawl {
 	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, orphanRemoval=true)
 	protected Set<ExtractedUrl> extractedUrls = new HashSet<ExtractedUrl>();
 	
-	@Convert(converter = WebProviderConverter.class)
+	@Enumerated(EnumType.STRING)
 	@ElementCollection(fetch=FetchType.LAZY)
 	protected Set<WebProvider> webProviders = new HashSet<WebProvider>();
 	
@@ -213,12 +202,9 @@ public class SiteCrawl {
 	@ManyToOne(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
 	private InventoryNumber maxInventoryCount;
 	
-	@Convert(converter = WebProviderConverter.class)
+	@Enumerated(EnumType.STRING)
 	@Column(nullable = true)
 	protected WebProvider inferredWebProvider;
-	
-	
-	
 	
 	
 	
@@ -233,10 +219,6 @@ public class SiteCrawl {
 	
 	public SiteCrawl(String seed) {
 		this.setSeed(seed);
-	}
-	
-	private SiteCrawl() {
-		
 	}
 	
 	public void lazyInit() {

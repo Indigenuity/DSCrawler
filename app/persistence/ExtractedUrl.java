@@ -1,17 +1,15 @@
 package persistence;
 
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import persistence.converters.UrlExtractionConverter;
 import utilities.DSFormatter;
 import datadefinitions.UrlExtraction;
 
@@ -26,16 +24,12 @@ public class ExtractedUrl {
 	private String value = "";
 	
 	@Column
-	@Convert(converter = UrlExtractionConverter.class)
+	@Enumerated(EnumType.STRING)
 	private UrlExtraction urlType; 
 	
 	public ExtractedUrl(String value, UrlExtraction urlType) {
 		this.value = value;
 		this.urlType = urlType;
-	}
-	
-	private ExtractedUrl() {
-		
 	}
 	
 	public void validation() {

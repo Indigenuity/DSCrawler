@@ -292,9 +292,9 @@ public class DataEditor extends Controller{
 	
 	@Transactional
 	public static Result setWebProvider(long siteCrawlId, int webProviderId) {
-		SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, siteCrawlId);
-		System.out.println("webprovider : " + WebProvider.getTypeFromId(webProviderId));
-		siteCrawl.setInferredWebProvider(WebProvider.getTypeFromId(webProviderId));
+//		SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, siteCrawlId);
+//		System.out.println("webprovider : " + WebProvider.getTypeFromId(webProviderId));
+//		siteCrawl.setInferredWebProvider(WebProvider.getTypeFromId(webProviderId));
 		return ok();
 	}
 	

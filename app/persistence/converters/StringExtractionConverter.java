@@ -11,13 +11,14 @@ public class StringExtractionConverter implements AttributeConverter<StringExtra
 	@Override
 	public Integer convertToDatabaseColumn(StringExtraction element) {
 //		System.out.println("general id : " + wp.getId());
-		return element.getId();
+//		return element.getId();
+		return 0;
 	}
  
 	@Override
 	public StringExtraction convertToEntityAttribute(Integer id) {
 		
-		return StringExtraction.getTypeFromId(id);
+		return StringExtraction.EMAIL_ADDRESS;
 	}
 
 }

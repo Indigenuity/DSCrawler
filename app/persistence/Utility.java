@@ -2,7 +2,7 @@ package persistence;
 
 import java.util.List;
 
-import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import play.db.jpa.JPA;
 
@@ -10,7 +10,7 @@ public class Utility {
 	
 	public static String getPastRedirect(String givenUrl) {
 		String query = "from Site s where ? member of s.redirectUrls";
-		Query q = JPA.em().createQuery(query, Site.class);
+		TypedQuery<Site> q = JPA.em().createQuery(query, Site.class);
 		q.setParameter(1, givenUrl);
 		List<Site> sites = q.getResultList();
 		
@@ -24,7 +24,7 @@ public class Utility {
 	
 	public static String getPastApproval(String givenUrl) {
 		String query = "from Site s where redirectResolveDate is not null and homepage = ?";
-		Query q = JPA.em().createQuery(query);
+		TypedQuery<Site> q = JPA.em().createQuery(query, Site.class);
 		q.setParameter(1, givenUrl);
 		List<Site> sites = q.getResultList();
 		if(sites.size() > 0) {

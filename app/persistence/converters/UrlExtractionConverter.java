@@ -11,13 +11,13 @@ public class UrlExtractionConverter implements AttributeConverter<UrlExtraction,
 	@Override
 	public Integer convertToDatabaseColumn(UrlExtraction element) {
 //		System.out.println("general id : " + wp.getId());
-		return element.getId();
+		return 0;
 	}
 
 	@Override
 	public UrlExtraction convertToEntityAttribute(Integer id) {
 		
-		return UrlExtraction.getTypeFromId(id);
+		return UrlExtraction.FACEBOOK;
 	}
 
 }

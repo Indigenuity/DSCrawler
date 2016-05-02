@@ -278,20 +278,6 @@ public class CSVGenerator {
 		createClean(JPA.em().createQuery(query, Dealer.class).getResultList(), "CapDB Dealers");
 	}
 	
-	public static void generateSpecialStaff() throws IOException {
-		String query = "from Dealer d where d.mainSite is not null and d.datasource = 'Special_Project'";
-		List<Dealer> dealers = JPA.em().createQuery(query, Dealer.class).getResultList();
-		generateStaff(dealers, "RequestedDealersStaff");
-		int fordDirect = WebProvider.FORD_DIRECT.getId();
-		query = "from Dealer d where d.datasource != 'Special_Project' and "
-				+ "d.datasource != 'GooglePlacesAPI' and exists "
-				+ "(from Site s where s = d.mainSite and exists "
-				+ "(from SiteCrawl sc where sc member of s.crawls and " 
-				+ fordDirect + " member of sc.webProviders))";
-		dealers = JPA.em().createQuery(query, Dealer.class).getResultList();
-		generateStaff(dealers, "Other Ford Direct Dealers Staff");
-	}
-	
 	public static void generateAllStaff() throws IOException {
 		String query = "from Dealer d where d.mainSite is not null";
 		List<Dealer> dealers = JPA.em().createQuery(query, Dealer.class).getResultList();

@@ -1,17 +1,15 @@
 package persistence;
 
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import persistence.converters.StringExtractionConverter;
 import utilities.DSFormatter;
 import datadefinitions.StringExtraction;
 
@@ -26,7 +24,7 @@ public class ExtractedString {
 	@Column(nullable = true, columnDefinition="varchar(1000)")
 	private String value = "";
 	
-	@Convert(converter = StringExtractionConverter.class)
+	@Enumerated(EnumType.STRING)
 	private StringExtraction stringType; 
 	
 	public ExtractedString(String value, StringExtraction stringType) {

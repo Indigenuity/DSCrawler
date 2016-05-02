@@ -11,13 +11,14 @@ public class GeneralMatchConverter  implements AttributeConverter<GeneralMatch, 
 	@Override
 	public Integer convertToDatabaseColumn(GeneralMatch wp) {
 //		System.out.println("general id : " + wp.getId());
-		return wp.getId();
+//		return wp.getId();
+		return 0;
 	}
 
 	@Override
 	public GeneralMatch convertToEntityAttribute(Integer id) {
 		
-		return GeneralMatch.getTypeFromId(id);
+		return GeneralMatch.AUTO_NATION;
 	}
 
 }

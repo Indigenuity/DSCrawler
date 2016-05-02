@@ -520,113 +520,113 @@ public class Experiment {
 		}
 	}
 	
-	public static void makeLookupTables() throws SQLException {
-		Connection connection = DB.getConnection();
-		
-		String query = "delete from webprovider where webproviderid >= 0";
-		Statement deleteStatement = connection.createStatement();
-		deleteStatement.executeUpdate(query);
-		
-		query = "delete from stringextraction where stringextractionid >= 0";
-		deleteStatement = connection.createStatement();
-		deleteStatement.executeUpdate(query);
-		
-		query = "delete from urlextraction where urlextractionid >= 0";
-		deleteStatement = connection.createStatement();
-		deleteStatement.executeUpdate(query);
-		
-		query = "delete from generalmatch where generalmatchid >= 0";
-		deleteStatement = connection.createStatement();
-		deleteStatement.executeUpdate(query);
-		
-		query = "delete from scheduler where schedulerid >= 0";
-		deleteStatement = connection.createStatement();
-		deleteStatement.executeUpdate(query);
-		 
-		query = "insert into webprovider (webproviderid, description, definition, notes, name) values (?, ?, ?, ?, ?)";
-		PreparedStatement statement = connection.prepareStatement(query);
-		Set<Integer> testing = new HashSet<Integer>();
-		
-		
-		for (WebProvider enumElement : WebProvider.values()){
-//			System.out.println("inserting with id : " + enumElement.getId());
-			statement.setInt(1, enumElement.getId());
-			statement.setString(2, enumElement.getDescription());
-			statement.setString(3, enumElement.getDefinition());
-			statement.setString(4, enumElement.getNotes());
-			statement.setString(5, enumElement.name());
-			if(!testing.add(enumElement.getId())){
-				System.out.println("dup : " + enumElement.getId());
-			}
-			statement.executeUpdate();
-		}
-		
-		
-		testing.clear();
-		query = "insert into scheduler (schedulerid, description, definition, notes, name) values (?, ?, ?, ?, ?)";
-		statement = connection.prepareStatement(query);
-		for (Scheduler enumElement : Scheduler.values()){
-//			System.out.println("inserting with id : " + enumElement.getId());
-			statement.setInt(1, enumElement.getId());
-			statement.setString(2, enumElement.getDescription());
-			statement.setString(3, enumElement.getDefinition());
-			statement.setString(4, enumElement.getNotes());
-			statement.setString(5, enumElement.name());
-			statement.executeUpdate();
-			if(!testing.add(enumElement.getId())){
-				System.out.println("dup : " + enumElement.getId());
-			}
-		}
-		
-		testing.clear();
-		query = "insert into generalmatch (generalmatchid, description, definition, notes, name) values (?, ?, ?, ?, ?)";
-		statement = connection.prepareStatement(query);
-		for (GeneralMatch enumElement : GeneralMatch.values()){
-//			System.out.println("inserting with id : " + enumElement.getId());
-			statement.setInt(1, enumElement.getId());
-			statement.setString(2, enumElement.getDescription());
-			statement.setString(3, enumElement.getDefinition());
-			statement.setString(4, enumElement.getNotes());
-			statement.setString(5, enumElement.name());
-			statement.executeUpdate();
-			if(!testing.add(enumElement.getId())){
-				System.out.println("dup : " + enumElement.getId());
-			}
-		}
-		
-		testing.clear();
-		query = "insert into urlextraction (urlextractionid, description, definition, notes, name) values (?, ?, ?, ?, ?)";
-		statement = connection.prepareStatement(query);
-		for (UrlExtraction enumElement : UrlExtraction.values()){
-//			System.out.println("inserting with id : " + enumElement.getId());
-			statement.setInt(1, enumElement.getId());
-			statement.setString(2, enumElement.getDescription());
-			statement.setString(3, enumElement.getDefinition());
-			statement.setString(4, enumElement.getNotes());
-			statement.setString(5, enumElement.name());
-			statement.executeUpdate();
-			if(!testing.add(enumElement.getId())){
-				System.out.println("dup : " + enumElement.getId());
-			}
-		}
-		
-		testing.clear();
-		query = "insert into stringextraction (stringextractionid, description, definition, notes, name) values (?, ?, ?, ?, ?)";
-		statement = connection.prepareStatement(query);
-		for (StringExtraction enumElement : StringExtraction.values()){
-//			System.out.println("inserting with id : " + enumElement.getId());
-			statement.setInt(1, enumElement.getId());
-			statement.setString(2, enumElement.getDescription());
-			statement.setString(3, enumElement.getDefinition());
-			statement.setString(4, enumElement.getNotes());
-			statement.setString(5, enumElement.name());
-			statement.executeUpdate();
-			if(!testing.add(enumElement.getId())){
-				System.out.println("dup : " + enumElement.getId());
-			}
-		}
-		
-	}
+//	public static void makeLookupTables() throws SQLException {
+//		Connection connection = DB.getConnection();
+//		
+//		String query = "delete from webprovider where webproviderid >= 0";
+//		Statement deleteStatement = connection.createStatement();
+//		deleteStatement.executeUpdate(query);
+//		
+//		query = "delete from stringextraction where stringextractionid >= 0";
+//		deleteStatement = connection.createStatement();
+//		deleteStatement.executeUpdate(query);
+//		
+//		query = "delete from urlextraction where urlextractionid >= 0";
+//		deleteStatement = connection.createStatement();
+//		deleteStatement.executeUpdate(query);
+//		
+//		query = "delete from generalmatch where generalmatchid >= 0";
+//		deleteStatement = connection.createStatement();
+//		deleteStatement.executeUpdate(query);
+//		
+//		query = "delete from scheduler where schedulerid >= 0";
+//		deleteStatement = connection.createStatement();
+//		deleteStatement.executeUpdate(query);
+//		 
+//		query = "insert into webprovider (webproviderid, description, definition, notes, name) values (?, ?, ?, ?, ?)";
+//		PreparedStatement statement = connection.prepareStatement(query);
+//		Set<Integer> testing = new HashSet<Integer>();
+//		
+//		
+//		for (WebProvider enumElement : WebProvider.values()){
+////			System.out.println("inserting with id : " + enumElement.getId());
+//			statement.setInt(1, enumElement.getId());
+//			statement.setString(2, enumElement.getDescription());
+//			statement.setString(3, enumElement.getDefinition());
+//			statement.setString(4, enumElement.getNotes());
+//			statement.setString(5, enumElement.name());
+//			if(!testing.add(enumElement.getId())){
+//				System.out.println("dup : " + enumElement.getId());
+//			}
+//			statement.executeUpdate();
+//		}
+//		
+//		
+//		testing.clear();
+//		query = "insert into scheduler (schedulerid, description, definition, notes, name) values (?, ?, ?, ?, ?)";
+//		statement = connection.prepareStatement(query);
+//		for (Scheduler enumElement : Scheduler.values()){
+////			System.out.println("inserting with id : " + enumElement.getId());
+//			statement.setInt(1, enumElement.getId());
+//			statement.setString(2, enumElement.getDescription());
+//			statement.setString(3, enumElement.getDefinition());
+//			statement.setString(4, enumElement.getNotes());
+//			statement.setString(5, enumElement.name());
+//			statement.executeUpdate();
+//			if(!testing.add(enumElement.getId())){
+//				System.out.println("dup : " + enumElement.getId());
+//			}
+//		}
+//		
+//		testing.clear();
+//		query = "insert into generalmatch (generalmatchid, description, definition, notes, name) values (?, ?, ?, ?, ?)";
+//		statement = connection.prepareStatement(query);
+//		for (GeneralMatch enumElement : GeneralMatch.values()){
+////			System.out.println("inserting with id : " + enumElement.getId());
+//			statement.setInt(1, enumElement.getId());
+//			statement.setString(2, enumElement.getDescription());
+//			statement.setString(3, enumElement.getDefinition());
+//			statement.setString(4, enumElement.getNotes());
+//			statement.setString(5, enumElement.name());
+//			statement.executeUpdate();
+//			if(!testing.add(enumElement.getId())){
+//				System.out.println("dup : " + enumElement.getId());
+//			}
+//		}
+//		
+//		testing.clear();
+//		query = "insert into urlextraction (urlextractionid, description, definition, notes, name) values (?, ?, ?, ?, ?)";
+//		statement = connection.prepareStatement(query);
+//		for (UrlExtraction enumElement : UrlExtraction.values()){
+////			System.out.println("inserting with id : " + enumElement.getId());
+//			statement.setInt(1, enumElement.getId());
+//			statement.setString(2, enumElement.getDescription());
+//			statement.setString(3, enumElement.getDefinition());
+//			statement.setString(4, enumElement.getNotes());
+//			statement.setString(5, enumElement.name());
+//			statement.executeUpdate();
+//			if(!testing.add(enumElement.getId())){
+//				System.out.println("dup : " + enumElement.getId());
+//			}
+//		}
+//		
+//		testing.clear();
+//		query = "insert into stringextraction (stringextractionid, description, definition, notes, name) values (?, ?, ?, ?, ?)";
+//		statement = connection.prepareStatement(query);
+//		for (StringExtraction enumElement : StringExtraction.values()){
+////			System.out.println("inserting with id : " + enumElement.getId());
+//			statement.setInt(1, enumElement.getId());
+//			statement.setString(2, enumElement.getDescription());
+//			statement.setString(3, enumElement.getDefinition());
+//			statement.setString(4, enumElement.getNotes());
+//			statement.setString(5, enumElement.name());
+//			statement.executeUpdate();
+//			if(!testing.add(enumElement.getId())){
+//				System.out.println("dup : " + enumElement.getId());
+//			}
+//		}
+//		
+//	}
 	
 	public static void fillDomains() {
 		String query = "from Site s where domain = ''";

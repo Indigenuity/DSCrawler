@@ -11,12 +11,12 @@ public class WebProviderConverter implements AttributeConverter<WebProvider, Int
 
 	@Override
 	public Integer convertToDatabaseColumn(WebProvider wp) {
-		return wp.getId();
+		return 0;
 	}
 
 	@Override
 	public WebProvider convertToEntityAttribute(Integer id) {
-		return WebProvider.getTypeFromId(id);
+		return WebProvider.ADVANCED_AUTO_DEALERS;
 	}
 
 }
