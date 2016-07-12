@@ -1,6 +1,6 @@
 package persistence;
 
-import java.sql.Date;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -76,7 +76,7 @@ public class SiteCrawl {
 	private String resolvedSeed;
 	
 	private Date crawlDate;
-	private int crawlDepth;
+	private int crawlDepth = 0;
 	private boolean followNonUnique = true;
 	private boolean homepageCrawl = false;
 	
@@ -214,7 +214,9 @@ public class SiteCrawl {
 	
 	
 	
-
+	private SiteCrawl () {
+		
+	}
 	
 	
 	public SiteCrawl(String seed) {

@@ -299,6 +299,7 @@ public class DSFormatter {
 		try {
 			return URLDecoder.decode(url, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
+			System.out.println("error decoding");
 			throw new AssertionError("UTF-8 is unknown");
 		}
 	}

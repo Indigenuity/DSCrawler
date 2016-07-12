@@ -1,0 +1,27 @@
+@import _root_.global.Global
+
+@main("New URL Cleanup") {
+
+	<form id="url-cleanup-form" method="POST" action="/urlCleanupStart">
+		<p>
+			<label for="inputType">Input Type</label>
+			<select name="inputType">
+				<option value="SALESFORCE_REPORT" selected="selected">Salesforce Report</option>
+				<option value="DATABASE">Database</option>
+			</select>
+		</p>
+		
+		@snippets.localFilePicker(Global.getWebsiteListInputFolder(), "inputFilename")
+		
+		<p><label for="useProxy">Use Proxy?</label>
+		<input type="checkbox" name="useProxy" value="Use Proxy ? " checked></p>
+		<p><label for="proxyUrl">Proxy URL</label>
+		<input type="text" name="proxyUrl" value="@Global.getProxyUrl()"></p>
+		<p><label for="proxyPort">Proxy Port</label>
+		<input type="text" name="proxyPort" value="@Global.getProxyPort()"></p>
+		
+		<input type="submit" value="Submit">
+	</form>
+
+	
+}

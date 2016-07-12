@@ -34,6 +34,8 @@ public class Global extends GlobalSettings {
 	private final static String SECONDARY_CRAWL_STORAGE_FOLDER = Global.SECONDARY_STORAGE_FOLDER + "/crawldata";
 	private final static String SECONDARY_COMBINED_STORAGE_FOLDER = Global.SECONDARY_STORAGE_FOLDER + "/combined";
 	private final static String SECONDARY_REPORTS_STORAGE_FOLDER = Global.SECONDARY_STORAGE_FOLDER + "/reports";
+	private final static String INPUT_FOLDER = "C:/Workspace/DSStorage/in";
+	private final static String WEBSITE_LIST_INPUT_FOLDER= "C:/Workspace/DSStorage/in/websitelist";
 	private final static int LARGE_FILE_THRESHOLD = 500 * 1000;	//~ .5MB
 	
 	private static final String DEFAULT_MOBILE_USER_AGENT_STRING = "Mozilla/5.0 (iPhone; CPU iPhone OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A5376e Safari/8536.25";
@@ -203,6 +205,17 @@ public class Global extends GlobalSettings {
 
 	public static Date getStaleDate() {
 		return STALE_DATE;
+	}
+
+
+
+
+	public static String getInputFolder() {
+		return INPUT_FOLDER;
+	}
+
+	public static String getWebsiteListInputFolder() {
+		return WEBSITE_LIST_INPUT_FOLDER;
 	}
 
 

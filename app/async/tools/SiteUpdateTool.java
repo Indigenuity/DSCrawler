@@ -4,8 +4,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import async.registration.ContextItem;
+import async.work.WorkStatus;
 import async.work.WorkType;
+import persistence.Site;
+import persistence.UrlCheck;
 import persistence.tasks.Task;
+import play.db.jpa.JPA;
 
 public class SiteUpdateTool extends Tool { 
 	
@@ -44,14 +48,31 @@ public class SiteUpdateTool extends Tool {
 	
 	@Override
 	protected Task safeDoTask(Task task) {
-		throw new UnsupportedOperationException("sigh, need to update this");
-//		try{
-//			Long urlCheckId = Long.parseLong(task.getContextItem("urlCheckId"));
-//			Long siteId = Long.parseLong(task.getContextItem("siteId"));
-//			
-//			JPA.withTransaction( () -> {
-//				Site site = JPA.em().find(Site.class, siteId);
-//				UrlCheck urlCheck = JPA.em().find(UrlCheck.class, urlCheckId);
+//		throw new UnsupportedOperationException("sigh, need to update this");
+		
+		
+		
+		
+		
+		Long urlCheckId = Long.parseLong(task.getContextItem("urlCheckId"));
+		Long siteId = Long.parseLong(task.getContextItem("siteId"));
+		
+		
+		JPA.withTransaction( () -> {
+			Site site = JPA.em().find(Site.class, siteId);
+			UrlCheck urlCheck = JPA.em().find(UrlCheck.class, urlCheckId);
+			
+			if(urlCheck.isAllApproved() || urlCheck.isManuallyApproved()){
+				site.addRedirectUrl(site.getHomepage());
+				site.setHomepage(urlCheck.getResolvedSeed());
+				site.setRedirectResolveDate(urlCheck.getCheckDate());
+				urlCheck.setAccepted(true);
+				task.setWorkStatus(WorkStatus.WORK_COMPLETED);
+			} else {
+				task.setWorkStatus(WorkStatus.NEEDS_REVIEW);
+			}
+			
+		});
 //				
 //				
 //				if(urlCheck.getStatusCode() == 200) {
@@ -71,19 +92,9 @@ public class SiteUpdateTool extends Tool {
 //						task.setWorkStatus(WorkStatus.WORK_COMPLETED);
 //					}
 //				}
-//				if(task.getWorkStatus() != WorkStatus.WORK_COMPLETED){
-//	//				System.out.println("work needs review");
-//					task.setWorkStatus(WorkStatus.NEEDS_REVIEW);				
-//				}
-//			});
-//			
-//		}
-//		catch(Exception e) {
-//			Logger.error("Error in Site Update Worker: " + e);
-//			e.printStackTrace();
-//			task.setWorkStatus(WorkStatus.NEEDS_REVIEW);
-//		}
-//		return task;
+				
+			
+		return task;
 	}
 	
 	

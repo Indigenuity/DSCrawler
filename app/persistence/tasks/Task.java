@@ -60,7 +60,7 @@ public class Task {
 		    inverseJoinColumns={@JoinColumn(name="superTaskId")})
 	private Task supertask;
 	
-	@OneToMany(fetch=FetchType.LAZY)
+	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.PERSIST)
 	@JoinTable(name="task_subtask", 
 			joinColumns={@JoinColumn(name="supertaskId")},
 		    inverseJoinColumns={@JoinColumn(name="subtaskId", unique=false)})

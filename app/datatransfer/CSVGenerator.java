@@ -40,6 +40,33 @@ import play.db.jpa.JPA;
 
 public class CSVGenerator {
 	
+	public static void printReport(Report report) throws IOException {
+		
+		List<String[]> rows = new ArrayList<String[]>();
+		String[] headers = report.getColumnLabels().toArray(new String[report.getColumnLabels().size()]);
+		rows.add(headers);
+		for(ReportRow reportRow : report.getReportRows().values()){
+			List<String> cells = new ArrayList<String>();
+			for(String header : headers){
+				cells.add(reportRow.getCell(header));
+			}
+			String[] row = cells.toArray(new String[cells.size()]);
+			rows.add(row);
+		}
+		
+		String targetFilename = Global.getReportsStorageFolder() + "/" + report.getName();
+		if(report.isAppendDate()){
+			targetFilename += System.currentTimeMillis();  
+		}
+		targetFilename += ".csv";
+		File target = new File(targetFilename);
+		FileWriter fileOut = new FileWriter(target);
+		CSVPrinter printer = new CSVPrinter(fileOut, CSVFormat.EXCEL);
+		printer.printRecords(rows);
+		printer.close();
+		fileOut.close();
+	}
+	
 	public static void generateSiteImportReport(TaskSet taskSet) throws IOException {
 		CSVReport report = new CSVReport("Site Import Report");
 		List<String> values = new ArrayList<String>();

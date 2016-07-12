@@ -5,14 +5,47 @@ import java.util.Set;
 
 
 public enum GeneralMatch implements StringMatch{
-	 
+	 //********  CHAT 
      USES_CLIENT_CONNEXION					("Client Connexion", "clientconnexion.com", ""),
-     VIN_LENS								("Vin Lens", "vinlens.com", ""),
      SKYSA									("Skysa", "skysa.com", "Utility bar"),	//Utility bar used on forddirect
+     CONTACTATONCE							("Contact At Once", "contactatonce.com", ""),
+     ACTIVENGAGE							("ActivEngage", "activengage.com", ""),
+     CUTECHAT								("CuteChat", "CuteSoft_Client/CuteChat", ""),
+     BOLD_CHAT								("Bold Chat", "boldchat.com", ""),
+     
+     //******** Texting
+     CARCODE_SMS							("Carcode SMS", "carcodesms.com", ""),
+     
+     //******** Shopping Assistant
+     MYCARS									("MyCars", "mycars-toolbar", "Dealer.com Tool"),
+     
+     
+   //********  Analytics and SEO
+     VIN_LENS								("Vin Lens", "vinlens.com", ""),
+     GOOGLE_ANALYTICS						("Google Analytics", "google-analytics.com", ""),
+     GOOGLE_TAG_MANAGER						("Google Tag Manager", "googletagmanager.com", ""),
+     INSPECTLET								("Inspectlet", "inspectlet.com", "GA analysis tool"),  	
+     
+     //******** CDN
+     CLICK_MOTIVE							("Click Motive CDN", "assets.clickmotive.com"),
+     DEALER_COM_PICTURES					("Dealer.com pictures CDN", "pictures.dealer.com", "Generally for dealers' own pictures, not dealer.com's generic ones"),
+     DEALER_COM_IMAGES						("Dealer.com pictures CDN", "images.dealer.com", "Generic images for any/all dealer.com sites"),
+     COBALT_NITRA							("Cobalt Nitra", "assets.cobaltnitra.com"),
+     
+     
+     //******* Web Development
+     JQUERY									("jQuery", "jquery", ""),
+     
+     //******* Social 
+     GOOGLE_PLUS							("Google+", "plus.google.com", ""),
+     PLUS_ONE_BUTTON						("+1 Button", "plusone.js", ""),
+     
+     
+     //******* Other
      DEALER_COM_VERSION_9					("Dealer.com Version 9", "dealer.com/v9", ""),
      DEALER_COM_VERSION_8					("Dealer.com Version 8", "dealer.com/v8", ""),
+     
      DEMDEX									("DemDex", "demdex.com", "Adobe Audience Manager"),	//Adobe Audience Manager -- Audience Profiles -- found in js, not source
-     CONTACTATONCE							("Contact At Once", "contactatonce.com", ""),	//Chat system
      DEALERVIDEOS							("Dealer Videos", "dealervideos.com", ""),		
      OUTSELLCAMPAIGNSTORE					("Outsell Campaign Store", "outsellcampaignstore.com", ""),
      CALL_MEASUREMENT						( "Call Measurement", "callmeasurement.com", ""),
@@ -20,11 +53,9 @@ public enum GeneralMatch implements StringMatch{
      COLLSERVE								( "Collserve", "collserve.com", ""),
      SPEEDSHIFTMEDIA						("Speedshift Media", "speedshiftmedia.com", ""),
      AKAMAI									("Akamai", "akamai.com", ""),
-     CUTECHAT								("CuteChat", "CuteSoft_Client/CuteChat", ""),
-     CARCODE_SMS							("Carcode SMS", "carcodesms.com", ""),
      YOAST									("Yoast", "yoast", "WordPress SEO plugin"),	
      LOT_LINX								("Lot Linx", "lotlinx.com", ""),
-     INSPECTLET								("Inspectlet", "inspectlet.com", "GA analysis tool"), 	
+     
      MOTOFUZE								("Moto Fuze", "fzlnk.com", ""),	
      CLICKY									("Clicky", "getclicky.com", ""),	//Analytics tool
      GUBA_GOO_TRACKING						("Guba Goo Tracking", "gubagootracking.com", ""),
@@ -44,20 +75,20 @@ public enum GeneralMatch implements StringMatch{
      GHOSTERY								("Ghostery", "betrad.com", ""),
      GHOSTERY_SECOND						("Other Ghostery", "evidon.com", ""),
      NAKED_LIME_IMAGES						("Naked Lime Images (WebMaker X", "webmakerx.net", ""),
-     ACTIVE_ENGAGE							("Active Engage", "activengage.com", ""),
+     
      SHARP_SPRING							("Sharp Spring", "sharpspring.com", ""),
      ADOBE_TAG_MANAGER						("Adobe Tag manager", "adobedtm.com", ""),
      DEALER_CENTRIC							("DealerCentric", "dealercentric.com", ""),
      AUTO_TRADER_PLUGIN						("AutoTrader Plugin", "tradein.autotrader.com/ATPages", ""),
-     BOLD_CHAT								("Bold Chat", "boldchat.com", ""),
+     
      VOICESTAR								("Voice Star", "voicestar.com", ""),
      DEALERSHIP_INTEGRATED_DATA_SOLUTIONS	("Dealership Integrated Data Solutions", "dealershipids.com", ""),
-     HAS_GOOGLE_PLUS						("Google+", "plus.google.com", ""),
-     PLUS_ONE_BUTTON						("+1 Button", "plusone.js", ""),
-     USES_GOOGLE_ANALYTICS					("Google Analytics", "google-analytics.com", ""),
+     
+     
+     
      USES_GOOGLE_AD_SERVICES				("Google Ad Services", "googleadservices.com", ""),
-     GOOGLE_TAG_MANAGER						("Google Tag Manager", "googletagmanager.com", ""),
-     JQUERY									("jQuery", "jquery", ""),
+     
+     
      GOOGLE_MAPS							("Google Maps", "maps.google.com", ""),
      APPLE_APP								("iOS App link", "itunes.apple.com/us/app", ""),
      ANDROID_APP							("Android App link", "market.android.com", ""),
@@ -99,7 +130,7 @@ public enum GeneralMatch implements StringMatch{
      AUTO_499								("499 Auto financing", "499auto.com", ""),
      VINDICO_SUITE							("Vindico Suite", "vindicosuite.com", ""),
      CARWEEK								("Carweek SEO", "carweek.com", ""),
-     DEALER_LEADS							( "Dealer Leads SEO", "dealerleads.com", ""),
+     DEALER_LEADS							("Dealer Leads SEO", "dealerleads.com", ""),
      OGG_CHAT								("Ogg Chat", "oggchat.com", ""),
      INTELLIPRICE							("Intelliprice", "intelliprice.com", ""),
      OLARK									("Olark chat", "olark.com", ""),
@@ -144,6 +175,12 @@ public enum GeneralMatch implements StringMatch{
 	 public final String definition;
 	 public final String notes;
 	 public final Set<StringMatch> offsetMatches = new HashSet<StringMatch>();
+	 
+	 	private GeneralMatch(String description, String definition){
+			this.description = description;
+			this.definition = definition;
+			this.notes = "";
+		}
 	
 	private GeneralMatch(String description, String definition, String notes){
 		this.description = description;

@@ -30,7 +30,8 @@ public class UrlSniffer {
 		UrlCheck check = new UrlCheck(seed);
 		try{
 			String httpSeed = DSFormatter.toHttp(seed);
-			check.setResolvedSeed(httpSeed);
+			check.setStandardizedSeed(httpSeed);
+			check.setResolvedSeed(httpSeed);		//Initial value for recursion
 			check = resolveCheck(check, numRecursions);
 			fillMeta(check);
 		}

@@ -1,6 +1,8 @@
 package experiment;
 
 import global.Global;
+import newwork.TerminalWorker;
+import newwork.urlcheck.UrlCheckWorkOrder;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
@@ -32,6 +34,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -94,7 +98,10 @@ import datatransfer.Amalgamater;
 import datatransfer.CSVGenerator;
 import datatransfer.CSVImporter;
 import datatransfer.Cleaner;
+import datatransfer.Report;
+import datatransfer.ReportRow;
 import akka.actor.ActorRef;
+import akka.actor.Props;
 import analysis.SiteCrawlAnalyzer;
 import async.async.Asyncleton;
 import async.tools.InventoryTool;
@@ -130,6 +137,8 @@ import play.db.jpa.JPA;
 import reporting.DashboardStats;
 import scaffolding.Scaffolder;
 import tyrex.services.UUID;
+import urlcleanup.ListCheck;
+import urlcleanup.ListCheckExecutor;
 import utilities.DSFormatter;
 import utilities.FB;
 import utilities.Tim;
@@ -137,23 +146,79 @@ import utilities.UrlSniffer;
 
 public class Experiment {
 	
-	public static void runExperiment() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException, InterruptedException {
+	public static void runExperiment() throws Exception {
 		
-		TaskSet taskSet = JPA.em().find(TaskSet.class, 1L);
-		CSVGenerator.generateSiteImportReport(taskSet);
+//		ActorRef experimentActor = Asyncleton.getInstance().getMainSystem().actorOf(Props.create(MyExperimentWorker.class));
+//		
+//		experimentActor.tell("http://www.kengarff.com", ActorRef.noSender());
+//		
+//		ActorRef secondActor = Asyncleton.getInstance().getMainSystem().actorOf(Props.create(MyActor.class));
+//		
+//		
+//		firstActor.tell(1, secondActor);
 		
-//		String with = "www.495chryslerjeepdodge.net";
-//		String wik = "http://www.495chryslerjeepdodge.net";
-//		System.out.println("generic : " + UrlSniffer.isGenericRedirect(wik, with));
-//		String without = with.replaceAll("/en/$", "/");
-//		System.out.println("without : " + without);
-//		String domain = "http://www.honda.com";
-//		System.out.println("approved domain : " + DSFormatter.isApprovedDomain(domain));
-//		fetchingBenchmark();
-//		modifyTaskSet();
-//		CSVGenerator.generateInventoryCountReport();
-//		PageCrawl pageCrawl = JPA.em().find(PageCrawl.class, 8798L);
-//		System.out.println("pagecrawl inventory : " + pageCrawl.getInventoryNumber());
+		runListCheckExperiment();
+	}
+	
+	public static void runListCheckExperiment() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException, InterruptedException {
+		System.out.println("gettnig listcheck");
+		ListCheck listCheck = JPA.em().find(ListCheck.class, 1L);
+		System.out.println("getting report");
+		Report report = listCheck.getReport();
+		System.out.println("number of rows in report : " + report.getReportRows().size());
+		
+		ListCheckExecutor.execute(listCheck);
+		ListCheckExecutor.report(listCheck);
+	}
+	
+	public static void twitterExperiment() {
+	}
+	
+	public static void experimentTaskSet() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException, InterruptedException {
+		
+		TaskSet taskSet = new TaskSet();
+		taskSet.setName("Crawling");
+		
+		String query = "from Site s2 where s2.domain not in (select s.domain from Site s group by s.domain having count(*) > 1)";
+		List<Site> sites = JPA.em().createQuery(query, Site.class).getResultList();
+		
+		
+		System.out.println("sites size : " + sites.size());
+		for(Site site : sites){
+			Task supertask = new Task();
+			supertask.setWorkStatus(WorkStatus.DO_WORK);
+			supertask.setWorkType(WorkType.SUPERTASK);
+			supertask.addContextItem("seed", site.getHomepage());
+			supertask.addContextItem("siteId", site.getSiteId() + "");
+			taskSet.addTask(supertask);
+			
+			Task urlTask = new Task();
+			urlTask.setWorkType(WorkType.REDIRECT_RESOLVE);
+			urlTask.setWorkStatus(WorkStatus.DO_WORK);
+			supertask.addSubtask(urlTask);
+			
+			Task updateTask = new Task();
+			updateTask.setWorkType(WorkType.SITE_UPDATE);
+			updateTask.setWorkStatus(WorkStatus.DO_WORK);
+			updateTask.addPrerequisite(urlTask);
+			supertask.addSubtask(updateTask);
+			
+			Task crawlTask = new Task();
+			crawlTask.setWorkType(WorkType.SITE_CRAWL);
+			crawlTask.setWorkStatus(WorkStatus.DO_WORK);
+			crawlTask.addPrerequisite(updateTask);
+			supertask.addSubtask(crawlTask);
+			
+			Task analysisTask = new Task();
+			analysisTask.setWorkType(WorkType.ANALYSIS);
+			analysisTask.setWorkStatus(WorkStatus.DO_WORK);
+			analysisTask.addPrerequisite(crawlTask);
+			supertask.addSubtask(analysisTask);
+			
+			site.setHomepage(site.getHomepage());
+		}
+		
+		JPA.em().persist(taskSet);
 	}
 	
 	public static void fetchingBenchmark(){
@@ -226,13 +291,19 @@ public class Experiment {
 	}
 	
 	public static void modifyTaskSet() {
-		TaskSet taskSet = JPA.em().find(TaskSet.class, 1L);
+		
+		File folder = new File("C:\\Workspace\\DSStorage\\crawldata\\05-02-2016\\");
+		
+		System.out.println("is folder : " + folder.isDirectory());
+		
+		
+		TaskSet taskSet = JPA.em().find(TaskSet.class, 9L);
 		System.out.println("got task set : " + taskSet);
 		Task doc = null;
 		Task text = null;
 		Task meta = null;
 		Task inv = null;
-		Task siteCrawl = null;
+		Task siteCrawlTask = null;
 		Task url = null;
 		Task analysis = null;
 		int count = 1;
@@ -247,7 +318,7 @@ public class Experiment {
 				}else if(subtask.getWorkType() == WorkType.META_ANALYSIS){
 					meta = subtask;
 				}else if(subtask.getWorkType() == WorkType.SITE_CRAWL){
-					siteCrawl = subtask;
+					siteCrawlTask = subtask;
 				}else if(subtask.getWorkType() == WorkType.REDIRECT_RESOLVE){
 					url = subtask;
 				}else if(subtask.getWorkType() == WorkType.ANALYSIS){
@@ -255,7 +326,17 @@ public class Experiment {
 				}
 			}
 			
-			analysis.addPrerequisite(siteCrawl);
+
+			Task amalgTask = new Task();
+			amalgTask.setWorkStatus(WorkStatus.DO_WORK);
+			amalgTask.setWorkType(WorkType.AMALGAMATION);
+			amalgTask.addPrerequisite(siteCrawlTask);
+			JPA.em().persist(amalgTask);
+			analysis.getPrerequisites().clear();
+			analysis.addPrerequisite(amalgTask);
+			supertask.addSubtask(amalgTask);
+			
+//			analysis.addPrerequisite(siteCrawl);
 			
 			
 			

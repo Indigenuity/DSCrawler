@@ -73,7 +73,7 @@ public class StatsDAO {
 				"join task t on tst.taskid = t.taskid " + 
 				"join task_subtask sub on t.taskid = sub.supertaskid " + 
 				"join task t2 on sub.subtaskid = t2.taskid " + 
-				"where ts.tasksetid = 1 " + 
+				"where ts.tasksetid = " + taskSet.getTaskSetId() + " " + 
 				"group by t2.workType, t2.workstatus " + 
 				"order by t2.workstatus";
 		
@@ -96,7 +96,7 @@ public class StatsDAO {
 		String query = "select t.workType, t.workStatus, count(*) as numTasks from taskset ts " + 
 				"join taskset_task tst on ts.tasksetid = tst.tasksetid " + 
 				"join task t on tst.taskid = t.taskid " + 
-				"where ts.tasksetid = 1 " + 
+				"where ts.tasksetid = " + taskSet.getTaskSetId() + " " +  
 				"group by t.workType, t.workstatus " + 
 				"order by t.workstatus";
 		

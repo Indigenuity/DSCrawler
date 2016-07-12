@@ -44,10 +44,14 @@ import utilities.DSFormatter;
 public class SiteCrawlAnalyzer {
 	
 	public static void doFull(SiteCrawl siteCrawl) throws IOException { 
-//		doPageCrawlAnalysis(siteCrawl);
-//		doBlobTextAnalysis(siteCrawl);
+		doPageCrawlAnalysis(siteCrawl);
+		doBlobTextAnalysis(siteCrawl);
 		aggregatePageCrawlData(siteCrawl);
-//		metaAnalysis(siteCrawl);
+		metaAnalysis(siteCrawl);
+	}
+	
+	public static void doCustom(SiteCrawl siteCrawl) throws IOException {
+		doBlobTextAnalysis(siteCrawl);
 	}
 	
 	public static void doPageCrawlAnalysis(SiteCrawl siteCrawl) throws IOException{
@@ -88,7 +92,7 @@ public class SiteCrawlAnalyzer {
 //		        System.out.println("old web providers");
 //		        siteCrawl.setWebProviders(getWebProviders(text));
 //		        siteCrawl.setSchedulers(getSchedulers(text));
-//		        siteCrawl.setGeneralMatches(getGeneralMatches(text));
+		        siteCrawl.setGeneralMatches(getGeneralMatches(text));
 			}
 				
 		}

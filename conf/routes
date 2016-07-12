@@ -5,6 +5,21 @@
 # Home page
 GET     /                           	controllers.Application.index()
 GET		/runExperiment					controllers.Application.runExperiment()
+
+GET 	/urlCleanupForm					controllers.Application.urlCleanupForm()
+POST	/urlCleanupStart				controllers.Application.urlCleanupStart()
+
+
+GET		/getLocalFiles					controllers.Application.getLocalFiles(folderName : String)
+
+
+
+
+
+
+
+
+
 GET		/groupSites						controllers.Application.groupSites(numToProcess : Integer ?= 20, offset : Integer ?= 0)
 GET		/runGc							controllers.Application.runGc()
 GET		/duplicateDomains				controllers.Application.duplicateDomains(numToProcess : Integer ?= 20, offset : Integer ?= 0)

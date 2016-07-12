@@ -1,0 +1,21 @@
+
+@(localFolder : String, fieldId : String)
+
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		$.getJSON("/getLocalFiles?folderName=@localFolder", function(data) {
+			var filenames = [];
+			for(var i = 0; i < data.length; i++){
+				filenames[i] = data[i].replace(/^.*[\\\/]/, '');
+				var optionTag = '<option value="' + data[i] + '">' + filenames[i] + '</option>';
+				$(optionTag).appendTo("#@fieldId");
+			}
+			$("#@fieldId")[0].selectedIndex = 0;
+		});
+	});
+</script>
+<label for="@fieldId">@fieldId</label>
+<select size="5" id="@fieldId" name="@fieldId">
+</select>

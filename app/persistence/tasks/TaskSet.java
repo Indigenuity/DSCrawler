@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -31,7 +32,7 @@ public class TaskSet {
 	
 	private Date dateCreated;
 
-	@OneToMany(fetch=FetchType.LAZY)
+	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.PERSIST)
 	@JoinTable(name="taskSet_task", 
 			joinColumns={@JoinColumn(name="taskSetId")},
 		    inverseJoinColumns={@JoinColumn(name="taskId")})

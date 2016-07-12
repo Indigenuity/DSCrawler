@@ -1,6 +1,7 @@
 package controllers;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -9,7 +10,9 @@ import java.io.ObjectOutputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -44,6 +47,8 @@ import datatransfer.Amalgamater;
 import datatransfer.CSVGenerator;
 import datatransfer.CSVImporter;
 import datatransfer.Cleaner;
+import datatransfer.Report;
+import datatransfer.ReportRow;
 import datatransfer.SourceSwapper;
 import persistence.CapEntry;
 import persistence.CrawlSet;
@@ -69,9 +74,14 @@ import play.db.jpa.JPA;
 import play.db.jpa.Transactional;
 import play.libs.F.Function;
 import play.libs.F.Promise;
+import play.libs.Json;
 import play.libs.ws.WS;
 import play.libs.ws.WSResponse;
 import play.mvc.*;
+import urlcleanup.ListCheck;
+import urlcleanup.ListCheckConfig;
+import urlcleanup.ListCheckFactory;
+import urlcleanup.ListCheckConfig.InputType;
 import utilities.DSFormatter;
 import utilities.UrlSniffer;
 import viewmodels.SharedEntity;
@@ -96,6 +106,79 @@ public class Application extends Controller {
     	Experiment.runExperiment();
     	return ok();
     }
+    
+    public static Result urlCleanupForm() {
+    	File inputFolder = new File(Global.getWebsiteListInputFolder());
+    	Arrays.sort(inputFolder.listFiles(), new Comparator<File>(){
+    	    public int compare(File f1, File f2)
+    	    {
+    	        return Long.valueOf(f1.lastModified()).compareTo(f2.lastModified());
+    	    } });
+    	return ok(views.html.tasks.urlCleanupForm.render());
+    }
+    
+    @Transactional
+    public static Result urlCleanupStart() throws IOException {
+    	System.out.println("in cleanup start");
+    	DynamicForm data = Form.form().bindFromRequest();
+		String inputTypeString = data.get("inputType");
+		String inputFilename = data.get("inputFilename");
+		Boolean useProxy = Boolean.parseBoolean(data.get("useProxy"));
+		String proxyUrl = data.get("proxyUrl");
+		String proxyPort = data.get("proxyPort");
+		
+		ListCheckConfig config = new ListCheckConfig();
+		config.setInputFilename(inputFilename);
+		config.setUseProxy(useProxy);
+		config.setProxyPort(proxyPort);
+		config.setProxyUrl(proxyUrl);
+		config.setInputType(InputType.valueOf(inputTypeString));
+		
+		ListCheck listCheck = ListCheckFactory.createListCheck(config);
+		System.out.println("listCheck : " + listCheck);
+		System.out.println("report size : " + listCheck.getReport().getReportRows().size());
+		Report report = listCheck.getReport();
+		System.out.println("primary : " + report.getKeyColumn());
+		for(String columnLabel : report.getColumnLabels()){
+			System.out.print(columnLabel + "       ");
+		}
+		System.out.println("");
+//		for(ReportRow reportRow : report.getReportRows()){
+//			for(String columnLabel : report.getColumnLabels()){
+//				System.out.print(reportRow.getCells().get(columnLabel) + "     ");
+//			}
+//		}
+		report.getColumnLabels();
+		JPA.em().persist(listCheck);
+    	return ok();
+    }
+    
+    public static Result filePicker() {
+    	String folderName = Global.getWebsiteListInputFolder();
+    	File folder = new File(folderName);
+    	File[] sortedFiles = folder.listFiles();
+    	Arrays.sort(sortedFiles, new Comparator<File>(){
+    	    public int compare(File f1, File f2)
+    	    {
+    	        return Long.valueOf(f1.lastModified()).compareTo(f2.lastModified());
+    	    } });
+    	
+    	JsonNode json = Json.toJson(sortedFiles);
+    	System.out.println("json : " + json);
+    	return ok();
+    }
+    
+    public static Result getLocalFiles(String folderName) {
+    	File folder = new File(folderName);
+    	File[] sortedFiles = folder.listFiles();
+    	Arrays.sort(sortedFiles, new Comparator<File>(){
+    	    public int compare(File f1, File f2)
+    	    {
+    	        return Long.valueOf(f2.lastModified()).compareTo(f1.lastModified());
+    	    } });
+    	return ok(Json.toJson(sortedFiles));
+    }
+    
     
     @Transactional
     public static Result duplicateDomains(int numToProcess, int offset){

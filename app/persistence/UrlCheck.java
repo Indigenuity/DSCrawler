@@ -22,6 +22,9 @@ public class UrlCheck {
 	private String seed;
 	
 	private String seedHost;
+	
+	@Column(nullable = true, columnDefinition="varchar(4000)")
+	private String standardizedSeed;
 
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	private String resolvedSeed;
@@ -205,6 +208,12 @@ public class UrlCheck {
 	}
 	public void setMarkedDefunct(boolean markedDefunct) {
 		this.markedDefunct = markedDefunct;
+	}
+	public String getStandardizedSeed() {
+		return standardizedSeed;
+	}
+	public void setStandardizedSeed(String standardizedSeed) {
+		this.standardizedSeed = standardizedSeed;
 	}
 	
 
