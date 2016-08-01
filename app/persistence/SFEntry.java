@@ -13,7 +13,7 @@ import javax.persistence.ManyToOne;
 public class SFEntry {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY) 
 	private long sfEntryId;
 	
 	
@@ -23,7 +23,7 @@ public class SFEntry {
 	private String name;
 	private String phone;
 	private String street;
-	private String city;
+	private String city; 
 	private String state;
 	private String postal;
 	private String country;

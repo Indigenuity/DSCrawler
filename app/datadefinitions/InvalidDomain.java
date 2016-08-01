@@ -11,6 +11,9 @@ public enum InvalidDomain {
 	DRIVE_TIME		("drivetime.com"),
 	HONDA			("honda.com"),
 	CLICK_MOTIVE	("clickmotive.com"),
+	DEALER_CAR_SEARCH	("dealercarsearch.com"),
+	GM_DEALER_LOCATOR	("gmdealerlocator.com"),
+	HUGE_DOMAINS		("hugedomains.com"),
 	GM				("gm.com");
 	
 	private final Pattern pattern;

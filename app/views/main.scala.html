@@ -18,11 +18,20 @@
 		<script src="@routes.Assets.at("javascripts/main.js")" type="text/javascript"></script>
     </head>
     <body>
+    	<div id="overlay">
+    		<div id="overlay-content">
+    			<img class="loading" src="@routes.Assets.at("images/paint-loading.gif")">
+    			<img class="success" src="@routes.Assets.at("images/success.png")">
+    			<img class="failure" src="@routes.Assets.at("images/failure.png")">
+    			<div class="message"></div>
+    		</div>
+    	</div>
 	    <div id="menu-container">
 			<ul id="menu">
 				<li class="menu-item"><a href="/dashboard">Dashboard</a></li>
 				<li class="menu-item"><a href="/reviewDupDomains">Review Dup Domains</a></li>
 				<li class="menu-item"><a href="/urlCleanupForm">URL Cleanup</a></li>
+				<li class="menu-item"><a href="/allSyncs">All Syncs</a></li>
 				<li class="menu-item"><a href="/fetchJobs">Fetch Jobs</a></li>
 				<li class="menu-item"><a href="/taskSets">Task Sets</a></li>
 				<li class="menu-item"><a href="/deDupHomepages" target="_blank">De-Dup Homepages</a></li>

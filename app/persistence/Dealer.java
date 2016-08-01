@@ -14,14 +14,25 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
-import javax.persistence.Transient;
+import javax.persistence.Table;
+import javax.persistence.Index;
 
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
+
+import persistence.salesforce.SalesforceAccount;
 import utilities.DSFormatter;
 
 @Entity
+@Table(indexes = {@Index(name = "dealerName_index",  columnList="dealerName", unique = false),
+        @Index(name = "salesforceId_index", columnList="salesforceId",     unique = false)})
+@Audited(withModifiedFlag=true)
 public class Dealer {
 	
+	
+	/***************************  Identifiers ****************************/
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long dealerId;
@@ -32,14 +43,24 @@ public class Dealer {
 	@Column(nullable = true, columnDefinition="varchar(300)")
 	private String dealerName;
 	
-	@Column(nullable = true, columnDefinition="varchar(15)")
 	private String niada;
-	@Column(nullable = true, columnDefinition="varchar(15)")
 	private String capdb;
-	@Column(nullable = true, columnDefinition="varchar(255)")
 	private String placesId;
-	@Column(nullable = true, columnDefinition="varchar(255)")
 	private String sfId;
+	
+	/************************************  Salesforce Fields ************************************/
+	
+	private String salesforceId;
+	private String parentAccountName;
+	private String parentAccountSalesforceId;
+	@Column(columnDefinition = "varchar(4000)")
+	private String salesforceWebsite;
+	private String accountType = "GROUP";
+	
+	
+	@ManyToOne
+	private GroupAccount groupAccount;
+	
 	
 	@Column(nullable = false, columnDefinition="boolean default true")
 	private boolean franchise;
@@ -47,30 +68,16 @@ public class Dealer {
 	//Mistakenly created as onetoone instead of manytoone
 	@OneToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
 	@JoinColumn(name="DEALER_MAIN_SITE_ID")
+	@NotAudited
 	private Site mainSite;
 	
-	@Column(columnDefinition="varchar(4000)")
-	@ElementCollection(fetch=FetchType.EAGER)
-	private List<String> previousUrls = new ArrayList<String>();
 	
-	@Column(nullable = true, columnDefinition="varchar(255)")
 	private String address;
-	
-	@Column(nullable = true, columnDefinition="varchar(255)")
 	private String street;
-	
-	@Column(nullable = true, columnDefinition="varchar(255)")
 	private String city;
-	
-	@Column(nullable = true, columnDefinition="varchar(255)")
 	private String state;
-	
-	@Column(nullable = true, columnDefinition="varchar(255)")
 	private String zip;
-	
-	@Column(nullable = true, columnDefinition="varchar(255)")
 	private String country;
-	
 	private String phone;
 	
 	
@@ -116,7 +123,7 @@ public class Dealer {
 		this.capdb = capdb;
 	}
 
-	public boolean isFranchise() {
+	public Boolean isFranchise() {
 		return franchise;
 	}
 
@@ -132,18 +139,6 @@ public class Dealer {
 		this.mainSite = mainSite;
 	}
 
-	public List<String> getPreviousUrls() {
-		return previousUrls;
-	}
-
-	public void setPreviousUrls(List<String> previousUrls) {
-		this.previousUrls.clear();
-		for(String url : previousUrls){
-			this.previousUrls.add(DSFormatter.truncate(url, 4000));
-		}
-	}
-
-	
 	public String getPlacesId() {
 		return placesId;
 	}
@@ -284,8 +279,67 @@ public class Dealer {
 
 
 
+	public String getSalesforceId() {
+		return salesforceId;
+	}
+
+	public void setSalesforceId(String salesforceId) {
+		this.salesforceId = salesforceId;
+	}
+
+	public String getParentAccountName() {
+		return parentAccountName;
+	}
+
+	public void setParentAccountName(String parentAccountName) {
+		this.parentAccountName = parentAccountName;
+	}
+
+	public String getParentAccountSalesforceId() {
+		return parentAccountSalesforceId;
+	}
+
+	public void setParentAccountSalesforceId(String parentAccountSalesforceId) {
+		this.parentAccountSalesforceId = parentAccountSalesforceId;
+	}
+
+	public String getSalesforceWebsite() {
+		return salesforceWebsite;
+	}
+
+	public void setSalesforceWebsite(String salesforceWebsite) {
+		this.salesforceWebsite = salesforceWebsite;
+	}
+
+
+
+	public String getAccountType() {
+		return accountType;
+	}
+
+	public void setAccountType(String accountType) {
+		this.accountType = accountType;
+	}
+
+	public GroupAccount getGroupAccount() {
+		return groupAccount;
+	}
+
+	public void setGroupAccount(GroupAccount groupAccount) {
+		this.groupAccount = groupAccount;
+	}
+
+
+
 	public enum Datasource {
 		ManualEntry, NIADA, CapDB, GooglePlacesAPI, OEM, Special_Project, SalesForce
 	}
-	
+
+
+
+	public String getName() {
+		return getDealerName();
+	}
+
+
 }

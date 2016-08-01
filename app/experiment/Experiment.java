@@ -31,9 +31,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Function;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -49,6 +51,8 @@ import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.EntityType;
 
+import org.apache.commons.beanutils.BeanMap;
+import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.csv.CSVPrinter;
@@ -56,9 +60,15 @@ import org.apache.commons.csv.CSVPrinter;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
+import org.hibernate.envers.AuditReader;
+import org.hibernate.envers.AuditReaderFactory;
+import org.hibernate.envers.query.AuditEntity;
+import org.hibernate.envers.query.AuditQuery;
+import org.hibernate.envers.query.AuditQueryCreator;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Proxy;
 import org.openqa.selenium.WebDriver;
@@ -69,6 +79,9 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import com.google.common.base.Functions;
+import com.google.common.collect.MapDifference;
+import com.google.common.collect.Maps;
 import com.google.maps.GeoApiContext;
 import com.google.maps.PlaceDetailsRequest;
 import com.google.maps.PlacesApi;
@@ -83,6 +96,7 @@ import agarbagefolder.urlresolve.UrlResolveWorkOrder;
 import crawling.DealerCrawlController;
 import crawling.GoogleCrawler;
 import crawling.MobileCrawler;
+import dao.GeneralDAO;
 import dao.SitesDAO;
 import dao.StatsDAO;
 import dao.TaskDAO;
@@ -98,8 +112,9 @@ import datatransfer.Amalgamater;
 import datatransfer.CSVGenerator;
 import datatransfer.CSVImporter;
 import datatransfer.Cleaner;
-import datatransfer.Report;
-import datatransfer.ReportRow;
+import datatransfer.reports.Report;
+import datatransfer.reports.ReportFactory;
+import datatransfer.reports.ReportRow;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import analysis.SiteCrawlAnalyzer;
@@ -111,6 +126,14 @@ import async.tools.UrlResolveTool;
 import async.work.WorkItem;
 import async.work.WorkStatus;
 import async.work.WorkType;
+import audit.AuditDao;
+import audit.sync.SalesforceDealerSyncSession;
+import audit.sync.SalesforceGroupAccountSyncSession;
+import audit.sync.SalesforceSyncControl;
+import audit.sync.SingleSyncSession;
+import audit.sync.Sync;
+import audit.sync.SyncSession;
+import audit.sync.SyncType;
 import persistence.CanadaPostal;
 import persistence.CrawlSet;
 import persistence.Dealer;
@@ -118,6 +141,7 @@ import persistence.ExtractedString;
 import persistence.ExtractedUrl;
 import persistence.FBPage;
 import persistence.GoogleCrawl;
+import persistence.GroupAccount;
 import persistence.ImageTag;
 import persistence.MobileCrawl;
 import persistence.PageCrawl;
@@ -127,7 +151,11 @@ import persistence.SFEntry;
 import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.Temp;
+import persistence.TestEntity;
+import persistence.TestOtherEntity;
 import persistence.UrlCheck;
+import persistence.Site.SiteStatus;
+import persistence.salesforce.SalesforceAccount;
 import persistence.stateful.FetchJob;
 import persistence.tasks.Task;
 import persistence.tasks.TaskSet;
@@ -146,7 +174,272 @@ import utilities.UrlSniffer;
 
 public class Experiment {
 	
-	public static void runExperiment() throws Exception {
+	
+	
+	public static void runExperiment() throws IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InterruptedException {
+		
+		experimentTaskSet();
+//		useUrlChecks();
+//		String queryString = "from Site s where domain is null";
+//		List<Site> sites = JPA.em().createQuery(queryString, Site.class).getResultList();
+//		for(Site site : sites){
+//			site.setHomepage(site.getHomepage());
+//		}
+//		String queryString = "select sa from SalesforceAccount sa join sa.site s where s.siteStatus = :siteStatus and s.domain is null";
+//		List<SalesforceAccount> accounts = JPA.em().createQuery(queryString, SalesforceAccount.class).setParameter("siteStatus", SiteStatus.APPROVED).getResultList();
+//		System.out.println("account : " + accounts.size());
+//		
+//		for(SalesforceAccount account : accounts){
+//			Site site = account.getSite();
+//			System.out.println("account site : " + site.getHomepage());
+//			site.setHomepage(site.getHomepage());
+////			if(count++ > 100){
+////				return;
+////			}
+//		}
+	}
+	
+	public static void useUrlChecks() throws IOException {
+		List<Site> sitesList = JPA.em().createQuery("from Site site", Site.class).getResultList();
+		Map<String, Site> sites = sitesList.stream().collect(Collectors.toMap( (site) -> site.getHomepage(), (site) -> site));
+		
+		List<SalesforceAccount> accountsList = JPA.em().createQuery("from SalesforceAccount sa", SalesforceAccount.class).getResultList();
+		Map<String, SalesforceAccount> accounts = accountsList.stream().collect(Collectors.toMap( (account) -> account.getSalesforceId(), (account) -> account));
+		
+		Report report = JPA.em().find(Report.class, 1L);
+		int count = 0;
+		for(ReportRow reportRow : report.getReportRows().values()){
+			System.out.println("working on reportRow : " + ++count);
+			Site beforeSite = sites.get(reportRow.getCell("Website"));
+			Site afterSite;
+			
+			if(beforeSite == null){
+//				System.out.println("no site yet" + count++);
+				continue;
+			}
+			
+			SalesforceAccount account = accounts.get(reportRow.getCell("Salesforce Unique ID"));
+			String recommendation = reportRow.getCell("Recommendation");
+			String urlCheckIdString = reportRow.getCell("urlCheckId");
+			String manualSeed = reportRow.getCell("Manual Seed");
+			boolean sameSite = false;
+			
+			if(urlCheckIdString != null){
+				Long urlCheckId = Long.parseLong(urlCheckIdString);
+				UrlCheck urlCheck = JPA.em().find(UrlCheck.class, urlCheckId);
+				beforeSite.setUrlCheck(urlCheck);
+			}
+			
+			if("Defunct".equals(recommendation)){
+				beforeSite.setSiteStatus(SiteStatus.DEFUNCT);
+//				System.out.println("defunct");
+				continue;
+			} else if ("Other Issue Requires Attention".equals(recommendation)){
+				beforeSite.setSiteStatus(SiteStatus.OTHER_ISSUE);
+//				System.out.println("other issue");
+				continue;
+			} else {
+//				System.out.println("getting site from resolved seed");
+				afterSite = sites.get(reportRow.getCell("Resolved Seed"));
+				if(afterSite == null){
+//					System.out.println("none found, creating site from resolved seed");
+					afterSite = new Site(reportRow.getCell("Resolved Seed"));
+				}
+				
+				if(afterSite == beforeSite){
+					sameSite = true;
+				}
+				afterSite.setSiteStatus(SiteStatus.APPROVED);
+				afterSite = JPA.em().merge(afterSite);
+				
+			}
+			
+			if(StringUtils.isEmpty(manualSeed)){
+//				System.out.println("no manual seed found, creating redirect link");
+				if(sameSite){
+					afterSite.setForwardsTo(null);
+					afterSite.setSiteStatus(SiteStatus.APPROVED);
+				} else{
+					beforeSite.setForwardsTo(afterSite);
+					beforeSite.setSiteStatus(SiteStatus.REDIRECTS);	
+				}
+				
+			}
+			
+			if("Approve Shared".equals(reportRow.getCell("Recommendation"))){
+				System.out.println("setting site shared flag to true");
+				afterSite.setSharedSite(true);
+			}
+			
+			account.setSite(afterSite);
+			
+			
+//			SalesforceAccount account = accounts.get(reportRow.getCell("Salesforce Unique ID"));
+//			String website = reportRow.getCell("Website");
+//			String resolvedSeed = reportRow.getCell("Resolved Seed");
+//			String urlCheckIdString = reportRow.getCell("urlCheckId");
+//			Site mainSite = account.getSite();
+//			if(!StringUtils.equals(website, account.getSalesforceWebsite())){
+//				System.out.println("website not equals : " + website + " : " + account.getSalesforceWebsite());
+//			} else {
+//				if(!StringUtils.isEmpty(website) && !StringUtils.equals(website, resolvedSeed)) {
+//					
+//				}
+//			}
+			
+		}
+	}
+	
+	public static void runSyncExperiment(){
+		System.out.println("gettnig listcheck");
+		ListCheck listCheck = JPA.em().find(ListCheck.class, 1L);
+		System.out.println("getting report");
+		Report report = listCheck.getReport();
+		System.out.println("number of rows in report : " + report.getReportRows().size());
+		
+		Map<String, GroupAccount> groupAccounts = new HashMap<String, GroupAccount>();
+		
+		report.getReportRows().values().stream()
+		.filter((reportRow) -> {
+			return reportRow.getCell("Account Level") != null && reportRow.getCell("Account Level").equals("Group");
+		}).forEach((reportRow) -> {
+			
+//			
+			
+//			if(dealer.getParentAccountSalesforceId() != null){
+//				
+//			}
+			
+		}); 
+		
+		JPA.em().getTransaction().commit();
+		JPA.em().getTransaction().begin();
+		
+		
+		report.getReportRows().values().stream()
+		.forEach((reportRow) -> {
+			Dealer dealer = GeneralDAO.getFirst(Dealer.class, "dealerName", reportRow.getCell("Account Name"));
+			boolean isNew = false;
+			if(dealer == null){
+				dealer = new Dealer();
+				isNew = true;
+			}
+			
+			dealer.setDealerName(reportRow.getCell("Account Name"));
+			dealer.setSalesforceId(reportRow.getCell("Salesforce Unique ID"));
+			dealer.setSalesforceWebsite(reportRow.getCell("Website"));
+			dealer.setParentAccountSalesforceId(reportRow.getCell("Parent Account ID"));
+			dealer.setParentAccountName(reportRow.getCell("Parent Account"));
+			dealer.setGroupAccount(groupAccounts.get(dealer.getParentAccountSalesforceId()));
+			
+		});
+		
+		
+		
+		List<Dealer> dealers = JPA.em().createQuery("from Dealer d where d.parentAccountSalesforceId is not null", Dealer.class).getResultList();
+		
+		dealers.stream()
+			.forEach( (dealer) ->  {
+				GroupAccount groupAccount = GeneralDAO.getFirst(GroupAccount.class, "salesforceId", dealer.getParentAccountSalesforceId());
+				System.out.println("dealer : " + dealer.getDealerName());
+				if(groupAccount != null) {
+					dealer.setGroupAccount(groupAccount);
+					
+					System.out.println("group account : " + groupAccount.getName());
+				} else {
+					System.out.println("no group account");
+				}
+			});
+		
+	}
+	
+	public static void runEnversExperiment() throws IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+		
+		Sync sync = JPA.em().find(Sync.class, 9L);
+		
+		Integer revisionOfSync = AuditDao.getRevisionOfSync(sync);
+		System.out.println("revision : " + revisionOfSync);
+		
+//		List<TestEntity> entities = AuditDao.getDeletedAtRevision(TestEntity.class, 15);
+//		entities.stream().forEach( (entity -> {
+//			System.out.println("entity : " + entity);
+//		}));
+//		TestEntity newEntity = new TestEntity();
+//		JPA.em().persist(newEntity); 
+//		Sync sync = new Sync(SyncType.TEST);
+//		JPA.em().persist(sync);
+//		SalesforceSync.syncGroups("C:\\Workspace\\DSStorage\\in\\websitelist\\report1455663101631.csv");
+//		SalesforceSync.syncDealers("C:\\Workspace\\DSStorage\\in\\websitelist\\report1455663101631.csv");
+//		TestOtherEntity newOtherEntity = new TestOtherEntity();
+//		JPA.em().persist(newOtherEntity);
+		
+//		TestEntity testEntity = JPA.em().find(TestEntity.class, 14L);
+//		BeanMap beanMap = new BeanMap(testEntity);
+//		beanMap.values().stream().forEach((a) -> System.out.println("field : " + ((a == null)? a : a.getClass())));
+//		System.out.println("fields : " + Scaffolder.getBasicFields(testEntity));
+//		TestEntity secondTestEntity = JPA.em().find(TestEntity.class, 13L);
+//		Object identifier = JPA.em().getDelegate().getEntityManagerFactory().getPersistenceUnitUtil().getIdentifier(testEntity);
+//		System.out.println("Identifier : " + identifier);
+//		TestOtherEntity otherEntity = JPA.em().find(TestOtherEntity.class, 1L);
+//		
+//		JPA.em().remove(testEntity);
+//		testEntity.setOtherEntity(otherEntity);
+//		otherEntity.setOtherString("Removed my parent");
+//		testEntity.setMyString("changed string with sync a second time");
+//		testEntity.setMyPrimitiveCharacter('b');
+//		testEntity.setMyString("This string has changed");
+		
+//		AuditReader reader = AuditReaderFactory.get(JPA.em());
+//		
+//		AuditQuery query = reader
+//				.createQuery()
+//				.forRevisionsOfEntity(Sync.class, true, false).addProjection(AuditEntity.revisionNumber().max());
+//		
+//		Integer revisionNum = (Integer) query.getSingleResult();
+//		System.out.println("Revision Number: " + revisionNum);
+//		
+//		query = reader
+//				.createQuery()
+//				.forEntitiesModifiedAtRevision(Sync.class, revisionNum).setMaxResults(1);
+//		
+//		Sync sync = (Sync) query.getSingleResult();
+//		
+//		System.out.println("Sync : " + sync);
+		
+//		TestEntity blah1 = AuditDao.getTestEntitySyncReport(28);
+//		TestEntity blah2 = AuditDao.getTestEntitySyncReport(27);
+//		
+//		compareObjects(testEntity, secondTestEntity);
+//		System.out.println("blah1 : " + blah1.getMyString());
+//		System.out.println("blah2 : " + blah2.getMyString());
+//		JPA.em().merge(blah);
+		
+		
+		System.out.println("Ran Experiment");
+	}
+	
+	public static void compareObjects(Object oldObject, Object newObject) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+        BeanMap map = new BeanMap(oldObject);
+
+        PropertyUtilsBean propUtils = new PropertyUtilsBean();
+        
+        for (Object propNameObject : map.keySet()) {
+            String propertyName = (String) propNameObject;
+            Object property1 = propUtils.getProperty(oldObject, propertyName);
+            Object property2 = propUtils.getProperty(newObject, propertyName);
+            if(property1 == null){
+            	
+            }
+            if ((property1 == null && property2 == null ) || (property1 != null && property1.equals(property2))) {
+                System.out.println("  " + propertyName + " is equal");
+            } else {
+                System.out.println("> " + propertyName + " is different (oldValue=\"" + property1 + "\", newValue=\"" + property2 + "\")");
+            }
+        }
+
+    }
+	
+	public static void runOtherListCheckExperiment() throws Exception {
 		
 //		ActorRef experimentActor = Asyncleton.getInstance().getMainSystem().actorOf(Props.create(MyExperimentWorker.class));
 //		
@@ -157,7 +450,7 @@ public class Experiment {
 //		
 //		firstActor.tell(1, secondActor);
 		
-		runListCheckExperiment();
+//		runListCheckExperiment();
 	}
 	
 	public static void runListCheckExperiment() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException, InterruptedException {
@@ -168,7 +461,10 @@ public class Experiment {
 		System.out.println("number of rows in report : " + report.getReportRows().size());
 		
 		ListCheckExecutor.execute(listCheck);
+		
+//		ListCheckExecutor.markIndexChanges(listCheck);
 		ListCheckExecutor.report(listCheck);
+//		ListCheckExecutor.markBlanks(listCheck);
 	}
 	
 	public static void twitterExperiment() {
@@ -179,9 +475,20 @@ public class Experiment {
 		TaskSet taskSet = new TaskSet();
 		taskSet.setName("Crawling");
 		
-		String query = "from Site s2 where s2.domain not in (select s.domain from Site s group by s.domain having count(*) > 1)";
-		List<Site> sites = JPA.em().createQuery(query, Site.class).getResultList();
+		String query = "from Site s where s.siteStatus = :siteStatus";
+		List<Site> sites = JPA.em().createQuery(query, Site.class).setParameter("siteStatus", SiteStatus.APPROVED).getResultList();
 		
+//		List<String> dupDomains = SitesDAO.getDuplicateDomains(100000, 0);
+//		System.out.println("dupDomains : " + dupDomains.size());
+//		
+//		for(String domain : dupDomains){
+//			System.out.println("marking dupes on domain : " + domain);
+//			List<Site> sites = GeneralDAO.getList(Site.class, "domain", domain);
+//			System.out.println("found sites on dup domain : " + sites.size());
+//			for(Site site : sites) {
+//				site.setSiteStatus(SiteStatus.SUSPECTED_DUPLICATE);
+//			}
+//		}
 		
 		System.out.println("sites size : " + sites.size());
 		for(Site site : sites){
@@ -192,27 +499,33 @@ public class Experiment {
 			supertask.addContextItem("siteId", site.getSiteId() + "");
 			taskSet.addTask(supertask);
 			
-			Task urlTask = new Task();
-			urlTask.setWorkType(WorkType.REDIRECT_RESOLVE);
-			urlTask.setWorkStatus(WorkStatus.DO_WORK);
-			supertask.addSubtask(urlTask);
-			
-			Task updateTask = new Task();
-			updateTask.setWorkType(WorkType.SITE_UPDATE);
-			updateTask.setWorkStatus(WorkStatus.DO_WORK);
-			updateTask.addPrerequisite(urlTask);
-			supertask.addSubtask(updateTask);
-			
+//			Task urlTask = new Task();
+//			urlTask.setWorkType(WorkType.REDIRECT_RESOLVE);
+//			urlTask.setWorkStatus(WorkStatus.DO_WORK);
+//			supertask.addSubtask(urlTask);
+//			
+//			Task updateTask = new Task();
+//			updateTask.setWorkType(WorkType.SITE_UPDATE);
+//			updateTask.setWorkStatus(WorkStatus.DO_WORK);
+//			updateTask.addPrerequisite(urlTask);
+//			supertask.addSubtask(updateTask);
+//			
 			Task crawlTask = new Task();
 			crawlTask.setWorkType(WorkType.SITE_CRAWL);
 			crawlTask.setWorkStatus(WorkStatus.DO_WORK);
-			crawlTask.addPrerequisite(updateTask);
 			supertask.addSubtask(crawlTask);
+			
+			Task amalgTask = new Task();
+			amalgTask.setWorkStatus(WorkStatus.DO_WORK);
+			amalgTask.setWorkType(WorkType.AMALGAMATION);
+			amalgTask.addPrerequisite(crawlTask);
+			JPA.em().persist(amalgTask);
+			
 			
 			Task analysisTask = new Task();
 			analysisTask.setWorkType(WorkType.ANALYSIS);
 			analysisTask.setWorkStatus(WorkStatus.DO_WORK);
-			analysisTask.addPrerequisite(crawlTask);
+			analysisTask.addPrerequisite(amalgTask);
 			supertask.addSubtask(analysisTask);
 			
 			site.setHomepage(site.getHomepage());

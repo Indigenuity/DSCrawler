@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import persistence.MobileCrawl;
 import persistence.Site;
 import persistence.SiteCrawl;
+import persistence.UrlCheck;
 import play.db.jpa.JPA;
 
 public class SitesDAO {
@@ -31,6 +32,20 @@ public class SitesDAO {
 		Calendar calendar = Calendar.getInstance();
 		calendar.add(Calendar.MONTH, - 1);
 		STALE_DATE = calendar.getTime();
+	}
+	
+	public static Site updateFromUrlCheck(UrlCheck urlCheck){
+		String queryString = "from Site s where s.homepage = :seed";
+		List<Site> resultList = JPA.em().createQuery(queryString, Site.class).setParameter("seed", urlCheck.getSeed()).getResultList();
+		if(resultList.size() < 1){
+			return null;
+		} else if(resultList.size() > 1) {
+			throw new IllegalStateException("Found more than one Site with homepage : " + urlCheck.getSeed());
+		}
+		Site site = resultList.get(0);
+		site.setHomepage(urlCheck.getResolvedSeed());
+		
+		return site;
 	}
 	
 	

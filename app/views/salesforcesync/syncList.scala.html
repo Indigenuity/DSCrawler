@@ -1,0 +1,9 @@
+@(syncs : java.util.List[_root_.audit.sync.Sync])
+
+<div class="sync-list-wrapper fat-list-wrapper">
+	<ul class="sync-list fat-list">
+		@for(sync <- syncs) {
+			<li><a href="/viewSync?syncId=@sync.getSyncId()">@sync.getSyncId() : @sync.getTimeCreated()</a>
+		}
+	</ul>
+</div>

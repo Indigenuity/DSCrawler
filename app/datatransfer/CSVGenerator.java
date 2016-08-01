@@ -25,6 +25,8 @@ import datadefinitions.OEM;
 import datadefinitions.Scheduler;
 import datadefinitions.WebProvider;
 import datadefinitions.newdefinitions.WPAttribution;
+import datatransfer.reports.Report;
+import datatransfer.reports.ReportRow;
 import persistence.Dealer;
 import persistence.ExtractedString;
 import persistence.FBPage;
@@ -41,7 +43,7 @@ import play.db.jpa.JPA;
 public class CSVGenerator {
 	
 	public static void printReport(Report report) throws IOException {
-		
+		report.acquireColumnNamesFromRows();
 		List<String[]> rows = new ArrayList<String[]>();
 		String[] headers = report.getColumnLabels().toArray(new String[report.getColumnLabels().size()]);
 		rows.add(headers);
@@ -143,7 +145,7 @@ public class CSVGenerator {
 		
 		String targetFilename = Global.getReportsStorageFolder() + "/" + report.getName();
 		if(report.isAppendDate()){
-			targetFilename += System.currentTimeMillis();  
+			targetFilename += " " + System.currentTimeMillis();  
 		}
 		targetFilename += ".csv";
 		File target = new File(targetFilename);

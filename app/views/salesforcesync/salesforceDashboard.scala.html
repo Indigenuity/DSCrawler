@@ -1,0 +1,27 @@
+@import _root_.audit.sync.SyncType
+@import _root_.global.Global
+
+@main("Salesforce Dashboard"){
+
+	<div id="sync-control" class="wide-panel">
+		<div id="run-sync-form-wrapper" class="small-panel">
+			<h4>Import Salesforce Accounts From File</h4> 
+			<form id="run-sync-form" method="POST" action="/runSalesforceSync">
+				@snippets.localFilePicker(Global.getWebsiteListInputFolder(), "inputFilename")
+				<label for="generateReports">Generate Reports</label>
+				<input type="checkbox" name="generateReports" checked="checked">
+				<br>
+				<button type="submit" value="Submit">Submit</button>
+			</form>
+		</div>
+		<a id="assign-siteless-button" class="large-button in-page-link" href="/assignSiteless">Assign Siteless</a>
+	</div>
+	<div id="salesforce-sync-wrapper">
+		@for(syncType <- SyncType.values){
+			@syncTypeList(syncType)
+		}
+	</div>
+	
+	
+
+}

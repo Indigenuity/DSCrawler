@@ -4,7 +4,7 @@
 <div class="review-urlcheck">
 	<h4> UrlCheck @urlCheck.getUrlCheckId()</h4>
 	<input type="hidden" name="urlCheckId" value="@urlCheck.getUrlCheckId()">
-	<input type="hidden" name="sharedSite" value="false">
+	<input type="hidden" name="sharedSite" value="@urlCheck.isSharedSite()">
 	<table class="attributes">
 		<tr>
 			<td>Seed</td>
@@ -28,5 +28,6 @@
 	<button type="submit" class="shared-site-button">Approve Shared Site</button>
 	<button type="submit" class="mark-defunct-button">Mark Defunct</button>
 	<button type="submit" class="recheck-button">Recheck</button>
+	<button type="submit" class="other-issue-button">Other Issue</button>
 	
 </div>

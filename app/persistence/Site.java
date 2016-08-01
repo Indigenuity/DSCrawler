@@ -12,21 +12,34 @@ import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.OrderColumn;
+import javax.persistence.Table;
 
-import org.hibernate.annotations.Formula;
+import org.hibernate.annotations.CollectionId;
+import org.hibernate.annotations.Type;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import datadefinitions.WebProvider;
 import utilities.DSFormatter;
 
 @Entity
+@Audited(withModifiedFlag=true)
+@Table(indexes = {@Index(name = "homepage_index",  columnList="homepage", unique = false),
+        @Index(name = "domain_index", columnList="domain",     unique = false)})
 public class Site {
 
 	@Id
@@ -47,21 +60,33 @@ public class Site {
 	
 	/**************************************  Relationships **********************************/
 	@ManyToOne
+	@NotAudited
 	private PlacesPage placesPage;
 	
 	@OneToMany(fetch=FetchType.LAZY)
+	@NotAudited
 	@JoinTable(name="site_sitecrawl", 
 			joinColumns={@JoinColumn(name="Site_siteId")},
 		    inverseJoinColumns={@JoinColumn(name="crawls_siteCrawlId")})
 	private List<SiteCrawl> crawls = new ArrayList<SiteCrawl>();
 	
 	@OneToMany(fetch=FetchType.LAZY)
+	@NotAudited
 	@JoinTable(name="site_mobilecrawl", 
 			joinColumns={@JoinColumn(name="Site_siteId")},
 		    inverseJoinColumns={@JoinColumn(name="mobileCrawls_mobileCrawlId")})
 	private List<MobileCrawl> mobileCrawls = new ArrayList<MobileCrawl>();
 	
 	
+	@OneToOne
+	private Site forwardsTo;
+	
+	@OneToOne
+	private Site manualForwardsTo;
+	
+	@OneToOne
+	@NotAudited
+	private UrlCheck urlCheck;
 	
 	
 	
@@ -69,19 +94,27 @@ public class Site {
 	
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	@ElementCollection(fetch=FetchType.LAZY)
+	@NotAudited
 	private Set<String> redirectUrls = new HashSet<String>();
 	
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	@ElementCollection(fetch=FetchType.LAZY)
+	@NotAudited
 	private Set<String> groupUrls = new HashSet<String>();
 	
 	@Column(nullable = true, columnDefinition="varchar(255)")
 	@ElementCollection(fetch=FetchType.LAZY)
+	@NotAudited
 	private Set<String> cities = new HashSet<String>();
 	
 	/************************* Single Attributes *****************************************/
 	
-	private boolean sharedSite = false;	//If this site is the only one on the domain, as opposed to PAACO sites
+	private boolean sharedSite = false;	//If this site is the only one on the domain, as opposed to PAACO sites 
+	
+	@Enumerated(EnumType.STRING)
+	private SiteStatus siteStatus = SiteStatus.UNVALIDATED;
+	
+	
 	
 	private Date redirectResolveDate;
 	
@@ -95,12 +128,14 @@ public class Site {
 	private Boolean languagePath = false;
 	private Boolean languageQuery = false;
 	
-	@Formula("homepageNeedsReview | reviewLater | invalidUrl | maybeDefunct | defunct | crawlerProtected | groupSite ")
-	private boolean invalid;
+	public enum SiteStatus {
+		UNVALIDATED, INVALID, ACTIVE, NEEDS_REVIEW, REDIRECTS, DEFUNCT, APPROVED, TEMP_DEFUNCT, SUSPECTED_DUPLICATE, OTHER_ISSUE;
+	}
 	
-//	@Formula("month(current_date) - month(redirectResolveDate) > 2 or year(current_date) - year(redirectResolveDate) > 0")
-	@Formula("homepageNeedsReview")
-	public boolean staleRedirect;
+	public Site(){}
+	public Site(String homepage){
+		this.setHomepage(homepage);
+	}
 	
 	
 	public long getSiteId() {
@@ -147,7 +182,8 @@ public class Site {
 			URL url = new URL(homepage);
 			this.setDomain(DSFormatter.removeWww(url.getHost()));
 		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException("Can't have malformed url as homepage : " + homepage);
+//			System.out.println();
+//			throw new IllegalArgumentException("Can't have malformed url as homepage : " + homepage);
 		}
 		this.homepage = homepage;
 	}
@@ -325,14 +361,7 @@ public class Site {
 		this.franchise = franchise;
 	}
 
-	public boolean isInvalid() {
-		return invalid;
-	}
 
-	public void setInvalid(boolean isValid) {
-		this.invalid = isValid;
-	}
-	
 	public PlacesPage getPlacesPage() {
 		return placesPage;
 	}
@@ -350,13 +379,6 @@ public class Site {
 		this.cities.addAll(cities);
 	}
 
-	public boolean isStaleRedirect() {
-		return staleRedirect;
-	}
-
-	public void setStaleRedirect(boolean staleRedirect) {
-		this.staleRedirect = staleRedirect;
-	}
 	public Date getCreatedDate() {
 		return createdDate;
 	}
@@ -382,7 +404,35 @@ public class Site {
 		return false;
 	}
 
-	
-	
+	public SiteStatus getSiteStatus() {
+		return siteStatus;
+	}
+
+	public void setSiteStatus(SiteStatus siteStatus) {
+		this.siteStatus = siteStatus;
+	}
+
+	public Boolean isCrawlable() {
+		return siteStatus == SiteStatus.APPROVED && !sharedSite;
+	}
+	public Site getForwardsTo() {
+		return forwardsTo;
+	}
+	public void setForwardsTo(Site forwardsTo) {
+		this.forwardsTo = forwardsTo;
+	}
+	public Site getManualForwardsTo() {
+		return manualForwardsTo;
+	}
+	public void setManualForwardsTo(Site manualForwardsTo) {
+		this.manualForwardsTo = manualForwardsTo;
+	}
+	public UrlCheck getUrlCheck() {
+		return urlCheck;
+	}
+	public void setUrlCheck(UrlCheck urlCheck) {
+		this.urlCheck = urlCheck;
+	}
+
 	
 }

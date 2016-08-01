@@ -5,9 +5,11 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+
 import datatransfer.CSVGenerator;
-import datatransfer.Report;
-import datatransfer.ReportRow;
+import datatransfer.reports.Report;
+import datatransfer.reports.ReportRow;
 import persistence.UrlCheck;
 import play.db.jpa.JPA;
 import urlcleanup.ListCheckConfig.InputType;
@@ -23,11 +25,17 @@ public class ListCheckExecutor {
 		int count = 0;
 		for(Entry<String, ReportRow> entry : report.getReportRows().entrySet()){
 			ReportRow reportRow = entry.getValue();
-//			if(reportRow.getCell("Recommendation") == null || reportRow.getCell("Recommendation").equals("Undecided")){
-			if(reportRow.getCell("Recommendation") == null){
+			if(reportRow.getCell("Recommendation") == null || (reportRow.getCell("Recommendation").equals("Undecided") 
+				&& reportRow.getCell("urlCheckId") == null)){
+//			if(reportRow.getCell("Recommendation") == null){
 				try{
 					String seed = reportRow.getCell(inputType.seedColumnLabel);
+					if(!StringUtils.isEmpty(reportRow.getCell("Manual Seed"))){
+						seed = reportRow.getCell("Manual Seed");
+					}
 					UrlCheck urlCheck = UrlSniffer.checkUrl(seed);
+					JPA.em().persist(urlCheck);
+					reportRow.putCell("urlCheckId", urlCheck.getUrlCheckId() + "");
 					reportRow.putCell("Standardized Seed", urlCheck.getStandardizedSeed());
 					reportRow.putCell("Resolved Seed", urlCheck.getResolvedSeed());
 					reportRow.putCell("Status Code", urlCheck.getStatusCode() + "");
@@ -55,6 +63,44 @@ public class ListCheckExecutor {
 			}
 			
 			
+		}
+	}
+	
+	public static void markBlanks(ListCheck listCheck){
+		Report report = listCheck.getReport();
+		ListCheckConfig config = listCheck.getConfig();
+		InputType inputType = config.getInputType();
+		for(Entry<String, ReportRow> entry : report.getReportRows().entrySet()){
+			ReportRow reportRow = entry.getValue();
+			if("Undecided".equals(reportRow.getCell("Recommendation"))){
+				String seed = reportRow.getCell(inputType.seedColumnLabel);
+				if(StringUtils.isEmpty(reportRow.getCell("Website"))){
+					System.out.println("equals : " + reportRow.getCell("Website"));
+					reportRow.putCell("Recommendation", "No Website");
+				}
+			}
+		}
+	}
+	
+	public static void markIndexChanges(ListCheck listCheck){
+		Report report = listCheck.getReport();
+		ListCheckConfig config = listCheck.getConfig();
+		InputType inputType = config.getInputType();
+		for(Entry<String, ReportRow> entry : report.getReportRows().entrySet()){
+			ReportRow reportRow = entry.getValue();
+			if(reportRow.getCell("Manual Seed") != null) {
+				reportRow.putCell("Recommendation", null);
+			}
+//			if("Undecided".equals(reportRow.getCell("Recommendation"))){
+//				String seed = reportRow.getCell(inputType.seedColumnLabel);
+//				String resolvedSeed = reportRow.getCell("Resolved Seed");
+//				if(!StringUtils.isEmpty(seed) && !StringUtils.isEmpty(resolvedSeed)
+//						&& !seed.equals(resolvedSeed) && seed.replace("index.htm", "").equals(resolvedSeed)){
+//					System.out.println("equals : " + reportRow.getCell("Website"));
+//					reportRow.putCell("Recommendation", null);
+//					reportRow.putCell("Manual Seed", seed.replace("index.htm", ""));
+//				}
+//			}
 		}
 	}
 	

@@ -33,6 +33,8 @@ public class UrlCheck {
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	private String errorMessage;
 	
+	private String domain;
+	
 	private Date checkDate;
 	
 	private int statusCode;
@@ -214,6 +216,12 @@ public class UrlCheck {
 	}
 	public void setStandardizedSeed(String standardizedSeed) {
 		this.standardizedSeed = standardizedSeed;
+	}
+	public String getDomain() {
+		return domain;
+	}
+	public void setDomain(String domain) {
+		this.domain = domain;
 	}
 	
 

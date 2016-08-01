@@ -1,0 +1,14 @@
+@import play.db.jpa.JPA;
+@import _root_.persistence.UrlCheck;
+@(reportRow : _root_.datatransfer.reports.ReportRow)
+
+<div class="faux-submit-container review-report-row-container">
+	<h4>@reportRow.getCell("Salesforce Unique ID")</h4>
+	<form action="/review/submit/reportRow" method="POST" class="review-report-row-form faux-submit">
+		<input type="hidden" value="@reportRow.getReportRowId()" name="reportRowId">
+		<input type="hidden" value="@reportRow.getCell("Salesforce Unique ID")" name="salesforceId">
+		<input type="hidden" value="" name="action">
+			@urlCheck(JPA.em().find(classOf[UrlCheck], Long.parseLong(reportRow.getCell("urlCheckId"))))
+	</form>
+
+</div>

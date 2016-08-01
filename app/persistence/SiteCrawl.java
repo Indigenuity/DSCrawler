@@ -173,7 +173,7 @@ public class SiteCrawl {
 	@ElementCollection(fetch=FetchType.LAZY)
 	protected Set<WebProvider> webProviders = new HashSet<WebProvider>();
 	
-	@Enumerated(EnumType.STRING)
+	@Enumerated(EnumType.STRING) 
 	@ElementCollection(fetch=FetchType.LAZY)
 	protected Set<WPAttribution> wpAttributions = new HashSet<WPAttribution>();
 	

@@ -1,0 +1,50 @@
+@import _root_.audit.AuditDao
+@import _root_.scaffolding.Scaffolder
+@(sync : _root_.audit.sync.Sync)
+
+@main("View Sync"){
+	<div class="view-sync">
+		<h3>Sync @sync.getSyncId(): @sync.getTimeCreated()</h3>
+		<div class="small-panel">
+			<a id="assign-siteless-button" class="large-button in-page-link" href="/assignSiteless">Assign Siteless</a>
+			<a class="large-button in-page-link" href="/assignChangedWebsites?syncId=@sync.getSyncId()">Assign Changed Sites</a>
+			<a href="/generateSyncReport?syncId=@sync.getSyncId()" class="in-page-link large-button">Generate Reports</a>
+			
+		</div>
+		<p></p>
+		<div class="small-panel inserted-list-wrapper">
+			<h4>Inserted </h4>
+			<div class="fat-list-wrapper">
+				<ul class="fat-list">
+					@for(salesforceAccount <- AuditDao.getInsertedAtRevision(AuditDao.getType(sync),  AuditDao.getRevisionOfSync(sync), 20, 0)){
+						<li>@salesforceAccount.getClass().getSimpleName() (@Scaffolder.getId(salesforceAccount))</li>	
+					}
+				</ul>
+			</div>
+		</div>
+		<div class="small-panel updated-list-wrapper">
+			<h4>Updated </h4>
+			<div class="fat-list-wrapper">
+				<ul class="fat-list">
+					@for(salesforceAccount <- AuditDao.getUpdatedAtRevision(AuditDao.getType(sync),  AuditDao.getRevisionOfSync(sync), 20, 0)){
+						<li>@salesforceAccount.getClass().getSimpleName() (@Scaffolder.getId(salesforceAccount))</li>	
+					}
+				</ul>
+			</div>
+		</div>
+		<div class="small-panel deleted-list-wrapper">
+			<h4>Deleted </h4>
+			<div class="fat-list-wrapper">
+				<ul class="fat-list">
+					@for(salesforceAccount <- AuditDao.getDeletedAtRevision(AuditDao.getType(sync),  AuditDao.getRevisionOfSync(sync), 20, 0)){
+						<li>@salesforceAccount.getClass().getSimpleName() (@Scaffolder.getId(salesforceAccount))</li>	
+					}
+				</ul>
+			</div>
+		</div>
+		<div class="small-panel outdated-list-wrapper">
+		
+		</div>
+	
+	</div>
+}

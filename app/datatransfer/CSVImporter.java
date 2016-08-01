@@ -24,6 +24,8 @@ import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 
 import dao.Finder;
+import datatransfer.reports.Report;
+import datatransfer.reports.ReportRow;
 import persistence.CanadaPostal;
 import persistence.CapEntry;
 import persistence.Dealer;

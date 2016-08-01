@@ -8,14 +8,20 @@ GET		/runExperiment					controllers.Application.runExperiment()
 
 GET 	/urlCleanupForm					controllers.Application.urlCleanupForm()
 POST	/urlCleanupStart				controllers.Application.urlCleanupStart()
-
+GET		/allSyncs						controllers.Application.allSyncs()
+GET		/syncList						controllers.Application.syncList(syncType : String)
+GET		/generateSyncReport				controllers.Application.generateSyncReport(syncId : Long)
+POST	/runSalesforceSync				controllers.Application.runSalesforceSync()
+GET		/assignSiteless					controllers.Application.assignSiteless()
+GET		/assignChangedWebsites			controllers.Application.assignChangedWebsites(syncId : Long)
+GET		/viewSync						controllers.Application.viewSync(syncId : Long)
 
 GET		/getLocalFiles					controllers.Application.getLocalFiles(folderName : String)
 
 
+GET		/review/report					controllers.Review.report(reportId : Long)
 
-
-
+POST	/review/submit/reportRow		controllers.ReviewSubmit.reportRow()
 
 
 

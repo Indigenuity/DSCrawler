@@ -1,0 +1,11 @@
+@(report : _root_.datatransfer.reports.Report)
+
+@main("Review Report") {
+	<div class="review-report-container">
+		@for(reportRow <- report.getReportRows().values()){
+			@if("Undecided".equals(reportRow.getCell("Recommendation")) && reportRow.getCell("urlCheckId") != null){
+				@reviewing.singles.reportRow(reportRow)
+			}
+		}
+	</div>
+}

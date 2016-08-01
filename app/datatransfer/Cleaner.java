@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import dao.CrawlSetDAO;
 import dao.DealerDAO;
+import dao.GeneralDAO;
 import dao.SitesDAO;
 import datadefinitions.OEM;
 import persistence.CrawlSet;
@@ -26,6 +27,7 @@ import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.Staff;
 import persistence.Utility;
+import persistence.salesforce.SalesforceAccount;
 import play.Logger;
 import play.db.DB;
 import play.db.jpa.JPA;
@@ -94,6 +96,24 @@ public class Cleaner {
 		for(Dealer dealer : dealers) {
 			System.out.println("found dealer");
 			dealer.setMainSite(site1);
+		}
+		
+		List<SFEntry> entries = GeneralDAO.getList(SFEntry.class, "mainSite", site2);
+		for(SFEntry entry : entries) {
+			System.out.println("found entry");
+			entry.setMainSite(site1);
+		}
+		
+		List<SalesforceAccount> accounts = GeneralDAO.getList(SalesforceAccount.class, "site", site2);
+		for(SalesforceAccount account : accounts) {
+			System.out.println("Setting site for salesforce account : " + account.getSalesforceAccountId());
+			account.setSite(site1);
+		}
+		
+		List<Site> forwarders = GeneralDAO.getList(Site.class, "forwardsTo", site2);
+		for(Site forwarder : forwarders) {
+			System.out.println("found forwarder");
+			forwarder.setForwardsTo(site1);
 		}
 		
 		List<CrawlSet> crawlSets = CrawlSetDAO.bySite(site2);

@@ -3,7 +3,7 @@ package urlcleanup;
 import java.io.IOException;
 
 import datatransfer.CSVImporter;
-import datatransfer.Report;
+import datatransfer.reports.Report;
 import urlcleanup.ListCheckConfig.InputType;
 
 public class ListCheckFactory {
@@ -26,6 +26,7 @@ public class ListCheckFactory {
 		
 		Report report = CSVImporter.importReportWithKey(config.getInputFilename(), InputType.SALESFORCE_REPORT.keyColumnLabel);
 		report.setName("Website List Check");
+		report.addColumnLabel("urlCheckId");
 		report.addColumnLabel("Manual Seed");
 		report.addColumnLabel("Standardized Seed");
 		report.addColumnLabel("Resolved Seed");

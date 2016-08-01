@@ -1,4 +1,4 @@
-package datatransfer;
+package datatransfer.reports;
 
 import java.util.HashMap;
 import java.util.Map;
