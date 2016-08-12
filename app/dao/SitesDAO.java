@@ -20,6 +20,7 @@ import persistence.MobileCrawl;
 import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.UrlCheck;
+import persistence.Site.SiteStatus;
 import play.db.jpa.JPA;
 
 public class SitesDAO {
@@ -32,6 +33,55 @@ public class SitesDAO {
 		Calendar calendar = Calendar.getInstance();
 		calendar.add(Calendar.MONTH, - 1);
 		STALE_DATE = calendar.getTime();
+	}
+	
+	public static Site markError(Site site) {
+		site.setSiteStatus(SiteStatus.OTHER_ISSUE);
+		return site;
+	}
+	
+	public static Site markDefunct(Site site) {
+		site.setSiteStatus(SiteStatus.DEFUNCT);
+		return site;
+	}
+	
+	public static Site approve(Site site) {
+		site.setSiteStatus(SiteStatus.APPROVED);
+		return site;
+	}
+	
+	public static Site review(Site site) {
+		site.setSiteStatus(SiteStatus.NEEDS_REVIEW);
+		return site;
+	}
+	
+	public static Site acceptRedirect(Site site, String newHomepage) {
+		return applyRedirect(site, newHomepage, true);
+	}
+	
+	public static Site reviewRedirect(Site site, String newHomepage) {
+		return applyRedirect(site, newHomepage, false);
+	}
+	
+	public static Site applyRedirect(Site site, String newHomepage, boolean approved){
+		Site newSite = new Site(newHomepage);
+		if(approved){
+			newSite.setSiteStatus(SiteStatus.APPROVED);
+		} else {
+			newSite.setSiteStatus(SiteStatus.UNVALIDATED);
+		}
+		JPA.em().persist(newSite);
+		site.setSiteStatus(SiteStatus.REDIRECTS);
+		site.setForwardsTo(newSite);
+		return newSite;
+	}
+	
+	public static Site getOrNew(String homepage) {
+		Site site = getFirst("homepage", homepage);
+		if(site == null){
+			return new Site(homepage);
+		}
+		return site;
 	}
 	
 	public static Site updateFromUrlCheck(UrlCheck urlCheck){
@@ -207,6 +257,9 @@ public class SitesDAO {
 		return q.getResultList();
 	}
 	
+	public static Site getFirst(String valueName, Object value){
+		return getFirst(valueName, value, 0);
+	}
 	
 	public static Site getFirst(String valueName, Object value, int offset){
 		Map<String, Object> parameters = new HashMap<String, Object>();

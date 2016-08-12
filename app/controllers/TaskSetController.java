@@ -22,6 +22,11 @@ import play.mvc.Results;
 public class TaskSetController extends Controller {
 	
 	@Transactional
+	public static Result createSiteCheckTaskSet() {
+		return ok();
+	}
+	
+	@Transactional
 	public static Result submitTaskReview(){
 		DynamicForm form = Form.form().bindFromRequest();
 		Long taskId = Long.parseLong(form.get("taskId"));

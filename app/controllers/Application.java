@@ -44,7 +44,7 @@ import async.monitoring.AsyncMonitor;
 import audit.AuditDao;
 import audit.map.MapControl;
 import audit.map.SalesforceToSiteMapSession;
-import audit.sync.SalesforceSyncControl;
+import audit.sync.SalesforceControl;
 import audit.sync.Sync;
 import audit.sync.SyncControl;
 import audit.sync.SyncType;
@@ -67,7 +67,6 @@ import persistence.Dealer.Datasource;
 import persistence.Site.SiteStatus;
 import persistence.MobileCrawl;
 import persistence.PageInformation;
-import persistence.PlacesPage;
 import persistence.SFEntry;
 import persistence.Site;
 import persistence.SiteCrawl;
@@ -76,9 +75,10 @@ import persistence.SiteSummary;
 import persistence.Staff;
 import persistence.Temp;
 import persistence.TestEntity;
-import persistence.ZipLocation;
 import persistence.salesforce.SalesforceAccount;
+import places.PlacesPage;
 import places.Retriever;
+import places.ZipLocation;
 import play.*;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -120,55 +120,33 @@ public class Application extends Controller {
     	return ok();
     }
     
+    @Transactional 
+    public static Result sitesDashboard() {
+    	return ok(views.html.sitesDashboard.render());
+    }
+    
+    @Transactional
+    public static Result validateSites() {
+    	Cleaner.validateSites();
+    	return ok();
+    }
+    
+    @Transactional
+    public static Result salesforceWebsiteReport() throws IOException {
+    	SalesforceControl.printSignificantDifferenceReport();
+    	return ok();
+    }
+    
     @Transactional
     public static Result assignChangedWebsites(long syncId){
     	Sync sync = JPA.em().find(Sync.class, syncId);
-    	Integer revisionNumber = AuditDao.getRevisionOfSync(sync);
-    	List<SalesforceAccount> accountList = AuditDao.getPropertyUpdatedAtRevision(SalesforceAccount.class, "salesforceWebsite", revisionNumber, 1000000, 0);
-    	System.out.println("accountList : " + accountList.size());
-    	
-    	for(SalesforceAccount account : accountList) {
-    		System.out.println("account : " + account);
-    		SalesforceAccount actualAccount = JPA.em().find(SalesforceAccount.class, account.getSalesforceAccountId());
-    		System.out.println("actualAccount : " + actualAccount);
-    		String website = account.getSalesforceWebsite();
-    		Site oldSite = actualAccount.getSite();
-    		System.out.println("oldSite : " + oldSite);
-    		Site newSite = GeneralDAO.getFirst(Site.class, "homepage", website);
-    		if(oldSite == newSite){
-    			System.out.println("Change has already been accounted for or has no effect : " + website);
-    			continue;
-    		}
-    		
-			if(newSite == null){
-				System.out.println("Creating new site for : " + website);
-				newSite = new Site(website);
-    			newSite = JPA.em().merge(newSite);
-			}
-			System.out.println("created site");
-			System.out.println("new site : " + newSite.getHomepage());
-    		System.out.println("old Site : " + oldSite.getHomepage());
-			if(oldSite != null && UrlSniffer.isGenericRedirect(newSite.getHomepage(), oldSite.getHomepage())){
-				System.out.println("was generic redirect");
-				oldSite.setSiteStatus(SiteStatus.REDIRECTS);
-    			oldSite.setForwardsTo(newSite);
-    		}
-    		
-    		account.setSite(newSite);
-    	}
-    	
-    	Sync newSync = new Sync(SyncType.ASSIGN_CHANGED_SITES);
-    	JPA.em().persist(newSync);
+    	SalesforceControl.assignChangedWebsites(sync);
     	return ok();
     }
     
     @Transactional
     public static Result assignSiteless(){
-    	System.out.println("Mapping siteless salesforce accounts to Site objects...");
-    	List<SalesforceAccount> accountsList = JPA.em().createQuery("from SalesforceAccount sa where sa.site is null", SalesforceAccount.class).getResultList();
-		System.out.println("salesforce accounts with null site :" +  accountsList.size());
-		SalesforceToSiteMapSession session = new SalesforceToSiteMapSession(accountsList);
-		session.runAssignments();
+    	SalesforceControl.assignSiteless();
     	return ok("Salesforce accounts successfully mapped to Site objects.");
     }
     
@@ -237,7 +215,7 @@ public class Application extends Controller {
     	DynamicForm data = Form.form().bindFromRequest();
 		String inputFilename = data.get("inputFilename");
 		Boolean generateReports = data.get("generateReports") == null ? false : true;
-		SalesforceSyncControl.sync(inputFilename, generateReports);
+		SalesforceControl.sync(inputFilename, generateReports);
 		
 		return ok("Synced with salesforce accounts from file : " + inputFilename);
     }

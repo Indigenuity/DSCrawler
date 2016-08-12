@@ -15,7 +15,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
 import persistence.SiteInformationOld;
-import persistence.ZipLocation;
+import places.ZipLocation;
 import play.db.jpa.JPA;
 
 import com.google.gson.Gson;

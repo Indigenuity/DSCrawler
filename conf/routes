@@ -6,23 +6,39 @@
 GET     /                           	controllers.Application.index()
 GET		/runExperiment					controllers.Application.runExperiment()
 
+GET		/salesforceAccount				controllers.DataView.salesforceAccount(salesforceAccountId : Long)
+
 GET 	/urlCleanupForm					controllers.Application.urlCleanupForm()
 POST	/urlCleanupStart				controllers.Application.urlCleanupStart()
 GET		/allSyncs						controllers.Application.allSyncs()
+GET		/sitesDashboard					controllers.Application.sitesDashboard()
 GET		/syncList						controllers.Application.syncList(syncType : String)
 GET		/generateSyncReport				controllers.Application.generateSyncReport(syncId : Long)
 POST	/runSalesforceSync				controllers.Application.runSalesforceSync()
+GET		/salesforceWebsiteReport		controllers.Application.salesforceWebsiteReport()
 GET		/assignSiteless					controllers.Application.assignSiteless()
 GET		/assignChangedWebsites			controllers.Application.assignChangedWebsites(syncId : Long)
 GET		/viewSync						controllers.Application.viewSync(syncId : Long)
 
 GET		/getLocalFiles					controllers.Application.getLocalFiles(folderName : String)
-
+GET		/sitesDashboardStats			controllers.DataView.sitesDashboardStats()
+GET		/salesforceDashboardStats		controllers.DataView.salesforceDashboardStats()
 
 GET		/review/report					controllers.Review.report(reportId : Long)
+GET		/review/salesforceSites			controllers.Review.salesforceSites()
 
 POST	/review/submit/reportRow		controllers.ReviewSubmit.reportRow()
 
+GET 	/validateSites					controllers.Application.validateSites()
+
+GET		/markSignificantDifferences		controllers.DataEditor.markSignificantDifferences()
+
+
+GET		/places/placesDashboard					controllers.PlacesController.placesDashboard()
+GET		/places/refreshZipcodeDatabase			controllers.PlacesController.refreshZipcodeDatabase()
+GET		/places/importCanadaList				controllers.PlacesController.importCanadaList()
+GET		/places/importUsList					controllers.PlacesController.importUsList()
+GET		/places/fillBlankDetails				controllers.PlacesController.fillBlankDetails()
 
 
 

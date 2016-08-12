@@ -17,6 +17,7 @@ import async.work.WorkType;
 import persistence.CrawlSet;
 import persistence.Site;
 import persistence.SiteCrawl;
+import persistence.salesforce.SalesforceAccount;
 import persistence.tasks.Task;
 import persistence.tasks.TaskSet;
 import play.data.DynamicForm;
@@ -25,9 +26,26 @@ import play.db.jpa.JPA;
 import play.db.jpa.Transactional;
 import play.mvc.*;
 import reporting.DashboardStats;
+import reporting.StatsBuilder;
 
 
-public class DataView extends Controller { 
+public class DataView extends Controller {
+	
+	@Transactional
+	public static Result salesforceAccount(long salesforceAccountId) {
+		SalesforceAccount account = JPA.em().find(SalesforceAccount.class, salesforceAccountId);
+		return ok();
+	}
+	
+	@Transactional
+	public static Result sitesDashboardStats() {
+		return ok(views.html.viewstats.viewStats.render(StatsBuilder.sitesDashboard()));
+	}
+	
+	@Transactional
+	public static Result salesforceDashboardStats() {
+		return ok(views.html.viewstats.viewStats.render(StatsBuilder.salesforceDashboard()));
+	}
 	
 	@Transactional
 	public static Result reviewTasks(long taskSetId, int count, int offset, String workType){

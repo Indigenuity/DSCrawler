@@ -1,4 +1,4 @@
-package persistence;
+package places;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,12 +13,11 @@ public class CanadaPostal {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public long zipLocationId;
 	
-	public double latitude;
-	public double longitude;
+	public Double latitude;
+	public Double longitude;
 	public String code;
 	public String name;
 	public String province;
 	
-	public String testing;
 
 }

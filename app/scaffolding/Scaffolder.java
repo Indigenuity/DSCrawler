@@ -96,7 +96,7 @@ public class Scaffolder {
 	 * 		it is a primitive, wrapper class, or a string
 	 */
 	public static boolean isSimple(Field field) {
-		if(field.getType().isPrimitive() || String.class.isAssignableFrom(field.getType())) {
+		if(field.getType().isPrimitive() || String.class.isAssignableFrom(field.getType()) || Boolean.class.isAssignableFrom(field.getType())) {
 			return true;
 		}
 		return false;

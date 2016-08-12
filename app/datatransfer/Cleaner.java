@@ -14,6 +14,10 @@ import javax.persistence.Query;
 
 import org.apache.commons.lang3.StringUtils;
 
+import akka.actor.Actor;
+import akka.actor.ActorRef;
+import async.async.Asyncleton;
+import async.work.Order;
 import dao.CrawlSetDAO;
 import dao.DealerDAO;
 import dao.GeneralDAO;
@@ -27,10 +31,12 @@ import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.Staff;
 import persistence.Utility;
+import persistence.Site.SiteStatus;
 import persistence.salesforce.SalesforceAccount;
 import play.Logger;
 import play.db.DB;
 import play.db.jpa.JPA;
+import urlcleanup.SiteCheckWorker;
 import utilities.DSFormatter;
 
 public class Cleaner {
@@ -42,6 +48,25 @@ public class Cleaner {
 //		}
 //		
 		
+	}
+	
+	public static void validateSites(){
+		System.out.println("Validating sites");
+		List<Site> sites = JPA.em()
+				.createQuery("from Site s where s.siteStatus = :siteStatus", Site.class)
+				.setParameter("siteStatus", SiteStatus.UNVALIDATED)
+				.getResultList();
+		
+		runUrlChecks(sites);
+	}
+	
+	public static void runUrlChecks(List<Site> sites) {
+		System.out.println("running url checks on " + sites.size() + " sites");
+		ActorRef master = Asyncleton.getInstance().getGenericMaster(25, SiteCheckWorker.class);
+		
+		sites.stream().forEach( (site) -> {
+			master.tell(new Order<Site>(site), ActorRef.noSender());
+		});
 	}
 	
 	public static void combineOnDomain(Site primary) {

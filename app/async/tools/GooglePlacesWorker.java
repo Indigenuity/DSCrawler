@@ -14,32 +14,32 @@ import async.work.WorkOrder;
 import async.work.WorkResult;
 import async.work.WorkStatus;
 import global.Global;
-import persistence.PlacesPage;
 import persistence.UrlCheck;
 import places.DataBuilder;
+import places.PlacesPage;
 import play.Logger;
 import play.db.jpa.JPA;
 import utilities.UrlSniffer;
 
-public class GooglePlacesWorker extends SingleStepJPAWorker {
+public class GooglePlacesWorker extends SingleStepJPAWorker { 
 	
 	@Override
 	protected WorkResult processWorkOrder(WorkOrder workOrder) {
 		PlacesPageWorkResult result = new PlacesPageWorkResult();
 		try{
-			System.out.println("doing some places page work");
-			PlacesPageWorkOrder order = (PlacesPageWorkOrder)workOrder;
-			System.out.println("places ID : " + order.getPlacesId());
-			result.setPlacesId(order.getPlacesId());
-			GeoApiContext context = Global.getPlacesContext();
-			
-			PlaceDetailsRequest request = PlacesApi.placeDetails(context, order.getPlacesId());
-			PlaceDetails details = request.await();
-			PlacesPage page = DataBuilder.getPlacesDealer(details);
-			JPA.em().persist(page);
-			System.out.println("returning id : " + page.getPlacesPageId());
-			result.setPlacesPageId(page.getPlacesPageId());
-			result.setWorkStatus(WorkStatus.WORK_COMPLETED);
+//			System.out.println("doing some places page work");
+//			PlacesPageWorkOrder order = (PlacesPageWorkOrder)workOrder;
+//			System.out.println("places ID : " + order.getPlacesId());
+//			result.setPlacesId(order.getPlacesId());
+//			GeoApiContext context = Global.getPlacesContext();
+//			
+//			PlaceDetailsRequest request = PlacesApi.placeDetails(context, order.getPlacesId());
+//			PlaceDetails details = request.await();
+//			PlacesPage page = DataBuilder.getPlacesDealer(details);
+//			JPA.em().persist(page);
+//			System.out.println("returning id : " + page.getPlacesPageId());
+//			result.setPlacesPageId(page.getPlacesPageId());
+//			result.setWorkStatus(WorkStatus.WORK_COMPLETED);
 		}
 		catch(Exception e) {
 			Logger.error("Error in Google Places Worker: " + e);

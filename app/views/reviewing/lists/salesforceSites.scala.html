@@ -1,0 +1,8 @@
+@(accounts : java.util.List[_root_.persistence.salesforce.SalesforceAccount])
+
+@main("Review Salesforce Sites") {
+
+	@for(account <- accounts) {
+		@reviewing.singles.salesforceSite(account)
+	}
+}

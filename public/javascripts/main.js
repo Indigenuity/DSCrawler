@@ -12,6 +12,11 @@ $(document).ready(function() {
 		});
 	});
 	
+	$(".load-dashboard").each(function() {
+		$(this).load($(this).attr("data-dashboard-href"), function() {
+			localEventBindings(this);
+		})
+	})
 	
 	
 });

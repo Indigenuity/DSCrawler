@@ -5,8 +5,8 @@ import java.util.List;
 
 import persistence.CapEntry;
 import persistence.Dealer;
-import persistence.PlacesPage;
 import persistence.Dealer.Datasource;
+import places.PlacesPage;
 import persistence.SFEntry;
 import persistence.Site;
 import play.db.jpa.JPA;

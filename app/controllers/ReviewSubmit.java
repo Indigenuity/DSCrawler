@@ -1,7 +1,9 @@
 package controllers;
 
+import audit.sync.SalesforceControl;
 import datatransfer.reports.Report;
 import datatransfer.reports.ReportRow;
+import persistence.salesforce.SalesforceAccount;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -50,6 +52,36 @@ public class ReviewSubmit extends Controller {
 			reportRow.putCell("Recommendation", "Other Issue Requires Attention");
 		}
 		
+    	return ok();
+    }
+    
+    @Transactional
+	public static Result manuallySeedSalesforceAccount() {
+    	DynamicForm data = Form.form().bindFromRequest();
+    	Long salesforceAccountId = Long.parseLong(data.get("salesforceAccountId"));
+    	SalesforceAccount account = JPA.em().find(SalesforceAccount.class, salesforceAccountId);
+		String manualSeed = data.get("manualSeed");
+		
+		SalesforceControl.manuallySeedAccount(account, manualSeed);
+		
+		return ok();
+    }
+    
+    @Transactional
+   	public static Result manuallyRedirectSalesforceAccount() {
+    	DynamicForm data = Form.form().bindFromRequest();
+    	Long salesforceAccountId = Long.parseLong(data.get("salesforceAccountId"));
+    	SalesforceAccount account = JPA.em().find(SalesforceAccount.class, salesforceAccountId);
+		String manualSeed = data.get("manualSeed");
+		
+		SalesforceControl.manuallyRedirectAccount(account, manualSeed);
+		
+       	return ok();
+    }
+    
+    @Transactional
+	public static Result approveSite(long siteId) {
+    	
     	return ok();
     }
 }

@@ -129,6 +129,7 @@ p {
 	border: 2px solid;
 	margin:25px;
 	padding:25px;
+	vertical-align:top;
 }
 
 .wide-panel {
@@ -319,6 +320,11 @@ table.context-items {
 table.attributes td,
 table.context-items td {
 	padding-right:30px;	
+}
+
+.taskset-list-wrapper {
+	display:inline-block;
+	width : 350px;
 }
 
 

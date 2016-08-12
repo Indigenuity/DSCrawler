@@ -30,7 +30,6 @@ import datatransfer.reports.ReportRow;
 import persistence.Dealer;
 import persistence.ExtractedString;
 import persistence.FBPage;
-import persistence.PlacesPage;
 import persistence.SFEntry;
 import persistence.Site;
 import persistence.SiteCrawl;
@@ -38,6 +37,7 @@ import persistence.Staff;
 import persistence.UrlCheck;
 import persistence.tasks.Task;
 import persistence.tasks.TaskSet;
+import places.PlacesPage;
 import play.db.jpa.JPA;
 
 public class CSVGenerator {

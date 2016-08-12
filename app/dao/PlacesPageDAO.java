@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.persistence.Query;
 
-import persistence.PlacesPage;
+import places.PlacesPage;
 import play.db.jpa.JPA;
 
 public class PlacesPageDAO {

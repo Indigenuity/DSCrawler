@@ -13,6 +13,8 @@ import akka.routing.RoundRobinRoutingLogic;
 import akka.routing.Routee;
 import akka.routing.Router;
 import async.monitoring.AsyncMonitor;
+import async.work.Order;
+import async.work.Result;
 import async.work.WorkItem;
 import async.work.WorkOrder;
 import async.work.WorkResult;
@@ -102,6 +104,28 @@ public class GenericMaster extends UntypedActor {
 //				ActorRef worker = getContext().actorOf(Props.create(this.clazz));
 //				getContext().watch(worker);
 //				router = router.addRoutee(new ActorRefRoutee(worker));
+			}
+			else if(work instanceof Order){
+				Order<?> order = (Order<?>) work;
+//				System.out.println("GenericMaster got work order: " + workOrder);
+				if(!waitingRoom.add(order.getUuid(), getSender())){
+					//TODO figure out what to do when duplicate work order is sent in
+					return;
+				}
+				router.route(order, getSelf());
+			} else if(work instanceof Result){
+				Result result = (Result) work;
+				System.out.println("GenericMaster got work result: " + result.getMessage());
+				ActorRef customer = waitingRoom.remove(result.getUuid()); 
+				if(customer == null){
+					//TODO figure out what to do when receiving work result for no customer
+					return;
+				}
+				if(customer.equals(ActorRef.noSender())){
+					//TODO figure out what to do when customer didn't leave a number
+					return;
+				}
+				customer.tell(result, getSelf());
 			}
 			else {
 				System.out.println("Got unknown work in Generic Master (" + this.clazz + ") : " + work);

@@ -1,0 +1,29 @@
+@(account : _root_.persistence.salesforce.SalesforceAccount)
+
+@main("Salesforce Account") {
+
+<h4> Salesforce Account (@account.getSalesforceId()) : @account.getName()</h4>
+		<p>@account.getFullLocation()</p>
+		<p>@account.getPhone()</p>
+	<h4> Site @account.getSite().getSiteId()</h4>
+	<input type="hidden" name="siteId" value="@account.getSite().getSiteId()">
+	<table class="attributes">
+		<tr>
+			<td>Seed</td>
+			<td><a href="@account.getSite().getUrlCheck().getSeed()" target="_blank">@account.getSite().getUrlCheck().getSeed()</a></td>
+		</tr>
+		<tr>
+			<td>Resolved Seed</td>
+			<td><a href="@account.getSite().getUrlCheck().getResolvedSeed()" target="_blank">@account.getSite().getUrlCheck().getResolvedSeed()</a></td>
+		</tr>
+		<tr>
+			<td>Status</td>
+			<td>@account.getSite().getUrlCheck().getStatusCode()</td>
+		</tr>
+		<tr>
+			<td>Error</td>
+			<td>@account.getSite().getUrlCheck().getErrorMessage()</td>
+		</tr>
+	</table>
+	
+}

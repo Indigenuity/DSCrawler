@@ -34,6 +34,7 @@ import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
 import datadefinitions.WebProvider;
+import places.PlacesPage;
 import utilities.DSFormatter;
 
 @Entity

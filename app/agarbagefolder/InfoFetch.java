@@ -10,11 +10,11 @@ import javax.persistence.Transient;
 
 import async.work.WorkOrder;
 import async.work.WorkType;
-import persistence.PlacesPage;
 import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.UrlCheck;
 import persistence.stateful.FetchJob;
+import places.PlacesPage;
 import play.db.jpa.JPA;
 import utilities.DSFormatter;
 

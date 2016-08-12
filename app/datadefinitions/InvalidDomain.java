@@ -14,6 +14,7 @@ public enum InvalidDomain {
 	DEALER_CAR_SEARCH	("dealercarsearch.com"),
 	GM_DEALER_LOCATOR	("gmdealerlocator.com"),
 	HUGE_DOMAINS		("hugedomains.com"),
+	NONE				("none"),
 	GM				("gm.com");
 	
 	private final Pattern pattern;

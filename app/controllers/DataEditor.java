@@ -19,17 +19,18 @@ import org.apache.commons.lang3.StringUtils;
 import agarbagefolder.InfoFetch;
 import async.work.WorkStatus;
 import async.work.WorkType;
+import audit.sync.SalesforceControl;
 import datadefinitions.WebProvider;
 import datatransfer.Cleaner;
 import global.Global.HomepageAction;
 import persistence.CrawlSet;
 import persistence.Dealer;
-import persistence.PlacesPage;
 import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.Temp;
 import persistence.UrlCheck;
 import persistence.tasks.Task;
+import places.PlacesPage;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -41,6 +42,13 @@ import play.mvc.Results;
 import utilities.DSFormatter;
 
 public class DataEditor extends Controller{
+	
+	
+	@Transactional
+	public static Result markSignificantDifferences() {
+		SalesforceControl.markSignificantDifferences();
+		return ok("Salesforce Accounts marked with significant differences successfully");
+	}
 	
 	@Transactional
 	public static Result createTaskSet() {

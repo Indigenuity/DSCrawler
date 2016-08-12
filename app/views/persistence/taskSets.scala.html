@@ -4,12 +4,19 @@
 
 
 @main("Task Sets") {
-	@for(taskSet <- taskSets) {
-		<div>
-			<h3>Task Set @taskSet.getTaskSetId() : @taskSet.getName()</h3>
-			<p>Task Set Created : @taskSet.getDateCreated()</p>
-			<p>@taskSet.getTasks().size() Tasks</p>
-			<p><a href="/taskSet?taskSetId=@taskSet.getTaskSetId()">View Task Set &raquo;</a></p>
-		</div>
-	}
+
+	<div class="taskset-list-wrapper">
+		@for(taskSet <- taskSets) {
+			<div>
+				<h3>Task Set @taskSet.getTaskSetId() : @taskSet.getName()</h3>
+				<p>Task Set Created : @taskSet.getDateCreated()</p>
+				<p>@taskSet.getTasks().size() Tasks</p>
+				<p><a href="/taskSet?taskSetId=@taskSet.getTaskSetId()">View Task Set &raquo;</a></p>
+			</div>
+		}
+	</div>
+	
+	<div class="small-panel" id="taskset-dashboard">
+		<a class="in-site-link large-button" href="createSiteCheckTaskSet">Create Site Check TaskSet</a>
+	</div>
 }

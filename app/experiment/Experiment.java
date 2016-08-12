@@ -129,12 +129,11 @@ import async.work.WorkType;
 import audit.AuditDao;
 import audit.sync.SalesforceDealerSyncSession;
 import audit.sync.SalesforceGroupAccountSyncSession;
-import audit.sync.SalesforceSyncControl;
+import audit.sync.SalesforceControl;
 import audit.sync.SingleSyncSession;
 import audit.sync.Sync;
 import audit.sync.SyncSession;
 import audit.sync.SyncType;
-import persistence.CanadaPostal;
 import persistence.CrawlSet;
 import persistence.Dealer;
 import persistence.ExtractedString;
@@ -145,8 +144,6 @@ import persistence.GroupAccount;
 import persistence.ImageTag;
 import persistence.MobileCrawl;
 import persistence.PageCrawl;
-import persistence.PlacesDealer;
-import persistence.PlacesPage;
 import persistence.SFEntry;
 import persistence.Site;
 import persistence.SiteCrawl;
@@ -159,7 +156,10 @@ import persistence.salesforce.SalesforceAccount;
 import persistence.stateful.FetchJob;
 import persistence.tasks.Task;
 import persistence.tasks.TaskSet;
+import places.CanadaPostal;
 import places.DataBuilder;
+import places.PlacesDealer;
+import places.PlacesPage;
 import play.db.DB;
 import play.db.jpa.JPA;
 import reporting.DashboardStats;
@@ -172,11 +172,16 @@ import utilities.FB;
 import utilities.Tim;
 import utilities.UrlSniffer;
 
-public class Experiment {
+public class Experiment { 
 	
+	public static void runExperiment() {
+		String queryString = "select pd.placesId from PlacesDealer pd";
+		List<String> ids = JPA.em().createQuery(queryString, String.class).getResultList();
+		
+		System.out.println("ids : "+ ids.size());
+	}
 	
-	
-	public static void runExperiment() throws IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InterruptedException {
+	public static void runUrlExperiment() throws IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InterruptedException {
 		
 		experimentTaskSet();
 //		useUrlChecks();
@@ -197,6 +202,10 @@ public class Experiment {
 ////				return;
 ////			}
 //		}
+	}
+	
+	public static <T, U> U doGenericThing(Function<T, U> instructions, T parameter){
+		return instructions.apply(parameter);
 	}
 	
 	public static void useUrlChecks() throws IOException {
@@ -719,13 +728,13 @@ public class Experiment {
 	
 	public static void testPlaces() throws Exception {
 
-		GeoApiContext context = Global.getPlacesContext();
-		PlaceDetailsRequest request = PlacesApi.placeDetails(context, "ChIJ_-fL8YBmA4wRlfmHQSkrqwM");
-		PlaceDetails details = request.await();
-		PlacesPage page = DataBuilder.getPlacesDealer(details);
-		JPA.em().persist(page);
-		System.out.println("details : " + details);
-		System.out.println("website : " + details.website);
+//		GeoApiContext context = Global.getPlacesContext();
+//		PlaceDetailsRequest request = PlacesApi.placeDetails(context, "ChIJ_-fL8YBmA4wRlfmHQSkrqwM");
+//		PlaceDetails details = request.await();
+//		PlacesPage page = DataBuilder.getPlacesDealer(details);
+//		JPA.em().persist(page);
+//		System.out.println("details : " + details);
+//		System.out.println("website : " + details.website);
 	}
 	
 	public static void checkMobile() {

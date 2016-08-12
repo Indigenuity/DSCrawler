@@ -5,9 +5,9 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import org.apache.commons.codec.binary.StringUtils;
 
 import datatransfer.reports.ReportRow;
+import persistence.salesforce.DealershipType;
 import persistence.salesforce.SalesforceAccount;
 import persistence.salesforce.SalesforceAccountType;
 import play.db.jpa.JPA;
@@ -21,13 +21,16 @@ public class SalesforceSyncSession extends SingleSyncSession<String, ReportRow, 
 		salesforceAccount.setSalesforceWebsite(reportRow.getCell("Website"));
 		salesforceAccount.setParentAccountSalesforceId(reportRow.getCell("Parent Account ID"));
 		salesforceAccount.setParentAccountName(reportRow.getCell("Parent Account"));
-		String accountTypeString = reportRow.getCell("Account Level");
-		if(StringUtils.equals(accountTypeString, "Group")){
-			salesforceAccount.setAccountType(SalesforceAccountType.GROUP);
-		}else {
-			salesforceAccount.setAccountType(SalesforceAccountType.DEALER);
-		}
-//		groupAccount.setFranchise(reportRow.getCell("franchise"));
+		salesforceAccount.setAccountType(SalesforceAccountType.getBySalesforceValue(reportRow.getCell("Account Level")));
+		salesforceAccount.setCustomerStatus(reportRow.getCell("Account Type"));
+		salesforceAccount.setBrandAffiliation(reportRow.getCell("Brand Affiliation"));
+		salesforceAccount.setCountry(reportRow.getCell("Dealership Country"));
+		salesforceAccount.setCity(reportRow.getCell("Dealership City"));
+		salesforceAccount.setZip(reportRow.getCell("Dealership Zip/Postal Code"));
+		salesforceAccount.setState(reportRow.getCell("Dealership State/Province"));
+		salesforceAccount.setStreet(reportRow.getCell("Dealership Street"));
+		salesforceAccount.setPhone(reportRow.getCell("Phone"));
+		salesforceAccount.setDealershipType(DealershipType.getBySalesforceValue(reportRow.getCell("Dealership Type")));
 		
 		return salesforceAccount;
 	};
@@ -37,6 +40,8 @@ public class SalesforceSyncSession extends SingleSyncSession<String, ReportRow, 
 	
 	protected Map<String, ReportRow> reportRows;
 	protected Map<String, SalesforceAccount> localItems;
+	
+	protected Sync sync;
 	
 	public SalesforceSyncSession(Map<String, ReportRow> reportRows, Map<String, SalesforceAccount> localItems){
 		init(reportRows, localItems);
@@ -64,7 +69,17 @@ public class SalesforceSyncSession extends SingleSyncSession<String, ReportRow, 
 	protected void preCommit(){
 		Sync sync = new Sync(SyncType.ACCOUNT_IMPORT);
 		System.out.println("in override");
-		persistenceContext.insert(sync);
+		this.sync = persistenceContext.insert(sync);
 	}
+
+	public Sync getSync() {
+		return sync;
+	}
+
+	public void setSync(Sync sync) {
+		this.sync = sync;
+	}
+	
+	
 	
 }

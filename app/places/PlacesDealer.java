@@ -1,64 +1,56 @@
-package persistence;
+package places;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.Table;
 
 @Entity
+@Table(indexes = {@Index(name = "placesId_index",  columnList="placesId", unique = false)})
 public class PlacesDealer {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long placesDealerId;
 	
-	@Column(nullable=false)
 	private String placesId;
 	
-	@Column(nullable=true)
 	private String formattedAddress;
-	@Column(nullable=true)
 	private String country;
-	@Column(nullable=true)
 	private String formattedPhoneNumber; 
-	@Column(nullable=true)
 	private double longitude;
-	@Column(nullable=true)
 	private double latitude;
-	@Column(nullable=true, columnDefinition="TEXT")
-	private String iconUrl;
-	@Column(nullable=true)
 	private String internationalPhoneNumber;
-	@Column(nullable=true)
 	private String name;
-	@Column(nullable=true, columnDefinition="TEXT")
-	private String openHours;
-	@Column(nullable=true)
 	private boolean permanentlyClosed;
-	@Column(nullable=true, columnDefinition="TEXT")
-	private String photos;
-	@Column(nullable=true)
 	private String priceLevel;
-	@Column(nullable=true)
 	private double rating;
-	@Column(nullable=true)
 	private double ratingCount;
-	@Column(nullable=true)
 	private String types;
-	@Column(nullable=true, columnDefinition="TEXT")
-	private String googleUrl;
-	@Column(nullable=true)
 	private int utcOffset;
-	@Column(nullable=true)
 	private String vicinity;
-	@Column(nullable=true, columnDefinition="TEXT")
-	private String website;
-	
 	private String shortCountry;
 	
 	@Column(nullable=true, columnDefinition="TEXT")
+	private String iconUrl;
+	@Column(nullable=true, columnDefinition="TEXT")
+	private String openHours;
+	@Column(nullable=true, columnDefinition="TEXT")
+	private String photos;
+	@Column(nullable=true, columnDefinition="TEXT")
+	private String googleUrl;
+	@Column(nullable=true, columnDefinition="TEXT")
+	private String website;
+	
+	@Column(nullable=true, columnDefinition="TEXT")
 	private String domain;
+	
+	
+	
+	
 	
 	
 	public void setId(long id) {

@@ -21,7 +21,7 @@ libraryDependencies ++= Seq(
   	"com.google.code.gson" % "gson" % "2.3.1",
   	"org.apache.commons" % "commons-csv" % "1.1",
   	"mysql" % "mysql-connector-java" % "5.1.35",
-  	"net.sf.sprockets" % "sprockets" % "2.4.0",
+  	"net.sf.sprockets" % "sprockets" % "3.1.0",
   	"com.restfb" % "restfb" % "1.11.0",
   	"org.seleniumhq.selenium" % "selenium-chrome-driver" % "2.48.2",
   	"org.seleniumhq.selenium" % "selenium-htmlunit-driver" % "2.48.2",

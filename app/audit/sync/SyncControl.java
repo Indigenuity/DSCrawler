@@ -21,11 +21,11 @@ public class SyncControl {
 		List<T> modified = AuditDao.getUpdatedAtRevision(clazz, revisionNumber, 20, 0);
 		
 		Report addedReport = ReportFactory.fromEntityCollection(added);
-		addedReport.setName(clazz.getSimpleName() + " Added at sync (" + sync.getSyncId() + ")");
+		addedReport.setName(sync.getSyncType() + " Added at sync (" + sync.getSyncId() + ")");
 		Report deletedReport = ReportFactory.fromEntityCollection(deleted);
-		deletedReport.setName(clazz.getSimpleName() + " Deleted at sync (" + sync.getSyncId() + ")");
+		deletedReport.setName(sync.getSyncType() + " Deleted at sync (" + sync.getSyncId() + ")");
 		Report modifiedReport = ReportFactory.fromEntityCollection(modified);
-		modifiedReport.setName(clazz.getSimpleName() + " Modified at sync (" + sync.getSyncId() + ")");
+		modifiedReport.setName(sync.getSyncType() + " Modified at sync (" + sync.getSyncId() + ")");
 		
 		Report summaryReport = new Report();
 		summaryReport.setName("Summary Report for sync (" + sync.getSyncId() + ")");

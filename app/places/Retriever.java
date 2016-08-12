@@ -1,6 +1,7 @@
 package places;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -8,9 +9,6 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import persistence.CanadaPostal;
-import persistence.PlacesPage;
-import persistence.ZipLocation;
 import play.Logger;
 import play.db.jpa.JPA;
 import net.sf.sprockets.google.Place;
@@ -53,74 +51,77 @@ public class Retriever {
 	}
 	
 	public static void retrieveCanada() throws IOException {
-		 
-		EntityManager em = JPA.em();
 		int maxResults = 5000;
-		int offset = 0;
+		int offset = 1200;
 		String queryString = "from CanadaPostal cp";
-		List<CanadaPostal> postals = em.createQuery(queryString, CanadaPostal.class).setMaxResults(maxResults).setFirstResult(offset).getResultList();
+		List<CanadaPostal> postals = JPA.em().createQuery(queryString, CanadaPostal.class).setMaxResults(maxResults).setFirstResult(offset).getResultList();
 		System.out.println("size : " + postals.size());
 		int count = 0;
 		for(CanadaPostal postal : postals) {
-//			if(count < 10){
-				try{
-					System.out.println("Retrieving information for postal : " + postal.code + "(" + ++count + " of " + postals.size() + ")");
-					retrieveForLocation(postal.latitude, postal.longitude);
-				}
-				catch(Exception e) {
-					Logger.error("Error while retrieving information for postal : " + postal.code);
-				}
-				em.getTransaction().commit();	//Would be very large transaction without this
-				em.getTransaction().begin();
-//			}
+				System.out.println("Retrieving information for postal : " + postal.code + "(" + ++count + " of " + postals.size() + ")");
+				List<Place> places = retrieveForLocation(postal.latitude, postal.longitude);
+				DataBuilder.importPlaces(places);
+				
+				JPA.em().getTransaction().commit();	//Would be very large transaction without this
+				JPA.em().getTransaction().begin();
 		}
-		
+	}
+	
+	public static void retrieveUs() throws IOException {
+		int maxResults = 50000;
+		int offset = 2153 + 2294  + 575;
+		String queryString = "from ZipLocation zl";
+		List<ZipLocation> zips = JPA.em().createQuery(queryString, ZipLocation.class).setMaxResults(maxResults).setFirstResult(offset).getResultList();
+		System.out.println("size : " + zips.size());
+		int count = 0;
+		for(ZipLocation zip : zips) {
+				System.out.println("Retrieving information for zip : " + zip.zip + "(" + ++count + " of " + zips.size() + ")");
+				List<Place> places = retrieveForLocation(zip.latitude, zip.longitude);
+				DataBuilder.importPlaces(places);
+				
+				JPA.em().getTransaction().commit();	//Would be very large transaction without this
+				JPA.em().getTransaction().begin();
+		}
 	}
 	
 	
 	
-	public static void retrieveForLocation(double latitude, double longitude) throws IOException{
-		Response<List<Place>> resp = Places.nearbySearch(new Params().location(latitude, longitude).types("car_dealer"));
+	public static List<Place> retrieveForLocation(double latitude, double longitude) throws IOException{
+		Response<List<Place>> resp = Places.nearbySearch(Params.create().latitude(latitude).longitude(longitude).type("car_dealer"));
 		String nextPageToken = null;
+		List<Place> results = new ArrayList<Place>();
 		int pageNum = 0;
 		do {
 			pageNum++;
 			
 			List<Place> searchPlaces = resp.getResult();
-			
-			if(searchPlaces != null){
-				System.out.println("Results on page " + pageNum + " : " + searchPlaces.size());
-				for(Place searchPlace : searchPlaces) {
-					if(!isDetailsRecorded(searchPlace.getPlaceId().getId())){
-						System.out.println("Going to store data for : " + searchPlace.getPlaceId().getId());
-						retrieveDetails(searchPlace.getPlaceId().getId());
-					}
-					else{
-//						System.out.println("Already have information for : " + searchPlace.getPlaceId().getId());
-					}
-				}
-			}
+			System.out.println("Results on page " + pageNum + " : " + searchPlaces.size());
 			nextPageToken = resp.getNextPageToken();
-			resp = Places.nearbySearch(new Params().pageToken(nextPageToken));
+			resp = Places.nearbySearch(Params.create().pageToken(nextPageToken));
+			
+			results.addAll(searchPlaces);
 		}
 		while(nextPageToken != null);
+		
+		return results;
 	}
 	
 
 	//Check our database to see if the details have already been stored for this PlacesId
 	public static boolean isDetailsRecorded(String placesId){
-		String queryString = "SELECT COUNT(pd.id) FROM PlacesDealer pd where placesId = '" + placesId + "'";
-		Query q = JPA.em().createQuery(queryString);
-		long count = (long)q.getSingleResult();
-		
-		return count > 0;
+//		String queryString = "SELECT COUNT(pd.id) FROM PlacesDealer pd where placesId = '" + placesId + "'";
+//		Query q = JPA.em().createQuery(queryString);
+//		long count = (long)q.getSingleResult();
+//		
+//		return count > 0;
+		return false;
 	}
 	
 	public static void retrieveDetails(String placesId) throws IOException {
-		Response<Place> detailsResponse = Places.details(new Params().placeId(placesId));
+		Response<Place> detailsResponse = Places.details(Params.create().placeId(placesId));
 		Place detailsPlace = detailsResponse.getResult();
-//		PlacesPage dealer = DataBuilder.getPlacesDealer(detailsPlace);
-//		JPA.em().persist(dealer);
+		PlacesDealer dealer = DataBuilder.getPlacesDealer(detailsPlace);
+		JPA.em().merge(dealer);
 		
 	}
 }

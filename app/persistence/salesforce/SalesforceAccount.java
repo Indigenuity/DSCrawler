@@ -15,6 +15,7 @@ import javax.persistence.Table;
 import org.hibernate.envers.Audited;
 
 import persistence.Site;
+import utilities.DSFormatter;
 
 @Entity
 @Table(indexes = {@Index(name = "name_index",  columnList="name", unique = false),
@@ -24,7 +25,7 @@ public class SalesforceAccount {
 
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY) 
 	private long salesforceAccountId;
 	
 	/************************** Basics ********************************/
@@ -35,8 +36,24 @@ public class SalesforceAccount {
 	@Column(columnDefinition = "varchar(4000)")
 	private String salesforceWebsite;
 	private Boolean franchise;
+
+	@Enumerated(EnumType.STRING)
+	private DealershipType dealershipType;
 	@Enumerated(EnumType.STRING)
 	private SalesforceAccountType accountType;
+	
+	private String phone;
+	private String street;
+	private String city;
+	private String state;
+	private String zip;
+	private String country;
+	@Column(columnDefinition = "varchar(500)")
+	private String brandAffiliation;
+	private String customerStatus;
+	
+	//Denotes if there is a significant difference between the salesforceWebsite and the homepage of the assigned site.
+	private Boolean significantDifference = false;
 	
 	
 	/************************ Relationships ***************************/
@@ -136,6 +153,91 @@ public class SalesforceAccount {
 	public SalesforceAccount setSite(Site site) {
 		this.site = site;
 		return this;
+	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	public String getStreet() {
+		return street;
+	}
+
+	public void setStreet(String street) {
+		this.street = street;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	public String getState() {
+		return state;
+	}
+
+	public void setState(String state) {
+		this.state = state;
+	}
+
+	public String getZip() {
+		return zip;
+	}
+
+	public void setZip(String zip) {
+		this.zip = zip;
+	}
+
+	public String getCountry() {
+		return country;
+	}
+
+	public void setCountry(String country) {
+		this.country = country;
+	}
+
+	public String getBrandAffiliation() {
+		return brandAffiliation;
+	}
+
+	public void setBrandAffiliation(String brandAffiliation) {
+//		System.out.println("setting brand affiliation : " + brandAffiliation);
+		this.brandAffiliation = DSFormatter.truncate(brandAffiliation, 255);
+	}
+
+	public String getCustomerStatus() {
+		return customerStatus;
+	}
+
+	public void setCustomerStatus(String customerStatus) {
+		this.customerStatus = customerStatus;
+	}
+	
+	public String getFullLocation(){
+		return getStreet() + " " + getCity() + ", " + getState() + " " + getZip() + ", " + getCountry();
+	}
+
+	public Boolean getSignificantDifference() {
+		return significantDifference;
+	}
+
+	public void setSignificantDifference(Boolean significantDifference) {
+		this.significantDifference = significantDifference;
+	}
+
+	public DealershipType getDealershipType() {
+		return dealershipType;
+	}
+
+	public void setDealershipType(DealershipType dealershipType) {
+		this.dealershipType = dealershipType;
 	}
 	
 	

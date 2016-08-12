@@ -9,6 +9,7 @@ import play.Logger;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
+import akka.actor.UntypedActor;
 import async.registration.RegistryEntry;
 import async.registration.ContextItem;
 import async.registration.WorkerRegistry;
@@ -54,6 +55,10 @@ public class Asyncleton {
 	
 	public ActorRef getGenericMaster(int numWorkers) {
 		return mainSystem.actorOf(Props.create(GenericMaster.class, numWorkers, mainListener, Worker.class));
+	}
+	
+	public ActorRef getGenericMaster(int numWorkers, Class<? extends UntypedActor> clazz) {
+		return mainSystem.actorOf(Props.create(GenericMaster.class, numWorkers, mainListener, clazz));
 	}
 	
 	public void doTask(Task task, ActorRef sender, boolean checkRequiredContextItems) {
