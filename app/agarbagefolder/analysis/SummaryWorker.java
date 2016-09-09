@@ -3,9 +3,9 @@ package agarbagefolder.analysis;
 import persistence.SiteInformationOld;
 import persistence.SiteSummary;
 import play.Logger;
+import agarbagefolder.SiteAnalyzer;
 import agarbagefolder.SiteWork;
 import akka.actor.UntypedActor;
-import analysis.SiteAnalyzer;
 import analysis.SiteSummarizer;
 
 public class SummaryWorker extends UntypedActor {

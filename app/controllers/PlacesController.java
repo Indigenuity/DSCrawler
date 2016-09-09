@@ -50,7 +50,7 @@ public class PlacesController extends Controller {
 		for(PlacesDealer place : places) {
 //			System.out.println("Name : " + place.getName() + "(" + place.getPlacesId() + ")");
 			
-			Retriever.retrieveDetails(place.getPlacesId());
+			Retriever.retrieveDetails(place);
 			count++;
 			if(count % 50 == 0){
 				System.out.println("count : " + count);

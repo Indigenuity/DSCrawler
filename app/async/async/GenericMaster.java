@@ -128,8 +128,9 @@ public class GenericMaster extends UntypedActor {
 				customer.tell(result, getSelf());
 			}
 			else {
-				System.out.println("Got unknown work in Generic Master (" + this.clazz + ") : " + work);
-				Logger.warn("Got unknown work in Generic Master (" + this.clazz + ") : " + work);
+//				System.out.println("Got unknown work in Generic Master (" + this.clazz + ") : " + work);
+//				Logger.warn("Got unknown work in Generic Master (" + this.clazz + ") : " + work);
+				router.route(work, getSelf());
 			}
 		}
 		catch(Exception e){

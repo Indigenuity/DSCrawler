@@ -1,4 +1,4 @@
-package analysis;
+package agarbagefolder;
 
 import global.Global;
 
@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import org.apache.commons.io.FilenameUtils;
 
+import analysis.PageAnalyzer;
 import persistence.PageInformation;
 import persistence.SiteInformationOld;
 

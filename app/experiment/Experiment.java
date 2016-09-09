@@ -96,6 +96,7 @@ import agarbagefolder.urlresolve.UrlResolveWorkOrder;
 import crawling.DealerCrawlController;
 import crawling.GoogleCrawler;
 import crawling.MobileCrawler;
+import dao.AnalysisDao;
 import dao.GeneralDAO;
 import dao.SitesDAO;
 import dao.StatsDAO;
@@ -115,10 +116,13 @@ import datatransfer.Cleaner;
 import datatransfer.reports.Report;
 import datatransfer.reports.ReportFactory;
 import datatransfer.reports.ReportRow;
-import akka.actor.ActorRef;
 import akka.actor.Props;
+import analysis.AnalysisControl;
+import analysis.PageCrawlAnalysis;
+import analysis.SiteCrawlAnalysis;
 import analysis.SiteCrawlAnalyzer;
-import async.async.Asyncleton;
+import analysis.TextAnalyzer;
+import async.async.GenericMaster;
 import async.tools.InventoryTool;
 import async.tools.Tool;
 import async.tools.ToolGuide;
@@ -152,6 +156,7 @@ import persistence.TestEntity;
 import persistence.TestOtherEntity;
 import persistence.UrlCheck;
 import persistence.Site.SiteStatus;
+import persistence.SiteCrawl.FileStatus;
 import persistence.salesforce.SalesforceAccount;
 import persistence.stateful.FetchJob;
 import persistence.tasks.Task;
@@ -160,6 +165,9 @@ import places.CanadaPostal;
 import places.DataBuilder;
 import places.PlacesDealer;
 import places.PlacesPage;
+import places.PostalLocation;
+import places.PostalSearchWorker;
+import places.ZipLocation;
 import play.db.DB;
 import play.db.jpa.JPA;
 import reporting.DashboardStats;
@@ -174,11 +182,118 @@ import utilities.UrlSniffer;
 
 public class Experiment { 
 	
-	public static void runExperiment() {
-		String queryString = "select pd.placesId from PlacesDealer pd";
-		List<String> ids = JPA.em().createQuery(queryString, String.class).getResultList();
+	public static void runExperiment() throws Exception {
+//		Site site = JPA.em().find(Site.class, 18152L);
+//		
+//		SiteCrawl siteCrawl = DealerCrawlController.crawlSite(site.getHomepage());
 		
-		System.out.println("ids : "+ ids.size());
+//		AnalysisControl.runAnalysisExperiment();
+//		runCreditAppReport();
+//		System.out.println("number matching : " + AnalysisDao.getCountGeneralMatch(GeneralMatch.DEALER_COM_CREDIT_APP));
+		
+		experimentTaskSet();
+	}
+	
+	public static void runCreditAppReport() throws IOException {
+		Report report = new Report();
+		report.setName("Online Credit App Usage");
+		
+		report.addReportRow(GeneralMatch.DEALER_COM_CREDIT_APP.name(), makeCreditAppReportRow(GeneralMatch.DEALER_COM_CREDIT_APP));
+		report.addReportRow(GeneralMatch.DEALER_COM_CREDIT_APP_2.name(), makeCreditAppReportRow(GeneralMatch.DEALER_COM_CREDIT_APP_2));
+		report.addReportRow(GeneralMatch.BUYATOYOTA_COM_CREDIT_APP.name(), makeCreditAppReportRow(GeneralMatch.BUYATOYOTA_COM_CREDIT_APP));
+		report.addReportRow(GeneralMatch.DEALERTRACK_EBUSINESS.name(), makeCreditAppReportRow(GeneralMatch.DEALERTRACK_EBUSINESS));
+		report.addReportRow(GeneralMatch.ROUTE_ONE.name(), makeCreditAppReportRow(GeneralMatch.ROUTE_ONE));
+		report.addReportRow(GeneralMatch.DEALER_CENTRIC_CREDIT_APP.name(), makeCreditAppReportRow(GeneralMatch.DEALER_CENTRIC_CREDIT_APP));
+		report.addReportRow(GeneralMatch.DEALER_ON_CREDIT_APP.name(), makeCreditAppReportRow(GeneralMatch.DEALER_ON_CREDIT_APP));
+		report.addReportRow(GeneralMatch.DEALER_ON_CREDIT_APP_LINK.name(), makeCreditAppReportRow(GeneralMatch.DEALER_ON_CREDIT_APP_LINK));
+		report.addReportRow(GeneralMatch.DEALER_TRACK_CREDIT_APP.name(), makeCreditAppReportRow(GeneralMatch.DEALER_TRACK_CREDIT_APP));
+		report.addReportRow(GeneralMatch.CREDIT_APPLICATION.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION));
+		report.addReportRow(GeneralMatch.CREDIT_APPLICATION2.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION2));
+		report.addReportRow(GeneralMatch.CREDIT_APPLICATION3.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION3));
+		report.addReportRow(GeneralMatch.CREDIT_APPLICATION4.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION4));
+		report.addReportRow(GeneralMatch.CREDIT_APPLICATION5.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION5));
+		report.addReportRow(GeneralMatch.CREDIT_APPLICATION6.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION6));
+		report.addReportRow(GeneralMatch.CREDIT_APPLICATION7.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION7));
+		report.addReportRow(GeneralMatch.CREDIT_APPLICATION8.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION8));
+		report.addReportRow(GeneralMatch.CREDIT_APPLICATION9.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION9));
+		report.addReportRow(GeneralMatch.CREDIT_APPLICATION10.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION10));
+		report.addReportRow(GeneralMatch.CREDIT_APPLICATION11.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION11));
+		report.addReportRow(GeneralMatch.CREDIT_APPLICATION12.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION12));
+		report.addReportRow(GeneralMatch.CREDIT_APPLICATION13.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION13));
+		report.addReportRow(GeneralMatch.CREDIT_APPLICATION14.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION14));
+		report.addReportRow(GeneralMatch.CREDIT_APPLICATION15.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION15));
+		report.addReportRow(GeneralMatch.CREDIT_APPLICATION16.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION16));
+		report.addReportRow(GeneralMatch.CREDIT_APPLICATION17.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION17));
+		
+		CSVGenerator.printReport(report);
+		
+	}
+	
+	public static ReportRow makeCreditAppReportRow(GeneralMatch generalMatch) {
+		ReportRow reportRow = new ReportRow();
+		reportRow.putCell("Match Name", generalMatch.name());
+		reportRow.putCell("Description", generalMatch.description);
+		reportRow.putCell("Definition", generalMatch.definition);
+		reportRow.putCell("Example", generalMatch.notes);
+		Long matchingSites = AnalysisDao.getCountGeneralMatch(generalMatch);
+		Long total = 19769L;
+		Double marketShare = (matchingSites * 1.0) / total;
+		reportRow.putCell("# Matching Sites", matchingSites + "");
+		reportRow.putCell("Market Share", marketShare  + "");
+		
+		return reportRow;
+	}
+	
+	
+	public static void runFileStatusExperiment() {
+		String queryString = "from SiteCrawl sc";
+		List<SiteCrawl> siteCrawls = JPA.em().createQuery(queryString, SiteCrawl.class).getResultList();
+		
+		System.out.println("siteCrawls : " + siteCrawls.size());
+		
+		int deleted = 0;
+		int total = 0;
+		for(SiteCrawl siteCrawl : siteCrawls) {
+			String folderName = Global.getCrawlStorageFolder() + siteCrawl.getStorageFolder();
+			File folder = new File(folderName);
+			
+			if(!folder.exists()){
+				siteCrawl.setFileStatus(FileStatus.DELETED);
+				deleted++;
+			} else {
+				siteCrawl.setFileStatus(FileStatus.PRIMARY);
+			}
+			if(total %500 == 0){
+				System.out.println("total : " + total);
+				System.out.println("folderName : " + folderName);
+				System.out.println("filename : " + folder.getAbsolutePath());
+				System.out.println("filestatus : " + siteCrawl.getFileStatus());
+				System.out.println("SiteCrawlId : " + siteCrawl.getSiteCrawlId());
+			}
+			total++;
+		}
+		
+		System.out.println("Total : " + total);
+		System.out.println("deleted : " + deleted);
+	}
+	
+	public static void siteCrawlAnalysisExperiment() throws Exception {
+		SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, 55426L);
+		
+//		SiteCrawlAnalysis analysis = SiteCrawlAnalyzer.analyzeSiteCrawl(siteCrawl, AnalysisMode.PAGED);
+		
+		
+//		for(PageCrawlAnalysis pageAnalysis : analysis.getPageAnalyses()){
+////			System.out.println("pageAnalysis : " + pageAnalysis.getGeneralMatches().size());
+////			for(GeneralMatch match : pageAnalysis.getGeneralMatches()){
+////				System.out.println(match);
+////			}
+//		}
+//		
+//		JPA.em().persist(analysis);
+//		
+//		System.out.println("pagecrawls : " + siteCrawl.getPageCrawls().size());
+		
 	}
 	
 	public static void runUrlExperiment() throws IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InterruptedException {
@@ -484,7 +599,7 @@ public class Experiment {
 		TaskSet taskSet = new TaskSet();
 		taskSet.setName("Crawling");
 		
-		String query = "from Site s where s.siteStatus = :siteStatus";
+		String query = "select s from SalesforceAccount sf join sf.site s where sf.franchise is null and s.siteStatus = :siteStatus";
 		List<Site> sites = JPA.em().createQuery(query, Site.class).setParameter("siteStatus", SiteStatus.APPROVED).getResultList();
 		
 //		List<String> dupDomains = SitesDAO.getDuplicateDomains(100000, 0);
@@ -524,19 +639,19 @@ public class Experiment {
 			crawlTask.setWorkStatus(WorkStatus.DO_WORK);
 			supertask.addSubtask(crawlTask);
 			
-			Task amalgTask = new Task();
-			amalgTask.setWorkStatus(WorkStatus.DO_WORK);
-			amalgTask.setWorkType(WorkType.AMALGAMATION);
-			amalgTask.addPrerequisite(crawlTask);
-			JPA.em().persist(amalgTask);
-			
-			
-			Task analysisTask = new Task();
-			analysisTask.setWorkType(WorkType.ANALYSIS);
-			analysisTask.setWorkStatus(WorkStatus.DO_WORK);
-			analysisTask.addPrerequisite(amalgTask);
-			supertask.addSubtask(analysisTask);
-			
+//			Task amalgTask = new Task();
+//			amalgTask.setWorkStatus(WorkStatus.DO_WORK);
+//			amalgTask.setWorkType(WorkType.AMALGAMATION);
+//			amalgTask.addPrerequisite(crawlTask);
+//			JPA.em().persist(amalgTask);
+//			
+//			
+//			Task analysisTask = new Task();
+//			analysisTask.setWorkType(WorkType.ANALYSIS);
+//			analysisTask.setWorkStatus(WorkStatus.DO_WORK);
+//			analysisTask.addPrerequisite(amalgTask);
+//			supertask.addSubtask(analysisTask);
+//			
 			site.setHomepage(site.getHomepage());
 		}
 		
@@ -1080,7 +1195,7 @@ public class Experiment {
 				if(file.isFile() && !Amalgamater.isAmalgamation(file)){
 					normalNum++;
 					System.out.println("analyzing file : " + normalNum);
-					extractedStrings.addAll(SiteCrawlAnalyzer.extractStrings(file));
+					extractedStrings.addAll(TextAnalyzer.extractStrings(file));
 				}
 			}
 			normalNum = extractedStrings.size();
@@ -1118,7 +1233,7 @@ public class Experiment {
 				if(file.isFile() && Amalgamater.isAmalgamation(file) && file.getName().contains("split.")){
 					splitNum++;
 					System.out.println("analyzing file : " + splitNum);
-					extractedStrings.addAll(SiteCrawlAnalyzer.extractStrings(file));
+					extractedStrings.addAll(TextAnalyzer.extractStrings(file));
 				}
 			}
 			splitNum = extractedStrings.size();
@@ -1135,7 +1250,7 @@ public class Experiment {
 			for(File file : storageFolder.listFiles()) {
 				if(file.isFile() && Amalgamater.isAmalgamation(file) && !file.getName().contains("split.")){
 					largeNum++;
-					extractedStrings.addAll(SiteCrawlAnalyzer.extractStrings(file));
+					extractedStrings.addAll(TextAnalyzer.extractStrings(file));
 				}
 			}
 			largeNum = extractedStrings.size();

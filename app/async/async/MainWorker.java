@@ -8,6 +8,7 @@ import java.sql.SQLException;
 
 import org.apache.http.conn.ConnectTimeoutException;
 
+import agarbagefolder.SiteAnalyzer;
 import agarbagefolder.SiteWork;
 import crawling.DealerCrawlController;
 import dao.SiteInformationDAO;
@@ -21,7 +22,6 @@ import utilities.DSFormatter;
 import utilities.UrlSniffer;
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
-import analysis.SiteAnalyzer;
 import analysis.SiteSummarizer;
 import async.monitoring.AsyncMonitor;
 import async.monitoring.AsyncMonitor.CompletedWork;

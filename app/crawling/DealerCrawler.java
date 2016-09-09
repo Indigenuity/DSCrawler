@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
+
 import persistence.PageCrawl;
 import persistence.PageInformation;
 import persistence.SiteCrawl;
@@ -80,16 +82,13 @@ public class DealerCrawler extends WebCrawler {
 	public boolean shouldVisit(Page referringPage, WebURL url) {
 		
 		try{
-			String href = url.getURL().toLowerCase(); 
+			
+			String href = url.getURL().toLowerCase();
+//			System.out.println("checking shouldVisit for href : " + href);
 			String lowerDomain = crawlDomain.toLowerCase();
 			
 			if(href == null){
 //				System.out.println("Not visiting null href");
-				return false;
-			}
-			
-			if(FILTERS.matcher(href).matches()) {
-//				System.out.println("Wrong Content Type : " + href);
 				return false;
 			}
 			
@@ -105,6 +104,11 @@ public class DealerCrawler extends WebCrawler {
 				return false;
 			}
 			
+			if(FILTERS.matcher(noQuery).matches()) {
+//				System.out.println("Wrong Content Type : " + href);
+				return false;
+			}
+			
 			if(!siteCrawl.addCrawledUrl(href)){
 				repeatUrls++;
 				if(repeatUrls % 1000 == 0){
@@ -117,7 +121,7 @@ public class DealerCrawler extends WebCrawler {
 		catch (Exception e) {
 			Logger.error("Caught Exception in shouldVisit");
 			Logger.error(e.toString());
-			System.out.println("exception in should visit");
+//			System.out.println("exception in should visit");
 			
 			return false;
 		}
@@ -137,7 +141,12 @@ public class DealerCrawler extends WebCrawler {
 			String path = url.getPath();
 			String query = url.getQuery();
 			String pathAndQuery = path + "?" + query;
-			String safePath = DSFormatter.makeSafePath(pathAndQuery);
+			String safePath;
+			if(!StringUtils.isEmpty(query)){
+				safePath = DSFormatter.makeSafePath(pathAndQuery);
+			} else {
+				safePath = DSFormatter.makeSafePath(path);
+			}
 			String filename = storageFolder.getAbsolutePath() + "/" + safePath;
 			
 			pageCrawl.setUrl(urlString);
@@ -156,7 +165,7 @@ public class DealerCrawler extends WebCrawler {
 			    // HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
 				//Record raw crawl data to file
 				File out = new File(filename);
-				//	        	 System.out.println("filename : " + filename);
+//					        	 System.out.println("filename : " + filename);
 				if(!out.exists()){
 					Files.write(page.getContentData(), new File(filename));
 				}
@@ -165,7 +174,7 @@ public class DealerCrawler extends WebCrawler {
 		}
 		catch(Exception e) {
 			Logger.error("Error while trying to visit and store : " + page.getWebURL().getURL() + " " + e);
-			System.out.println("Error while trying to visit and store : " + page.getWebURL().getURL() + " " + e);
+//			System.out.println("Error while trying to visit and store : " + page.getWebURL().getURL() + " " + e);
 			siteCrawl.addFailedUrl(page.getWebURL().getURL());
 			pageCrawl.setErrorMessage(e.getMessage());
 			failedUrls.add(page.getWebURL().getURL());
@@ -173,6 +182,7 @@ public class DealerCrawler extends WebCrawler {
 	}
 	@Override
 	protected void onContentFetchError(WebURL webUrl){
+//		System.out.println("Content fetch error for : " + webUrl.getURL());
 		Logger.error("Content fetch error for : " + webUrl.getURL());
 		failedUrls.add(webUrl.getURL());
 	}

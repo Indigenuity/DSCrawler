@@ -39,8 +39,7 @@ import utilities.DSFormatter;
 
 @Entity
 @Audited(withModifiedFlag=true)
-@Table(indexes = {@Index(name = "homepage_index",  columnList="homepage", unique = false),
-        @Index(name = "domain_index", columnList="domain",     unique = false)})
+@Table(indexes = {@Index(name = "domain_index", columnList="domain",     unique = false)})
 public class Site {
 
 	@Id
@@ -130,7 +129,7 @@ public class Site {
 	private Boolean languageQuery = false;
 	
 	public enum SiteStatus {
-		UNVALIDATED, INVALID, ACTIVE, NEEDS_REVIEW, REDIRECTS, DEFUNCT, APPROVED, TEMP_DEFUNCT, SUSPECTED_DUPLICATE, OTHER_ISSUE;
+		UNVALIDATED, INVALID, ACTIVE, NEEDS_REVIEW, REDIRECTS, DEFUNCT, APPROVED, TEMP_DEFUNCT, SUSPECTED_DUPLICATE, OTHER_ISSUE, MANUALLY_REDIRECTS;
 	}
 	
 	public Site(){}

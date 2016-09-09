@@ -29,6 +29,14 @@ GET		/review/salesforceSites			controllers.Review.salesforceSites()
 
 POST	/review/submit/reportRow		controllers.ReviewSubmit.reportRow()
 
+POST	/review/submit/manuallySeedSalesforceAccount		controllers.ReviewSubmit.manuallySeedSalesforceAccount()
+POST	/review/submit/manuallyRedirectSalesforceAccount	controllers.ReviewSubmit.manuallyRedirectSalesforceAccount()
+POST	/review/submit/approveResolved						controllers.ReviewSubmit.approveResolved()
+POST	/review/submit/approveShared						controllers.ReviewSubmit.approveShared()
+POST	/review/submit/markDefunct							controllers.ReviewSubmit.markDefunct()
+POST	/review/submit/otherIssue							controllers.ReviewSubmit.otherIssue()
+POST	/review/submit/recheck								controllers.ReviewSubmit.recheck()
+
 GET 	/validateSites					controllers.Application.validateSites()
 
 GET		/markSignificantDifferences		controllers.DataEditor.markSignificantDifferences()

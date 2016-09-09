@@ -76,10 +76,60 @@ public class SitesDAO {
 		return newSite;
 	}
 	
+	//Returns the NEW site
+	public static Site manuallyRedirect(Site site, String newHomepage) {
+		Site newSite = SitesDAO.getOrNew(newHomepage);
+		site.setManualForwardsTo(newSite);
+		site.setSiteStatus(SiteStatus.MANUALLY_REDIRECTS);
+		return newSite;
+	}
+	
+	public static void applyUrlCheck(Site site){
+		UrlCheck urlCheck = site.getUrlCheck();
+		if(urlCheck == null){
+			return;
+		}
+		
+		if(urlCheck.isError()) {
+			markError(site);
+		} else if(urlCheck.getStatusCode() >= 400){
+			markDefunct(site);
+		} else if(urlCheck.isNoChange()){
+			if(urlCheck.isAllApproved()){
+				approve(site);
+			} else if(site.getSiteStatus() != SiteStatus.APPROVED){
+				review(site);
+			}
+		} else {
+			if(urlCheck.isAllApproved()){
+				acceptRedirect(site, urlCheck.getResolvedSeed());
+			} else if (urlCheck.isDomainApproved()){
+				reviewRedirect(site, urlCheck.getResolvedSeed());
+			} else {
+				review(site);
+			}
+		}
+	}
+	
+	public static void acceptUrlCheck(Site site, boolean sharedSite) {
+		UrlCheck urlCheck = site.getUrlCheck();
+		if(urlCheck == null){
+			throw new IllegalArgumentException("Can't accept UrlCheck of Site without UrlCheck : " + site.getSiteId());
+		}
+		
+		if(urlCheck.isNoChange()){
+			approve(site);
+			site.setSharedSite(sharedSite);
+		} else {
+			acceptRedirect(site, urlCheck.getResolvedSeed())
+				.setSharedSite(sharedSite);
+		}
+	}
+	
 	public static Site getOrNew(String homepage) {
 		Site site = getFirst("homepage", homepage);
 		if(site == null){
-			return new Site(homepage);
+			return JPA.em().merge(new Site(homepage));
 		}
 		return site;
 	}
@@ -95,6 +145,27 @@ public class SitesDAO {
 		Site site = resultList.get(0);
 		site.setHomepage(urlCheck.getResolvedSeed());
 		
+		return site;
+	}
+	
+	public static Site getRedirectEndpoint(Site site, boolean allowManualRedirects){
+		if(site == null) {
+			return null;
+		}
+		
+		if(site.getSiteStatus() == SiteStatus.REDIRECTS){
+			if(site.getForwardsTo() == null){
+				throw new IllegalStateException("Site status shows redirect but forwardsTo field is null : " + site.getSiteId());	
+			}
+			
+			return getRedirectEndpoint(site.getForwardsTo(), allowManualRedirects);
+		} else if(site.getSiteStatus() == SiteStatus.MANUALLY_REDIRECTS && allowManualRedirects){
+			if(site.getManualForwardsTo() == null){
+				throw new IllegalStateException("Site status shows manual redirect but manualForwardsTo field is null : " + site.getSiteId());
+			}
+			
+			return getRedirectEndpoint(site.getManualForwardsTo(), allowManualRedirects);
+		} 
 		return site;
 	}
 	

@@ -31,13 +31,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.restfb.Version;
 
+import agarbagefolder.SiteAnalyzer;
 import agarbagefolder.SiteWork;
 import crawling.DealerCrawlController;
 import crawling.Facebook;
 import akka.actor.ActorRef;
 import analysis.SiteCrawlAnalyzer;
 import analysis.PageAnalyzer;
-import analysis.SiteAnalyzer;
 import analysis.SiteSummarizer;
 import async.async.Asyncleton;
 import async.monitoring.AsyncMonitor;

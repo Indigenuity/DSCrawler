@@ -58,6 +58,10 @@ import datadefinitions.newdefinitions.WPClue;
 	
 )
 public class SiteCrawl {
+	
+	public enum FileStatus {
+		PRIMARY, SECONDARY, DELETED
+	}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -111,6 +115,8 @@ public class SiteCrawl {
 	protected boolean filesMoved = false;
 	protected boolean filesDeleted = false;
 	protected boolean maybeDuplicate = false;
+	
+	protected FileStatus fileStatus = FileStatus.PRIMARY;
 	
 	
 	/********************************************* Relationships *********************************/
@@ -717,6 +723,18 @@ public class SiteCrawl {
 	public void setWebProvider(datadefinitions.newdefinitions.WebProvider webProvider) {
 		this.webProvider = webProvider;
 	}
+	
+	
+
+	public FileStatus getFileStatus() {
+		return fileStatus;
+	}
+
+
+	public void setFileStatus(FileStatus fileStatus) {
+		this.fileStatus = fileStatus;
+	}
+
 
 	public void initPageData() {
 		pageCrawls.size();

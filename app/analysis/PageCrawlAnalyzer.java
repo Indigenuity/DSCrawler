@@ -2,6 +2,7 @@ package analysis;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -26,6 +27,41 @@ import persistence.PageCrawl;
 import persistence.SiteCrawl;
 
 public class PageCrawlAnalyzer {
+	
+	public static void runPageCrawlAnalysis(SiteCrawlAnalysis siteAnalysis, PageCrawlAnalysis pageAnalysis) throws IOException {
+		AnalysisConfig config = siteAnalysis.getConfig();
+		String filename = Global.getCrawlStorageFolder() + siteAnalysis.getSiteCrawl().getStorageFolder() + "/" + pageAnalysis.getPageCrawl().getFilename();
+		FileInputStream inputStream = new FileInputStream(filename);
+        String text = IOUtils.toString(inputStream, "UTF-8");
+        inputStream.close();
+		
+        runTextAnalysis(config, pageAnalysis, text);
+		if(config.needsDoc()){
+			runDocAnalysis(config, pageAnalysis, text);
+		}
+		
+	}
+	
+	public static void runTextAnalysis(AnalysisConfig config, PageCrawlAnalysis pageAnalysis, String text) {
+		if(config.getDoGeneralMatches()){
+			pageAnalysis.getGeneralMatches().addAll(TextAnalyzer.getGeneralMatches(text));
+		}
+	}
+	
+	public static void runDocAnalysis(AnalysisConfig config, PageCrawlAnalysis pageAnalysis, String text) {
+		Document doc = Jsoup.parse(text);
+		if(config.getDoLinkTextMatches()){
+			pageAnalysis.getLinkTextMatches().addAll(DocAnalyzer.getLinkTextMatches(doc));
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	public static void fullAnalysis(PageCrawl pageCrawl) throws IOException{
 		fullAnalysis(pageCrawl, pageCrawl.getSiteCrawl());

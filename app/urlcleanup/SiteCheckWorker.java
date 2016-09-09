@@ -23,26 +23,7 @@ public class SiteCheckWorker extends UntypedActor {
 			JPA.withTransaction( () -> {
 				JPA.em().persist(urlCheck);
 				site.setUrlCheck(urlCheck);
-				
-				if(urlCheck.isError()) {
-					SitesDAO.markError(site);
-				} else if(urlCheck.getStatusCode() >= 400){
-					SitesDAO.markDefunct(site);
-				} else if(urlCheck.isNoChange()){
-					if(urlCheck.isAllApproved()){
-						SitesDAO.approve(site);
-					} else if(site.getSiteStatus() != SiteStatus.APPROVED){
-						SitesDAO.review(site);
-					}
-				} else {
-					if(urlCheck.isAllApproved()){
-						SitesDAO.acceptRedirect(site, urlCheck.getResolvedSeed());
-					} else if (urlCheck.isDomainApproved()){
-						SitesDAO.reviewRedirect(site, urlCheck.getResolvedSeed());
-					} else {
-						SitesDAO.markDefunct(site);
-					}
-				}
+				SitesDAO.applyUrlCheck(site);
 				JPA.em().merge(site);
 			});
 		}

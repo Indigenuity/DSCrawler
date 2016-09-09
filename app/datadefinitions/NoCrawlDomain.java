@@ -19,6 +19,7 @@ public enum NoCrawlDomain {
 	CARMAX			("carmax.com"),
 	PAACO			("paaco.com"),
 	CLICK_MOTIVE	("clickmotive.com"),
+	PINTEREST		("pinterest.com"),
 	SMART			("smart.com");
 	
 	public final String definition;

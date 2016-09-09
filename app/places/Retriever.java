@@ -18,6 +18,9 @@ import net.sf.sprockets.google.Places.Response;
 
 import com.google.gson.Gson;
 
+import akka.actor.ActorRef;
+import async.async.Asyncleton;
+
 public class Retriever {
 
 	
@@ -68,19 +71,28 @@ public class Retriever {
 	}
 	
 	public static void retrieveUs() throws IOException {
-		int maxResults = 50000;
-		int offset = 2153 + 2294  + 575;
-		String queryString = "from ZipLocation zl";
-		List<ZipLocation> zips = JPA.em().createQuery(queryString, ZipLocation.class).setMaxResults(maxResults).setFirstResult(offset).getResultList();
+//		int maxResults = 50000;
+//		int offset = 2153 + 2294  + 575 + 780 + 1739 + 30000;
+		String queryString = "from ZipLocation zl where zl.dateFetched is null";
+		List<ZipLocation> zips = JPA.em().createQuery(queryString, ZipLocation.class).getResultList();
 		System.out.println("size : " + zips.size());
+		ActorRef master = Asyncleton.getInstance().getGenericMaster(50, PostalSearchWorker.class);
+		
 		int count = 0;
 		for(ZipLocation zip : zips) {
-				System.out.println("Retrieving information for zip : " + zip.zip + "(" + ++count + " of " + zips.size() + ")");
-				List<Place> places = retrieveForLocation(zip.latitude, zip.longitude);
-				DataBuilder.importPlaces(places);
-				
-				JPA.em().getTransaction().commit();	//Would be very large transaction without this
-				JPA.em().getTransaction().begin();
+			
+			master.tell(zip, ActorRef.noSender());
+//			try{
+//				System.out.println("Retrieving information for zip : " + zip.zip + "(" + ++count + " of " + zips.size() + ")");
+//				List<Place> places = retrieveForLocation(zip.latitude, zip.longitude);
+//				DataBuilder.importPlaces(places);
+//				
+//				JPA.em().getTransaction().commit();	//Would be very large transaction without this
+//				JPA.em().getTransaction().begin();
+//			} catch(Exception e){
+//				System.out.println("Error retrieving for zip : " + zip.zip);
+//				Logger.error("Error retrieving for zip : " + zip.zip);
+//			}
 		}
 	}
 	
@@ -122,6 +134,11 @@ public class Retriever {
 		Place detailsPlace = detailsResponse.getResult();
 		PlacesDealer dealer = DataBuilder.getPlacesDealer(detailsPlace);
 		JPA.em().merge(dealer);
-		
+	}
+	
+	public static void retrieveDetails(PlacesDealer dealer) throws IOException {
+		Response<Place> detailsResponse = Places.details(Params.create().placeId(dealer.getPlacesId()));
+		Place detailsPlace = detailsResponse.getResult();
+		DataBuilder.fillPlacesDealer(dealer, detailsPlace);
 	}
 }

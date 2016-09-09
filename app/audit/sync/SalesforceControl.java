@@ -112,23 +112,18 @@ public class SalesforceControl {
 		session.runAssignments();
 	}
 
-	//Set an account to a new homepage and redirect the current site to it.
 	public static void manuallyRedirectAccount(SalesforceAccount account, String newHomepage){
-		Site newSite = SitesDAO.getOrNew(newHomepage);
-		newSite = JPA.em().merge(newSite);
-		account.setSite(newSite);
-		
-		Site site = account.getSite();
-		if(site == null) {
-			site.setForwardsTo(newSite);
-		}
+		account.setSite(SitesDAO.manuallyRedirect(account.getSite(), newHomepage));
+		account.setSite(SitesDAO.getRedirectEndpoint(account.getSite(), false));
 	}
+	
 	//Set an account to a new homepage and abandon the old one.
 	public static void manuallySeedAccount(SalesforceAccount account, String newHomepage){
-		Site newSite = SitesDAO.getOrNew(newHomepage);
-		newSite = JPA.em().merge(newSite);
-		account.setSite(newSite);
+		account.setSite(SitesDAO.getOrNew(newHomepage));
+		account.setSite(SitesDAO.getRedirectEndpoint(account.getSite(), false));
 	}
+	
+	
 	
 	public static void markSignificantDifferences() {
 		List<SalesforceAccount> accounts = JPA.em().createQuery("from SalesforceAccount sa", SalesforceAccount.class).getResultList();

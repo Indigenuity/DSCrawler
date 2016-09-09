@@ -2,37 +2,40 @@
 @import _root_.persistence.UrlCheck
 @(account : _root_.persistence.salesforce.SalesforceAccount)
 
-<div class="review-site">
+<div class="review-site single-action-container">
 	<h4> Salesforce Account (<a href="http://dealersocket.my.salesforce.com/@account.getSalesforceId()" target="_blank">@account.getSalesforceId()</a>) : @account.getName()</h4>
 		<p>@account.getFullLocation() (@account.getPhone())</p>
 		@if(account.getParentAccount() != null){
 			<p>Parent account : <a href="/salesforceAccount?salesforceAccountId=@account.getParentAccount().getSalesforceAccountId()">@account.getParentAccount().getName()</a>
 		}
 	<h4> Site @account.getSite().getSiteId()</h4>
-	<input type="hidden" name="siteId" value="@account.getSite().getSiteId()">
-	<table class="attributes">
-		<tr>
-			<td>Seed</td>
-			<td><a href="@account.getSite().getUrlCheck().getSeed()" target="_blank">@account.getSite().getUrlCheck().getSeed()</a></td>
-		</tr>
-		<tr>
-			<td>Resolved Seed</td>
-			<td><a href="@account.getSite().getUrlCheck().getResolvedSeed()" target="_blank">@account.getSite().getUrlCheck().getResolvedSeed()</a></td>
-		</tr>
-		<tr>
-			<td>Status</td>
-			<td>@account.getSite().getUrlCheck().getStatusCode()</td>
-		</tr>
-		<tr>
-			<td>Error</td>
-			<td>@account.getSite().getUrlCheck().getErrorMessage()</td>
-		</tr>
-	</table>
-	<p><input type="text" name="manualSeed"  class="url-input" value="@account.getSite().getUrlCheck().getResolvedSeed()"> <button type="submit" class="manual-seed-button">Manually Resolve</button></p>
-	<button type="submit" class="approve-resolved-button">Approve Resolved</button>
-	<button type="submit" class="shared-site-button">Approve Shared Site</button>
-	<button type="submit" class="mark-defunct-button">Mark Defunct</button>
-	<button type="submit" class="recheck-button">Recheck</button>
-	<button type="submit" class="other-issue-button">Other Issue</button>
+	<form method="POST" name="review-site-form" class="review-site-form faux-submit">
+		<input type="hidden" name="siteId" value="@account.getSite().getSiteId()">
+		<input type="hidden" name="salesforceAccountId" value="@account.getSalesforceAccountId()">
+		<table class="attributes">
+			<tr>
+				<td>Seed</td>
+				<td><a href="@account.getSite().getUrlCheck().getSeed()" target="_blank">@account.getSite().getUrlCheck().getSeed()</a></td>
+			</tr>
+			<tr>
+				<td>Resolved Seed</td>
+				<td><a href="@account.getSite().getUrlCheck().getResolvedSeed()" target="_blank">@account.getSite().getUrlCheck().getResolvedSeed()</a></td>
+			</tr>
+			<tr>
+				<td>Status</td>
+				<td>@account.getSite().getUrlCheck().getStatusCode()</td>
+			</tr>
+			<tr>
+				<td>Error</td>
+				<td>@account.getSite().getUrlCheck().getErrorMessage()</td>
+			</tr>
+		</table>
+		<p><input type="text" name="manualSeed"  class="url-input" value="@account.getSite().getUrlCheck().getResolvedSeed()"> <button type="submit" class="manual-seed-button">Manual Seed</button><button type="submit" class="manual-redirect-button">Manual Redirect</button></p>
+		<button type="submit" class="approve-resolved-button">Approve Resolved</button>
+		<button type="submit" class="shared-site-button">Approve Shared Site</button>
+		<button type="submit" class="mark-defunct-button">Mark Defunct</button>
+		<button type="submit" class="recheck-button">Recheck</button>
+		<button type="submit" class="other-issue-button">Other Issue</button>
+	</form>
 	
 </div>

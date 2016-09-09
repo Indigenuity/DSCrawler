@@ -2,9 +2,9 @@ package agarbagefolder.analysis;
 
 import persistence.SiteInformationOld;
 import play.Logger;
+import agarbagefolder.SiteAnalyzer;
 import agarbagefolder.SiteWork;
 import akka.actor.UntypedActor;
-import analysis.SiteAnalyzer;
 
 public class StringExtractionWorker extends UntypedActor {
 

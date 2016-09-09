@@ -1,5 +1,7 @@
 package places;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,6 +18,7 @@ public class PlacesDealer {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long placesDealerId;
 	
+	@Column(unique=true)
 	private String placesId;
 	
 	private String formattedAddress;
@@ -49,7 +52,7 @@ public class PlacesDealer {
 	private String domain;
 	
 	
-	
+	private Date detailFetchDate;
 	
 	
 	
@@ -193,6 +196,18 @@ public class PlacesDealer {
 	}
 	public void setShortCountry(String shortCountry) {
 		this.shortCountry = shortCountry;
+	}
+	public Date getDetailFetchDate() {
+		return detailFetchDate;
+	}
+	public void setDetailFetchDate(Date detailFetchDate) {
+		this.detailFetchDate = detailFetchDate;
+	}
+	public long getPlacesDealerId() {
+		return placesDealerId;
+	}
+	public void setPlacesDealerId(long placesDealerId) {
+		this.placesDealerId = placesDealerId;
 	}
 
 	

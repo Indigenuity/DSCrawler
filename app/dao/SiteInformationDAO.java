@@ -10,7 +10,7 @@ import java.sql.Statement;
 import java.util.Calendar;
 import java.util.List;
 
-import analysis.SiteAnalyzer;
+import agarbagefolder.SiteAnalyzer;
 import analysis.SiteSummarizer;
 import persistence.PageInformation;
 import persistence.SiteInformationOld;

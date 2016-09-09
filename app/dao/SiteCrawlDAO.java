@@ -1,5 +1,6 @@
 package dao;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,8 +14,10 @@ import javax.persistence.TypedQuery;
 
 import async.work.WorkStatus;
 import datadefinitions.newdefinitions.WPAttribution;
+import global.Global;
 import persistence.Site;
 import persistence.SiteCrawl;
+import persistence.SiteCrawl.FileStatus;
 import play.db.jpa.JPA;
 
 public class SiteCrawlDAO {
@@ -28,6 +31,25 @@ public class SiteCrawlDAO {
 //			}
 //		}
 //	}
+	
+	public static FileStatus markFileStatus(SiteCrawl siteCrawl) {
+		String primaryFolderName = Global.getCrawlStorageFolder() + siteCrawl.getStorageFolder();
+		String secondaryFolderName = Global.getSecondaryCrawlStorageFolder() + siteCrawl.getStorageFolder();
+		
+		File primaryFolder = new File(primaryFolderName);
+		File secondaryFolder = new File(secondaryFolderName);
+		FileStatus fileStatus;
+		if(primaryFolder.exists()){
+			fileStatus = FileStatus.PRIMARY;
+		} else if(secondaryFolder.exists()) {
+			fileStatus = FileStatus.SECONDARY;
+		} else {
+			fileStatus = FileStatus.DELETED;
+		}
+		
+		siteCrawl.setFileStatus(fileStatus);
+		return fileStatus;
+	}
 	
 	
 	public static Integer countWPAttribution(Long siteCrawlId, WPAttribution wp) {

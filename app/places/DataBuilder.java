@@ -21,44 +21,48 @@ import com.google.maps.model.AddressComponentType;
 import com.google.maps.model.PlaceDetails;
 
 import dao.GeneralDAO;
+import dao.PlacesDealerDao;
 import global.Global;
 import play.Logger;
 import play.db.jpa.JPA;
 
 public class DataBuilder {
 	
-	public static PlacesDealer getPlacesDealer(Place placeDetails){
+	public static PlacesDealer getPlacesDealer(Place place){
 		PlacesDealer dealer = new PlacesDealer();
-		dealer.setFormattedAddress(placeDetails.getFormattedAddress());
-		dealer.setFormattedPhoneNumber(placeDetails.getFormattedPhoneNumber());
-		dealer.setGoogleUrl(placeDetails.getUrl()+ "");
-		dealer.setIconUrl(placeDetails.getIcon() + "");
-		dealer.setInternationalPhoneNumber(placeDetails.getIntlPhoneNumber());
-		dealer.setLatitude(placeDetails.getLatitude());
-		dealer.setLongitude(placeDetails.getLongitude());
-		dealer.setName(placeDetails.getName());
+		fillPlacesDealer(dealer, place);
+		return dealer;
+	}
+	
+	public static void fillPlacesDealer(PlacesDealer dealer, Place place) {
+		dealer.setFormattedAddress(place.getFormattedAddress());
+		dealer.setFormattedPhoneNumber(place.getFormattedPhoneNumber());
+		dealer.setGoogleUrl(place.getUrl()+ "");
+		dealer.setIconUrl(place.getIcon() + "");
+		dealer.setInternationalPhoneNumber(place.getIntlPhoneNumber());
+		dealer.setLatitude(place.getLatitude());
+		dealer.setLongitude(place.getLongitude());
+		dealer.setName(place.getName());
 		try{
-			dealer.setOpenHours(placeDetails.getOpeningHours() + "");
+			dealer.setOpenHours(place.getOpeningHours() + "");
 		}
 		catch(NullPointerException e){
 			dealer.setOpenHours(null);
 		}
-		dealer.setPermanentlyClosed(placeDetails.isPermanentlyClosed());
-		dealer.setPlacesId(placeDetails.getPlaceId().getId());
-		dealer.setPriceLevel(placeDetails.getPriceLevel() + "");
-		dealer.setRating(placeDetails.getRating());
-		if(placeDetails.getTypes() != null)
-			dealer.setTypes(placeDetails.getTypes()+ "");
-		dealer.setUtcOffset(placeDetails.getUtcOffset());
-		dealer.setVicinity(placeDetails.getVicinity());
-		dealer.setWebsite(placeDetails.getWebsite());
+		dealer.setPermanentlyClosed(place.isPermanentlyClosed());
+		dealer.setPlacesId(place.getPlaceId().getId());
+		dealer.setPriceLevel(place.getPriceLevel() + "");
+		dealer.setRating(place.getRating());
+		if(place.getTypes() != null)
+			dealer.setTypes(place.getTypes()+ "");
+		dealer.setUtcOffset(place.getUtcOffset());
+		dealer.setVicinity(place.getVicinity());
+		dealer.setWebsite(place.getWebsite());
 		
-		if(placeDetails.getAddress() != null){
-			dealer.setCountry(placeDetails.getAddress().getCountry());
-			dealer.setShortCountry(placeDetails.getAddress().getCountryAbbr());
+		if(place.getAddress() != null){
+			dealer.setCountry(place.getAddress().getCountry());
+			dealer.setShortCountry(place.getAddress().getCountryAbbr());
 		}
-		
-		return dealer;
 	}
 	
 	public static void importPlaces(List<Place> places)  {
@@ -68,11 +72,13 @@ public class DataBuilder {
 		System.out.println("ids : "+ ids.size());
 		
 		for(Place place : places) {
-			if(!ids.contains(place.getPlaceId().getId())){
-				PlacesDealer dealer = new PlacesDealer();
-				dealer.setPlacesId(place.getPlaceId().getId());
-				JPA.em().persist(dealer);
-			}
+			PlacesDealerDao.insertIgnore(place.getPlaceId().getId());
+//			if(!ids.contains(place.getPlaceId().getId())){
+//				
+//				PlacesDealer dealer = new PlacesDealer();
+//				dealer.setPlacesId(place.getPlaceId().getId());
+//				JPA.em().persist(dealer);
+//			}
 		}
 	}
 	

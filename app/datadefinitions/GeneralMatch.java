@@ -5,6 +5,40 @@ import java.util.Set;
 
 
 public enum GeneralMatch implements StringMatch{
+	
+	//************ Credit Applications	
+	DEALER_COM_CREDIT_APP					("Dealer.com Credit application", 						"dealer.com/SecureFinancingGateway", "https://www.kengarffvw.com/financing/application.htm"),
+	DEALER_COM_CREDIT_APP_2					("Dealer.com's 2nd credit application", 				"SecureFinanceDriverGateway", "https://www.bmwrochester.com/get-financing.htm"),
+	BUYATOYOTA_COM_CREDIT_APP				("Credit application through buyatoyota.com", 			"buyatoyota.com/page/creditapplication", "http://cobbcountytoyota.com/Credit_Application"),
+	DEALERTRACK_EBUSINESS					("Likely is just credit applications", 					"ebusiness.dealertrack.com/Suite", "https://www.liatoyotaofcolonie.com/get-pre-approved-in-seconds.htm"),
+	ROUTE_ONE								("RouteOne does financing, desking, and contracting", 	"routeone.net", "https://www.hamertoyota.com/apply-for-credit.htm"),
+	DEALER_CENTRIC_CREDIT_APP				("DealerCentric's credit application", 					"dealercentric.com/app-templates/paymentpromise/application", "http://www.vannyorktoyota.com/credit-application"),
+	DEALER_ON_CREDIT_APP_LINK				("This is the usual link to DealerOn's credit app.", 	"preapproved.aspx", "http://www.westchestertoyota.com/finance.aspx"),
+	DEALER_ON_CREDIT_APP					("This is the actual credit app for dealeron", 			"dealeron.com/preapproved", "http://www.westchestertoyota.com/finance.aspx"),
+	DEALER_TRACK_CREDIT_APP					("DealerTrack's credit application", 					"dealertrack.com/consumerweb/app_loan", "http://www.stokesbrowntoyotahiltonhead.com/credit-application/"),
+	
+	
+	//***General Credit Application Matches 		
+	
+	CREDIT_APPLICATION						("Credit application indicator", "credit application"),
+	CREDIT_APPLICATION2						("Credit application indicator", "credit-application"),
+	CREDIT_APPLICATION3						("Credit application indicator", "credit_application"),
+	CREDIT_APPLICATION4						("Credit application indicator", "credit app"),
+	CREDIT_APPLICATION5						("Credit application indicator", "credit-app"),
+	CREDIT_APPLICATION6						("Credit application indicator", "credit_app"),
+	CREDIT_APPLICATION7						("Credit application indicator", "finance application"),
+	CREDIT_APPLICATION8						("Credit application indicator", "finance-application"),
+	CREDIT_APPLICATION9						("Credit application indicator", "finance_application"),
+	CREDIT_APPLICATION10					("Credit application indicator", "finance app"),
+	CREDIT_APPLICATION11					("Credit application indicator", "finance-app"),
+	CREDIT_APPLICATION12					("Credit application indicator", "finance_app"),
+	CREDIT_APPLICATION13					("Credit application indicator", "apply for credit"),
+	CREDIT_APPLICATION14					("Credit application indicator", "get approved"),
+	CREDIT_APPLICATION15					("Credit application indicator", "apply now"),
+	CREDIT_APPLICATION16					("Credit application indicator", "preapproved"),
+	CREDIT_APPLICATION17					("Credit application indicator", "pre-approved"),
+	
+	
 	 //********  CHAT 
      USES_CLIENT_CONNEXION					("Client Connexion", "clientconnexion.com", ""),
      SKYSA									("Skysa", "skysa.com", "Utility bar"),	//Utility bar used on forddirect

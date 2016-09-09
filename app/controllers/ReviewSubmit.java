@@ -1,8 +1,10 @@
 package controllers;
 
 import audit.sync.SalesforceControl;
+import dao.SitesDAO;
 import datatransfer.reports.Report;
 import datatransfer.reports.ReportRow;
+import persistence.Site;
 import persistence.salesforce.SalesforceAccount;
 import play.Logger;
 import play.data.DynamicForm;
@@ -61,6 +63,7 @@ public class ReviewSubmit extends Controller {
     	Long salesforceAccountId = Long.parseLong(data.get("salesforceAccountId"));
     	SalesforceAccount account = JPA.em().find(SalesforceAccount.class, salesforceAccountId);
 		String manualSeed = data.get("manualSeed");
+		System.out.println("Manually seeding salesforce account " + salesforceAccountId + " : " + manualSeed);
 		
 		SalesforceControl.manuallySeedAccount(account, manualSeed);
 		
@@ -73,11 +76,69 @@ public class ReviewSubmit extends Controller {
     	Long salesforceAccountId = Long.parseLong(data.get("salesforceAccountId"));
     	SalesforceAccount account = JPA.em().find(SalesforceAccount.class, salesforceAccountId);
 		String manualSeed = data.get("manualSeed");
+		System.out.println("Manually redirecting salesforce account " + salesforceAccountId + " : " + manualSeed);
 		
 		SalesforceControl.manuallyRedirectAccount(account, manualSeed);
 		
        	return ok();
     }
+    
+    @Transactional
+   	public static Result approveResolved() {
+    	DynamicForm data = Form.form().bindFromRequest();
+    	Long siteId = Long.parseLong(data.get("siteId"));
+    	Site site = JPA.em().find(Site.class, siteId);
+    	System.out.println("Approving resolved: " + siteId);
+    	
+    	SitesDAO.acceptUrlCheck(site, false);
+    	
+    	return ok();
+    }
+    
+    @Transactional
+   	public static Result approveShared() {
+    	DynamicForm data = Form.form().bindFromRequest();
+    	Long siteId = Long.parseLong(data.get("siteId"));
+    	Site site = JPA.em().find(Site.class, siteId);
+    	System.out.println("Approving shared: " + siteId);
+    	
+    	SitesDAO.acceptUrlCheck(site, true);
+    	
+    	return ok();
+    }
+    
+    @Transactional
+   	public static Result markDefunct() {
+    	DynamicForm data = Form.form().bindFromRequest();
+    	Long siteId = Long.parseLong(data.get("siteId"));
+    	Site site = JPA.em().find(Site.class, siteId);
+    
+    	System.out.println("Mark Defunct: " + siteId);
+    	return ok();
+    }
+    
+    @Transactional
+   	public static Result otherIssue() {
+    	DynamicForm data = Form.form().bindFromRequest();
+    	Long siteId = Long.parseLong(data.get("siteId"));
+    	Site site = JPA.em().find(Site.class, siteId);
+    	
+    	System.out.println("Other Issue: " + siteId);
+    	return ok();
+    }
+    
+    @Transactional
+   	public static Result recheck() {
+    	DynamicForm data = Form.form().bindFromRequest();
+    	Long siteId = Long.parseLong(data.get("siteId"));
+    	Site site = JPA.em().find(Site.class, siteId);
+    	
+    	System.out.println("Recheck: " + siteId);
+    	return ok();
+    }
+    
+    
+    
     
     @Transactional
 	public static Result approveSite(long siteId) {

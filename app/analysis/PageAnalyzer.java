@@ -23,13 +23,14 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.util.StringUtils;
 
+import agarbagefolder.MD;
+import agarbagefolder.MD.StringExtractionDefinition;
+import agarbagefolder.MD.StringMatch;
 import datadefinitions.GeneralMatch;
 import datadefinitions.Scheduler;
 import datadefinitions.StringExtraction;
 import datadefinitions.UrlExtraction;
 import datadefinitions.WebProvider;
-import analysis.MD.StringExtractionDefinition;
-import analysis.MD.StringMatch;
 import persistence.ExtractedString;
 import persistence.ExtractedUrl;
 import persistence.PageInformation;

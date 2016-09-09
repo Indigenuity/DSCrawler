@@ -12,29 +12,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.regex.Matcher;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
-import datadefinitions.GeneralMatch;
+import analysis.AnalysisConfig.AnalysisMode;
 import datadefinitions.OEM;
-import datadefinitions.Scheduler;
-import datadefinitions.StringExtraction;
-import datadefinitions.UrlExtraction;
 import datadefinitions.newdefinitions.InventoryType;
 import datadefinitions.newdefinitions.WPAttribution;
 import datadefinitions.newdefinitions.WPClue;
 import datadefinitions.newdefinitions.WebProvider;
 import datatransfer.Amalgamater;
 import global.Global;
-import persistence.ExtractedString;
-import persistence.ExtractedUrl;
 import persistence.InventoryNumber;
 import persistence.PageCrawl;
 import persistence.SiteCrawl;
@@ -42,6 +34,40 @@ import persistence.Staff;
 import utilities.DSFormatter;
 
 public class SiteCrawlAnalyzer {
+	
+	public static void runSiteCrawlAnalysis(SiteCrawlAnalysis analysis) throws IOException {
+		
+		if(analysis.getConfig().getAnalysisMode() == AnalysisMode.PAGED){
+			pagedMode(analysis);
+		}
+	}
+	
+	public static void blobMode(SiteCrawlAnalysis analysis) {
+		
+		
+	}
+	
+	public static void pagedMode(SiteCrawlAnalysis analysis) throws IOException {
+		System.out.println("running paged Sitecrawl analysis");
+		SiteCrawl siteCrawl = analysis.getSiteCrawl();
+		for(PageCrawl pageCrawl : siteCrawl.getPageCrawls()){
+			if(pageCrawl.getFilename() != null){
+				PageCrawlAnalysis pageAnalysis = analysis.getForPageCrawl(pageCrawl);
+				if(pageAnalysis == null) {
+					pageAnalysis = new PageCrawlAnalysis(pageCrawl);
+					analysis.getPageAnalyses().add(pageAnalysis);
+				} 
+				PageCrawlAnalyzer.runPageCrawlAnalysis(analysis, pageAnalysis);
+			}
+		}
+		aggregatePageAnalyses(analysis);
+	}
+	
+	public static void aggregatePageAnalyses(SiteCrawlAnalysis analysis) {
+		for(PageCrawlAnalysis pageAnalysis : analysis.getPageAnalyses()){
+			analysis.getGeneralMatches().addAll(pageAnalysis.getGeneralMatches());
+		}
+	}
 	
 	public static void doFull(SiteCrawl siteCrawl) throws IOException { 
 		doPageCrawlAnalysis(siteCrawl);
@@ -92,7 +118,7 @@ public class SiteCrawlAnalyzer {
 //		        System.out.println("old web providers");
 //		        siteCrawl.setWebProviders(getWebProviders(text));
 //		        siteCrawl.setSchedulers(getSchedulers(text));
-		        siteCrawl.setGeneralMatches(getGeneralMatches(text));
+		        siteCrawl.setGeneralMatches(TextAnalyzer.getGeneralMatches(text));
 			}
 				
 		}
@@ -501,7 +527,7 @@ public class SiteCrawlAnalyzer {
 		        Set<Staff> allStaff = StaffExtractor.extractStaff(doc, siteCrawl.getWebProviders());
 		        siteCrawl.addStaff(allStaff);
 //		        System.out.println("allstaff after set : " + siteCrawl.getAllStaff().size());
-		        siteCrawl.addExtractedUrls(extractUrls(doc));
+		        siteCrawl.addExtractedUrls(TextAnalyzer.extractUrls(doc));
 		        
 //		        siteCrawl.addInventoryNumbers(invNumbers);
 		        
@@ -519,7 +545,7 @@ public class SiteCrawlAnalyzer {
 	
 	
 	
-//	private static Set<WebProvider> getWebProviders(String text) {
+//	public static Set<WebProvider> getWebProviders(String text) {
 //		Set<WebProvider> matches = new HashSet<WebProvider>();
 //		for(WebProvider wp : WebProvider.values()){
 //			if(text.contains(wp.getDefinition()) && !matches.contains(wp.getDefinition())){
@@ -530,86 +556,7 @@ public class SiteCrawlAnalyzer {
 //		return matches;
 //	}
 	
-	private static Set<Scheduler> getSchedulers(String text) {
-		Set<Scheduler> matches = new HashSet<Scheduler>();
-		for(Scheduler sched : Scheduler.values()){
-			if(text.contains(sched.getDefinition()) && !matches.contains(sched.getDefinition())){
-				matches.add(sched);
-			}
-		}
-		return matches;
-	}
 	
-	private static Set<GeneralMatch> getGeneralMatches(String text) {
-		Set<GeneralMatch> matches = new HashSet<GeneralMatch>();
-		for(GeneralMatch gm : GeneralMatch.values()){
-			if(text.contains(gm.getDefinition()) && !matches.contains(gm.getDefinition())){
-				matches.add(gm);
-			}
-		}
-		return matches;
-	}
-	
-	
-	public static Set<ExtractedString> extractStrings(File file) throws IOException{
-		if(!file.exists()) {
-			throw new IOException("File does not exist for page with path : " + file.getAbsolutePath());
-		}
-		FileInputStream inputStream = new FileInputStream(file.getAbsolutePath());
-		
-        String text = IOUtils.toString(inputStream, "UTF-8");
-        inputStream.close();
-        
-        return extractStrings(text);
-	}
-
-	public static Set<ExtractedString> extractStrings(String text){
-		Set<ExtractedString> extractedStrings = new HashSet<ExtractedString>();
-		for(StringExtraction enumElement : StringExtraction.values()){
-			if(enumElement != StringExtraction.CITY){
-				Matcher matcher = enumElement.getPattern().matcher(text);
-//				int count = 0;
-		    	while (matcher.find()) {
-	//	    		System.out.println("found count : " + ++count);
-		    		ExtractedString item = new ExtractedString(DSFormatter.truncate(matcher.group(0), 255), enumElement);
-	    			extractedStrings.add(item);
-		    	}
-			}
-		}
-		return extractedStrings;
-	}
-	
-	
-	
-	
-	
-	
-	public static Set<ExtractedUrl> extractUrls(File file) throws IOException{
-		if(!file.exists()) {
-			throw new IOException("File does not exist for page with path : " + file.getAbsolutePath());
-		}
-		FileInputStream inputStream = new FileInputStream(file.getAbsolutePath());
-		
-        String text = IOUtils.toString(inputStream, "UTF-8");
-        Document doc = Jsoup.parse(text);
-        inputStream.close();
-        
-        return extractUrls(doc);
-	}
-	
-	public static Set<ExtractedUrl> extractUrls(Document doc) {
-		Set<ExtractedUrl> extractedUrls = new HashSet<ExtractedUrl>();
-		for(UrlExtraction enumElement : UrlExtraction.values()){
-			Elements links = doc.select("a[href*=" +enumElement.getDefinition() + "]");
-			for(Element element : links) {
-				if(element.attr("href") != null){
-					ExtractedUrl item = new ExtractedUrl(element.attr("href"), enumElement);
-					extractedUrls.add(item);
-				}
-			}
-		}
-		return extractedUrls;
-	}
 	
 //	public static WebProvider inferWebProvider(SiteCrawl siteCrawl) {
 //		Set<WebProvider> wps = siteCrawl.getWebProviders();

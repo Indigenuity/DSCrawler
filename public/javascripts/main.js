@@ -94,15 +94,24 @@ $(document).ready(function() {
 		$(scope).find(".approve-resolved-button").click(function() {
 			var form = this.form
 			$(form).find("input[name='action']").val("APPROVE_RESOLVED");
+			$(form).attr("action", "/review/submit/approveResolved");
 		});
 		$(scope).find(".manual-seed-button").click(function() {
 			var form = this.form
 			$(form).find("input[name='action']").val("MANUAL_SEED");
+			$(form).attr("action", "/review/submit/manuallySeedSalesforceAccount");
+			
+		});
+		$(scope).find(".manual-redirect-button").click(function() {
+			var form = this.form
+			$(form).attr("action", "/review/submit/manuallyRedirectSalesforceAccount");
+			
 		});
 		$(scope).find(".shared-site-button").click(function() {
 			var form = this.form;
 			$(form).find("input[name='sharedSite']").val("true");
 			$(form).find("input[name='action']").val("APPROVE_SHARED");
+			$(form).attr("action", "/review/submit/approveShared");
 		});
 		$(scope).find(".more-button").click(function() {
 			var form = this.form
@@ -111,14 +120,17 @@ $(document).ready(function() {
 		$(scope).find(".mark-defunct-button").click(function() {
 			var form = this.form
 			$(form).find("input[name='action']").val("MARK_DEFUNCT");
+			$(form).attr("action", "/review/submit/markDefunct");
 		});
 		$(scope).find(".recheck-button").click(function() {
 			var form = this.form
 			$(form).find("input[name='action']").val("RECHECK");
+			$(form).attr("action", "/review/submit/recheck");
 		});
 		$(scope).find(".other-issue-button").click(function() {
 			var form = this.form
 			$(form).find("input[name='action']").val("OTHER_ISSUE");
+			$(form).attr("action", "/review/submit/otherIssue");
 		});
 	}
 
