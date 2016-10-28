@@ -127,8 +127,14 @@ public class Application extends Controller {
     
     @Transactional
     public static Result validateSites() {
-    	Cleaner.validateSites();
-    	return ok();
+    	System.out.println("Validating sites");
+		List<Site> sites = JPA.em()
+				.createQuery("from Site s where s.siteStatus = :siteStatus", Site.class)
+				.setParameter("siteStatus", SiteStatus.UNVALIDATED)
+				.getResultList();
+		
+		Cleaner.runUrlChecks(sites);
+    	return ok("Queued URL checks for " + sites.size() + " sites");
     }
     
     @Transactional

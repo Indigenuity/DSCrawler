@@ -8,6 +8,5 @@ public interface StringMatch {
 	public String getDescription();
 	public String getDefinition();
 	public String getNotes();
-	public Set<StringMatch> getOffsetMatches();
 	
 }

@@ -5,7 +5,7 @@ import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
-import async.work.WorkOrder;
+import async.work.TypedWorkOrder;
 import play.Logger;
 
 public class UniqueMaster extends UntypedActor {
@@ -22,8 +22,8 @@ public class UniqueMaster extends UntypedActor {
 	@Override
 	public void onReceive(Object work) throws Exception {
 		try{
-			if (work instanceof WorkOrder) {
-				WorkOrder workOrder = (WorkOrder) work;
+			if (work instanceof TypedWorkOrder) {
+				TypedWorkOrder workOrder = (TypedWorkOrder) work;
 				ActorRef r = getContext().actorOf(Props.create(clazz));
 //				System.out.println("got work order: " + workOrder);
 				r.tell(workOrder, getSender());

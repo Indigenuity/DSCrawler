@@ -1,9 +1,9 @@
 package agarbagefolder.urlresolve;
 
-import async.work.WorkOrder;
+import async.work.TypedWorkOrder;
 import async.work.WorkType;
 
-public class UrlResolveWorkOrder extends WorkOrder{
+public class UrlResolveWorkOrder extends TypedWorkOrder{
 	
 	protected String seed;
 	

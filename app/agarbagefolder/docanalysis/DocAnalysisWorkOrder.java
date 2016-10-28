@@ -1,9 +1,9 @@
 package agarbagefolder.docanalysis;
 
-import async.work.WorkOrder;
+import async.work.TypedWorkOrder;
 import async.work.WorkType;
 
-public class DocAnalysisWorkOrder extends WorkOrder{
+public class DocAnalysisWorkOrder extends TypedWorkOrder{
 
 	private Long siteCrawlId;
 	

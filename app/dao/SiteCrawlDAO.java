@@ -32,6 +32,21 @@ public class SiteCrawlDAO {
 //		}
 //	}
 	
+	public static SiteCrawl getRecentPrimary(Site site) {
+		if(site == null) {
+			return null;
+		}
+		String queryString = "from SiteCrawl sc where sc.site = :site and sc.fileStatus = 'PRIMARY' order by sc.crawlDate desc";
+		List<SiteCrawl> siteCrawls = JPA.em().createQuery(queryString, SiteCrawl.class)
+				.setParameter("site", site)
+				.setMaxResults(1)
+				.getResultList();
+		if(siteCrawls.size() > 0){
+			return siteCrawls.get(0);
+		}
+		return null;
+	}
+	
 	public static FileStatus markFileStatus(SiteCrawl siteCrawl) {
 		String primaryFolderName = Global.getCrawlStorageFolder() + siteCrawl.getStorageFolder();
 		String secondaryFolderName = Global.getSecondaryCrawlStorageFolder() + siteCrawl.getStorageFolder();

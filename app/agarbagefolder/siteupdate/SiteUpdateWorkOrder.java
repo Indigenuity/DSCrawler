@@ -1,9 +1,9 @@
 package agarbagefolder.siteupdate;
 
-import async.work.WorkOrder;
+import async.work.TypedWorkOrder;
 import async.work.WorkType;
 
-public class SiteUpdateWorkOrder extends WorkOrder{
+public class SiteUpdateWorkOrder extends TypedWorkOrder{
 
 	protected Long siteId;
 	protected Long urlCheckId;

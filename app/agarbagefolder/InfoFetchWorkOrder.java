@@ -1,9 +1,9 @@
 package agarbagefolder;
 
-import async.work.WorkOrder;
+import async.work.TypedWorkOrder;
 import async.work.WorkType;
 
-public class InfoFetchWorkOrder extends WorkOrder{
+public class InfoFetchWorkOrder extends TypedWorkOrder{
 
 	public InfoFetchWorkOrder() {
 		super(WorkType.INFO_FETCH);

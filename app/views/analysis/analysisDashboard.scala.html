@@ -1,0 +1,30 @@
+@import _root_.analysis.AnalysisSet
+
+@(analysisSets : java.util.List[_root_.analysis.AnalysisSet])
+
+@main("Analysis Dashboard"){
+
+<div id="sync-control" class="wide-panel">
+		<div id="run-sync-form-wrapper" class="small-panel">
+			<h4>Analysis Stuff</h4>
+			<ul id="analysis-sets-list" class="fat-list"> 
+				@for(analysisSet <- analysisSets) {
+					<li>
+						<p>@analysisSet.getName() (id:@analysisSet.getAnalysisSetId())</p>
+						<p>@analysisSet.getComplete().size()/@analysisSet.getCrawlAnalysisMap().keySet().size() complete, @analysisSet.getIncomplete().size() remaining</p>
+						<p>
+							<a class="small-button in-page-link run-analysis-button" href="/analysis/runAnalysisSet?analysisSetId=@analysisSet.getAnalysisSetId()">Run Analysis</a>
+							<a class="small-button in-page-link clear-analysis-button" href="/analysis/resetAnalysisSet?analysisSetId=@analysisSet.getAnalysisSetId()">Reset Analysis</a>
+						</p> 
+					</li>
+				
+				}
+			</ul>
+		</div>
+		<div class="small-panel load-dashboard" data-dashboard-href="/analysisDashboardStats">
+		</div>
+		<a id="assign-siteless-button" class="large-button in-page-link" href="/assignSiteless">Assign Siteless</a>
+		<a id="mark-significant-differences-button" class="large-button in-page-link" href="/markSignificantDifferences">Mark Differences</a>
+		<a id="salesforce-website-report-button" class="large-button in-page-link" href="/salesforceWebsiteReport">Website Report</a>
+	</div>
+}

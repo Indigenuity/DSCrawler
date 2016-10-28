@@ -4,16 +4,30 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
+import org.apache.commons.lang.StringUtils;
+import org.hibernate.envers.Audited;
+
+import persistence.Site;
+import urlcleanup.SiteOwner;
 
 @Entity
 @Table(indexes = {@Index(name = "placesId_index",  columnList="placesId", unique = false)})
-public class PlacesDealer {
+@Audited(withModifiedFlag=true)
+public class PlacesDealer implements SiteOwner {
 
+	public enum PlacesType {
+		FRANCHISE, INDEPENDENT, NOT_DEALER
+	}
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long placesDealerId;
@@ -21,19 +35,22 @@ public class PlacesDealer {
 	@Column(unique=true)
 	private String placesId;
 	
+	@Enumerated(value=EnumType.STRING)
+	private PlacesType actualType;
+	
 	private String formattedAddress;
 	private String country;
 	private String formattedPhoneNumber; 
-	private double longitude;
-	private double latitude;
+	private Double longitude;
+	private Double latitude;
 	private String internationalPhoneNumber;
 	private String name;
-	private boolean permanentlyClosed;
+	private Boolean permanentlyClosed;
 	private String priceLevel;
-	private double rating;
-	private double ratingCount;
+	private Double rating;
+	private Double ratingCount;
 	private String types;
-	private int utcOffset;
+	private Integer utcOffset;
 	private String vicinity;
 	private String shortCountry;
 	
@@ -53,7 +70,19 @@ public class PlacesDealer {
 	
 	
 	private Date detailFetchDate;
+	private String placesStatus;
+	@Column(nullable = true, columnDefinition="varchar(500)")
+	private String errorMessage;
 	
+	
+	@ManyToOne
+	private PlacesDealer forwardsTo;
+	
+	@ManyToOne
+	private Site site;
+	
+	@ManyToOne
+	private Site originalSite;
 	
 	
 	public void setId(long id) {
@@ -209,6 +238,60 @@ public class PlacesDealer {
 	public void setPlacesDealerId(long placesDealerId) {
 		this.placesDealerId = placesDealerId;
 	}
+	public PlacesType getActualType() {
+		return actualType;
+	}
+	public void setActualType(PlacesType actualType) {
+		this.actualType = actualType;
+	}
+	public String getPlacesStatus() {
+		return placesStatus;
+	}
+	public void setPlacesStatus(String placesStatus) {
+		this.placesStatus = placesStatus;
+	}
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = StringUtils.abbreviate(errorMessage, 500);
+	}
+	public PlacesDealer getForwardsTo() {
+		return forwardsTo;
+	}
+	public void setForwardsTo(PlacesDealer forwardsTo) {
+		this.forwardsTo = forwardsTo;
+	}
+	public Site getSite() {
+		return site;
+	}
+	public void setSite(Site site) {
+		this.site = site;
+		if(this.originalSite == null){
+			this.originalSite = this.site;
+		}
+	}
+	public void setOriginalSite(Site site) {
+		this.originalSite = site;
+		if(this.site == null) {
+			this.site = this.originalSite;
+		}
+	}
+	
+	@Override
+	public Site getOriginalSite() {
+		return this.originalSite;
+	}
+	@Override
+	public Site getResolvedSite() {
+		return this.site;
+	}
+	@Override
+	public Site setResolvedSite(Site site) {
+		setSite(site);
+		return this.site;
+	}
 
+	
 	
 }

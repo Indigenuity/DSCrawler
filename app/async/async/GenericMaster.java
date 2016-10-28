@@ -16,10 +16,11 @@ import async.monitoring.AsyncMonitor;
 import async.work.Order;
 import async.work.Result;
 import async.work.WorkItem;
-import async.work.WorkOrder;
-import async.work.WorkResult;
+import async.work.TypedWorkOrder;
 import async.work.WorkStatus;
 import datatransfer.CSVGenerator;
+import newwork.WorkOrder;
+import newwork.WorkResult;
 
 public class GenericMaster extends UntypedActor {
 	
@@ -67,8 +68,8 @@ public class GenericMaster extends UntypedActor {
 				}
 				
 			}
-			else if (work instanceof WorkOrder) {
-				WorkOrder workOrder = (WorkOrder) work;
+			else if (work instanceof TypedWorkOrder) {
+				TypedWorkOrder workOrder = (TypedWorkOrder) work;
 //				System.out.println("GenericMaster got work order: " + workOrder);
 				if(!waitingRoom.add(workOrder.getUuid(), getSender())){
 					//TODO figure out what to do when duplicate work order is sent in
@@ -79,7 +80,7 @@ public class GenericMaster extends UntypedActor {
 			else if(work instanceof WorkResult) {
 				WorkResult workResult = (WorkResult) work;
 //				System.out.println("GenericMaster got work result: " + workResult);
-				ActorRef customer = waitingRoom.remove(workResult.getWorkOrder().getUuid()); 
+				ActorRef customer = waitingRoom.remove(workResult.getWorkUuid()); 
 				if(customer == null){
 					//TODO figure out what to do when receiving work result for no customer
 					return;
@@ -126,6 +127,13 @@ public class GenericMaster extends UntypedActor {
 					return;
 				}
 				customer.tell(result, getSelf());
+			} else if(work instanceof WorkOrder) {
+				WorkOrder workOrder = (WorkOrder) work;
+				if(!waitingRoom.add(workOrder.getUuid(), getSender())){
+					//TODO figure out what to do when duplicate work order is sent in
+					return;
+				}
+				router.route(workOrder, getSelf());
 			}
 			else {
 //				System.out.println("Got unknown work in Generic Master (" + this.clazz + ") : " + work);

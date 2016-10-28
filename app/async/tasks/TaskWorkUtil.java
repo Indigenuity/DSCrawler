@@ -6,15 +6,15 @@ import java.util.Map.Entry;
 import async.registration.ContextItem;
 import async.registration.RegistryEntry;
 import async.registration.WorkerRegistry;
-import async.work.WorkOrder;
+import async.work.TypedWorkOrder;
 import async.work.WorkResult;
 import async.work.WorkType;
 import persistence.tasks.Task;
 
 public class TaskWorkUtil {
 
-	public static WorkOrder buildWorkOrder(Task task) {
-		WorkOrder workOrder = new WorkOrder(task.getWorkType());
+	public static TypedWorkOrder buildWorkOrder(Task task) {
+		TypedWorkOrder workOrder = new TypedWorkOrder(task.getWorkType());
 		
 		RegistryEntry entry = WorkerRegistry.getInstance().getRegistrant(workOrder.getWorkType());
 		

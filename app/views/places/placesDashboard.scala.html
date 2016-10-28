@@ -1,11 +1,16 @@
 
 
 @main("Google Places Dashboard") {
+
+<h4>Don't forget 150,000 requests/day limit.  Check <a href="https://console.developers.google.com/apis/api/places_backend/quotas?project=ds-testing-1114" target="_blank">API dashboard</a></h4>
+	
 	<div class="wide-panel">
+		<div class="small-panel load-dashboard" data-dashboard-href="/places/placesDashboardStats"></div>
 		<a class="in-page-link large-button" href="/places/refreshZipcodeDatabase">Refresh Zipcode Database</a>
 		<a class="in-page-link large-button" href="/places/importCanadaList">Import Canada List</a>
 		<a class="in-page-link large-button" href="/places/importUsList">Import US List</a>
 		<a class="in-page-link large-button" href="/places/fillBlankDetails">Fill Blank Details</a>
+		<a class="in-page-link large-button" href="/places/assignSiteless">Assign Siteless</a>
 	</div>
 
 }

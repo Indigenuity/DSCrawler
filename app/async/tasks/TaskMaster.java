@@ -2,7 +2,7 @@ package async.tasks;
 
 import akka.actor.ActorRef;
 import async.async.Asyncleton;
-import async.work.WorkOrder;
+import async.work.TypedWorkOrder;
 import async.work.WorkStatus;
 import async.work.WorkType;
 import persistence.tasks.Task;
@@ -20,7 +20,7 @@ public class TaskMaster {
 				if(count < offset){
 					continue;
 				}
-				WorkOrder workOrder = new WorkOrder(WorkType.TASK);
+				TypedWorkOrder workOrder = new TypedWorkOrder(WorkType.TASK);
 				workOrder.addContextItem("taskId", task.getTaskId() + "");
 				master.tell(workOrder, Asyncleton.getInstance().getMainListener());
 			}

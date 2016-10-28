@@ -8,10 +8,10 @@ public class WorkResult {
 	
 	protected WorkStatus workStatus;
 	protected String note;
-	protected WorkOrder workOrder;
+	protected TypedWorkOrder workOrder;
 	protected Map<String, String> contextItems = new HashMap<String, String>();
 	
-	public WorkResult(WorkOrder workOrder) {
+	public WorkResult(TypedWorkOrder workOrder) {
 		this.workOrder = workOrder;
 		this.workStatus = WorkStatus.NO_WORK;
 	}
@@ -54,10 +54,10 @@ public class WorkResult {
 	public synchronized String getContextItem(String name) {
 		return contextItems.get(name);
 	}
-	public WorkOrder getWorkOrder() {
+	public TypedWorkOrder getWorkOrder() {
 		return workOrder;
 	}
-	public void setWorkOrder(WorkOrder workOrder) {
+	public void setWorkOrder(TypedWorkOrder workOrder) {
 		this.workOrder = workOrder;
 	}
 	

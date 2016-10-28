@@ -15,8 +15,7 @@ public class PlacesDetailsWorker extends UntypedActor {
 			long placesDealerId = (long) message;
 			PlacesDealer dealer = JPA.em().find(PlacesDealer.class, placesDealerId);
 			Response<Place> detailsResponse = Places.details(Params.create().placeId(dealer.getPlacesId()));
-			Place detailsPlace = detailsResponse.getResult();
-			DataBuilder.fillPlacesDealer(dealer, detailsPlace);
+			DataBuilder.fillPlacesDealer(dealer, detailsResponse);
 		});
 		
 	}

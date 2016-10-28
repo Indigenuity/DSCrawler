@@ -3,7 +3,7 @@ package newwork;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
-public abstract class TerminalWorkOrder<T> extends WorkOrder {
+public abstract class TerminalWorkOrder<T> extends StandardWorkOrder {
 	
 	protected final Class<T> outputClass;
 	

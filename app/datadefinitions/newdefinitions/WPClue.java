@@ -2,9 +2,15 @@ package datadefinitions.newdefinitions;
 
 public enum WPClue {
 
+	BMW_GROUP				("VIP-PAGE GENERATOR", WebProvider.BMW_GROUP),
+	CLICK_MOTIVE			("assets.clickmotive.com", WebProvider.CLICK_MOTIVE),
 	COBALT_NITRA			("assets.cobaltnitra.com", WebProvider.CDK_COBALT),
 	DEALER_DOT_COM			("program: 'DealerDotCom'", WebProvider.DEALER_COM),
-	CLICK_MOTIVE			("assets.clickmotive.com", WebProvider.CLICK_MOTIVE)
+	E_DEALER_WEBSITES		("websites.edealer.ca", WebProvider.E_DEALER_CA),
+	PICTURES_DEALER_COM		("pictures.dealer.com", WebProvider.DEALER_COM),
+	STATIC_DEALER_COM		("static.dealer.com", WebProvider.DEALER_COM),
+	
+	
 	;
 	
 

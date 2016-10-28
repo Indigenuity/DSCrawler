@@ -68,7 +68,7 @@ public class SalesforceSyncSession extends SingleSyncSession<String, ReportRow, 
 	@Override
 	protected void preCommit(){
 		Sync sync = new Sync(SyncType.ACCOUNT_IMPORT);
-		System.out.println("in override");
+		System.out.println("in SalesforceSync PreCommit");
 		this.sync = persistenceContext.insert(sync);
 	}
 

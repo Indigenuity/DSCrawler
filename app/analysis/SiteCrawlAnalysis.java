@@ -1,5 +1,6 @@
 package analysis;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,6 +20,8 @@ import javax.persistence.Transient;
 
 import datadefinitions.GeneralMatch;
 import datadefinitions.newdefinitions.LinkTextMatch;
+import datadefinitions.newdefinitions.TestMatch;
+import datadefinitions.newdefinitions.WPAttribution;
 import persistence.ExtractedString;
 import persistence.ExtractedUrl;
 import persistence.InventoryNumber;
@@ -51,7 +54,7 @@ public class SiteCrawlAnalysis {
 	@Transient
 	protected AnalysisConfig config = new AnalysisConfig();
 	
-	
+	protected Date analysisDate;
 	
 	//*************** Matching
 	@Enumerated(EnumType.STRING)
@@ -61,6 +64,14 @@ public class SiteCrawlAnalysis {
 	@Enumerated(EnumType.STRING)
 	@ElementCollection(fetch=FetchType.LAZY)
 	protected Set<LinkTextMatch> linkTextMatches = new HashSet<LinkTextMatch>();
+	
+	@Enumerated(EnumType.STRING)
+	@ElementCollection(fetch=FetchType.LAZY)
+	protected Set<TestMatch> testMatches = new HashSet<TestMatch>();
+	
+	@Enumerated(EnumType.STRING)
+	@ElementCollection(fetch=FetchType.LAZY)
+	protected Set<WPAttribution> wpAttributions = new HashSet<WPAttribution>();
 	
 //	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, orphanRemoval=true)
 //	private Set<InventoryNumber> inventoryNumbers = new HashSet<InventoryNumber>();
@@ -145,5 +156,31 @@ public class SiteCrawlAnalysis {
 	public void setConfig(AnalysisConfig config) {
 		this.config = config;
 	}
+
+	public Date getAnalysisDate() {
+		return analysisDate;
+	}
+
+	public void setAnalysisDate(Date analysisDate) {
+		this.analysisDate = analysisDate;
+	}
+
+	public Set<TestMatch> getTestMatches() {
+		return testMatches;
+	}
+
+	public void setTestMatches(Set<TestMatch> testMatches) {
+		this.testMatches = testMatches;
+	}
+
+	public Set<WPAttribution> getWpAttributions() {
+		return wpAttributions;
+	}
+
+	public void setWpAttributions(Set<WPAttribution> wpAttributions) {
+		this.wpAttributions = wpAttributions;
+	}
+	
+	
 	
 }

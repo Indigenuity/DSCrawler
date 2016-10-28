@@ -43,6 +43,7 @@ import play.db.jpa.JPA;
 public class CSVGenerator {
 	
 	public static void printReport(Report report) throws IOException {
+		System.out.println("printing report : " + report.getName());
 		report.acquireColumnNamesFromRows();
 		List<String[]> rows = new ArrayList<String[]>();
 		String[] headers = report.getColumnLabels().toArray(new String[report.getColumnLabels().size()]);

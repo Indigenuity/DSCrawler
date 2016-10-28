@@ -1,9 +1,9 @@
 package agarbagefolder.crawlingnew;
 
-import async.work.WorkOrder;
+import async.work.TypedWorkOrder;
 import async.work.WorkType;
 
-public class SiteCrawlWorkOrder extends WorkOrder {
+public class SiteCrawlWorkOrder extends TypedWorkOrder {
 
 	private Long siteId; 
 	

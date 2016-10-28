@@ -144,12 +144,14 @@ p {
 
 .fat-list {
 	padding: 0;
+	list-style:none;
 }
 
 .fat-list li {
 	text-align:center;
 	width: 100%;
 	min-height:40px;
+	padding-top:5px;
 }
 
 .fat-list li a {
@@ -159,9 +161,6 @@ p {
 	text-decoration:none;
 }
 
-.fat-list li a:hover {
-	background-color:#EEE;
-}
 
 .large-button {
 	vertical-align: top;
@@ -172,6 +171,17 @@ p {
     color: #000;
     font-size: 1.3em;
     margin: 25px;
+}
+
+.small-button {
+	vertical-align: top;
+    display: inline-block;
+    padding: 5px;
+    background-color: #EEE;
+    text-decoration: none;
+    color: #000;
+    font-size: 1.1em;
+    margin: 5px;
 }
 
 

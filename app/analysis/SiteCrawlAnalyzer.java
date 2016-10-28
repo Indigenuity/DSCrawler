@@ -66,6 +66,9 @@ public class SiteCrawlAnalyzer {
 	public static void aggregatePageAnalyses(SiteCrawlAnalysis analysis) {
 		for(PageCrawlAnalysis pageAnalysis : analysis.getPageAnalyses()){
 			analysis.getGeneralMatches().addAll(pageAnalysis.getGeneralMatches());
+			analysis.getLinkTextMatches().addAll(pageAnalysis.getLinkTextMatches());
+			analysis.getTestMatches().addAll(pageAnalysis.getTestMatches());
+			analysis.getWpAttributions().addAll(pageAnalysis.getWpAttributions());
 		}
 	}
 	

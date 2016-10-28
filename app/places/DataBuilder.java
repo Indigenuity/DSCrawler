@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -11,6 +12,9 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 
 import net.sf.sprockets.google.Place;
+import net.sf.sprockets.google.Places;
+import net.sf.sprockets.google.Places.Params;
+import net.sf.sprockets.google.Places.Response;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -28,13 +32,30 @@ import play.db.jpa.JPA;
 
 public class DataBuilder {
 	
-	public static PlacesDealer getPlacesDealer(Place place){
+	public static PlacesDealer getPlacesDealer(Response<Place> detailsResponse){
 		PlacesDealer dealer = new PlacesDealer();
-		fillPlacesDealer(dealer, place);
+		fillPlacesDealer(dealer, detailsResponse);
 		return dealer;
 	}
 	
-	public static void fillPlacesDealer(PlacesDealer dealer, Place place) {
+	public static void fillPlacesDealer(PlacesDealer dealer, Response<Place> detailsResponse) {
+		dealer.setPlacesStatus(detailsResponse.getStatus());
+		dealer.setDetailFetchDate(Calendar.getInstance().getTime());
+		if(!detailsResponse.getStatus().equals(Response.STATUS_OK)){
+			return;
+		}
+		
+		Place place = detailsResponse.getResult();
+		
+		String placesId = place.getPlaceId().getId();
+		if(!placesId.equals(dealer.getPlacesId())){
+			PlacesDealer existingDealer = PlacesDealerDao.findByPlacesId(placesId);
+			if(existingDealer != null) {
+				dealer.setForwardsTo(existingDealer);
+				return;
+			}
+		}
+		
 		dealer.setFormattedAddress(place.getFormattedAddress());
 		dealer.setFormattedPhoneNumber(place.getFormattedPhoneNumber());
 		dealer.setGoogleUrl(place.getUrl()+ "");
@@ -63,6 +84,8 @@ public class DataBuilder {
 			dealer.setCountry(place.getAddress().getCountry());
 			dealer.setShortCountry(place.getAddress().getCountryAbbr());
 		}
+		
+		System.out.println("after id : " + dealer.getPlacesId());
 	}
 	
 	public static void importPlaces(List<Place> places)  {

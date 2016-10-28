@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import akka.actor.UntypedActor;
 import async.monitoring.AsyncMonitor;
-import async.work.WorkOrder;
+import async.work.TypedWorkOrder;
 import async.work.WorkResult;
 import play.Logger;
 
@@ -16,7 +16,7 @@ public class SingleStepWorker extends UntypedActor {
 	@Override
 	public void onReceive(Object work) throws Exception {
 		try{
-			WorkOrder workOrder = (WorkOrder) work;
+			TypedWorkOrder workOrder = (TypedWorkOrder) work;
 			System.out.println("Performing work : " + workOrder.getWorkType() + " Thread name : " + Thread.currentThread().getName());
 			AsyncMonitor.instance().addWip(workOrder.getWorkType().toString(), uuid);
 			WorkResult workResult = processWorkOrder(workOrder);
@@ -36,7 +36,7 @@ public class SingleStepWorker extends UntypedActor {
 		preStart();
 	}
 	
-	public WorkResult processWorkOrder(WorkOrder workOrder) {
+	public WorkResult processWorkOrder(TypedWorkOrder workOrder) {
 		return null;
 	}
 	

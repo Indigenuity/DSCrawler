@@ -12,10 +12,47 @@ public enum GeneralMatch implements StringMatch{
 	BUYATOYOTA_COM_CREDIT_APP				("Credit application through buyatoyota.com", 			"buyatoyota.com/page/creditapplication", "http://cobbcountytoyota.com/Credit_Application"),
 	DEALERTRACK_EBUSINESS					("Likely is just credit applications", 					"ebusiness.dealertrack.com/Suite", "https://www.liatoyotaofcolonie.com/get-pre-approved-in-seconds.htm"),
 	ROUTE_ONE								("RouteOne does financing, desking, and contracting", 	"routeone.net", "https://www.hamertoyota.com/apply-for-credit.htm"),
-	DEALER_CENTRIC_CREDIT_APP				("DealerCentric's credit application", 					"dealercentric.com/app-templates/paymentpromise/application", "http://www.vannyorktoyota.com/credit-application"),
+	DEALER_CENTRIC_CREDIT_APP				("DealerCentric's credit application (eLendSolutions)",	"dealercentric.com/app-templates/paymentpromise/application", "http://www.vannyorktoyota.com/credit-application"),
 	DEALER_ON_CREDIT_APP_LINK				("This is the usual link to DealerOn's credit app.", 	"preapproved.aspx", "http://www.westchestertoyota.com/finance.aspx"),
 	DEALER_ON_CREDIT_APP					("This is the actual credit app for dealeron", 			"dealeron.com/preapproved", "http://www.westchestertoyota.com/finance.aspx"),
 	DEALER_TRACK_CREDIT_APP					("DealerTrack's credit application", 					"dealertrack.com/consumerweb/app_loan", "http://www.stokesbrowntoyotahiltonhead.com/credit-application/"),
+	NCCI_CREDIT								("NCCI Credit", "nccicredit", ""),
+	EZAPP									("NCCDirect's Credit app", "ezapp"),
+	FINANCE_CONNECT							("Finance Connect Credit App", "financeconnect.com"),
+	DEALER_INSPIRE_CREDIT_APP				("DealerInspire's creddit app", "dealerinspire.com/application"),
+	DEALER_700								("700Dealer.com is the website for 700 Credit Apps", "700dealer", ""),
+	QUICK_QUALIFY							("700 Credit quick credit check", "quickqualify"),
+	CREDIT_700								("700 Credit", "700credit"),
+	SECURE_CLIENT_FORMS						("Secure Client Forms (not exclusively for credit apps", "secureclientforms.com"),
+	DEALERTRACK_FINANCE						("Dealertrack financing app", "dealertrack.com/consumerweb", ""),
+    MOTORWEBS_FINANCE						("MotorWebs financing app", "secure.motorwebs.com/default.aspx?", ""),
+    CDK_FINANCE								("CDK's credit app for cobalt sites", "motorplacedealersecureforms.cdk.com"),
+    DEALER_EPROCESS_CREDIT_APP				("DealerEProcess Credit App", "dealereprocess.com/virtualassistant", ""),
+    DEALERTRACK_FINANCE_SECONDARY			("DealerTrack's other credit app", "ebusiness.dealertrack.com", ""),
+    AUTO_REVO_CREDIT_APP					("Auto Revo Credit App pdf", "autorevo.com/images/creditapp.pdf", ""),
+    QUICK_APPLICATION						("700 Credit quick credit tool", "quickapplication"),
+    CBC_QUICK_APP							("CBC's Quick Credit App", "cbc/quick_app"),
+    STRATHCOM_CREDIT_APP					("Strathcom's Credit App", "https://secure.strathcom.com/"),
+	
+    
+	////************* Dubious Credit App Matches
+	AUTOSMART								("CUDirect's AutoSmart", "autosmart"),
+	NCC										("NCCDirect General Match", "nccdirect"),
+	CBC										("General Match for CBC", "cbc"),
+	CUDL									("General Match for CUDL", "cudl"),
+	CUDIRECT								("General Match for CUDirect", "cudirect"),
+	AUTO_PREMIER							("General Match for Auto Premier(sic)", "autopremier"),
+	ECREDIT									("CBC's eCredit online", "ecredit"),
+	EQUALIFY								("CBC's eQualify online", "equalify"),
+	EVAULT									("CBC's compliance vault", "evault"),
+	ELEND									("eLend, which affiliates with MANY programs, particularly CBC", "elend", "https://blog.cbcecredit.com/2015/03/get-prequalified-in-seconds-officials-from-elend-solutions-recently-unveiled-an-upgrade-to-the-companys-creditplus-solution-thats-being-dubbed/"),
+	
+	
+	
+	//*************  Credit Checking
+	CREDITVUE								("NCCDirect credit check tool", "creditvue"),
+	TRADEVUE								("NCCDirect trade credit tool", "tradevue"),
+	
 	
 	
 	//***General Credit Application Matches 		
@@ -78,6 +115,10 @@ public enum GeneralMatch implements StringMatch{
      //******* Other
      DEALER_COM_VERSION_9					("Dealer.com Version 9", "dealer.com/v9", ""),
      DEALER_COM_VERSION_8					("Dealer.com Version 8", "dealer.com/v8", ""),
+     
+     //******** Consumer Education
+     MOTORWEBS_CREDIT_EDUCATOR				("MotorWebs 'understand your credit'", "pa.motorwebs.com", "May just be for Toyota"),
+     AUTO_CONSUMER_INFO						("AutoConsumerInfo", "autoconsumerinfo.com"),
      
      DEMDEX									("DemDex", "demdex.com", "Adobe Audience Manager"),	//Adobe Audience Manager -- Audience Profiles -- found in js, not source
      DEALERVIDEOS							("Dealer Videos", "dealervideos.com", ""),		
@@ -156,7 +197,7 @@ public enum GeneralMatch implements StringMatch{
      TALENT_NEST							("Talent Nest", "talentnest.com", ""),
      COMM_100								("Comm100 chat", "comm100", ""),
      CHROME_DATA							("Chrome Data", "chromedata.com", ""),
-     NCCI_CREDIT							("NCCI Credit", "nccicredit.com", ""),
+     
      CLICK_TRACKS							("Click Tracks", "clicktracks.com", ""),
      AUCTION_123							("Auction 123", "auction123.com", ""),
      VECHICLE_MALL							("Vehicle Mall CDN", "vehiclemall.com", ""),
@@ -176,17 +217,15 @@ public enum GeneralMatch implements StringMatch{
      APOGEE_INVENT							("Apogee Invent", "apogeeinvent.com", ""),
      DYNAMIC_DRIVE							("Dynamic Drive", "dynamicdrive.com", ""),
      SMG_DEALER								("SMG Dealer by Sokal", "smgdealer.com", "Probably a CDN for Sokal"),
-     DEALERTRACK_FINANCE					("Dealertrack financing app", "dealertrack.com/consumerweb", ""),
-     MOTORWEBS_FINANCE						("MotorWebs financing app", "secure.motorwebs.com/default.aspx?", ""),
-     MOTORWEBS_CREDIT_EDUCATOR				("MotorWebs 'understand your credit'", "pa.motorwebs.com", "May just be for Toyota"),
+     
+     
      GMPS_DEALER 							("GMPS Dealer", "gmpsdealer.com", ""),
      PORSCHE_DEALER 						("Porsche Dealer", "porchedealer.com", ""),
-     AUTO_REVO_CREDIT_APP					("Auto Revo Credit App pdf", "autorevo.com/images/creditapp.pdf", ""),
+     
      PROOFPOINT_URL_DEFENSE					("Proofpoint's URL defense", "urldefense.proofpoint.com", ""),
-     DEALER_EPROCESS_CREDIT_APP				("DealerEProcess Credit App", "dealereprocess.com/virtualassistant", ""),
-     DEALERTRACK_FINANCE_SECONDARY			("DealerTrack's other credit app", "ebusiness.dealertrack.com", ""),
+     
      RND_INTERACTIVE_ADVERTISEMENTS			("RND Interactive advertisements", "rndinteractive.com/iframe", ""),
-     DEALER_700								("700 Dealer", "700dealer.com", ""),
+     
      DRIVE_DIGITAL_REVIEW_US				("'Review US' by Drive Digital Group", "reputation.drivedigitalgroup.com", ""),
      SLIPSTREAM_TESTIMONIALS				("Slipstream Testimonials iframe", "testimonials.slipstreamauto.com", ""),
      SM360_CHERRY_POPPER					("Solutions Media 360 Cherry Popper", "cherry.sm360.ca", "Awkwardly descriptiond JavaScript widget"),
@@ -202,6 +241,10 @@ public enum GeneralMatch implements StringMatch{
      WEBMAKER_X_MOBILE						("Web Maker X Mobile", "webmakerxmobile.com", "Free service by Reynolds"),
      EVOLIO									("Evolio", "evolio", ""),
      AUTO_123								("Auto 123", "Auto 123", "");
+	
+	
+	
+	
      
      
 	
@@ -209,12 +252,13 @@ public enum GeneralMatch implements StringMatch{
 	 public final String definition;
 	 public final String notes;
 	 public final Set<StringMatch> offsetMatches = new HashSet<StringMatch>();
+	
 	 
-	 	private GeneralMatch(String description, String definition){
-			this.description = description;
-			this.definition = definition;
-			this.notes = "";
-		}
+ 	private GeneralMatch(String description, String definition){
+		this.description = description;
+		this.definition = definition;
+		this.notes = "";
+	}
 	
 	private GeneralMatch(String description, String definition, String notes){
 		this.description = description;
@@ -243,5 +287,60 @@ public enum GeneralMatch implements StringMatch{
 	public Set<StringMatch> getOffsetMatches(){
 		return this.offsetMatches;
 	}
+	
+	
+	 public static final Set<GeneralMatch> creditAppMatches = new HashSet<GeneralMatch>();
+	 public static final Set<GeneralMatch> creditAppGeneralMatches = new HashSet<GeneralMatch>();
+	 static {
+		//************ Credit Applications	
+		creditAppMatches.add(DEALER_COM_CREDIT_APP);
+		creditAppMatches.add(DEALER_COM_CREDIT_APP_2);
+		creditAppMatches.add(BUYATOYOTA_COM_CREDIT_APP);
+		creditAppMatches.add(DEALERTRACK_EBUSINESS);
+		creditAppMatches.add(ROUTE_ONE);
+		creditAppMatches.add(DEALER_CENTRIC_CREDIT_APP);
+		creditAppMatches.add(DEALER_ON_CREDIT_APP_LINK);
+		creditAppMatches.add(DEALER_ON_CREDIT_APP);
+		creditAppMatches.add(DEALER_TRACK_CREDIT_APP);
+		creditAppMatches.add(NCCI_CREDIT);
+		creditAppMatches.add(EZAPP);
+		creditAppMatches.add(FINANCE_CONNECT);
+		creditAppMatches.add(DEALER_INSPIRE_CREDIT_APP);
+		creditAppMatches.add(DEALER_700);
+		creditAppMatches.add(QUICK_QUALIFY);
+		creditAppMatches.add(CREDIT_700);
+		creditAppMatches.add(SECURE_CLIENT_FORMS);
+		creditAppMatches.add(DEALERTRACK_FINANCE);
+		creditAppMatches.add(MOTORWEBS_FINANCE);
+		creditAppMatches.add(CDK_FINANCE);
+		creditAppMatches.add(DEALER_EPROCESS_CREDIT_APP);
+		creditAppMatches.add(DEALERTRACK_FINANCE_SECONDARY);
+		creditAppMatches.add(AUTO_REVO_CREDIT_APP);
+		creditAppMatches.add(CREDITVUE);
+		creditAppMatches.add(TRADEVUE);
+		creditAppMatches.add(QUICK_APPLICATION);
+			
+		//**************  Possible Matches
+		creditAppGeneralMatches.add(CREDIT_APPLICATION);
+		creditAppGeneralMatches.add(CREDIT_APPLICATION2);
+		creditAppGeneralMatches.add(CREDIT_APPLICATION3);
+		creditAppGeneralMatches.add(CREDIT_APPLICATION4);
+		creditAppGeneralMatches.add(CREDIT_APPLICATION5);
+		creditAppGeneralMatches.add(CREDIT_APPLICATION6);
+		creditAppGeneralMatches.add(CREDIT_APPLICATION7);
+		creditAppGeneralMatches.add(CREDIT_APPLICATION8);
+		creditAppGeneralMatches.add(CREDIT_APPLICATION9);
+		creditAppGeneralMatches.add(CREDIT_APPLICATION10);
+		creditAppGeneralMatches.add(CREDIT_APPLICATION11);
+		creditAppGeneralMatches.add(CREDIT_APPLICATION12);
+		creditAppGeneralMatches.add(CREDIT_APPLICATION13);
+		creditAppGeneralMatches.add(CREDIT_APPLICATION14);
+		creditAppGeneralMatches.add(CREDIT_APPLICATION15);
+		creditAppGeneralMatches.add(CREDIT_APPLICATION16);
+		creditAppGeneralMatches.add(CREDIT_APPLICATION17);
+	 }
+	
+
+	
 	
 }

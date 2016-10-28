@@ -1,9 +1,9 @@
 package agarbagefolder.amalgamation;
 
-import async.work.WorkOrder;
+import async.work.TypedWorkOrder;
 import async.work.WorkType;
 
-public class AmalgamationWorkOrder extends WorkOrder {
+public class AmalgamationWorkOrder extends TypedWorkOrder {
 
 	private Long siteCrawlId;
 	

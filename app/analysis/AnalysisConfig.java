@@ -1,12 +1,24 @@
 package analysis;
 
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
+@Entity
 public class AnalysisConfig {
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	protected long analysisConfigId;
 	
 	public enum AnalysisMode {
 		BLOB, PAGED, MIXED
 	}
 	
+	@Enumerated(EnumType.STRING)
 	AnalysisMode analysisMode = AnalysisMode.PAGED;
 	
 	//************ Matching
@@ -18,6 +30,7 @@ public class AnalysisConfig {
 	protected Boolean doWebProviderMatches = false;
 	protected Boolean doWpAttributionMatches= false;
 	protected Boolean doLinkTextMatches = false;
+	protected Boolean doTestMatches = false;
 	
 	
 	//*********** Inventory
@@ -31,10 +44,15 @@ public class AnalysisConfig {
 	protected Boolean extractLinks = false;
 	
 	
+	//************ Custom
+	protected Boolean doCustomText = false;
+	protected Boolean doCustomDoc = false;
+	
+	
 	
 	//************ Conditional Aggregates
 	public Boolean needsDoc(){
-		return doLinkTextMatches;
+		return doLinkTextMatches || doCustomDoc;
 	}
 
 
@@ -187,6 +205,42 @@ public class AnalysisConfig {
 
 	public void setAnalysisMode(AnalysisMode analysisMode) {
 		this.analysisMode = analysisMode;
+	}
+
+
+
+	public Boolean getDoTestMatches() {
+		return doTestMatches;
+	}
+
+
+
+	public void setDoTestMatches(Boolean doTestMatches) {
+		this.doTestMatches = doTestMatches;
+	}
+
+
+
+	public Boolean getDoCustomText() {
+		return doCustomText;
+	}
+
+
+
+	public void setDoCustomText(Boolean doCustomText) {
+		this.doCustomText = doCustomText;
+	}
+
+
+
+	public Boolean getDoCustomDoc() {
+		return doCustomDoc;
+	}
+
+
+
+	public void setDoCustomDoc(Boolean doCustomDoc) {
+		this.doCustomDoc = doCustomDoc;
 	}
 	
 	

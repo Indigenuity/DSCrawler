@@ -44,13 +44,20 @@ public class SalesforceControl {
 		Map<String, ReportRow> remoteAccounts = report.getReportRows().entrySet().stream()
 				.collect(Collectors.toMap( Entry::getKey, Entry::getValue));
 		
+		System.out.println("localAccounts : " + localAccountsList.size());
+		System.out.println("remoteAccounts : " + remoteAccounts.size());
+		
 		SalesforceSyncSession syncSession = new SalesforceSyncSession(remoteAccounts, localAccounts);
 		syncSession.runSync();
+		System.out.println("Finished SyncSession, getting Sync");
 		Sync sync = syncSession.getSync();
 		
+		System.out.println("Assigning siteless");
 		assignSiteless();
+		System.out.println("assigningChangedWebsites");
 		assignChangedWebsites(sync);
 		
+		System.out.println("Generating reports");
 		if(generateReports){
 			List<Report> reports = syncSession.getReports();
 			for(Report printedReport : reports){

@@ -24,6 +24,11 @@ GET		/getLocalFiles					controllers.Application.getLocalFiles(folderName : Strin
 GET		/sitesDashboardStats			controllers.DataView.sitesDashboardStats()
 GET		/salesforceDashboardStats		controllers.DataView.salesforceDashboardStats()
 
+GET		/analysis/dashboard				controllers.Analysis.dashboard()
+GET		/analysis/dashboardStats		controllers.DataView.analysisDashboardStats()
+GET		/analysis/runAnalysisSet		controllers.Analysis.runAnalysisSet(analysisSetId : Long)
+GET		/analysis/resetAnalysisSet		controllers.Analysis.resetAnalysisSet(analysisSetId : Long)
+
 GET		/review/report					controllers.Review.report(reportId : Long)
 GET		/review/salesforceSites			controllers.Review.salesforceSites()
 
@@ -43,10 +48,14 @@ GET		/markSignificantDifferences		controllers.DataEditor.markSignificantDifferen
 
 
 GET		/places/placesDashboard					controllers.PlacesController.placesDashboard()
+GET		/places/placesDashboardStats			controllers.PlacesController.placesDashboardStats()
 GET		/places/refreshZipcodeDatabase			controllers.PlacesController.refreshZipcodeDatabase()
 GET		/places/importCanadaList				controllers.PlacesController.importCanadaList()
 GET		/places/importUsList					controllers.PlacesController.importUsList()
 GET		/places/fillBlankDetails				controllers.PlacesController.fillBlankDetails()
+GET		/places/assignSiteless					controllers.PlacesController.assignSiteless()
+
+GET		/crawling/crawlingDashboard				controllers.CrawlingController.dashboard()
 
 
 

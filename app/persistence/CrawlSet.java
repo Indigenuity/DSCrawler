@@ -1,6 +1,6 @@
 package persistence;
 
-import java.sql.Date;
+import java.util.Date;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;

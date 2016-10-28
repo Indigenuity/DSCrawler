@@ -1,6 +1,7 @@
 package reporting;
 
 import dao.GeneralDAO;
+import dao.PlacesDealerDao;
 import dao.SalesforceDao;
 import persistence.Site;
 import persistence.Site.SiteStatus;
@@ -36,6 +37,17 @@ public class StatsBuilder {
 		
 		stats.put("Siteless Accounts", GeneralDAO.getCount(SalesforceAccount.class, "site", null));
 		stats.put("Significant Differences", GeneralDAO.getCount(SalesforceAccount.class, "significantDifference", true));
+		return stats;
+	}
+	
+	public static DashboardStats placesDashboard() {
+		DashboardStats stats = new DashboardStats("Places Dashboard Stats");
+		stats.put("US Zip Codes", PlacesDealerDao.countUsZips());
+		stats.put("US Zip Codes (Old)", PlacesDealerDao.countOldUsZips());
+		stats.put("Canada Postal Codes", PlacesDealerDao.countCanadaPostals());
+		stats.put("Canada Postal Codes (Old", PlacesDealerDao.countOldCanadaPostals());
+		stats.put("Places Dealers", PlacesDealerDao.countPlacesDealers());
+		stats.put("Places Dealers (Old)", PlacesDealerDao.countOldPlacesDealers());
 		return stats;
 	}
 }

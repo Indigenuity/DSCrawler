@@ -28,9 +28,9 @@ public enum LinkTextMatch {
 	CREDIT_APPLICATION16					("Credit application indicator", "preapproved"),
 	CREDIT_APPLICATION17					("Credit application indicator", "pre-approved");
 	
-	private String description;
-	private String definition;
-	private String notes;
+	public final String description;
+	public final String definition;
+	public final String notes;
 	public final Set<StringMatch> offsetMatches = new HashSet<StringMatch>();
 	
 	private LinkTextMatch(String description, String definition, String notes){
@@ -42,6 +42,7 @@ public enum LinkTextMatch {
 	private LinkTextMatch(String description, String definition){
 		this.description = description;
 		this.definition = definition;
+		this.notes = "";
 	}
 	
 	

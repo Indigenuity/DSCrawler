@@ -14,6 +14,7 @@ public class SyncSessionKeys<K> {
 	private final Set<K> outdateKeys;
 	
 	public SyncSessionKeys(Set<K> remoteKeys, Set<K> localKeys){
+		System.out.print("Generating key sets for SyncSession....");
 		this.remoteKeys = remoteKeys;
 		this.localKeys = localKeys;
 		
@@ -26,6 +27,8 @@ public class SyncSessionKeys<K> {
 		outdateKeys = localKeys.stream()
 				.filter( (key) -> !remoteKeys.contains(key))
 				.collect(Collectors.toSet());
+		
+		System.out.println("Finished generating key sets");
 	}
 
 	public Set<K> getRemoteKeys() {

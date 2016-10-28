@@ -33,6 +33,37 @@ public class DSFormatter {
 		return first.equals(second);
 	}
 	
+	public static String standardizeStreetAddress(String street){
+		if(street == null) {
+			return null;
+		}
+		street = street.toLowerCase();
+		street = street.replaceAll("\\bave\\b", "avenue");
+		street = street.replaceAll("\\bav\\b", "avenue");
+		street = street.replaceAll("\\brd\\b", "road");
+		street = street.replaceAll("\\bpkwy\\b", "parkway");
+		street = street.replaceAll("\\bst$", "street");
+		street = street.replaceAll("\\bct$", "court");
+		street = street.replaceAll("\\bblvd\\b", "boulevard");
+		street = street.replaceAll("\\brte\\b", "route");
+		street = street.replaceAll("\\brt\\b", "route");
+		street = street.replaceAll("\\bhwy\\b", "highway");
+		street = street.replaceAll("\\btpke\\b", "turnpike");
+		street = street.replaceAll("\\btpk\\b", "turnpike");
+		street = street.replaceAll("\\bpl\\b", "place");
+		street = street.replaceAll("\\bcntry\\b", "country");
+		street = street.replaceAll("\\bterr\\b", "terrace");
+		street = street.replaceAll("\\bn\\b", "north");
+		street = street.replaceAll("\\bs\\b", "south");
+		street = street.replaceAll("\\be\\b", "east");
+		street = street.replaceAll("\\bw\\b", "west");
+		
+		
+		
+		return street;
+	}
+	
+	
 	public static String getLastSegment(String original) {
 		int lastIndex = original.lastIndexOf("/");
 		if(lastIndex > 0){

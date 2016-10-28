@@ -23,6 +23,8 @@ import org.hibernate.annotations.FetchMode;
 
 import datadefinitions.GeneralMatch;
 import datadefinitions.newdefinitions.LinkTextMatch;
+import datadefinitions.newdefinitions.TestMatch;
+import datadefinitions.newdefinitions.WPAttribution;
 import persistence.ExtractedString;
 import persistence.ExtractedUrl;
 import persistence.Metatag;
@@ -79,7 +81,13 @@ public class PageCrawlAnalysis {
 	@ElementCollection(fetch=FetchType.LAZY)
 	protected Set<LinkTextMatch> linkTextMatches = new HashSet<LinkTextMatch>();
 	
+	@Enumerated(EnumType.STRING)
+	@ElementCollection(fetch=FetchType.LAZY)
+	protected Set<TestMatch> testMatches = new HashSet<TestMatch>();
 	
+	@Enumerated(EnumType.STRING)
+	@ElementCollection(fetch=FetchType.LAZY)
+	protected Set<WPAttribution> wpAttributions = new HashSet<WPAttribution>();
 	
 	
 
@@ -105,6 +113,22 @@ public class PageCrawlAnalysis {
 
 	public void setLinkTextMatches(Set<LinkTextMatch> linkTextMatches) {
 		this.linkTextMatches = linkTextMatches;
+	}
+
+	public Set<TestMatch> getTestMatches() {
+		return testMatches;
+	}
+
+	public void setTestMatches(Set<TestMatch> testMatches) {
+		this.testMatches = testMatches;
+	}
+
+	public Set<WPAttribution> getWpAttributions() {
+		return wpAttributions;
+	}
+
+	public void setWpAttributions(Set<WPAttribution> wpAttributions) {
+		this.wpAttributions = wpAttributions;
 	}
 	
 	

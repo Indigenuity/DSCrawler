@@ -21,13 +21,13 @@ public class Worker extends UntypedActor {
 
 	@Override
 	public void onReceive(Object arg0) throws Exception {
-		WorkOrder workOrder = (WorkOrder) arg0;
+		TypedWorkOrder workOrder = (TypedWorkOrder) arg0;
 		WorkResult workResult = doWorkOrder(workOrder);
 		getSender().tell(workResult, ActorRef.noSender());
 //		getContext().stop(getSelf());
 	}
 	
-	public static WorkResult doWorkOrder(WorkOrder workOrder) {
+	public static WorkResult doWorkOrder(TypedWorkOrder workOrder) {
 		WorkResult result = new WorkResult(workOrder);
 		Task task = null;
 		try{

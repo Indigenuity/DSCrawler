@@ -7,14 +7,14 @@ import akka.actor.UntypedActor;
 
 public abstract class Worker extends UntypedActor{
 
-	protected WorkOrder currentWorkOrder;		//Each Worker should only be working on a single WorkOrder at a time
+	protected StandardWorkOrder currentWorkOrder;		//Each Worker should only be working on a single WorkOrder at a time
 	protected WorkResult workResult;			//This WorkOrder will result in a single WorkResult
 
 	@Override
 	public void onReceive(Object message) throws Exception {
-		if(message instanceof WorkOrder){
-			currentWorkOrder = (WorkOrder) message;
-			workResult = new WorkResult(currentWorkOrder.getWorkUuid());
+		if(message instanceof StandardWorkOrder){
+			currentWorkOrder = (StandardWorkOrder) message;
+			workResult = new WorkResult(currentWorkOrder.getUuid());
 			try{
 				reportStart();
 				onReceiveWorkOrder();

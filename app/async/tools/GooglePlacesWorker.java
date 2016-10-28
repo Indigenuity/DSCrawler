@@ -10,7 +10,7 @@ import agarbagefolder.googleplaces.PlacesPageWorkOrder;
 import agarbagefolder.googleplaces.PlacesPageWorkResult;
 import agarbagefolder.urlresolve.UrlResolveWorkOrder;
 import agarbagefolder.urlresolve.UrlResolveWorkResult;
-import async.work.WorkOrder;
+import async.work.TypedWorkOrder;
 import async.work.WorkResult;
 import async.work.WorkStatus;
 import global.Global;
@@ -24,7 +24,7 @@ import utilities.UrlSniffer;
 public class GooglePlacesWorker extends SingleStepJPAWorker { 
 	
 	@Override
-	protected WorkResult processWorkOrder(WorkOrder workOrder) {
+	protected WorkResult processWorkOrder(TypedWorkOrder workOrder) {
 		PlacesPageWorkResult result = new PlacesPageWorkResult();
 		try{
 //			System.out.println("doing some places page work");

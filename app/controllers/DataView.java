@@ -48,6 +48,11 @@ public class DataView extends Controller {
 	}
 	
 	@Transactional
+	public static Result analysisDashboardStats() {
+		return ok(views.html.viewstats.viewStats.render(StatsBuilder.salesforceDashboard()));
+	}
+	
+	@Transactional
 	public static Result reviewTasks(long taskSetId, int count, int offset, String workType){
 		List<Task> tasks = JPA.em().createQuery("select tOuter from Task tOuter where (select count(s) from TaskSet ts join ts.tasks t join t.subtasks s where ts.taskSetId = :taskSetId and s.workStatus = :workStatus and s.workType = :workType and t.taskId = tOuter.taskId) > 0", Task.class)
 				.setParameter("taskSetId", taskSetId).setParameter("workStatus", WorkStatus.NEEDS_REVIEW).setParameter("workType", WorkType.valueOf(workType))

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,9 +17,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import datadefinitions.GeneralMatch;
 import datadefinitions.OEM;
 import datadefinitions.StringExtraction;
 import datadefinitions.newdefinitions.InventoryType;
+import datadefinitions.newdefinitions.TestMatch;
+import datadefinitions.newdefinitions.WPAttribution;
 import global.Global;
 import persistence.ImageTag;
 import persistence.InventoryNumber;
@@ -43,8 +47,15 @@ public class PageCrawlAnalyzer {
 	}
 	
 	public static void runTextAnalysis(AnalysisConfig config, PageCrawlAnalysis pageAnalysis, String text) {
+		
 		if(config.getDoGeneralMatches()){
 			pageAnalysis.getGeneralMatches().addAll(TextAnalyzer.getGeneralMatches(text));
+		} if(config.getDoWpAttributionMatches()){
+			pageAnalysis.getWpAttributions().addAll(TextAnalyzer.getMatches(text, WPAttribution.values()));
+		} if(config.getDoTestMatches()){
+			pageAnalysis.getTestMatches().addAll(TextAnalyzer.getMatches(text, TestMatch.getCurrentMatches()));
+		} if(config.getDoCustomText()){
+			customText(config, pageAnalysis, text);
 		}
 	}
 	
@@ -52,10 +63,21 @@ public class PageCrawlAnalyzer {
 		Document doc = Jsoup.parse(text);
 		if(config.getDoLinkTextMatches()){
 			pageAnalysis.getLinkTextMatches().addAll(DocAnalyzer.getLinkTextMatches(doc));
+		} if(config.getDoCustomDoc()){
+			customDoc(config, pageAnalysis, doc);
 		}
 	}
 	
+	public static void customText(AnalysisConfig config, PageCrawlAnalysis pageAnalysis, String text) {
+		Set<WPAttribution> canadaProviders = new HashSet<WPAttribution>();
+		canadaProviders.add(WPAttribution.VIN_SOLUTIONS);
+		canadaProviders.add(WPAttribution.VIN_SOLUTIONS2);
+		canadaProviders.add(WPAttribution.E_DEALER_CA);
+	}
 	
+	public static void customDoc(AnalysisConfig config, PageCrawlAnalysis pageAnalysis, Document doc) {
+		
+	}
 	
 	
 	

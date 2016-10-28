@@ -12,21 +12,21 @@ import play.db.jpa.JPA;
 public class MultiStepJPAWorker extends UntypedActor {
 	
 	protected Long uuid = UUID.randomUUID().getLeastSignificantBits();
-	protected WorkOrder workOrder;
+	protected TypedWorkOrder workOrder;
 	protected ActorRef customer;
 	protected Long workOrderUuid;
 
 	@Override
 	public void onReceive(Object work) throws Exception {
 		System.out.println("Starting multi step work on thread " + Thread.currentThread().getName());
-		WorkOrder nextStep = null;
-		if(work instanceof WorkOrder) {
+		TypedWorkOrder nextStep = null;
+		if(work instanceof TypedWorkOrder) {
 //			if(workOrder != null){
 //				Logger.error("Received second work order : " + work);
 //				throw new IllegalStateException("Received second work order : " + work);
 //			}
 			customer = getSender();
-			workOrder = (WorkOrder) work;
+			workOrder = (TypedWorkOrder) work;
 			this.workOrderUuid = workOrder.getUuid();
 //			System.out.println("just set work order uuid : " + this.workOrderUuid);
 //			System.out.println("Performing work : " + workOrder.getWorkType());
@@ -49,7 +49,7 @@ public class MultiStepJPAWorker extends UntypedActor {
 		
 	}
 	
-	public WorkOrder processWorkOrder(WorkOrder workOrder){
+	public TypedWorkOrder processWorkOrder(TypedWorkOrder workOrder){
 		Logger.error("in Generic work order.  Must implement for class: " + this.getClass());
 		return null;
 	}

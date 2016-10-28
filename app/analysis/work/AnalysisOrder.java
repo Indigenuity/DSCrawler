@@ -1,12 +1,11 @@
 package analysis.work;
 
-import java.util.UUID;
 
 import analysis.AnalysisConfig;
+import newwork.WorkOrder;
 
-public class AnalysisOrder {
+public class AnalysisOrder extends WorkOrder {
 
-	protected final Long uuid = UUID.randomUUID().getLeastSignificantBits();
 	
 	private Long siteCrawlId;
 	private AnalysisConfig analysisConfig;
@@ -22,9 +21,6 @@ public class AnalysisOrder {
 	}
 	public void setAnalysisConfig(AnalysisConfig analysisConfig) {
 		this.analysisConfig = analysisConfig;
-	}
-	public Long getUuid() {
-		return uuid;
 	}
 	 
 }

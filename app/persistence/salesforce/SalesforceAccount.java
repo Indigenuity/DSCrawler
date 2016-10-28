@@ -56,6 +56,9 @@ public class SalesforceAccount {
 	private Boolean significantDifference = false;
 	
 	
+	private String standardStreet;
+	
+	
 	/************************ Relationships ***************************/
 	
 	@ManyToOne
@@ -238,6 +241,14 @@ public class SalesforceAccount {
 
 	public void setDealershipType(DealershipType dealershipType) {
 		this.dealershipType = dealershipType;
+	}
+
+	public String getStandardStreet() {
+		return standardStreet;
+	}
+
+	public void setStandardStreet(String standardStreet) {
+		this.standardStreet = standardStreet;
 	}
 	
 	

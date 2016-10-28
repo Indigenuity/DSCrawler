@@ -30,6 +30,12 @@ public class Report {
 	private String name = "Unnamed Report";
 	private String keyColumn;
 	private boolean appendDate = true;
+	
+	public Report(String name) {
+		this.setName(name);
+	}
+	
+	public Report() {}
 
 	public long getReportId() {
 		return reportId;

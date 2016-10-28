@@ -2,6 +2,8 @@ package places;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -73,8 +75,13 @@ public class Retriever {
 	public static void retrieveUs() throws IOException {
 //		int maxResults = 50000;
 //		int offset = 2153 + 2294  + 575 + 780 + 1739 + 30000;
-		String queryString = "from ZipLocation zl where zl.dateFetched is null";
-		List<ZipLocation> zips = JPA.em().createQuery(queryString, ZipLocation.class).getResultList();
+		
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.MONTH, -1);
+		Date monthAgo = cal.getTime();
+		
+		String queryString = "from ZipLocation zl where zl.dateFetched is null or zl.dateFetched < :monthAgo";
+		List<ZipLocation> zips = JPA.em().createQuery(queryString, ZipLocation.class).setParameter("monthAgo", monthAgo).getResultList();
 		System.out.println("size : " + zips.size());
 		ActorRef master = Asyncleton.getInstance().getGenericMaster(50, PostalSearchWorker.class);
 		
@@ -131,14 +138,12 @@ public class Retriever {
 	
 	public static void retrieveDetails(String placesId) throws IOException {
 		Response<Place> detailsResponse = Places.details(Params.create().placeId(placesId));
-		Place detailsPlace = detailsResponse.getResult();
-		PlacesDealer dealer = DataBuilder.getPlacesDealer(detailsPlace);
+		PlacesDealer dealer = DataBuilder.getPlacesDealer(detailsResponse);
 		JPA.em().merge(dealer);
 	}
 	
 	public static void retrieveDetails(PlacesDealer dealer) throws IOException {
 		Response<Place> detailsResponse = Places.details(Params.create().placeId(dealer.getPlacesId()));
-		Place detailsPlace = detailsResponse.getResult();
-		DataBuilder.fillPlacesDealer(dealer, detailsPlace);
+		DataBuilder.fillPlacesDealer(dealer, detailsResponse);
 	}
 }

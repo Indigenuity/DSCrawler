@@ -8,7 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
-import async.work.WorkOrder;
+import async.work.TypedWorkOrder;
 import async.work.WorkType;
 import persistence.Site;
 import persistence.SiteCrawl;
@@ -19,7 +19,7 @@ import play.db.jpa.JPA;
 import utilities.DSFormatter;
 
 @Entity
-public class InfoFetch extends WorkOrder {
+public class InfoFetch extends TypedWorkOrder {
 	
 	
 	

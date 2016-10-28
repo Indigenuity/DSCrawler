@@ -1,6 +1,10 @@
 package experiment;
 
 import global.Global;
+import net.sf.sprockets.google.Place;
+import net.sf.sprockets.google.Places;
+import net.sf.sprockets.google.Places.Params;
+import net.sf.sprockets.google.Places.Response;
 import newwork.TerminalWorker;
 import newwork.urlcheck.UrlCheckWorkOrder;
 
@@ -29,11 +33,14 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -61,7 +68,7 @@ import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.envers.AuditReader;
@@ -71,12 +78,16 @@ import org.hibernate.envers.query.AuditQuery;
 import org.hibernate.envers.query.AuditQueryCreator;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Proxy;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import com.google.common.base.Functions;
@@ -93,11 +104,18 @@ import agarbagefolder.InfoFetch;
 import agarbagefolder.SiteWork;
 import agarbagefolder.WorkSet;
 import agarbagefolder.urlresolve.UrlResolveWorkOrder;
+import crawling.CrawlSession;
 import crawling.DealerCrawlController;
 import crawling.GoogleCrawler;
 import crawling.MobileCrawler;
+import crawling.nydmv.County;
+import crawling.nydmv.NYDealer;
+import crawling.nydmv.NyControl;
+import crawling.nydmv.NyDao;
+import crawling.projects.BhphCrawl;
 import dao.AnalysisDao;
 import dao.GeneralDAO;
+import dao.SiteCrawlDAO;
 import dao.SitesDAO;
 import dao.StatsDAO;
 import dao.TaskDAO;
@@ -108,6 +126,7 @@ import datadefinitions.StringExtraction;
 import datadefinitions.UrlExtraction;
 import datadefinitions.WebProvider;
 import datadefinitions.newdefinitions.InventoryType;
+import datadefinitions.newdefinitions.LinkTextMatch;
 import datadefinitions.newdefinitions.WPAttribution;
 import datatransfer.Amalgamater;
 import datatransfer.CSVGenerator;
@@ -117,11 +136,14 @@ import datatransfer.reports.Report;
 import datatransfer.reports.ReportFactory;
 import datatransfer.reports.ReportRow;
 import akka.actor.Props;
+import analysis.AnalysisConfig;
 import analysis.AnalysisControl;
+import analysis.AnalysisSet;
 import analysis.PageCrawlAnalysis;
 import analysis.SiteCrawlAnalysis;
 import analysis.SiteCrawlAnalyzer;
 import analysis.TextAnalyzer;
+import analysis.AnalysisConfig.AnalysisMode;
 import async.async.GenericMaster;
 import async.tools.InventoryTool;
 import async.tools.Tool;
@@ -131,6 +153,9 @@ import async.work.WorkItem;
 import async.work.WorkStatus;
 import async.work.WorkType;
 import audit.AuditDao;
+import audit.Distance;
+import audit.ListMatchResult;
+import audit.ListMatcher;
 import audit.sync.SalesforceDealerSyncSession;
 import audit.sync.SalesforceGroupAccountSyncSession;
 import audit.sync.SalesforceControl;
@@ -182,50 +207,185 @@ import utilities.UrlSniffer;
 
 public class Experiment { 
 	
-	public static void runExperiment() throws Exception {
+	public static void runExperiment() throws IOException {
+		BhphCrawl.runCrawl();
+	}
+	
+	public static void nyLinkExperiment() throws IOException {
+		NYDealer dealer = JPA.em().find(NYDealer.class, 732L);
+		System.out.println("dealer : " + dealer.getFacilityName());
+		System.out.println("dealer address : " + dealer.getStreet() + ", " + dealer.getCity());
+		Response<List<Place>> resp = Places.textSearch(Params.create().query(dealer.getFacilityName() + " " + dealer.getStreet() + " " + dealer.getCity()));
+		
+		System.out.println("response : " + resp);
+		
+		List<Place> results = resp.getResult();
+		for(Place place : results){
+			System.out.println("place : " + place.getName());
+			System.out.println("link : " + place.getUrl());
+			System.out.println("address : " + place.getFormattedAddress());
+			System.out.println("types : " + place.getTypes());
+			System.out.println("location : " + place.getLatitude() + " " + place.getLongitude());
+			System.out.println("places id : " + place.getPlaceId().getId());
+			System.out.println();
+			
+//			Response<List<Place>> locSearch= Places.nearbySearch(
+//					Params.create().latitude(place.getLatitude()).longitude(place.getLongitude()));
+//			
+//			for(Place locPlace : locSearch.getResult()) {
+//				System.out.println("locPlace : " + locPlace.getName());
+//				System.out.println("place : " + locPlace.getName());
+//				System.out.println("link : " + locPlace.getUrl());
+//				System.out.println("address : " + locPlace.getFormattedAddress());
+//				System.out.println("types : " + locPlace.getTypes());
+//				System.out.println("location : " + locPlace.getLatitude() + " " + locPlace.getLongitude());
+//			}
+		}
+		
+//		NyControl.runLinks();
+	}
+	
+	
+	
+	public static void standardizeAddresses(){
+		System.out.println("fetching");
+		String queryString = "from NYDealer sa";
+		List<NYDealer> sfAccounts = JPA.em().createQuery(queryString, NYDealer.class).getResultList();
+		System.out.println("size : " + sfAccounts.size());
+		int count = 0;
+		for(NYDealer account : sfAccounts) {
+			account.setStandardStreet(DSFormatter.standardizeStreetAddress(account.getStreet()));
+			if(count++ % 500 == 0){
+				System.out.println("count : " + count);
+			}
+		}
+	}
+	
+	public static void runStringExperiment() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException, InterruptedException {
+		
+		String ab = "815 MIDDLE CNTRY RD";
+		String full = "815 MIDDLE COUNTRY RD";
+		String other = "This is some random string";
+		
+		String diff = StringUtils.difference(ab, full);
+		
+		System.out.println("diff: " + diff);
+		System.out.println("jaro: " + StringUtils.getJaroWinklerDistance(ab, full));
+		System.out.println("fuzzy  : " + StringUtils.getFuzzyDistance(ab,  full, Locale.US));
+		System.out.println("levenshtein : " + StringUtils.getLevenshteinDistance(ab, full));
+		
+		System.out.println("diff: " + StringUtils.difference(ab, other));
+		System.out.println("jaro: " + StringUtils.getJaroWinklerDistance(ab, other));
+		System.out.println("fuzzy  : " + StringUtils.getFuzzyDistance(ab,  other, Locale.US));
+		System.out.println("levenshtein : " + StringUtils.getLevenshteinDistance(ab, other));
+	}
+	
+	public static void canadaExperiment() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException, InterruptedException {
+		
+		AnalysisSet canadaSet =JPA.em().find(AnalysisSet.class, 1L);
+//		
+		AnalysisConfig config = new AnalysisConfig();
+		config.setAnalysisMode(AnalysisMode.PAGED);
+		config.setDoTestMatches(true);
+		config.setDoWpAttributionMatches(true);
+		
+		JPA.em().persist(config);
+		
+		canadaSet.setConfig(config);
+//		
+//		System.out.println("cancadaset : " + canadaSet.getCrawlAnalysisMap().keySet().size());
+		
+//		String queryString = "from SalesforceAccount sa where sa.country = 'CANADA'";
+//		List<SalesforceAccount> accounts = JPA.em().createQuery(queryString, SalesforceAccount.class).getResultList();
+//		
+//		int count= 0;
+//		for(SalesforceAccount account : accounts) {
+//			Site site = account.getSite();
+//			SiteCrawl siteCrawl = SiteCrawlDAO.getRecentPrimary(site);
+//			if(siteCrawl != null){
+////				System.out.println("putting site : " + site.getSiteId());
+//				canadaSet.getCrawlAnalysisMap().put(siteCrawl.getSiteCrawlId(), 0L);		//Because JPA is retarded and can't save nulls in maps
+//			}
+//			System.out.println("count : " + count++);
+//		}
+//		System.out.println("cancadaset : " + canadaSet.getCrawlAnalysisMap().keySet().size());
+//		canadaSet = JPA.em().merge(canadaSet);
+		
+		
+		
+//		PageCrawlAnalysis analysis = JPA.em().find(PageCrawlAnalysis.class, 65168L);
+//		
+//		System.out.println("pageCrawl's general matches : " + analysis.getGeneralMatches().size());
+//		
+//		for(GeneralMatch match : analysis.getGeneralMatches()){
+//			System.out.println("match : " + match);
+//		}
+	}
+	
+	
+	
+	public static void crawlSessionExperimentExperiment() throws Exception {
+		String queryString = "select sc from SiteCrawl sc join sc.site s where s.franchise = true and sc.fileStatus = :fileStatus";
+		List<SiteCrawl> siteCrawls = JPA.em().createQuery(queryString, SiteCrawl.class)
+				.setParameter("fileStatus", FileStatus.PRIMARY)
+				.getResultList();
+		
+		System.out.println("siteCrawls : " + siteCrawls.size());
+		
+		CrawlSession crawlSession = new CrawlSession();
+		
+		for(SiteCrawl siteCrawl : siteCrawls) {
+			crawlSession.addSeed(siteCrawl.getSeed());
+			crawlSession.addSiteCrawl(siteCrawl);
+		}
+		
+		crawlSession.setName("Franchise 9-7-2016");
+		
+		JPA.em().persist(crawlSession);
+		
+		
+		
+		
+		
 //		Site site = JPA.em().find(Site.class, 18152L);
 //		
 //		SiteCrawl siteCrawl = DealerCrawlController.crawlSite(site.getHomepage());
 		
 //		AnalysisControl.runAnalysisExperiment();
 //		runCreditAppReport();
-//		System.out.println("number matching : " + AnalysisDao.getCountGeneralMatch(GeneralMatch.DEALER_COM_CREDIT_APP));
+//		System.out.println("number matching : " + AnalysisDao.getCombinedCreditAppMatches());
+//		System.out.println("number general matching : " + AnalysisDao.getCombinedGeneralCreditAppMatches());
+//		System.out.println("number link matching : " + AnalysisDao.getCombinedCreditAppLinkMatches());
 		
-		experimentTaskSet();
+//		experimentTaskSet();
+		
+		
 	}
 	
 	public static void runCreditAppReport() throws IOException {
 		Report report = new Report();
-		report.setName("Online Credit App Usage");
+		report.setName("Online Credit App Usage on Franchise Sites(Search by general text match)");
 		
-		report.addReportRow(GeneralMatch.DEALER_COM_CREDIT_APP.name(), makeCreditAppReportRow(GeneralMatch.DEALER_COM_CREDIT_APP));
-		report.addReportRow(GeneralMatch.DEALER_COM_CREDIT_APP_2.name(), makeCreditAppReportRow(GeneralMatch.DEALER_COM_CREDIT_APP_2));
-		report.addReportRow(GeneralMatch.BUYATOYOTA_COM_CREDIT_APP.name(), makeCreditAppReportRow(GeneralMatch.BUYATOYOTA_COM_CREDIT_APP));
-		report.addReportRow(GeneralMatch.DEALERTRACK_EBUSINESS.name(), makeCreditAppReportRow(GeneralMatch.DEALERTRACK_EBUSINESS));
-		report.addReportRow(GeneralMatch.ROUTE_ONE.name(), makeCreditAppReportRow(GeneralMatch.ROUTE_ONE));
-		report.addReportRow(GeneralMatch.DEALER_CENTRIC_CREDIT_APP.name(), makeCreditAppReportRow(GeneralMatch.DEALER_CENTRIC_CREDIT_APP));
-		report.addReportRow(GeneralMatch.DEALER_ON_CREDIT_APP.name(), makeCreditAppReportRow(GeneralMatch.DEALER_ON_CREDIT_APP));
-		report.addReportRow(GeneralMatch.DEALER_ON_CREDIT_APP_LINK.name(), makeCreditAppReportRow(GeneralMatch.DEALER_ON_CREDIT_APP_LINK));
-		report.addReportRow(GeneralMatch.DEALER_TRACK_CREDIT_APP.name(), makeCreditAppReportRow(GeneralMatch.DEALER_TRACK_CREDIT_APP));
-		report.addReportRow(GeneralMatch.CREDIT_APPLICATION.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION));
-		report.addReportRow(GeneralMatch.CREDIT_APPLICATION2.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION2));
-		report.addReportRow(GeneralMatch.CREDIT_APPLICATION3.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION3));
-		report.addReportRow(GeneralMatch.CREDIT_APPLICATION4.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION4));
-		report.addReportRow(GeneralMatch.CREDIT_APPLICATION5.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION5));
-		report.addReportRow(GeneralMatch.CREDIT_APPLICATION6.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION6));
-		report.addReportRow(GeneralMatch.CREDIT_APPLICATION7.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION7));
-		report.addReportRow(GeneralMatch.CREDIT_APPLICATION8.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION8));
-		report.addReportRow(GeneralMatch.CREDIT_APPLICATION9.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION9));
-		report.addReportRow(GeneralMatch.CREDIT_APPLICATION10.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION10));
-		report.addReportRow(GeneralMatch.CREDIT_APPLICATION11.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION11));
-		report.addReportRow(GeneralMatch.CREDIT_APPLICATION12.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION12));
-		report.addReportRow(GeneralMatch.CREDIT_APPLICATION13.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION13));
-		report.addReportRow(GeneralMatch.CREDIT_APPLICATION14.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION14));
-		report.addReportRow(GeneralMatch.CREDIT_APPLICATION15.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION15));
-		report.addReportRow(GeneralMatch.CREDIT_APPLICATION16.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION16));
-		report.addReportRow(GeneralMatch.CREDIT_APPLICATION17.name(), makeCreditAppReportRow(GeneralMatch.CREDIT_APPLICATION17));
+		System.out.println("creditAppMatches");
+		for(GeneralMatch generalMatch : GeneralMatch.creditAppMatches){
+			report.addReportRow(generalMatch.name(), makeCreditAppReportRow(generalMatch));
+		}
+		
+		System.out.println("creditAppGeneralMatches");
+		for(GeneralMatch generalMatch : GeneralMatch.creditAppGeneralMatches){
+			report.addReportRow(generalMatch.name(), makeCreditAppReportRow(generalMatch));
+		}
+		
+		Report report2 = new Report();
+		report2.setName("Online Credit App Usage on Franchise Sites(Search by link text match)");
+		
+		System.out.println("linkTextMatches");
+		for(LinkTextMatch match : LinkTextMatch.values()){
+			report2.addReportRow(match.name(), makeCreditAppReportRow(match));
+		}
 		
 		CSVGenerator.printReport(report);
+		CSVGenerator.printReport(report2);
 		
 	}
 	
@@ -236,6 +396,21 @@ public class Experiment {
 		reportRow.putCell("Definition", generalMatch.definition);
 		reportRow.putCell("Example", generalMatch.notes);
 		Long matchingSites = AnalysisDao.getCountGeneralMatch(generalMatch);
+		Long total = 19769L;
+		Double marketShare = (matchingSites * 1.0) / total;
+		reportRow.putCell("# Matching Sites", matchingSites + "");
+		reportRow.putCell("Market Share", marketShare  + "");
+		
+		return reportRow;
+	}
+	
+	public static ReportRow makeCreditAppReportRow(LinkTextMatch match) {
+		ReportRow reportRow = new ReportRow();
+		reportRow.putCell("Match Name", match.name());
+		reportRow.putCell("Description", match.description);
+		reportRow.putCell("Definition", match.definition);
+		reportRow.putCell("Example", match.notes);
+		Long matchingSites = AnalysisDao.getCountLinkTextMatch(match);
 		Long total = 19769L;
 		Double marketShare = (matchingSites * 1.0) / total;
 		reportRow.putCell("# Matching Sites", matchingSites + "");
@@ -599,7 +774,7 @@ public class Experiment {
 		TaskSet taskSet = new TaskSet();
 		taskSet.setName("Crawling");
 		
-		String query = "select s from SalesforceAccount sf join sf.site s where sf.franchise is null and s.siteStatus = :siteStatus";
+		String query = "select s from SalesforceAccount sf join sf.site s where sf.country ='Canada' and s.siteStatus = :siteStatus";
 		List<Site> sites = JPA.em().createQuery(query, Site.class).setParameter("siteStatus", SiteStatus.APPROVED).getResultList();
 		
 //		List<String> dupDomains = SitesDAO.getDuplicateDomains(100000, 0);
@@ -616,12 +791,15 @@ public class Experiment {
 		
 		System.out.println("sites size : " + sites.size());
 		for(Site site : sites){
-			Task supertask = new Task();
-			supertask.setWorkStatus(WorkStatus.DO_WORK);
-			supertask.setWorkType(WorkType.SUPERTASK);
-			supertask.addContextItem("seed", site.getHomepage());
-			supertask.addContextItem("siteId", site.getSiteId() + "");
-			taskSet.addTask(supertask);
+			if(site.getHomepage().toLowerCase().contains("basant")){
+				System.out.println("found basant");
+			}
+//			Task supertask = new Task();
+//			supertask.setWorkStatus(WorkStatus.DO_WORK);
+//			supertask.setWorkType(WorkType.SUPERTASK);
+//			supertask.addContextItem("seed", site.getHomepage());
+//			supertask.addContextItem("siteId", site.getSiteId() + "");
+//			taskSet.addTask(supertask);
 			
 //			Task urlTask = new Task();
 //			urlTask.setWorkType(WorkType.REDIRECT_RESOLVE);
@@ -634,10 +812,10 @@ public class Experiment {
 //			updateTask.addPrerequisite(urlTask);
 //			supertask.addSubtask(updateTask);
 //			
-			Task crawlTask = new Task();
-			crawlTask.setWorkType(WorkType.SITE_CRAWL);
-			crawlTask.setWorkStatus(WorkStatus.DO_WORK);
-			supertask.addSubtask(crawlTask);
+//			Task crawlTask = new Task();
+//			crawlTask.setWorkType(WorkType.SITE_CRAWL);
+//			crawlTask.setWorkStatus(WorkStatus.DO_WORK);
+//			supertask.addSubtask(crawlTask);
 			
 //			Task amalgTask = new Task();
 //			amalgTask.setWorkStatus(WorkStatus.DO_WORK);
@@ -652,7 +830,7 @@ public class Experiment {
 //			analysisTask.addPrerequisite(amalgTask);
 //			supertask.addSubtask(analysisTask);
 //			
-			site.setHomepage(site.getHomepage());
+//			site.setHomepage(site.getHomepage());
 		}
 		
 		JPA.em().persist(taskSet);

@@ -32,22 +32,37 @@ public class SingleSyncSession<K, T, U> extends SyncSession<K, T, U> {
 	
 	@Override
 	public void runInserts() {
+		System.out.println("Running inserts : " + syncSessionKeys.getInsertKeys().size());
+		int count = 0;
 		for(K key : syncSessionKeys.getInsertKeys()){
 			insert(key);
+			if(count++ %100 == 0){
+				System.out.println("Inserted : " + count);
+			}
 		}
 	}
 
 	@Override
 	public void runUpdates() {
+		System.out.println("Running updates: " + syncSessionKeys.getUpdateKeys().size());
+		int count = 0;
 		for(K key : syncSessionKeys.getUpdateKeys()){
 			update(key);
+			if(count++ %100 == 0){
+				System.out.println("Updated : " + count);
+			}
 		}
 	}
 
 	@Override
 	public void runOutdates() {
+		System.out.println("Running outdates : " + syncSessionKeys.getOutdateKeys().size());
+		int count = 0;
 		for(K key : syncSessionKeys.getOutdateKeys()){
 			outdate(key);
+			if(count++ %100 == 0){
+				System.out.println("Outdated : " + count);
+			}
 		}
 	}
 	
@@ -108,6 +123,7 @@ public class SingleSyncSession<K, T, U> extends SyncSession<K, T, U> {
 
 	@Override
 	protected void commit() {
+		System.out.println("Committing");
 		persistenceContext.commit();
 	}
 

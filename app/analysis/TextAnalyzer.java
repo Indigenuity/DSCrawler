@@ -3,6 +3,8 @@ package analysis;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -16,7 +18,9 @@ import org.jsoup.select.Elements;
 import datadefinitions.GeneralMatch;
 import datadefinitions.Scheduler;
 import datadefinitions.StringExtraction;
+import datadefinitions.StringMatch;
 import datadefinitions.UrlExtraction;
+import datadefinitions.newdefinitions.TestMatch;
 import persistence.ExtractedString;
 import persistence.ExtractedUrl;
 import utilities.DSFormatter;
@@ -42,6 +46,25 @@ public class TextAnalyzer {
 		}
 		return matches;
 	}
+	
+	public static Set<TestMatch> getCurrentTestMatches(String text) {
+		return getMatches(text, TestMatch.getCurrentMatches());
+	}
+	
+	public  static <T extends StringMatch> Set<T>  getMatches(String text, Collection<T> searchSet){
+		Set<T> matches = new HashSet<T>();
+		for(T match : searchSet){
+			if(text.contains(match.getDefinition()) && !matches.contains(match.getDefinition())){
+				matches.add(match);
+			}
+		}
+		return matches;
+	}
+	
+	public  static <T extends StringMatch> Set<T>  getMatches(String text, T[] searchSet){
+		return getMatches(text, new HashSet<T>(Arrays.asList(searchSet)));
+	}
+	
 
 	public static Set<ExtractedString> extractStrings(File file) throws IOException{
 		if(!file.exists()) {

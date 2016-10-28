@@ -18,6 +18,7 @@ public class PostalSearchWorker extends UntypedActor {
 	@Override
 	public void onReceive(Object message) throws Exception {
 		PostalLocation location = (PostalLocation) message;
+		System.out.println("Searching postal location : " + location);
 		try{
 			Response<List<Place>> resp = Places.nearbySearch(Params.create()
 					.latitude(location.getLatitude())

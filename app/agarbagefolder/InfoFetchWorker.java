@@ -32,7 +32,7 @@ import async.tools.SiteUpdateTool;
 import async.tools.TextAnalysisTool;
 import async.work.MultiStepJPAWorker;
 import async.work.WorkItem;
-import async.work.WorkOrder;
+import async.work.TypedWorkOrder;
 import async.work.WorkResult;
 import async.work.WorkStatus;
 import async.work.WorkType;
@@ -49,7 +49,7 @@ public class InfoFetchWorker extends MultiStepJPAWorker {
 	private int count = 0;
 	
 	@Override
-	public WorkOrder processWorkOrder(WorkOrder workOrder) {
+	public TypedWorkOrder processWorkOrder(TypedWorkOrder workOrder) {
 		infoFetch = (InfoFetch) workOrder;
 		System.out.println("InfoFetchWorker processing work order:"+ infoFetch.getInfoFetchId());
 		
@@ -330,7 +330,7 @@ public class InfoFetchWorker extends MultiStepJPAWorker {
 		}
 	}
 	
-	private void placeWorkOrder(WorkOrder workOrder) {
+	private void placeWorkOrder(TypedWorkOrder workOrder) {
 		Asyncleton.getInstance().getMaster(workOrder.getWorkType()).tell(workOrder, getSelf());
 	}
 	

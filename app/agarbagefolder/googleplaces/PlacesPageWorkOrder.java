@@ -1,9 +1,9 @@
 package agarbagefolder.googleplaces;
 
-import async.work.WorkOrder;
+import async.work.TypedWorkOrder;
 import async.work.WorkType;
 
-public class PlacesPageWorkOrder extends WorkOrder {
+public class PlacesPageWorkOrder extends TypedWorkOrder {
 
 	protected String placesId;
 	
