@@ -1,4 +1,4 @@
-package crawling.discovery;
+package crawling.discovery.entities;
 
 public abstract class Endpoint {
 	

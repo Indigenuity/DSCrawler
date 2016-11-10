@@ -9,11 +9,10 @@ import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 
-import crawling.discovery.Endpoint;
-import crawling.discovery.Fetcher;
-import crawling.discovery.HttpEndpoint;
+import crawling.discovery.entities.Endpoint;
+import crawling.discovery.planning.FetchStrategy;
 
-public class HtmlFetcher implements Fetcher<HttpEndpoint, Element>{
+public class HtmlFetcher implements FetchStrategy<HttpEndpoint, Element>{
 
 	private HttpConfig config;
 	

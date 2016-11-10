@@ -1,8 +1,8 @@
 package agarbagefolder.amalgamation;
 
-import async.work.WorkResult;
+import async.work.TypedWorkResult;
 
-public class AmalgamationWorkResult extends WorkResult {
+public class AmalgamationWorkResult extends TypedWorkResult {
 	
 	private Long siteCrawlId;
 

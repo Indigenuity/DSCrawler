@@ -5,7 +5,7 @@ import java.util.UUID;
 import akka.actor.UntypedActor;
 import async.monitoring.AsyncMonitor;
 import async.work.TypedWorkOrder;
-import async.work.WorkResult;
+import async.work.TypedWorkResult;
 import play.Logger;
 import play.db.jpa.JPA;
 
@@ -19,7 +19,7 @@ public class SingleStepJPAWorker extends UntypedActor {
 		TypedWorkOrder workOrder = (TypedWorkOrder) work;
 //		System.out.println("Performing work : " + workOrder.getWorkType());
 		AsyncMonitor.instance().addWip(workOrder.getWorkType().toString(), uuid);
-		WorkResult workResult = processWorkOrderWithWrapper(workOrder);
+		TypedWorkResult workResult = processWorkOrderWithWrapper(workOrder);
 		AsyncMonitor.instance().finishWip(workOrder.getWorkType().toString(), uuid);
 		getSender().tell(workResult, getSelf());
 	}
@@ -30,12 +30,12 @@ public class SingleStepJPAWorker extends UntypedActor {
 		preStart();
 	}
 	
-	protected WorkResult processWorkOrder(TypedWorkOrder workOrder) {
+	protected TypedWorkResult processWorkOrder(TypedWorkOrder workOrder) {
 		return null;
 	}
 	
-	protected WorkResult processWorkOrderWithWrapper(TypedWorkOrder workOrder){
-		WorkResult[] workResult = new WorkResult[1];
+	protected TypedWorkResult processWorkOrderWithWrapper(TypedWorkOrder workOrder){
+		TypedWorkResult[] workResult = new TypedWorkResult[1];
 		JPA.withTransaction( () -> {
 			workResult[0] = processWorkOrder(workOrder);
 		});

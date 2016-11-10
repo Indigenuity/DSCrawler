@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 
 import org.jsoup.nodes.Element;
 
-import crawling.discovery.DerivationStrategy;
+import crawling.discovery.planning.DerivationStrategy;
 
 public interface Extractor<R> extends DerivationStrategy<Element, R>{
 

@@ -1,8 +1,8 @@
 package agarbagefolder;
 
-import async.work.WorkResult;
+import async.work.TypedWorkResult;
 
-public class IncompleteWork extends WorkResult {
+public class IncompleteWork extends TypedWorkResult {
 	
 	protected Exception e;
 	public IncompleteWork(Exception e){

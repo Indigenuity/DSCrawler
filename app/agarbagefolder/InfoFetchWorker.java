@@ -33,7 +33,7 @@ import async.tools.TextAnalysisTool;
 import async.work.MultiStepJPAWorker;
 import async.work.WorkItem;
 import async.work.TypedWorkOrder;
-import async.work.WorkResult;
+import async.work.TypedWorkResult;
 import async.work.WorkStatus;
 import async.work.WorkType;
 import persistence.MobileCrawl;
@@ -89,7 +89,7 @@ public class InfoFetchWorker extends MultiStepJPAWorker {
 	}
 	
 	@Override
-	public void processWorkResult(WorkResult workResult) {
+	public void processWorkResult(TypedWorkResult workResult) {
 //		System.out.println("InfoFetchWorker processing work result : " + workResult);
 		JPA.withTransaction( () -> {
 			infoFetch = JPA.em().find(InfoFetch.class, infoFetch.getInfoFetchId());
@@ -117,9 +117,9 @@ public class InfoFetchWorker extends MultiStepJPAWorker {
 	
 	
 	@Override
-	public WorkResult generateWorkResult(){
+	public TypedWorkResult generateWorkResult(){
 //		System.out.println("InfoFetchWorker generating work result");
-		WorkResult workResult = new WorkResult();
+		TypedWorkResult workResult = new TypedWorkResult();
 //		System.out.println("results uuid : " + this.getWorkOrderUuid());
 //		workResult.setUuid(this.getWorkOrderUuid());
 		return workResult;

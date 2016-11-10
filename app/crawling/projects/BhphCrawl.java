@@ -13,10 +13,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import crawling.discovery.DerivationStrategy;
 import crawling.discovery.html.Extractor;
 import crawling.discovery.html.Scraper;
 import crawling.discovery.html.Selector;
+import crawling.discovery.planning.DerivationStrategy;
 
 public class BhphCrawl {
 

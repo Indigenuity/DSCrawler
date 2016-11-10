@@ -7,7 +7,7 @@ import async.registration.ContextItem;
 import async.registration.RegistryEntry;
 import async.registration.WorkerRegistry;
 import async.work.TypedWorkOrder;
-import async.work.WorkResult;
+import async.work.TypedWorkResult;
 import async.work.WorkType;
 import persistence.tasks.Task;
 
@@ -31,7 +31,7 @@ public class TaskWorkUtil {
 		return workOrder;
 	}
 	
-	public static void importResultContextItems(WorkResult workResult, Task task) {
+	public static void importResultContextItems(TypedWorkResult workResult, Task task) {
 		for(Entry<String, String> entry : workResult.getContextItems().entrySet()){
 			task.addContextItem(entry.getKey(), entry.getValue());
 		}

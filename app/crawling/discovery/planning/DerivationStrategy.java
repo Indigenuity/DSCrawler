@@ -1,4 +1,4 @@
-package crawling.discovery;
+package crawling.discovery.planning;
 
 import java.util.Objects;
 import java.util.function.Function;

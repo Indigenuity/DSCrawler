@@ -5,7 +5,7 @@ import java.util.List;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import crawling.discovery.DerivationStrategy;
+import crawling.discovery.planning.DerivationStrategy;
 
 public interface Picker<R> extends DerivationStrategy<Elements, R> {
 

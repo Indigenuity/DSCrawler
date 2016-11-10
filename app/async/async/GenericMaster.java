@@ -80,7 +80,7 @@ public class GenericMaster extends UntypedActor {
 			else if(work instanceof WorkResult) {
 				WorkResult workResult = (WorkResult) work;
 //				System.out.println("GenericMaster got work result: " + workResult);
-				ActorRef customer = waitingRoom.remove(workResult.getWorkUuid()); 
+				ActorRef customer = waitingRoom.remove(workResult.getUuid()); 
 				if(customer == null){
 					//TODO figure out what to do when receiving work result for no customer
 					return;

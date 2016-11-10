@@ -1,9 +1,9 @@
 package agarbagefolder.siteupdate;
 
-import async.work.WorkResult;
+import async.work.TypedWorkResult;
 import async.work.WorkType;
 
-public class SiteUpdateWorkResult extends WorkResult{
+public class SiteUpdateWorkResult extends TypedWorkResult{
 	
 	protected Long siteId;
 	protected Long urlCheckId;

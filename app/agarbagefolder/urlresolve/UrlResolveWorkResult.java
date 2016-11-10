@@ -1,10 +1,10 @@
 package agarbagefolder.urlresolve;
 
-import async.work.WorkResult;
+import async.work.TypedWorkResult;
 import async.work.WorkStatus;
 import async.work.WorkType;
 
-public class UrlResolveWorkResult extends WorkResult{
+public class UrlResolveWorkResult extends TypedWorkResult{
 	
 	
 	protected String seed;

@@ -1,8 +1,8 @@
 package agarbagefolder.docanalysis;
 
-import async.work.WorkResult;
+import async.work.TypedWorkResult;
 
-public class DocAnalysisWorkResult extends WorkResult {
+public class DocAnalysisWorkResult extends TypedWorkResult {
 	
 	private Long siteCrawlId;
 

@@ -1,8 +1,8 @@
 package agarbagefolder.textanalysis;
 
-import async.work.WorkResult;
+import async.work.TypedWorkResult;
 
-public class TextAnalysisWorkResult extends WorkResult {
+public class TextAnalysisWorkResult extends TypedWorkResult {
 	
 	private Long siteCrawlId;
 

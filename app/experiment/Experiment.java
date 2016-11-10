@@ -57,6 +57,8 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.EntityType;
+import javax.tools.JavaCompiler;
+import javax.tools.ToolProvider;
 
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.beanutils.PropertyUtilsBean;
@@ -207,8 +209,10 @@ import utilities.UrlSniffer;
 
 public class Experiment { 
 	
-	public static void runExperiment() throws IOException {
-		BhphCrawl.runCrawl();
+	public static void runExperiment() {
+//		BhphCrawl.runCrawl();
+		
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 	}
 	
 	public static void nyLinkExperiment() throws IOException {

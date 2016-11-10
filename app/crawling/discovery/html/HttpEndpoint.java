@@ -1,7 +1,9 @@
-package crawling.discovery;
+package crawling.discovery.html;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import crawling.discovery.entities.Endpoint;
 
 public class HttpEndpoint extends Endpoint {
 	

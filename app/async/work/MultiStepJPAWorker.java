@@ -36,8 +36,8 @@ public class MultiStepJPAWorker extends UntypedActor {
 				Asyncleton.getInstance().getMaster(nextStep.getWorkType()).tell(nextStep,  customer);
 			}
 		}
-		else if(work instanceof WorkResult){
-			WorkResult workResult = (WorkResult)work;
+		else if(work instanceof TypedWorkResult){
+			TypedWorkResult workResult = (TypedWorkResult)work;
 			processWorkResult(workResult);
 //			doNextStep();
 		}
@@ -60,18 +60,18 @@ public class MultiStepJPAWorker extends UntypedActor {
 		preStart();
 	}
 	
-	public void processWorkResult(WorkResult workResult) {
+	public void processWorkResult(TypedWorkResult workResult) {
 		
 	}
 	
 	public void finish() {
-		WorkResult workResult = generateWorkResult();
+		TypedWorkResult workResult = generateWorkResult();
 		customer.tell(workResult, getSelf());
 	}
 	
-	public WorkResult generateWorkResult(){
+	public TypedWorkResult generateWorkResult(){
 		System.out.println("In generic generateworkresult");
-		return new WorkResult(WorkType.INFO_FETCH);
+		return new TypedWorkResult(WorkType.INFO_FETCH);
 	}
 
 	public Long getWorkOrderUuid() {
