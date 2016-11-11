@@ -1,5 +1,6 @@
-package crawling.discovery.execution;
+package crawling.discovery.async;
 
+import crawling.discovery.execution.ResourceRequest;
 import crawling.discovery.planning.PrimaryResourcePlan;
 import newwork.WorkOrder;
 

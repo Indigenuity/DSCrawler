@@ -2,6 +2,7 @@ package crawling.discovery.execution;
 
 import java.util.LinkedList;
 
+import crawling.discovery.async.FetchWorkOrder;
 import crawling.discovery.planning.PrimaryResourcePlan;
 import newwork.WorkResult;
 
@@ -13,6 +14,9 @@ public class FetchQueue<T> {
 	protected LinkedList<ResourceRequest<T>> queue = new LinkedList<ResourceRequest<T>>();
 	protected LinkedList<Long> inProgress = new LinkedList<Long>();
 	
+	public FetchQueue(PrimaryResourcePlan<T> plan) {
+		this.plan = plan;
+	}
 	
 	public synchronized boolean add(ResourceRequest<T> request){
 		return queue.add(request);

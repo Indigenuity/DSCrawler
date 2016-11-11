@@ -5,7 +5,7 @@ import java.net.URL;
 
 import crawling.discovery.entities.Endpoint;
 
-public class HttpEndpoint extends Endpoint {
+public class HttpEndpoint implements Endpoint {
 	
 	private URL url;
 

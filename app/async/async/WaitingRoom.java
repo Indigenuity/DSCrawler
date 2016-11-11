@@ -78,4 +78,8 @@ public class WaitingRoom {
 		customers.clear();
 	}
 	
+	public boolean isEmpty(){
+		return size() < 1;
+	}
+	
 }

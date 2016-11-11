@@ -1,6 +1,6 @@
 package crawling.discovery.entities;
 
-public abstract class Endpoint {
+public interface Endpoint {
 	
 	
 
