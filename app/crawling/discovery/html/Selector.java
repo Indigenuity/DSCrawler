@@ -32,6 +32,15 @@ public interface Selector extends DerivationStrategy<Element, Elements>{
 	}
 	
 	
+	public default Selector thenByTag(String tagName) {
+		return  (doc) -> this.apply(doc).first().getElementsByTag(tagName);
+	}
+	
+	public default Selector thenByAttributeValueMatching(String key, String match) {
+		return (doc) -> this.apply(doc).first().getElementsByAttributeValueMatching(key, match);
+	}
+	
+	
 	//************** Other Derivations ****************************
 	
 	default DerivationStrategy<Element, List<String>> attr(String attrName) {

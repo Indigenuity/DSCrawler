@@ -57,6 +57,11 @@ public class SalesforceAccount {
 	
 	
 	private String standardStreet;
+	private String stdStreet;
+	private String stdCity;
+	private String stdState;
+	private String stdCountry;
+	private String stdPhone;
 	
 	
 	/************************ Relationships ***************************/
@@ -250,6 +255,45 @@ public class SalesforceAccount {
 	public void setStandardStreet(String standardStreet) {
 		this.standardStreet = standardStreet;
 	}
-	
+
+	public String getStdStreet() {
+		return stdStreet;
+	}
+
+	public void setStdStreet(String stdStreet) {
+		this.stdStreet = stdStreet;
+	}
+
+	public String getStdCity() {
+		return stdCity;
+	}
+
+	public void setStdCity(String stdCity) {
+		this.stdCity = stdCity;
+	}
+
+	public String getStdState() {
+		return stdState;
+	}
+
+	public void setStdState(String stdState) {
+		this.stdState = stdState;
+	}
+
+	public String getStdCountry() {
+		return stdCountry;
+	}
+
+	public void setStdCountry(String stdCountry) {
+		this.stdCountry = stdCountry;
+	}
+
+	public String getStdPhone() {
+		return stdPhone;
+	}
+
+	public void setStdPhone(String stdPhone) {
+		this.stdPhone = stdPhone;
+	}
 	
 }

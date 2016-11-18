@@ -85,7 +85,7 @@ public class DataBuilder {
 			dealer.setShortCountry(place.getAddress().getCountryAbbr());
 		}
 		
-		System.out.println("after id : " + dealer.getPlacesId());
+//		System.out.println("after id : " + dealer.getPlacesId());
 	}
 	
 	public static void importPlaces(List<Place> places)  {

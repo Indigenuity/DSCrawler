@@ -13,4 +13,7 @@ public interface PersistStrategy<R> extends BiConsumer<R, Resource>{
 		};
 	}
 	
+	public static <T> PersistStrategy<T> emptyStrategy(Class<T> clazz){
+		return (thing, resource) -> {};
+	}
 }

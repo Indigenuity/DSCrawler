@@ -1,11 +1,15 @@
 package crawling.discovery.execution;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import crawling.discovery.entities.Resource;
 import crawling.discovery.planning.CrawlPlan;
 import crawling.discovery.planning.PrimaryResourcePlan;
+import crawling.discovery.planning.ResourcePlan;
 
 public class Crawl implements Resource {
 	
@@ -13,6 +17,8 @@ public class Crawl implements Resource {
 	
 	QueueMap queueMap = new QueueMap();
 	CrawlPlan plan;
+	
+	Map<ResourcePlan<?, ?>, List<?>> resultLists = new LinkedHashMap<ResourcePlan<?,?>, List<?>>();
 
 	public Crawl(CrawlPlan plan) {
 		this.plan = plan;
@@ -38,7 +44,25 @@ public class Crawl implements Resource {
 		return queueMap.getQueues();
 	}
 	
+	public <R> void persistResults(ResourcePlan<?, R> resourcePlan, List<R> results){
+		Objects.requireNonNull(resourcePlan);
+		Objects.requireNonNull(results);
+		synchronized(resultLists){
+			
+			@SuppressWarnings("unchecked")
+			List<R> current = (List<R>) this.resultLists.get(resourcePlan);
+			if(current == null){
+				this.resultLists.put(resourcePlan, results);
+			} else {
+				current.addAll(results);
+			}
+		}
+	}
 	
+	// TODO this is entirely not threadsafe, especially with the Worker system
+	public Map<ResourcePlan<?, ?>, List<?>> getResultLists(){
+		return resultLists;
+	}
 	
 	
 	

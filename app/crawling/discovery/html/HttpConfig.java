@@ -4,13 +4,13 @@ public class HttpConfig {
 
 	private String proxyAddress;
 	private int proxyPort;
-	private boolean useProxy;
+	private boolean useProxy = false;
 	
-	private int connectTimeout;
-	private int readTimeout;
-	private String userAgent;
-	private int politenessDelay;
-	private boolean followRedirects;
+	private int connectTimeout = 5000;
+	private int readTimeout = 5000;
+	private String userAgent = "";
+	private int politenessDelay = 1000;
+	private boolean followRedirects = true;
 	
 	
 	public String getProxyAddress() {

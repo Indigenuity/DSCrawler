@@ -1,6 +1,5 @@
 package crawling.discovery.html;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import crawling.discovery.entities.Endpoint;
@@ -9,7 +8,7 @@ public class HttpEndpoint implements Endpoint {
 	
 	private URL url;
 
-	public HttpEndpoint(URL url) throws MalformedURLException{
+	public HttpEndpoint(URL url){
 		this.setUrl(url);
 	}
 

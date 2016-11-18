@@ -23,7 +23,7 @@ import newwork.WorkOrder;
 import newwork.WorkResult;
 
 public class GenericMaster extends UntypedActor {
-	
+	 
 
 	private final int numWorkers;
 	

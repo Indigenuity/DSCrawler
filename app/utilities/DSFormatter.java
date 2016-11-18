@@ -5,6 +5,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -25,6 +30,84 @@ public class DSFormatter {
 	
 	private final static String WINDOWS_ILLEGAL_CHARACTERS = "[\\/:\"*?<>|]+";
 	
+	private final static Map<String, String> fullToAbbr = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
+	private final static Map<String, String> abbrToFull = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
+	static{
+		fullToAbbr.put("Alabama","AL");
+		fullToAbbr.put("Alaska","AK");
+		fullToAbbr.put("Alberta","AB");
+		fullToAbbr.put("American Samoa","AS");
+		fullToAbbr.put("Arizona","AZ");
+		fullToAbbr.put("Arkansas","AR");
+		fullToAbbr.put("Armed Forces (AE)","AE");
+		fullToAbbr.put("Armed Forces Americas","AA");
+		fullToAbbr.put("Armed Forces Pacific","AP");
+		fullToAbbr.put("British Columbia","BC");
+		fullToAbbr.put("California","CA");
+		fullToAbbr.put("Colorado","CO");
+		fullToAbbr.put("Connecticut","CT");
+		fullToAbbr.put("Delaware","DE");
+		fullToAbbr.put("District Of Columbia","DC");
+		fullToAbbr.put("Florida","FL");
+		fullToAbbr.put("Georgia","GA");
+		fullToAbbr.put("Guam","GU");
+		fullToAbbr.put("Hawaii","HI");
+		fullToAbbr.put("Idaho","ID");
+		fullToAbbr.put("Illinois","IL");
+		fullToAbbr.put("Indiana","IN");
+		fullToAbbr.put("Iowa","IA");
+		fullToAbbr.put("Kansas","KS");
+		fullToAbbr.put("Kentucky","KY");
+		fullToAbbr.put("Louisiana","LA");
+		fullToAbbr.put("Maine","ME");
+		fullToAbbr.put("Manitoba","MB");
+		fullToAbbr.put("Maryland","MD");
+		fullToAbbr.put("Massachusetts","MA");
+		fullToAbbr.put("Michigan","MI");
+		fullToAbbr.put("Minnesota","MN");
+		fullToAbbr.put("Mississippi","MS");
+		fullToAbbr.put("Missouri","MO");
+		fullToAbbr.put("Montana","MT");
+		fullToAbbr.put("Nebraska","NE");
+		fullToAbbr.put("Nevada","NV");
+		fullToAbbr.put("New Brunswick","NB");
+		fullToAbbr.put("New Hampshire","NH");
+		fullToAbbr.put("New Jersey","NJ");
+		fullToAbbr.put("New Mexico","NM");
+		fullToAbbr.put("New York","NY");
+		fullToAbbr.put("Newfoundland","NF");
+		fullToAbbr.put("North Carolina","NC");
+		fullToAbbr.put("North Dakota","ND");
+		fullToAbbr.put("Northwest Territories","NT");
+		fullToAbbr.put("Nova Scotia","NS");
+		fullToAbbr.put("Nunavut","NU");
+		fullToAbbr.put("Ohio","OH");
+		fullToAbbr.put("Oklahoma","OK");
+		fullToAbbr.put("Ontario","ON");
+		fullToAbbr.put("Oregon","OR");
+		fullToAbbr.put("Pennsylvania","PA");
+		fullToAbbr.put("Prince Edward Island","PE");
+		fullToAbbr.put("Puerto Rico","PR");
+		fullToAbbr.put("Quebec","QC");
+		fullToAbbr.put("Rhode Island","RI");
+		fullToAbbr.put("Saskatchewan","SK");
+		fullToAbbr.put("South Carolina","SC");
+		fullToAbbr.put("South Dakota","SD");
+		fullToAbbr.put("Tennessee","TN");
+		fullToAbbr.put("Texas","TX");
+		fullToAbbr.put("Utah","UT");
+		fullToAbbr.put("Vermont","VT");
+		fullToAbbr.put("Virgin Islands","VI");
+		fullToAbbr.put("Virginia","VA");
+		fullToAbbr.put("Washington","WA");
+		fullToAbbr.put("West Virginia","WV");
+		fullToAbbr.put("Wisconsin","WI");
+		fullToAbbr.put("Wyoming","WY");
+		fullToAbbr.put("Yukon Territory","YT");
+		fullToAbbr.keySet().stream()
+			.forEach((key) -> abbrToFull.put(fullToAbbr.get(key), key));
+	}
+	
 	public static boolean equals(String first, String second) {
 		if(first == null && second == null)
 			return true;
@@ -33,11 +116,26 @@ public class DSFormatter {
 		return first.equals(second);
 	}
 	
+	public static String standardizePhone(String phone) {
+		if(phone == null) {
+			return null;
+		}
+		phone = phone.replaceAll("[^0-9]", "");
+		return phone;
+	}
+	
 	public static String standardizeStreetAddress(String street){
 		if(street == null) {
 			return null;
 		}
 		street = street.toLowerCase();
+		street = street.replaceAll("s\\.", "s ");
+		street = street.replaceAll("n\\.", "n ");
+		street = street.replaceAll("w\\.", "w ");
+		street = street.replaceAll("e\\.", "e ");
+		street = street.replaceAll("[^a-zA-Z0-9\\s]", "");
+		street = street.replaceAll("[\\s]+", " ");
+		street = street.replaceAll("\\bus highway", "us");
 		street = street.replaceAll("\\bave\\b", "avenue");
 		street = street.replaceAll("\\bav\\b", "avenue");
 		street = street.replaceAll("\\brd\\b", "road");
@@ -57,12 +155,29 @@ public class DSFormatter {
 		street = street.replaceAll("\\bs\\b", "south");
 		street = street.replaceAll("\\be\\b", "east");
 		street = street.replaceAll("\\bw\\b", "west");
-		
-		
-		
 		return street;
 	}
 	
+	public static String standardizeState(String state) {
+		if(state == null) {
+			return null;
+		}
+		state = state.toUpperCase();
+		
+		String tempState = abbrToFull.get(state);
+		if(tempState != null){
+			return state;
+		}
+		return stateFullToAbbr(state);
+	}
+	
+	public static String stateFullToAbbr(String stateFull){
+		return fullToAbbr.getOrDefault(stateFull, "XX");
+	}
+	
+	public static String stateAbbrToFull(String stateAbbr){
+		return abbrToFull.getOrDefault(stateAbbr, "Unknown State");
+	}
 	
 	public static String getLastSegment(String original) {
 		int lastIndex = original.lastIndexOf("/");
@@ -85,7 +200,7 @@ public class DSFormatter {
 			}
 			if(original.length() > length){
 				String trunc = "TRUNCATED" + original.substring(0, length-9); 
-//				Logger.info("Truncating String : " + trunc);
+				Logger.info("Truncating String : " + trunc);
 				return trunc;
 			}
 		}

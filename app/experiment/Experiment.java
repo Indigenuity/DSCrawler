@@ -42,6 +42,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -78,6 +79,9 @@ import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.query.AuditEntity;
 import org.hibernate.envers.query.AuditQuery;
 import org.hibernate.envers.query.AuditQueryCreator;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.safety.Whitelist;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Proxy;
 import org.openqa.selenium.StaleElementReferenceException;
@@ -110,10 +114,15 @@ import crawling.CrawlSession;
 import crawling.DealerCrawlController;
 import crawling.GoogleCrawler;
 import crawling.MobileCrawler;
+import crawling.discovery.html.DocDerivationStrategy;
+import crawling.discovery.html.HttpConfig;
+import crawling.discovery.html.HttpEndpoint;
+import crawling.discovery.html.Scraper;
 import crawling.nydmv.County;
 import crawling.nydmv.NYDealer;
 import crawling.nydmv.NyControl;
 import crawling.nydmv.NyDao;
+import crawling.projects.BasicDealer;
 import crawling.projects.BhphCrawl;
 import dao.AnalysisDao;
 import dao.GeneralDAO;
@@ -209,10 +218,54 @@ import utilities.UrlSniffer;
 
 public class Experiment { 
 	
-	public static void runExperiment() {
-//		BhphCrawl.runCrawl();
+	public static void runExperiment() throws Exception {
+		BhphCrawl.standardizeAndDistinctify();
 		
-		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+//		HttpConfig config = new HttpConfig();
+//		config.setProxyAddress(Global.getProxyUrl());
+//		config.setProxyPort(Global.getProxyPort());
+//		config.setUseProxy(true);
+//		config.setPolitenessDelay(1000);
+//		config.setUserAgent(Global.getDefaultUserAgentString());
+//		System.out.println("–");
+//		URL url = new URL("http://buyherepayherevehicles.com/buy-here-pay-here-car-dealerships-directory/illinois/aurora/");
+//		HttpEndpoint endpoint = new HttpEndpoint(url);
+//		DocDerivationStrategy stateDerivationStrategy = new DocDerivationStrategy(config);
+//		Document doc = stateDerivationStrategy.apply(endpoint);
+//		System.out.println("doc : " + doc);
+////		System.out.println("clean : " + Jsoup.clean(doc.toString(), Whitelist.simpleText()));
+//		
+//		Scraper<BasicDealer> regexScraper = (element) -> {
+//			System.out.println("searching for regex dealers");
+//			List<BasicDealer> regexDealers = new ArrayList<BasicDealer>();
+//			String dealerRegex = "([^–>]+)–([^–,]+)[,–]([^–,]+),([^0-9]+)([0-9]+)[^–]+–[^0-9]+([0-9]+-[0-9]+-[0-9]+)";
+//			Pattern dealerPattern = Pattern.compile(dealerRegex);
+//			Matcher matcher = dealerPattern.matcher(element.toString());
+//			while(matcher.find()){
+//				System.out.println("found dealer : " + matcher.group(0));
+////				BasicDealer dealer = new BasicDealer();
+////				String name = matcher.group(1).trim();
+////				String street = matcher.group(2).trim();
+////				String city = matcher.group(3).trim();
+////				String state = matcher.group(4).trim();
+////				String postal = matcher.group(5).trim();
+////				String phone = matcher.group(6).trim();
+////				
+////				dealer.setName(name);
+////				dealer.setStreet(street);
+////				dealer.setCity(city);
+////				dealer.setState(state);
+////				dealer.setPostal(postal);
+////				dealer.setPhone(phone);
+////				regexDealers.add(dealer);
+//			}
+//			System.out.println("regex dealers : " + regexDealers.size());
+//			return regexDealers;
+//		};
+//		
+//		regexScraper.derive(doc);
+		
+//		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 	}
 	
 	public static void nyLinkExperiment() throws IOException {

@@ -7,7 +7,6 @@ import crawling.discovery.entities.Endpoint;
 
 public class PrimaryResourcePlan<T> extends ResourcePlan<Endpoint, T> {
 	
-	
 	protected final List<ResourcePlan<T, ?>> derivedResourcePlans = new ArrayList<ResourcePlan<T, ?>>();
 	
 	public PrimaryResourcePlan(DerivationStrategy<Endpoint, T> derivationStrategy, PersistStrategy<T> persistStrategy) {
