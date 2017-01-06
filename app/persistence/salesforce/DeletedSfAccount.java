@@ -1,6 +1,5 @@
 package persistence.salesforce;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -18,15 +17,13 @@ import persistence.Site;
 import utilities.DSFormatter;
 
 @Entity
-@Table(indexes = {@Index(name = "name_index",  columnList="name", unique = false),
-        @Index(name = "salesforceId_index", columnList="salesforceId",     unique = false)})
+@Table(indexes = {@Index(name = "deleted_name_index",  columnList="name", unique = false),
+        @Index(name = "deletedsalesforceId_index", columnList="salesforceId",     unique = false)})
 @Audited(withModifiedFlag=true)
-public class SalesforceAccount {
-
-	
+public class DeletedSfAccount {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY) 
-	private long salesforceAccountId;
+	private long deletedSfAccountId;
 	
 	/************************** Basics ********************************/
 	
@@ -72,12 +69,12 @@ public class SalesforceAccount {
 	@ManyToOne
 	private Site site;
 
-	public long getSalesforceAccountId() {
-		return salesforceAccountId;
+	public long getDeletedSfAccountId() {
+		return deletedSfAccountId;
 	}
 
-	public SalesforceAccount setSalesforceAccountId(long salesforceAccountId) {
-		this.salesforceAccountId = salesforceAccountId;
+	public DeletedSfAccount setDeletedSfAccountId(long deletedSfAccountId) {
+		this.deletedSfAccountId = deletedSfAccountId;
 		return this;
 	}
 
@@ -85,7 +82,7 @@ public class SalesforceAccount {
 		return name;
 	}
 
-	public SalesforceAccount setName(String name) {
+	public DeletedSfAccount setName(String name) {
 		this.name = name;
 		return this;
 	}
@@ -94,7 +91,7 @@ public class SalesforceAccount {
 		return salesforceId;
 	}
 
-	public SalesforceAccount setSalesforceId(String salesforceId) {
+	public DeletedSfAccount setSalesforceId(String salesforceId) {
 		this.salesforceId = salesforceId;
 		return this;
 	}
@@ -103,7 +100,7 @@ public class SalesforceAccount {
 		return parentAccountName;
 	}
 
-	public SalesforceAccount setParentAccountName(String parentAccountName) {
+	public DeletedSfAccount setParentAccountName(String parentAccountName) {
 		this.parentAccountName = parentAccountName;
 		return this;
 	}
@@ -112,7 +109,7 @@ public class SalesforceAccount {
 		return parentAccountSalesforceId;
 	}
 
-	public SalesforceAccount setParentAccountSalesforceId(String parentAccountSalesforceId) {
+	public DeletedSfAccount setParentAccountSalesforceId(String parentAccountSalesforceId) {
 		this.parentAccountSalesforceId = parentAccountSalesforceId;
 		return this;
 	}
@@ -121,7 +118,7 @@ public class SalesforceAccount {
 		return salesforceWebsite;
 	}
 
-	public SalesforceAccount setSalesforceWebsite(String salesforceWebsite) {
+	public DeletedSfAccount setSalesforceWebsite(String salesforceWebsite) {
 		this.salesforceWebsite = salesforceWebsite;
 		return this;
 	}
@@ -130,7 +127,7 @@ public class SalesforceAccount {
 		return franchise;
 	}
 
-	public SalesforceAccount setFranchise(Boolean franchise) {
+	public DeletedSfAccount setFranchise(Boolean franchise) {
 		this.franchise = franchise;
 		return this;
 	}
@@ -139,7 +136,7 @@ public class SalesforceAccount {
 		return accountType;
 	}
 
-	public SalesforceAccount setAccountType(SalesforceAccountType accountType) {
+	public DeletedSfAccount setAccountType(SalesforceAccountType accountType) {
 		this.accountType = accountType;
 
 		return this;
@@ -149,7 +146,7 @@ public class SalesforceAccount {
 		return site;
 	}
 
-	public SalesforceAccount setSite(Site site) {
+	public DeletedSfAccount setSite(Site site) {
 		this.site = site;
 		return this;
 	}

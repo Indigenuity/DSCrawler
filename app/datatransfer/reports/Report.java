@@ -36,6 +36,10 @@ public class Report {
 	}
 	
 	public Report() {}
+	
+	public ReportRow getReportRow(String key){
+		return reportRows.get(key);
+	}
 
 	public long getReportId() {
 		return reportId;

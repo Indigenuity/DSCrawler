@@ -1,12 +1,13 @@
 package audit.map;
 
-import persistence.Site;
+import audit.sync.Sync;
 
 //Intended to run all in memory with no intermediate flushes
 public class SingleMapSession<T, U> extends MapSession<T, U> {
 
 	protected SingleMapSession(Class<T> keyClazz, Class<U> valueClazz) {
 		super(keyClazz, valueClazz);
+		this.sync = new Sync();
 	}
 
 	@Override

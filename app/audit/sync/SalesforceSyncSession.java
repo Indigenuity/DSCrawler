@@ -35,22 +35,27 @@ public class SalesforceSyncSession extends SingleSyncSession<String, ReportRow, 
 		return salesforceAccount;
 	};
 	
-	public static final Function<SalesforceAccount, SalesforceAccount> DEFAULT_OUTDATER = Function.identity();
+	public static final Function<SalesforceAccount, SalesforceAccount> DEFAULT_OUTDATER = (salesforceAccount) -> {
+		salesforceAccount.setOutdated(true);
+		return salesforceAccount;
+	};
 	
 	
 	protected Map<String, ReportRow> reportRows;
 	protected Map<String, SalesforceAccount> localItems;
 	
-	protected Sync sync;
+	
 	
 	public SalesforceSyncSession(Map<String, ReportRow> reportRows, Map<String, SalesforceAccount> localItems){
 		init(reportRows, localItems);
 		this.persistenceContext = new JpaPersistenceContext(JPA.em());
+		this.sync.setSyncType(SyncType.SALESFORCE_ACCOUNTS);
 	}
 	
 	public SalesforceSyncSession(Map<String, ReportRow> reportRows, Map<String, SalesforceAccount> localItems, PersistenceContext persistenceContext){
 		init(reportRows, localItems);
 		this.persistenceContext = persistenceContext;
+		this.sync.setSyncType(SyncType.SALESFORCE_ACCOUNTS);
 	}
 	
 	private void init(Map<String, ReportRow> reportRows, Map<String, SalesforceAccount> localItems){
@@ -67,19 +72,7 @@ public class SalesforceSyncSession extends SingleSyncSession<String, ReportRow, 
 	
 	@Override
 	protected void preCommit(){
-		Sync sync = new Sync(SyncType.ACCOUNT_IMPORT);
 		System.out.println("in SalesforceSync PreCommit");
-		this.sync = persistenceContext.insert(sync);
 	}
 
-	public Sync getSync() {
-		return sync;
-	}
-
-	public void setSync(Sync sync) {
-		this.sync = sync;
-	}
-	
-	
-	
 }

@@ -52,9 +52,12 @@ public class Global extends GlobalSettings {
 	private ActorRef snifferMaster;
 	
 	private static boolean useProxy = true;
-	private static String proxyUrl = "52.10.123.94";
-	private static int proxyPort = 8888;
+//	private static String proxyUrl = "54.200.10.15";
+//	private static int proxyPort = 8888;
 
+	private static String proxyUrl = "97.77.104.22";
+	private static int proxyPort = 3128;
+	
 	public static final Date STALE_DATE;
 	static {
 		Calendar calendar = Calendar.getInstance();

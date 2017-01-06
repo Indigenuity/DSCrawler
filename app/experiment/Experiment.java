@@ -72,6 +72,14 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.envers.AuditReader;
@@ -114,6 +122,7 @@ import crawling.CrawlSession;
 import crawling.DealerCrawlController;
 import crawling.GoogleCrawler;
 import crawling.MobileCrawler;
+import crawling.discovery.async.TempCrawlingWorker;
 import crawling.discovery.html.DocDerivationStrategy;
 import crawling.discovery.html.HttpConfig;
 import crawling.discovery.html.HttpEndpoint;
@@ -146,6 +155,7 @@ import datatransfer.Cleaner;
 import datatransfer.reports.Report;
 import datatransfer.reports.ReportFactory;
 import datatransfer.reports.ReportRow;
+import akka.actor.ActorRef;
 import akka.actor.Props;
 import analysis.AnalysisConfig;
 import analysis.AnalysisControl;
@@ -155,6 +165,7 @@ import analysis.SiteCrawlAnalysis;
 import analysis.SiteCrawlAnalyzer;
 import analysis.TextAnalyzer;
 import analysis.AnalysisConfig.AnalysisMode;
+import async.async.Asyncleton;
 import async.async.GenericMaster;
 import async.tools.InventoryTool;
 import async.tools.Tool;
@@ -219,20 +230,58 @@ import utilities.UrlSniffer;
 public class Experiment { 
 	
 	public static void runExperiment() throws Exception {
-		BhphCrawl.standardizeAndDistinctify();
+		System.out.println("fetching homepages");
+		List<Long> homepages = GeneralDAO.getFieldList(Long.class, Site.class, "siteId", "siteStatus", SiteStatus.DEFUNCT);
+		System.out.println("Homepages : " + homepages.size());
+	}
+	
+	public static void autoCanadaExperiment() throws IOException {
 		
-//		HttpConfig config = new HttpConfig();
-//		config.setProxyAddress(Global.getProxyUrl());
-//		config.setProxyPort(Global.getProxyPort());
-//		config.setUseProxy(true);
-//		config.setPolitenessDelay(1000);
-//		config.setUserAgent(Global.getDefaultUserAgentString());
-//		System.out.println("–");
+		String queryString = "from BasicDealer bd where bd.projectIdentifier = 'auto_canada'";
+		List<BasicDealer> dealers = JPA.em().createQuery(queryString, BasicDealer.class).setMaxResults(1).setFirstResult(5).getResultList();
+		System.out.println("dealers : " + dealers);
+		
+		ActorRef master = Asyncleton.getInstance().getGenericMaster(15, TempCrawlingWorker.class);
+		for(BasicDealer dealer : dealers){
+			System.out.println("dealer : " + dealer.getName());
+			Site site = SitesDAO.getOrNew(dealer.getWebsite());
+			master.tell(site, ActorRef.noSender());
+		}
+		
+		
+//		Report report = CSVImporter.importReport(Global.getInputFolder() + "/auto_canada.csv");
+//		System.out.println("report : " + report);
+//		for(ReportRow reportRow : report.getReportRows().values()){
+//			System.out.println("reportrow : " + reportRow.getCell("Dealer Name"));
+//			BasicDealer dealer = new BasicDealer();
+//			dealer.setName(reportRow.getCell("Dealer Name"));
+//			dealer.setWebsite(reportRow.getCell("Actual site"));
+//			dealer.setProjectIdentifier("auto_canada");
+//			JPA.em().persist(dealer);
+//		}
+		
+	}
+	
+	public static void runbhphExperiment() throws Exception {
+//		BhphCrawl.standardizeAndDistinctify();
+		
+		HttpConfig config = new HttpConfig();
+		config.setProxyAddress(Global.getProxyUrl());
+		config.setProxyPort(Global.getProxyPort());
+		config.setUseProxy(false);
+		config.setPolitenessDelay(1000);
+		config.setUserAgent(Global.getDefaultUserAgentString());
+		System.out.println("–");
 //		URL url = new URL("http://buyherepayherevehicles.com/buy-here-pay-here-car-dealerships-directory/illinois/aurora/");
-//		HttpEndpoint endpoint = new HttpEndpoint(url);
-//		DocDerivationStrategy stateDerivationStrategy = new DocDerivationStrategy(config);
-//		Document doc = stateDerivationStrategy.apply(endpoint);
-//		System.out.println("doc : " + doc);
+		URL url = new URL("https://www.kengarffvw.com/");
+		HttpEndpoint endpoint = new HttpEndpoint(url);
+		
+		
+		DocDerivationStrategy stateDerivationStrategy = new DocDerivationStrategy(config);
+		Document doc = stateDerivationStrategy.apply(endpoint);
+		System.out.println("doc : " + doc);
+		
+		
 ////		System.out.println("clean : " + Jsoup.clean(doc.toString(), Whitelist.simpleText()));
 //		
 //		Scraper<BasicDealer> regexScraper = (element) -> {

@@ -33,11 +33,11 @@ public class SalesforceToSiteMapSession extends SingleMapSession<SalesforceAccou
 			}
 			return new Site(account.getSalesforceWebsite());
 		};
+		this.sync.setSyncType(SyncType.ASSIGN_SITELESS);
 	}
 	
 	@Override
 	protected void preCommit(){
-		Sync sync = new Sync(SyncType.ASSIGN_SITELESS);
 		persistenceContext.insert(sync);
 	}
 }

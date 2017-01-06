@@ -27,6 +27,31 @@ public class GeneralDAO {
 		return JPA.em().createQuery(query).getSingleResult();
 	}
 	
+	public static <T> List<T> getFieldList(Class<T> clazz, Class<?> parentEntityClazz, String fieldName){
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		return getFieldList(clazz, parentEntityClazz, fieldName, parameters);
+	}
+	
+	public static <T> List<T> getFieldList(Class<T> clazz, Class<?> parentEntityClazz, String fieldName, String valueName, Object value){
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		parameters.put(valueName , value);
+		return getFieldList(clazz, parentEntityClazz, fieldName, parameters);
+	}
+	
+	public static <T> List<T> getFieldList(Class<T> clazz, Class<?> parentEntityClazz, String fieldName,  Map<String, Object> parameters){
+		String queryString = "select t." + fieldName + " from " + parentEntityClazz.getSimpleName() + " t";
+		String delimiter = " where t.";
+		for(String key : parameters.keySet()) {
+			queryString += delimiter + key + " = :" + key;
+			delimiter = " and t.";
+		}
+		TypedQuery<T> q = JPA.em().createQuery(queryString, clazz);
+		for(Entry<String, Object> entry : parameters.entrySet()) {
+			q.setParameter(entry.getKey(), entry.getValue());
+		}
+		return q.getResultList();
+	}
+	
 	public static <T> T getFirst(Class<T> clazz, String valueName, Object value){
 		Map<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put(valueName , value);

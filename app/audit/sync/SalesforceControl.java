@@ -27,17 +27,30 @@ import persistence.Dealer;
 import persistence.GroupAccount;
 import persistence.Site;
 import persistence.Site.SiteStatus;
+import persistence.salesforce.DeletedSfAccount;
 import persistence.salesforce.SalesforceAccount;
 import play.db.jpa.JPA;
+import scaffolding.Scaffolder;
 import utilities.UrlSniffer;
 
 public class SalesforceControl {
 	
+//	public static DeletedSfAccount deleteAccount(SalesforceAccount account){
+//		DeletedSfAccount deleted = new DeletedSfAccount();
+//		
+//		deleted.setName(account.getName());
+//		deleted.setSalesforceId(account.getSalesforceId());
+//		deleted.setParentAccountName(account.getParentAccountName());
+//		deleted.setParentAccountSalesforceId(account.getParentAccountSalesforceId());
+//		deleted.setSalesforceWebsite(account.getSalesforceWebsite());
+//		deleted.setFranchise(account.getFranchise());
+//		deleted.setDealershipType(account.getDealershipType());
+//	}
 	
-	
-	public static void sync(String filename, boolean generateReports) throws IOException{
-		System.out.println("Running Salesforce Sync Session");
+	public static Sync sync(String filename, boolean generateReports) throws IOException{
+		
 		Report report = CSVImporter.importReportWithKey(filename, "Salesforce Unique ID");
+		List<String> existingIds = GeneralDAO.getFieldList(String.class, SalesforceAccount.class, "salesforceId"); 
 		List<SalesforceAccount> localAccountsList = JPA.em().createQuery("from SalesforceAccount sa", SalesforceAccount.class).getResultList();
 		Map<String, SalesforceAccount> localAccounts = localAccountsList.stream().collect(Collectors.toMap(SalesforceAccount::getSalesforceId, Function.identity()));
 		
@@ -50,23 +63,7 @@ public class SalesforceControl {
 		SalesforceSyncSession syncSession = new SalesforceSyncSession(remoteAccounts, localAccounts);
 		syncSession.runSync();
 		System.out.println("Finished SyncSession, getting Sync");
-		Sync sync = syncSession.getSync();
-		
-		System.out.println("Assigning siteless");
-		assignSiteless();
-		System.out.println("assigningChangedWebsites");
-		assignChangedWebsites(sync);
-		
-		System.out.println("Generating reports");
-		if(generateReports){
-			List<Report> reports = syncSession.getReports();
-			for(Report printedReport : reports){
-				CSVGenerator.printReport(printedReport);			
-			}
-			Report contrastReport = ReportFactory.contrastReports(reports.get(1), reports.get(2)).setName("Salesforce Import Contrast Report");
-			CSVGenerator.printReport(contrastReport);
-		}
-		
+		return syncSession.getSync();
 	}
 	
 	public static void assignChangedWebsites(Sync sync) {
@@ -111,12 +108,11 @@ public class SalesforceControl {
     	JPA.em().getTransaction().begin();
 	}
 	
-	public static void assignSiteless() {
-		System.out.println("Mapping siteless salesforce accounts to Site objects...");
+	public static Sync assignSiteless() {
     	List<SalesforceAccount> accountsList = JPA.em().createQuery("from SalesforceAccount sa where sa.site is null", SalesforceAccount.class).getResultList();
-		System.out.println("salesforce accounts with null site :" +  accountsList.size());
 		SalesforceToSiteMapSession session = new SalesforceToSiteMapSession(accountsList);
 		session.runAssignments();
+		return session.getSync();
 	}
 
 	public static void manuallyRedirectAccount(SalesforceAccount account, String newHomepage){

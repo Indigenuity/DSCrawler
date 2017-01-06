@@ -2,10 +2,10 @@ package newwork;
 
 public class WorkResult {
 
-	protected final Long uuid;	//The UUID belongs to the work that was done
-	protected Object result;
-	protected WorkStatus workStatus = WorkStatus.NOT_STARTED;
-	protected String error;
+	private final Long uuid;	//The UUID belongs to the work that was done
+	private Object result;
+	private WorkStatus workStatus = WorkStatus.NOT_STARTED;
+	private String error;
 	
 	public WorkResult(Long workUuid){
 		this.uuid = workUuid;

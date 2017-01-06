@@ -43,6 +43,10 @@ public abstract class SyncSession<K, T, U> {
 	
 	protected abstract void commit();
 	
+	
+	
+	
+	
 	protected void preCommit() {
 		System.out.println("in original");
 	}

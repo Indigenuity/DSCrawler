@@ -21,6 +21,21 @@ public class SingleSyncSession<K, T, U> extends SyncSession<K, T, U> {
 	protected Map<K, ReportRow> afterUpdateRows = new HashMap<K, ReportRow>();
 	protected Map<K, ReportRow> outdatedRows = new HashMap<K, ReportRow>();
 	
+	protected Sync sync;
+	
+	public SingleSyncSession(){
+		super();
+		this.sync = new Sync();
+	}
+	
+	public Sync getSync() {
+		return sync;
+	}
+
+	public void setSync(Sync sync) {
+		this.sync = sync;
+	}
+	
 	@Override
 	public void runSync(){
 		runInserts();
@@ -124,6 +139,7 @@ public class SingleSyncSession<K, T, U> extends SyncSession<K, T, U> {
 	@Override
 	protected void commit() {
 		System.out.println("Committing");
+		this.sync = persistenceContext.insert(sync);
 		persistenceContext.commit();
 	}
 

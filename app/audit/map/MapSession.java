@@ -5,6 +5,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import audit.sync.PersistenceContext;
+import audit.sync.Sync;
 
 public abstract class MapSession<T, U> {
 
@@ -17,6 +18,8 @@ public abstract class MapSession<T, U> {
 	protected Function<T, U> valueCreator;
 	protected BiFunction<T, U, T> assigner;
 	protected Function<T, U> valueFetcher;
+	
+	protected Sync sync;
 
 	protected MapSession(Class<T> keyClazz, Class<U> valueClazz){
 		this.keyClazz = keyClazz;
@@ -30,11 +33,20 @@ public abstract class MapSession<T, U> {
 	}
 	
 	protected  void commit(){
+		this.sync = persistenceContext.insert(sync);
 		persistenceContext.commit();
 	}
 	
 	protected void flush() {
 		persistenceContext.flush();
+	}
+	
+	public Sync getSync() {
+		return sync;
+	}
+
+	public void setSync(Sync sync) {
+		this.sync = sync;
 	}
 
 	public PersistenceContext getPersistenceContext() {

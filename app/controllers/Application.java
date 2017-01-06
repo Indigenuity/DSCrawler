@@ -58,6 +58,7 @@ import datatransfer.CSVImporter;
 import datatransfer.Cleaner;
 import datatransfer.SourceSwapper;
 import datatransfer.reports.Report;
+import datatransfer.reports.ReportFactory;
 import datatransfer.reports.ReportRow;
 import persistence.CapEntry;
 import persistence.CrawlSet;
@@ -183,6 +184,8 @@ public class Application extends Controller {
     		SyncControl.generateAllReports(Dealer.class, sync);
     	} else if(sync.getSyncType() == SyncType.TEST){
     		SyncControl.generateAllReports(TestEntity.class, sync);
+    	} else if(sync.getSyncType() == SyncType.SALESFORCE_ACCOUNTS){
+    		SyncControl.generateAllReports(SalesforceAccount.class, sync);
     	}
     	return ok("Generated All Reports");
     }
@@ -221,7 +224,19 @@ public class Application extends Controller {
     	DynamicForm data = Form.form().bindFromRequest();
 		String inputFilename = data.get("inputFilename");
 		Boolean generateReports = data.get("generateReports") == null ? false : true;
-		SalesforceControl.sync(inputFilename, generateReports);
+		
+		System.out.println("Running Salesforce Sync Session...");
+		Sync importSync = SalesforceControl.sync(inputFilename, generateReports);
+		
+		System.out.println("Mapping siteless salesforce accounts to Site objects...");
+		Sync sitelessSync = SalesforceControl.assignSiteless();
+		
+		System.out.println("Assigning new Site objects to salesforce accounts with changed websites...");
+		SalesforceControl.assignChangedWebsites(importSync);
+		if(generateReports){
+			System.out.println("Generating reports");
+			SyncControl.generateAllReports(SalesforceAccount.class, importSync);
+		}
 		
 		return ok("Synced with salesforce accounts from file : " + inputFilename);
     }
