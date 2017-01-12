@@ -38,7 +38,7 @@ public class SitesDAO {
 	
 	public static List<Long> findByWpAttribution(WPAttribution wp){
 		String queryString = "select s.siteId from Site s where :wp member of s.mostRecentCrawl.siteCrawlAnalysis.wpAttributions) ";
-		List<Long> siteIds = JPA.em().createQuery(queryString, Long.class).setParameter("wp", wp).getResultList();
+		List<Long> siteIds = JPA.em().createQuery(queryString, Long.class).setParameter("wp", wp.name()).getResultList();
 		return siteIds;
 	}
 	

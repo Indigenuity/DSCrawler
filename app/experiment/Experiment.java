@@ -135,6 +135,7 @@ import crawling.projects.BasicDealer;
 import crawling.projects.BhphCrawl;
 import dao.AnalysisDao;
 import dao.GeneralDAO;
+import dao.SalesforceDao;
 import dao.SiteCrawlDAO;
 import dao.SitesDAO;
 import dao.StatsDAO;
@@ -264,7 +265,7 @@ public class Experiment {
 //		List<SiteCrawlAnalysis> siteIds = JPA.em().createQuery(queryString, SiteCrawlAnalysis.class).setParameter("wp", wp).getResultList();
 //		System.out.println("siteIds : " + siteIds.size()); 
 		
-		MyEntity.doSomeThings();
+		System.out.println("Site ids : " + SalesforceDao.findByWpAttribution(WPAttribution.STRATHCOM_GENERAL));
 		
 	}
 	

@@ -7,12 +7,19 @@ import java.util.Map.Entry;
 
 import javax.persistence.TypedQuery;
 
+import datadefinitions.newdefinitions.WPAttribution;
 import persistence.salesforce.SalesforceAccount;
 import play.db.jpa.JPA;
 
 
 
 public class SalesforceDao {
+	
+	public static List<Long> findByWpAttribution(WPAttribution wp){
+		String queryString = "select sa.salesforceAccountId from SalesforceAccount sa where :wp member of sa.site.mostRecentCrawl.siteCrawlAnalysis.wpAttributions) ";
+		List<Long> siteIds = JPA.em().createQuery(queryString, Long.class).setParameter("wp", wp.name()).getResultList();
+		return siteIds;
+	}
 
 	
 	public static List<SalesforceAccount> getList(String valueName, Object value){
