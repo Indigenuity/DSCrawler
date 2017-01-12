@@ -30,7 +30,6 @@ import async.tools.DocAnalysisTool;
 import async.tools.SiteCrawlTool;
 import async.tools.SiteUpdateTool;
 import async.tools.TextAnalysisTool;
-import async.work.MultiStepJPAWorker;
 import async.work.WorkItem;
 import async.work.TypedWorkOrder;
 import async.work.TypedWorkResult;
@@ -41,14 +40,13 @@ import persistence.UrlCheck;
 import play.Logger;
 import play.db.jpa.JPA;
 
-public class InfoFetchWorker extends MultiStepJPAWorker {
+public class InfoFetchWorker {
 
 	private Long uuid = UUID.randomUUID().getLeastSignificantBits();
 	private InfoFetch infoFetch = null;
 	private Long infoFetchId = null;
 	private int count = 0;
 	
-	@Override
 	public TypedWorkOrder processWorkOrder(TypedWorkOrder workOrder) {
 		infoFetch = (InfoFetch) workOrder;
 		System.out.println("InfoFetchWorker processing work order:"+ infoFetch.getInfoFetchId());
@@ -88,7 +86,6 @@ public class InfoFetchWorker extends MultiStepJPAWorker {
 		});
 	}
 	
-	@Override
 	public void processWorkResult(TypedWorkResult workResult) {
 //		System.out.println("InfoFetchWorker processing work result : " + workResult);
 		JPA.withTransaction( () -> {
@@ -116,7 +113,6 @@ public class InfoFetchWorker extends MultiStepJPAWorker {
 	}
 	
 	
-	@Override
 	public TypedWorkResult generateWorkResult(){
 //		System.out.println("InfoFetchWorker generating work result");
 		TypedWorkResult workResult = new TypedWorkResult();
@@ -331,7 +327,7 @@ public class InfoFetchWorker extends MultiStepJPAWorker {
 	}
 	
 	private void placeWorkOrder(TypedWorkOrder workOrder) {
-		Asyncleton.getInstance().getMaster(workOrder.getWorkType()).tell(workOrder, getSelf());
+		Asyncleton.getInstance().getMaster(workOrder.getWorkType()).tell(workOrder, ActorRef.noSender());
 	}
 	
 	

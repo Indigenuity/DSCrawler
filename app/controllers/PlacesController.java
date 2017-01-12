@@ -131,4 +131,12 @@ public class PlacesController extends Controller {
 		
 		return ok(ids.size() + " dealers queued for fetching details");
 	}
+	
+	@Transactional
+	public static Result crawlCanada() throws IOException {
+		
+		return ok();
+	}
+	
+	
 }

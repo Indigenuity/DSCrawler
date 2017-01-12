@@ -12,7 +12,8 @@ import play.db.jpa.JPA;
 import utilities.DSFormatter;
 
 public class PlacesMaster {
-
+	
+	
 	public static Place getDealerSearchMatch(String name, String street, String city, String state) throws IOException{
 		String queryString = name + " " + street + ", " + city + ", " + state;
 		return getDealerSearchMatch(queryString);

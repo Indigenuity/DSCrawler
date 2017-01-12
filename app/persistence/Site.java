@@ -63,6 +63,8 @@ public class Site {
 	@NotAudited
 	private PlacesPage placesPage;
 	
+	
+	//The most recent crawls for the site should be added to this collection via the "setMostRecentCrawl" method
 	@OneToMany(fetch=FetchType.LAZY)
 	@NotAudited
 	@JoinTable(name="site_sitecrawl", 
@@ -87,6 +89,10 @@ public class Site {
 	@OneToOne
 	@NotAudited
 	private UrlCheck urlCheck;
+	
+	@OneToOne
+	@NotAudited
+	private SiteCrawl mostRecentCrawl;
 	
 	
 	
@@ -432,6 +438,13 @@ public class Site {
 	}
 	public void setUrlCheck(UrlCheck urlCheck) {
 		this.urlCheck = urlCheck;
+	}
+	public SiteCrawl getMostRecentCrawl() {
+		return mostRecentCrawl;
+	}
+	public void setMostRecentCrawl(SiteCrawl mostRecentCrawl) {
+		this.mostRecentCrawl = mostRecentCrawl;
+		this.crawls.add(this.mostRecentCrawl);
 	}
 
 	

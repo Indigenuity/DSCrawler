@@ -1,7 +1,6 @@
 package controllers;
 
 import audit.sync.SalesforceControl;
-import dao.SitesDAO;
 import datatransfer.reports.Report;
 import datatransfer.reports.ReportRow;
 import persistence.Site;
@@ -13,6 +12,7 @@ import play.db.jpa.JPA;
 import play.db.jpa.Transactional;
 import play.mvc.Controller;
 import play.mvc.Result;
+import sites.SiteLogic;
 import views.html.index;
 
 public class ReviewSubmit extends Controller {
@@ -90,7 +90,7 @@ public class ReviewSubmit extends Controller {
     	Site site = JPA.em().find(Site.class, siteId);
     	System.out.println("Approving resolved: " + siteId);
     	
-    	SitesDAO.acceptUrlCheck(site, false);
+    	SiteLogic.acceptUrlCheck(site, false);
     	
     	return ok();
     }
@@ -102,7 +102,7 @@ public class ReviewSubmit extends Controller {
     	Site site = JPA.em().find(Site.class, siteId);
     	System.out.println("Approving shared: " + siteId);
     	
-    	SitesDAO.acceptUrlCheck(site, true);
+    	SiteLogic.acceptUrlCheck(site, true);
     	
     	return ok();
     }

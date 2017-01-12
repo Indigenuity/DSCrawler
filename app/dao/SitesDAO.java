@@ -16,6 +16,7 @@ import javax.persistence.TypedQuery;
 
 import org.apache.commons.lang3.StringUtils;
 
+import datadefinitions.newdefinitions.WPAttribution;
 import persistence.MobileCrawl;
 import persistence.Site;
 import persistence.SiteCrawl;
@@ -35,95 +36,10 @@ public class SitesDAO {
 		STALE_DATE = calendar.getTime();
 	}
 	
-	public static Site markError(Site site) {
-		site.setSiteStatus(SiteStatus.OTHER_ISSUE);
-		return site;
-	}
-	
-	public static Site markDefunct(Site site) {
-		site.setSiteStatus(SiteStatus.DEFUNCT);
-		return site;
-	}
-	
-	public static Site approve(Site site) {
-		site.setSiteStatus(SiteStatus.APPROVED);
-		return site;
-	}
-	
-	public static Site review(Site site) {
-		site.setSiteStatus(SiteStatus.NEEDS_REVIEW);
-		return site;
-	}
-	
-	public static Site acceptRedirect(Site site, String newHomepage) {
-		return applyRedirect(site, newHomepage, true);
-	}
-	
-	public static Site reviewRedirect(Site site, String newHomepage) {
-		return applyRedirect(site, newHomepage, false);
-	}
-	
-	public static Site applyRedirect(Site site, String newHomepage, boolean approved){
-		Site newSite = new Site(newHomepage);
-		if(approved){
-			newSite.setSiteStatus(SiteStatus.APPROVED);
-		} else {
-			newSite.setSiteStatus(SiteStatus.UNVALIDATED);
-		}
-		JPA.em().persist(newSite);
-		site.setSiteStatus(SiteStatus.REDIRECTS);
-		site.setForwardsTo(newSite);
-		return newSite;
-	}
-	
-	//Returns the NEW site
-	public static Site manuallyRedirect(Site site, String newHomepage) {
-		Site newSite = SitesDAO.getOrNew(newHomepage);
-		site.setManualForwardsTo(newSite);
-		site.setSiteStatus(SiteStatus.MANUALLY_REDIRECTS);
-		return newSite;
-	}
-	
-	public static void applyUrlCheck(Site site){
-		UrlCheck urlCheck = site.getUrlCheck();
-		if(urlCheck == null){
-			return;
-		}
-		
-		if(urlCheck.isError()) {
-			markError(site);
-		} else if(urlCheck.getStatusCode() >= 400){
-			markDefunct(site);
-		} else if(urlCheck.isNoChange()){
-			if(urlCheck.isAllApproved()){
-				approve(site);
-			} else if(site.getSiteStatus() != SiteStatus.APPROVED){
-				review(site);
-			}
-		} else {
-			if(urlCheck.isAllApproved()){
-				acceptRedirect(site, urlCheck.getResolvedSeed());
-			} else if (urlCheck.isDomainApproved()){
-				reviewRedirect(site, urlCheck.getResolvedSeed());
-			} else {
-				review(site);
-			}
-		}
-	}
-	
-	public static void acceptUrlCheck(Site site, boolean sharedSite) {
-		UrlCheck urlCheck = site.getUrlCheck();
-		if(urlCheck == null){
-			throw new IllegalArgumentException("Can't accept UrlCheck of Site without UrlCheck : " + site.getSiteId());
-		}
-		
-		if(urlCheck.isNoChange()){
-			approve(site);
-			site.setSharedSite(sharedSite);
-		} else {
-			acceptRedirect(site, urlCheck.getResolvedSeed())
-				.setSharedSite(sharedSite);
-		}
+	public static List<Long> findByWpAttribution(WPAttribution wp){
+		String queryString = "select s.siteId from Site s where :wp member of s.mostRecentCrawl.siteCrawlAnalysis.wpAttributions) ";
+		List<Long> siteIds = JPA.em().createQuery(queryString, Long.class).setParameter("wp", wp).getResultList();
+		return siteIds;
 	}
 	
 	public static Site getOrNew(String homepage) {
@@ -148,22 +64,29 @@ public class SitesDAO {
 		return site;
 	}
 	
+	public static List<Long> getStaleSiteIds(){
+		System.out.println("getting stale siteIds ");
+//		q.setParameter("staleDate", STALE_DATE, TemporalType.DATE);
+		String queryString = "select s.siteId from Site s join s.crawls where";
+		List<Long> siteIds = JPA.em().createQuery(queryString, Long.class).getResultList();
+		System.out.println("siteIds : " + siteIds.size());
+		
+		return siteIds;
+	}
+	
 	public static Site getRedirectEndpoint(Site site, boolean allowManualRedirects){
 		if(site == null) {
 			return null;
 		}
-		
 		if(site.getSiteStatus() == SiteStatus.REDIRECTS){
 			if(site.getForwardsTo() == null){
 				throw new IllegalStateException("Site status shows redirect but forwardsTo field is null : " + site.getSiteId());	
 			}
-			
 			return getRedirectEndpoint(site.getForwardsTo(), allowManualRedirects);
 		} else if(site.getSiteStatus() == SiteStatus.MANUALLY_REDIRECTS && allowManualRedirects){
 			if(site.getManualForwardsTo() == null){
 				throw new IllegalStateException("Site status shows manual redirect but manualForwardsTo field is null : " + site.getSiteId());
 			}
-			
 			return getRedirectEndpoint(site.getManualForwardsTo(), allowManualRedirects);
 		} 
 		return site;

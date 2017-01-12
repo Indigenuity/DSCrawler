@@ -11,6 +11,7 @@ import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import async.registration.RegistryEntry;
+import async.functionalwork.FunctionalMaster;
 import async.registration.ContextItem;
 import async.registration.WorkerRegistry;
 import async.tools.AmalgamationTool;
@@ -59,6 +60,10 @@ public class Asyncleton {
 	
 	public ActorRef getGenericMaster(int numWorkers, Class<? extends UntypedActor> clazz) {
 		return mainSystem.actorOf(Props.create(GenericMaster.class, numWorkers, mainListener, clazz));
+	}
+	
+	public ActorRef getFunctionalMaster(int numWorkers, boolean needsJpa) {
+		return mainSystem.actorOf(Props.create(FunctionalMaster.class, numWorkers,needsJpa));
 	}
 	
 	public void doTask(Task task, ActorRef sender, boolean checkRequiredContextItems) {

@@ -68,15 +68,6 @@ public class GenericMaster extends UntypedActor {
 				}
 				
 			}
-			else if (work instanceof TypedWorkOrder) {
-				TypedWorkOrder workOrder = (TypedWorkOrder) work;
-//				System.out.println("GenericMaster got work order: " + workOrder);
-				if(!waitingRoom.add(workOrder.getUuid(), getSender())){
-					//TODO figure out what to do when duplicate work order is sent in
-					return;
-				}
-				router.route(workOrder, getSelf());
-			}
 			else if(work instanceof WorkResult) {
 				WorkResult workResult = (WorkResult) work;
 //				System.out.println("GenericMaster got work result: " + workResult);

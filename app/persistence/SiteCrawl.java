@@ -25,10 +25,12 @@ import javax.persistence.NamedAttributeNode;
 import javax.persistence.NamedEntityGraph;
 import javax.persistence.NamedSubgraph;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
+import analysis.SiteCrawlAnalysis;
 import utilities.DSFormatter;
 import datadefinitions.GeneralMatch;
 import datadefinitions.OEM;
@@ -137,6 +139,9 @@ public class SiteCrawl {
 	
 	@ManyToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
 	protected Set<FBPage> fbPages = new HashSet<FBPage>();
+	
+	@OneToOne(mappedBy="siteCrawl")
+	private SiteCrawlAnalysis siteCrawlAnalysis;
 	
 	
 	/******************************************  Calculated Attributes Collections ***********************************/

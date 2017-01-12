@@ -16,6 +16,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
 import datadefinitions.GeneralMatch;
@@ -45,7 +46,7 @@ public class SiteCrawlAnalysis {
 	
 	// *********** Basics and Configuration
 	
-	@ManyToOne
+	@OneToOne
 	SiteCrawl siteCrawl;
 	
 	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER, orphanRemoval=true)

@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class TypedWorkOrder extends WorkOrder {
+public class TypedWorkOrder  {
 	
 	protected WorkType workType;
 	

@@ -35,10 +35,13 @@ import utilities.DSFormatter;
 
 public class SiteCrawlAnalyzer {
 	
-	public static void runSiteCrawlAnalysis(SiteCrawlAnalysis analysis) throws IOException {
-		
-		if(analysis.getConfig().getAnalysisMode() == AnalysisMode.PAGED){
-			pagedMode(analysis);
+	public static void runSiteCrawlAnalysis(SiteCrawlAnalysis analysis){
+		try{
+			if(analysis.getConfig().getAnalysisMode() == AnalysisMode.PAGED){
+				pagedMode(analysis);
+			}
+		}catch(Exception e){
+			throw new RuntimeException(e);
 		}
 	}
 	

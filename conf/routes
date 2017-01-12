@@ -17,6 +17,8 @@ GET		/generateSyncReport				controllers.Application.generateSyncReport(syncId : 
 POST	/runSalesforceSync				controllers.Application.runSalesforceSync()
 GET		/salesforceWebsiteReport		controllers.Application.salesforceWebsiteReport()
 GET		/assignSiteless					controllers.Application.assignSiteless()
+GET		/salesforce/resetSites			controllers.Application.resetSites()
+GET		/salesforce/forwardSites		controllers.Application.forwardSites()
 GET		/assignChangedWebsites			controllers.Application.assignChangedWebsites(syncId : Long)
 GET		/viewSync						controllers.Application.viewSync(syncId : Long)
 
@@ -54,6 +56,7 @@ GET		/places/importCanadaList				controllers.PlacesController.importCanadaList()
 GET		/places/importUsList					controllers.PlacesController.importUsList()
 GET		/places/fillBlankDetails				controllers.PlacesController.fillBlankDetails()
 GET		/places/assignSiteless					controllers.PlacesController.assignSiteless()
+
 
 GET		/crawling/crawlingDashboard				controllers.CrawlingController.dashboard()
 

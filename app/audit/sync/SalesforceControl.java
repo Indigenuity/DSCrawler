@@ -31,6 +31,7 @@ import persistence.salesforce.DeletedSfAccount;
 import persistence.salesforce.SalesforceAccount;
 import play.db.jpa.JPA;
 import scaffolding.Scaffolder;
+import sites.SiteLogic;
 import utilities.UrlSniffer;
 
 public class SalesforceControl {
@@ -109,14 +110,16 @@ public class SalesforceControl {
 	}
 	
 	public static Sync assignSiteless() {
-    	List<SalesforceAccount> accountsList = JPA.em().createQuery("from SalesforceAccount sa where sa.site is null", SalesforceAccount.class).getResultList();
+    	List<SalesforceAccount> accountsList = JPA.em()
+    			.createQuery("from SalesforceAccount sa where sa.site is null", SalesforceAccount.class)
+    			.getResultList();
 		SalesforceToSiteMapSession session = new SalesforceToSiteMapSession(accountsList);
 		session.runAssignments();
 		return session.getSync();
 	}
 
 	public static void manuallyRedirectAccount(SalesforceAccount account, String newHomepage){
-		account.setSite(SitesDAO.manuallyRedirect(account.getSite(), newHomepage));
+		account.setSite(SiteLogic.manuallyRedirect(account.getSite(), newHomepage));
 		account.setSite(SitesDAO.getRedirectEndpoint(account.getSite(), false));
 	}
 	

@@ -103,7 +103,17 @@ public class Retriever {
 		}
 	}
 	
-	
+	public static void retrieveDetails() {
+		String queryString = "from PlacesDealer pd where pd.website is null or pd.website = ''";
+		System.out.println("Retrieving PlacesDealers to retrieve details");
+		List<PlacesDealer> dealers = JPA.em().createQuery(queryString, PlacesDealer.class).setMaxResults(1).getResultList();
+		System.out.println("Dealers : " + dealers.size());
+		ActorRef master = Asyncleton.getInstance().getGenericMaster(50, DetailsWorker.class);
+		for(PlacesDealer dealer : dealers) {
+			master.tell(dealer.getPlacesDealerId(), ActorRef.noSender());
+		}
+		
+	}
 	
 	public static List<Place> retrieveForLocation(double latitude, double longitude) throws IOException{
 		Response<List<Place>> resp = Places.nearbySearch(Params.create().latitude(latitude).longitude(longitude).type("car_dealer"));

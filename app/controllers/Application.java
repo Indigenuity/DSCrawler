@@ -1,109 +1,48 @@
 package controllers;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import org.apache.commons.lang3.StringUtils;
-import org.hibernate.Hibernate;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.restfb.Version;
 
-import agarbagefolder.SiteAnalyzer;
-import agarbagefolder.SiteWork;
-import crawling.DealerCrawlController;
-import crawling.Facebook;
-import akka.actor.ActorRef;
-import analysis.SiteCrawlAnalyzer;
-import analysis.PageAnalyzer;
-import analysis.SiteSummarizer;
-import async.async.Asyncleton;
-import async.monitoring.AsyncMonitor;
 import audit.AuditDao;
-import audit.map.MapControl;
-import audit.map.SalesforceToSiteMapSession;
 import audit.sync.SalesforceControl;
 import audit.sync.Sync;
 import audit.sync.SyncControl;
 import audit.sync.SyncType;
 import dao.GeneralDAO;
-import dao.SiteCrawlDAO;
-import dao.SiteInformationDAO;
 import dao.SitesDAO;
-import datatransfer.Amalgamater;
-import datatransfer.CSVGenerator;
-import datatransfer.CSVImporter;
-import datatransfer.Cleaner;
-import datatransfer.SourceSwapper;
 import datatransfer.reports.Report;
-import datatransfer.reports.ReportFactory;
-import datatransfer.reports.ReportRow;
-import persistence.CapEntry;
-import persistence.CrawlSet;
 import persistence.Dealer;
 import persistence.GroupAccount;
-import persistence.Dealer.Datasource;
 import persistence.Site.SiteStatus;
-import persistence.MobileCrawl;
-import persistence.PageInformation;
-import persistence.SFEntry;
 import persistence.Site;
-import persistence.SiteCrawl;
-import persistence.SiteInformationOld;
-import persistence.SiteSummary;
-import persistence.Staff;
 import persistence.Temp;
 import persistence.TestEntity;
 import persistence.salesforce.SalesforceAccount;
-import places.PlacesPage;
-import places.Retriever;
-import places.ZipLocation;
 import play.*;
 import play.data.DynamicForm;
 import play.data.Form;
-import play.data.Form.Field;
 import play.db.jpa.JPA;
 import play.db.jpa.Transactional;
-import play.libs.F.Function;
-import play.libs.F.Promise;
 import play.libs.Json;
-import play.libs.ws.WS;
-import play.libs.ws.WSResponse;
 import play.mvc.*;
+import salesforce.SalesforceLogic;
+import sites.SiteLogic;
 import urlcleanup.ListCheck;
 import urlcleanup.ListCheckConfig;
 import urlcleanup.ListCheckFactory;
 import urlcleanup.ListCheckConfig.InputType;
-import utilities.DSFormatter;
-import utilities.UrlSniffer;
 import viewmodels.SharedEntity;
 import views.html.*;
-import edu.uci.ics.crawler4j.crawler.*;
-import experiment.ApiExperiment;
 import experiment.Experiment;
-import experiment.Storage;
 import global.Global;
 
 public class Application extends Controller {
@@ -134,7 +73,7 @@ public class Application extends Controller {
 				.setParameter("siteStatus", SiteStatus.UNVALIDATED)
 				.getResultList();
 		
-		Cleaner.runUrlChecks(sites);
+		SiteLogic.validateSites(sites);
     	return ok("Queued URL checks for " + sites.size() + " sites");
     }
     
@@ -152,9 +91,24 @@ public class Application extends Controller {
     }
     
     @Transactional
+    public static Result resetSites(){
+    	List<Long> accountIds = GeneralDAO.getFieldList(Long.class, SalesforceAccount.class, "salesforceAccountId");
+    	SalesforceLogic.resetSites(accountIds);
+    	return ok("Queued " + accountIds.size() + " accounts to have Site objects reset");
+    }
+    
+    @Transactional
+    public static Result forwardSites(){
+    	List<Long> accountIds = GeneralDAO.getFieldList(Long.class, SalesforceAccount.class, "salesforceAccountId");
+    	SalesforceLogic.forwardSites(accountIds);
+    	return ok("Queued " + accountIds.size() + " accounts to be assigned the most redirected Site objects");
+    }
+    
+    @Transactional
     public static Result assignSiteless(){
-    	SalesforceControl.assignSiteless();
-    	return ok("Salesforce accounts successfully mapped to Site objects.");
+    	List<Long> accountIds = GeneralDAO.getFieldList(Long.class, SalesforceAccount.class, "salesforceAccountId", null);
+    	SalesforceLogic.resetSites(accountIds);
+    	return ok("Queued " + accountIds.size() + " accounts to be assigned Site objects");
     }
     
     @Transactional

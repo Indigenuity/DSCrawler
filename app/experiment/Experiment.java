@@ -5,7 +5,6 @@ import net.sf.sprockets.google.Place;
 import net.sf.sprockets.google.Places;
 import net.sf.sprockets.google.Places.Params;
 import net.sf.sprockets.google.Places.Response;
-import newwork.TerminalWorker;
 import newwork.urlcheck.UrlCheckWorkOrder;
 
 import java.beans.IntrospectionException;
@@ -37,6 +36,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.Set;
 import java.util.TreeSet;
@@ -167,6 +167,8 @@ import analysis.TextAnalyzer;
 import analysis.AnalysisConfig.AnalysisMode;
 import async.async.Asyncleton;
 import async.async.GenericMaster;
+import async.functionalwork.ConsumerWorkOrder;
+import async.functionalwork.FunctionWorkOrder;
 import async.tools.InventoryTool;
 import async.tools.Tool;
 import async.tools.ToolGuide;
@@ -210,15 +212,18 @@ import persistence.tasks.Task;
 import persistence.tasks.TaskSet;
 import places.CanadaPostal;
 import places.DataBuilder;
+import places.MyEntity;
 import places.PlacesDealer;
 import places.PlacesPage;
 import places.PostalLocation;
 import places.PostalSearchWorker;
+import places.Retriever;
 import places.ZipLocation;
 import play.db.DB;
 import play.db.jpa.JPA;
 import reporting.DashboardStats;
 import scaffolding.Scaffolder;
+import sites.crawling.SiteCrawlLogic;
 import tyrex.services.UUID;
 import urlcleanup.ListCheck;
 import urlcleanup.ListCheckExecutor;
@@ -230,9 +235,55 @@ import utilities.UrlSniffer;
 public class Experiment { 
 	
 	public static void runExperiment() throws Exception {
-		System.out.println("fetching homepages");
-		List<Long> homepages = GeneralDAO.getFieldList(Long.class, Site.class, "siteId", "siteStatus", SiteStatus.DEFUNCT);
-		System.out.println("Homepages : " + homepages.size());
+		
+//		String queryString = "from PlacesDealer pd";
+//		List<PlacesDealer> dealers = JPA.em().createQuery(queryString, PlacesDealer.class).setMaxResults(5).getResultList();
+//		queryString = "from SalesforceAccount sa where sa.site = :site";
+//		TypedQuery<SalesforceAccount> query = JPA.em().createQuery(queryString, SalesforceAccount.class);
+//		for(PlacesDealer dealer : dealers) {
+//			System.out.print("Site : " + dealer.getSite().getHomepage());
+//			query.setParameter("site", dealer.getSite());
+//			List<SalesforceAccount> resultList = query.getResultList();
+//			System.out.println("resultList: " + resultList.size());
+//			
+//		}
+		
+//		String queryString = "select s.siteId from SalesforceAccount sa join sa.site s where sa.country = 'CANADA'";
+//		List<Long> siteIds = JPA.em().createQuery(queryString, Long.class).getResultList();
+//		System.out.println("sites : " + siteIds.size());
+//		
+//		SiteCrawlLogic.crawlSites(siteIds);
+		
+//		String queryString = "select sc.siteCrawlId from SiteCrawl sc where sc.crawlDate = '2017-1-10'";
+//		List<Long> siteCrawlIds = JPA.em().createQuery(queryString, Long.class).getResultList();
+//		System.out.println("siteCrawlIds : " + siteCrawlIds.size());
+//		AnalysisControl.runDefaultAnalysis(siteCrawlIds);
+		
+//		WPAttribution wp = WPAttribution.STRATHCOM_GENERAL;
+//		String queryString = "from SiteCrawlAnalysis s where :wp member of s.wpAttributions ";
+//		List<SiteCrawlAnalysis> siteIds = JPA.em().createQuery(queryString, SiteCrawlAnalysis.class).setParameter("wp", wp).getResultList();
+//		System.out.println("siteIds : " + siteIds.size()); 
+		
+		MyEntity.doSomeThings();
+		
+	}
+	
+	public static void setMostRecentCrawls() {
+		System.out.println("Fetching sites");
+		String queryString = "from Site s";
+		List<Site> sites = JPA.em().createQuery(queryString, Site.class).getResultList();
+		System.out.println("sites : " + sites.size());
+		int count = 0;
+		for(Site site : sites){
+			for(SiteCrawl siteCrawl : site.getCrawls()){
+				if(site.getMostRecentCrawl() == null || siteCrawl.getCrawlDate().compareTo(site.getMostRecentCrawl().getCrawlDate()) > 0){
+					site.setMostRecentCrawl(siteCrawl);
+				}
+			}
+			if(count++ %100 == 0){
+				System.out.println("count : " + count);
+			}
+		}
 	}
 	
 	public static void autoCanadaExperiment() throws IOException {

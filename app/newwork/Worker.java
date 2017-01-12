@@ -7,19 +7,19 @@ import akka.actor.UntypedActor;
 
 public abstract class Worker extends UntypedActor{
 
-	protected StandardWorkOrder currentWorkOrder;		//Each Worker should only be working on a single WorkOrder at a time
-	protected WorkResult workResult;			//This WorkOrder will result in a single WorkResult
-
 	@Override
 	public void onReceive(Object message) throws Exception {
-		if(message instanceof StandardWorkOrder){
-			currentWorkOrder = (StandardWorkOrder) message;
-			workResult = new WorkResult(currentWorkOrder.getUuid());
+		if(message instanceof WorkOrder){
+			WorkOrder workOrder = (WorkOrder) message;
+			
 			try{
 				reportStart();
-				onReceiveWorkOrder();
+				WorkResult workResult = processWorkOrder(workOrder);
+				getSender().tell(workResult, getSelf());
 			} catch(Exception e){
-				endInError(e);
+				endInError(workOrder, e);
+			} finally {
+				reportStop();
 			}
 		} else if(message instanceof WorkResult) {
 			onReceiveWorkResult((WorkResult) message);
@@ -30,33 +30,29 @@ public abstract class Worker extends UntypedActor{
 		throw new UnsupportedOperationException();
 	}
 	
-	protected void endInError(Exception e){
+	protected void endInError(WorkOrder workOrder, Exception e){
+		WorkResult workResult = new WorkResult(workOrder);
 		workResult.setWorkStatus(WorkStatus.ERROR);
 		StringWriter sw = new StringWriter();
 		e.printStackTrace(new PrintWriter(sw));
 		workResult.setError(e.getClass().getSimpleName() + " : " + e.getMessage() + " : " +  sw);
-		end();
-	}
-	
-	protected void endInSuccess(Object result) {
-		workResult.setResult(result);
-		workResult.setWorkStatus(WorkStatus.COMPLETE);
+		getSender().tell(workResult, getSelf());
 		end();
 	}
 	
 	private void end(){
 		reportStop();
-		getSender().tell(workResult, getSelf());
+		
 	}
 	
 	private void reportStart() {
-		
+		//TODO: do something here
 	}
 	
 	private void reportStop() {
-		
+		//TODO: do something here
 	}
 	
-	public abstract void onReceiveWorkOrder() throws Exception;
+	public abstract WorkResult processWorkOrder(WorkOrder workOrder) throws Exception;
 	
 }
