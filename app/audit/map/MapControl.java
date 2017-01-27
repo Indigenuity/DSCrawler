@@ -2,8 +2,8 @@ package audit.map;
 
 import java.util.List;
 
-import persistence.salesforce.SalesforceAccount;
 import play.db.jpa.JPA;
+import salesforce.persistence.SalesforceAccount;
 
 public class MapControl {
 

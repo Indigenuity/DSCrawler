@@ -1,9 +1,0 @@
-@(tasks : java.util.List[_root_.persistence.tasks.Task])
-
-@main("Review Tasks"){
-	<div class="review-task-list">
-		@for(task <- tasks){
-			@reviewing.singles.task(task)
-		}
-	</div>
-}

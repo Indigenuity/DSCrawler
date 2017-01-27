@@ -13,11 +13,9 @@ import org.hibernate.envers.query.AuditQuery;
 import audit.sync.Sync;
 import audit.sync.SyncType;
 import datatransfer.reports.Report;
-import persistence.Dealer;
 import persistence.GroupAccount;
-import persistence.TestEntity;
-import persistence.salesforce.SalesforceAccount;
 import play.db.jpa.JPA;
+import salesforce.persistence.SalesforceAccount;
 
 public class AuditDao {
 
@@ -138,36 +136,19 @@ public class AuditDao {
 			.getResultList();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static Report getGroupAccountsSyncReport(Integer revisionNumber){
 		AuditReader reader = AuditReaderFactory.get(JPA.em());
 		AuditQuery query = reader.createQuery()
 				.forEntitiesModifiedAtRevision(GroupAccount.class, revisionNumber);
-		AuditQuery previousQuery = reader.createQuery()
-				.forEntitiesAtRevision(GroupAccount.class, revisionNumber - 1);
+//		AuditQuery previousQuery = reader.createQuery()
+//				.forEntitiesAtRevision(GroupAccount.class, revisionNumber - 1);
 		
 		List<GroupAccount> groupAccounts = query.getResultList();
-		List<GroupAccount> previousGroupAccounts = previousQuery.getResultList();
+//		List<GroupAccount> previousGroupAccounts = previousQuery.getResultList();
 		
 		groupAccounts.stream().forEach(ga -> System.out.println("Account Name : " + ga.getName()));
 		return null;
-	}
-	
-	public static TestEntity getTestEntitySyncReport(Integer revisionNumber){
-		AuditReader reader = AuditReaderFactory.get(JPA.em());
-		AuditQuery query = reader.createQuery()
-				.forEntitiesModifiedAtRevision(TestEntity.class, revisionNumber);
-		AuditQuery previousQuery = reader.createQuery()
-				.forEntitiesAtRevision(TestEntity.class, revisionNumber - 1);
-		
-		List<TestEntity> groupAccounts = query.getResultList();
-		List<TestEntity> previousGroupAccounts = previousQuery.getResultList();
-		
-		groupAccounts.stream().forEach(ga -> {
-			System.out.println("Account Name : " + ga.getMyString());
-			System.out.println("id : " + ga.getTestEntityId());
-			
-		});
-		return groupAccounts.get(0);
 	}
 	
 	public static Class<?> getType(Sync sync){

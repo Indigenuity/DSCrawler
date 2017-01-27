@@ -3,10 +3,10 @@ package audit.sync;
 import dao.GeneralDAO;
 import datatransfer.reports.Report;
 import datatransfer.reports.ReportRow;
-import persistence.salesforce.DealershipType;
-import persistence.salesforce.SalesforceAccount;
-import persistence.salesforce.SalesforceAccountType;
 import play.db.jpa.JPA;
+import salesforce.persistence.DealershipType;
+import salesforce.persistence.SalesforceAccount;
+import salesforce.persistence.SalesforceAccountType;
 
 
 //The methods of this class assume an entity manager bound to the calling thread

@@ -7,7 +7,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import datadefinitions.UrlExtraction;
 import datadefinitions.newdefinitions.LinkTextMatch;
+import persistence.ExtractedUrl;
 
 public class DocAnalyzer {
 
@@ -23,5 +25,19 @@ public class DocAnalyzer {
 			}
 		}
 		return matches;
+	}
+
+	public static Set<ExtractedUrl> extractUrls(Document doc) {
+		Set<ExtractedUrl> extractedUrls = new HashSet<ExtractedUrl>();
+		for(UrlExtraction enumElement : UrlExtraction.values()){
+			Elements links = doc.select("a[href*=" +enumElement.getDefinition() + "]");
+			for(Element element : links) {
+				if(element.attr("href") != null){
+					ExtractedUrl item = new ExtractedUrl(element.attr("href"), enumElement);
+					extractedUrls.add(item);
+				}
+			}
+		}
+		return extractedUrls;
 	}
 }

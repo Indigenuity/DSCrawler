@@ -12,8 +12,8 @@ import net.sf.sprockets.google.Places.Params;
 import net.sf.sprockets.google.Places.Response;
 import newwork.WorkResult;
 import newwork.WorkStatus;
-import persistence.salesforce.SalesforceAccount;
 import play.db.jpa.JPA;
+import salesforce.persistence.SalesforceAccount;
 
 public class NyLinkWorker extends UntypedActor {
 

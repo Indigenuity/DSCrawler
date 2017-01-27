@@ -6,19 +6,6 @@ import com.google.maps.GeoApiContext;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
-import async.registration.WorkerRegistry;
-import async.tools.AmalgamationTool;
-import async.tools.AnalysisTool;
-import async.tools.CustomTool;
-import async.tools.DocAnalysisTool;
-import async.tools.InventoryTool;
-import async.tools.MetaAnalysisTool;
-import async.tools.SfLinkTool;
-import async.tools.SiteCrawlTool;
-import async.tools.SiteImportTool;
-import async.tools.SiteUpdateTool;
-import async.tools.TextAnalysisTool;
-import async.tools.UrlResolveTool;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;
@@ -52,11 +39,11 @@ public class Global extends GlobalSettings {
 	private ActorRef snifferMaster;
 	
 	private static boolean useProxy = true;
-//	private static String proxyUrl = "54.200.10.15";
-//	private static int proxyPort = 8888;
-
-	private static String proxyUrl = "97.77.104.22";
+	private static String proxyUrl = "35.160.145.33";
 	private static int proxyPort = 3128;
+
+//	private static String proxyUrl = "97.77.104.22";
+//	private static int proxyPort = 3128;
 	
 	public static final Date STALE_DATE;
 	static {
@@ -83,18 +70,6 @@ public class Global extends GlobalSettings {
 //			System.out.println(e);
 //		}
 		
-		WorkerRegistry.getInstance().register(new UrlResolveTool());
-		WorkerRegistry.getInstance().register(new SiteImportTool());
-		WorkerRegistry.getInstance().register(new SfLinkTool());
-		WorkerRegistry.getInstance().register(new SiteUpdateTool());
-		WorkerRegistry.getInstance().register(new SiteCrawlTool());
-		WorkerRegistry.getInstance().register(new AmalgamationTool());
-		WorkerRegistry.getInstance().register(new TextAnalysisTool());
-		WorkerRegistry.getInstance().register(new DocAnalysisTool());
-		WorkerRegistry.getInstance().register(new MetaAnalysisTool());
-		WorkerRegistry.getInstance().register(new CustomTool());
-		WorkerRegistry.getInstance().register(new InventoryTool());
-		WorkerRegistry.getInstance().register(new AnalysisTool());
 	}
 	
 	public void onStop(Application app) {

@@ -1,0 +1,13 @@
+@(accounts : java.util.List[_root_.salesforce.persistence.SalesforceAccount])
+
+<h4>Relevant Salesforce Accounts</h4>
+@for(account <- accounts) {
+	<div class="salesforce-mismatch-form .single-action-container">
+		<h5>@account.getName() (@account.getSalesforceAccountId()) : @account.getStreet() @account.getCity(), @account.getState()</h5>
+		<p>Salesforce Website : <a href="@account.getSalesforceWebsite()" target="_blank">@account.getSalesforceWebsite()</a></p>
+		<form action="/salesforce/siteMismatchSubmit" class=" faux-submit"method="GET">
+			<input type="hidden" name="salesforceAccountId" value="@account.getSalesforceAccountId()">
+			<button type="submit">Site Mismatch</button>
+		</form>
+	</div>
+}

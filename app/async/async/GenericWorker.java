@@ -1,7 +1,6 @@
 package async.async;
 
 import play.Logger;
-import agarbagefolder.WorkSet;
 import akka.actor.UntypedActor;
 
 public class GenericWorker extends UntypedActor {

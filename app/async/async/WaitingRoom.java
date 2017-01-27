@@ -2,19 +2,14 @@ package async.async;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
-import agarbagefolder.WorkSet;
 import akka.actor.ActorRef;
 import async.monitoring.AsyncMonitor;
-import async.work.WorkItem;
 
 public class WaitingRoom {
 	
-	private final Map<WorkItem, WorkSet> workSets = Collections.synchronizedMap(new HashMap<WorkItem, WorkSet>());
 	private final Map<Long, ActorRef> customers = Collections.synchronizedMap(new HashMap<Long, ActorRef>());
 	
 	private String name;
@@ -49,23 +44,6 @@ public class WaitingRoom {
 		}
 	}
 
-	//Functionally act like adding to a set
-	public boolean add(WorkItem workItem, WorkSet workSet){
-//		System.out.println("workset entered waiting room : " + workSet.getUuid());
-		synchronized (workSets){
-			if(workSets.containsKey(workItem)) {
-				return false;
-			}
-			workSets.put(workItem, workSet);
-			return true;
-		}
-	}
-	
-	public WorkSet remove(WorkItem workItem) {
-//		System.out.println("workset leaving waiting room : " + workItem.getUuid());
-		return workSets.remove(workItem);
-	}
-	
 	public  boolean contains(ActorRef customer) {
 		return customers.containsKey(customer);
 	}

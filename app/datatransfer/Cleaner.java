@@ -5,37 +5,25 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.Query;
 
-import org.apache.commons.lang3.StringUtils;
 
-import akka.actor.Actor;
 import akka.actor.ActorRef;
 import async.async.Asyncleton;
 import async.work.Order;
-import dao.CrawlSetDAO;
-import dao.DealerDAO;
 import dao.GeneralDAO;
 import dao.SitesDAO;
-import datadefinitions.OEM;
-import persistence.CrawlSet;
-import persistence.Dealer;
 import persistence.PageCrawl;
-import persistence.SFEntry;
 import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.Staff;
-import persistence.Utility;
 import persistence.Site.SiteStatus;
-import persistence.salesforce.SalesforceAccount;
 import play.Logger;
 import play.db.DB;
 import play.db.jpa.JPA;
+import salesforce.persistence.SalesforceAccount;
 import urlcleanup.SiteCheckWorker;
 import utilities.DSFormatter;
 
@@ -117,18 +105,6 @@ public class Cleaner {
 		site1.getGroupUrls().addAll(site2.getGroupUrls());
 		site2.getGroupUrls().clear();
 		
-		List<Dealer> dealers = DealerDAO.bySite(site2);
-		for(Dealer dealer : dealers) {
-			System.out.println("found dealer");
-			dealer.setMainSite(site1);
-		}
-		
-		List<SFEntry> entries = GeneralDAO.getList(SFEntry.class, "mainSite", site2);
-		for(SFEntry entry : entries) {
-			System.out.println("found entry");
-			entry.setMainSite(site1);
-		}
-		
 		List<SalesforceAccount> accounts = GeneralDAO.getList(SalesforceAccount.class, "site", site2);
 		for(SalesforceAccount account : accounts) {
 			System.out.println("Setting site for salesforce account : " + account.getSalesforceAccountId());
@@ -141,57 +117,8 @@ public class Cleaner {
 			forwarder.setForwardsTo(site1);
 		}
 		
-		List<CrawlSet> crawlSets = CrawlSetDAO.bySite(site2);
-		for(CrawlSet crawlSet : crawlSets) {
-			System.out.println("found crawlset : " + crawlSet.getCrawlSetId());
-			System.out.println("removed : " + crawlSet.getSites().remove(site2));
-			System.out.println("added : " + crawlSet.getSites().add(site1));
-			if(crawlSet.getUncrawled().remove(site2)){
-				crawlSet.getUncrawled().add(site1);
-			}
-			if(crawlSet.getNeedMobile().remove(site2)){
-				crawlSet.getNeedMobile().add(site1);
-			}
-			if(crawlSet.getNeedRedirectResolve().remove(site2)){
-				crawlSet.getNeedRedirectResolve().add(site1);
-			}
-		}
-		site1.setCrawlerProtected(site1.isCrawlerProtected() || site2.isCrawlerProtected());		
-		
-		
 		JPA.em().remove(site2);
 		return site1;
-	}
-	
-	public static void cleanDomains(){
-		String query = "from Site s where s.domain like '%www%'";
-		List<Site> sites = JPA.em().createQuery(query, Site.class).getResultList();
-		
-		System.out.println("Num sites : "+ sites.size());
-		for(Site site : sites) {
-//			site.setDomain(DSFormatter.removeWww(site.getDomain()));
-		}
-	}
-	
-	
-	
-public static void markOems() {
-		
-		String query = "from Dealer d where d.mainSite.homepage like ? or d.dealerName like ?";
-		javax.persistence.Query q = JPA.em().createQuery(query);
-		
-		for(OEM maker : OEM.values()) {
-			System.out.println("checking for oem : " + maker.definition);
-			q.setParameter(1, "%" + maker.definition + "%");
-			q.setParameter(2, "%" + maker.definition + "%");
-			List<Dealer> dealers = q.getResultList();
-			System.out.println("dealers size : " + dealers.size());
-			for(Dealer dealer : dealers) {
-				dealer.setOemDealer(true);
-			}
-			JPA.em().getTransaction().commit();
-			JPA.em().getTransaction().begin();
-		}
 	}
 	
 	public static void clearBlankStaff(){
@@ -223,65 +150,7 @@ public static void markOems() {
 		System.out.println("removed : " + count);
 	}
 	
-	
-	public static void removeSpecialPartials() {
-		
-		String query = "from SFEntry sf where sf.mainSite is not null";
-		List<SFEntry> entries = JPA.em().createQuery(query, SFEntry.class).getResultList();
-		System.out.println("entries : " + entries.size());
-		int count = 0;
-		for(SFEntry entry : entries) {
-			Site site = entry.getMainSite();
-			if(site.getCrawls().size() > 0 && count < 50000) {
-				count++;
-				SiteCrawl siteCrawl = site.getLatestCrawl();
-				if(siteCrawl.getNumRetrievedFiles() < 2) {
-					System.out.println("site : " + site.getHomepage());
-					System.out.println("small crawl************");
-					site.getCrawls().remove(siteCrawl);
-					JPA.em().remove(siteCrawl);
-//					site.setHomepageNeedsReview(false);
-					site.setRedirectResolveDate(null);
-//					site.setReviewLater(false);
-//					site.setSuggestedHomepage(null);
-				}
-				else{
-//					System.out.println("not small");
-				}
-					
-			}
-		}
-	}
-	
-	public static void resolveByPastRedirects() {
-		String query = "from Site s where s.homepageNeedsReview = true";
-		List<Site> sites = JPA.em().createQuery(query, Site.class).getResultList();
-		int count = sites.size();
-		System.out.println("count : " + count);
-		for(Site site : sites) {
-			System.out.println("Site (" + count-- + ": " + site.getSiteId() + " " + site.getHomepage());
-			String pastRedirect = Utility.getPastRedirect(site.getHomepage());
-			
-			if(!DSFormatter.isEmpty(pastRedirect)){
-				System.out.println("Filling by past redirect : " + pastRedirect);
-				site.addRedirectUrl(site.getHomepage());
-				site.setHomepage(pastRedirect);
-//				site.setHomepageNeedsReview(false);
-			}
-//			else if(StringUtils.isNotBlank(site.getSuggestedHomepage())) {
-//				String pastApproved = Utility.getPastApproval(site.getSuggestedHomepage());
-//				if(StringUtils.isNotBlank(pastApproved)){
-//					site.addRedirectUrl(site.getHomepage());
-//					site.setHomepage(pastApproved);
-//					site.setHomepageNeedsReview(false);
-//					site.setRedirectResolveDate(new java.sql.Date(Calendar.getInstance().getTimeInMillis()));
-//				}
-//			}
-					
-		}
-		
-	}
-	
+	@SuppressWarnings("unchecked")
 	public static void combineDuplicateSites() throws SQLException {
 		Connection connection = DB.getConnection();
 		
@@ -291,7 +160,6 @@ public static void markOems() {
 		
 		List<String> urls = new ArrayList<String>();
 		List<Site> sites = new ArrayList<Site>();
-		List<Dealer> dealers = new ArrayList<Dealer>();
 		while(rs.next()) {
 			urls.add(rs.getString("homepage"));
 		}
@@ -301,11 +169,9 @@ public static void markOems() {
 		connection.close();
 		
 		query = "from Site s where s.homepage = ?";
-		String subQuery = "from Dealer d where d.mainSite.siteId = ?";
 		Query q = JPA.em().createQuery(query, Site.class);
 		
 		for(String url : urls) {
-			dealers.clear();
 			System.out.println("Combining sites for url : " + url);
 			q.setParameter(1, url);
 			sites = q.getResultList();
@@ -325,15 +191,9 @@ public static void markOems() {
 						site.getCrawls().clear();
 					}
 				}
-				dealers.addAll(JPA.em().createQuery(subQuery).setParameter(1, site.getSiteId()).getResultList());
 			}
 			if(theSite == null) {
 				theSite = sites.get(0);
-			}
-			System.out.println("Found dealers : " + dealers.size());
-			for(Dealer dealer : dealers) {
-				System.out.println("Setting dealer's site : " + dealer.getDealerId());
-				dealer.setMainSite(theSite);
 			}
 			
 			for(Site site : sites) {

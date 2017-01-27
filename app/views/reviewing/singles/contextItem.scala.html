@@ -1,9 +1,0 @@
-@import _root_.persistence.UrlCheck
-@import play.db.jpa.JPA
-@(key : String, value : String)
-
-@if("urlCheckId".equals(key)){
-	@reviewing.singles.urlCheck(JPA.em().find(classOf[UrlCheck], Long.parseLong(value)))
-}
-@key
-@value

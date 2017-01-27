@@ -4,7 +4,6 @@ import audit.sync.SalesforceControl;
 import datatransfer.reports.Report;
 import datatransfer.reports.ReportRow;
 import persistence.Site;
-import persistence.salesforce.SalesforceAccount;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -12,6 +11,7 @@ import play.db.jpa.JPA;
 import play.db.jpa.Transactional;
 import play.mvc.Controller;
 import play.mvc.Result;
+import salesforce.persistence.SalesforceAccount;
 import sites.SiteLogic;
 import views.html.index;
 

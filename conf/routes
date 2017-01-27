@@ -19,6 +19,8 @@ GET		/salesforceWebsiteReport		controllers.Application.salesforceWebsiteReport()
 GET		/assignSiteless					controllers.Application.assignSiteless()
 GET		/salesforce/resetSites			controllers.Application.resetSites()
 GET		/salesforce/forwardSites		controllers.Application.forwardSites()
+POST	/salesforce/siteMismatchSubmit	controllers.SalesforceController.siteMismatchSubmit()
+GET		/salesforce/siteMismatchForms	controllers.SalesforceController.siteMismatchForms(siteId : Long)
 GET		/assignChangedWebsites			controllers.Application.assignChangedWebsites(syncId : Long)
 GET		/viewSync						controllers.Application.viewSync(syncId : Long)
 
@@ -44,8 +46,6 @@ POST	/review/submit/markDefunct							controllers.ReviewSubmit.markDefunct()
 POST	/review/submit/otherIssue							controllers.ReviewSubmit.otherIssue()
 POST	/review/submit/recheck								controllers.ReviewSubmit.recheck()
 
-GET 	/validateSites					controllers.Application.validateSites()
-
 GET		/markSignificantDifferences		controllers.DataEditor.markSignificantDifferences()
 
 
@@ -57,6 +57,12 @@ GET		/places/importUsList					controllers.PlacesController.importUsList()
 GET		/places/fillBlankDetails				controllers.PlacesController.fillBlankDetails()
 GET		/places/assignSiteless					controllers.PlacesController.assignSiteless()
 
+GET		/sites/checkUnvalidated					controllers.SitesController.checkUnvalidated()
+GET		/sites/validateAll						controllers.SitesController.validateAll()
+GET		/sites/reviewSites						controllers.SitesController.reviewSites()
+POST	/sites/validationSubmit					controllers.SitesController.validationSubmit()
+POST	/sites/siteReviewSubmit					controllers.SitesController.siteReviewSubmit()
+
 
 GET		/crawling/crawlingDashboard				controllers.CrawlingController.dashboard()
 
@@ -64,27 +70,13 @@ GET		/crawling/crawlingDashboard				controllers.CrawlingController.dashboard()
 
 GET		/groupSites						controllers.Application.groupSites(numToProcess : Integer ?= 20, offset : Integer ?= 0)
 GET		/runGc							controllers.Application.runGc()
-GET		/duplicateDomains				controllers.Application.duplicateDomains(numToProcess : Integer ?= 20, offset : Integer ?= 0)
-GET		/createTaskSetForm				controllers.Application.createTaskSetForm()
-
-POST	/subtaskWorkStatus				controllers.TaskSetController.setSubtaskWorkStatus()
 
 GET		/viewEntity						controllers.DataView.viewEntity(entityClass : String, entityId : Long ?= 0)
 GET		/dashboard						controllers.DataView.dashboard(message : String ?= "")
 GET		/dashboardStats					controllers.DataView.dashboardStats()
 GET		/reviewDupDomains				controllers.DataView.reviewDupDomains(numToProcess : Integer ?= 20, offset : Integer ?= 0)
-POST	/viewSiteList					controllers.DataView.viewSiteList()
-GET		/taskSets						controllers.DataView.taskSets()
-GET		/taskSet						controllers.DataView.taskSet(taskSetId : Long)
-
-GET		/reviewTasks					controllers.DataView.reviewTasks(taskSetId : Long, count : Integer = 20, offset : Integer = 0, workType : String)
-GET		/reviewSubtasks					controllers.DataView.reviewTasks(taskSetId : Long, count : Integer = 20, offset : Integer = 0, workType : String)
-
-
-POST	/taskSetWork							controllers.JobController.taskSetWork()
 
 GET		/monitoringQueues				controllers.DataView.getMonitoringQueues()
-
 
 
 POST	/editEntity						controllers.DataEditor.editEntity()
@@ -92,31 +84,11 @@ GET		/mainUsableSpace				controllers.DataView.mainUsableSpace()
 GET		/secondaryUsableSpace			controllers.DataView.secondaryUsableSpace()
 GET 	/siteCrawl/:siteCrawlId			controllers.DataView.viewSiteCrawl(siteCrawlId : Long)
 
-POST	/createTaskSet					controllers.DataEditor.createTaskSet()
 GET		/deDupHomepages					controllers.DataEditor.deDupHomepages()
-GET		/confirmHomepage				controllers.DataEditor.confirmHomepage(siteId : Long, action : String ?= "NO_ACTION")
-GET		/setWebProvider					controllers.DataEditor.setWebProvider(siteCrawlId : Long, webProviderId : Integer)
-GET		/makeSite						controllers.DataEditor.makeSite(url : String, dealerId : Long)
 GET		/removeExtraCrawls				controllers.DataEditor.removeExtraCrawls()
 GET		/fillStandardizedFormat			controllers.DataEditor.fillStandardizedFormat()
 GET		/fillPlacesDomain				controllers.DataEditor.fillPlacesDomain()
-GET		/combineOnDomain				controllers.DataEditor.combineOnDomain(siteId : Long)
 
-GET		/addGroupUrl					controllers.DataEditor.addGroupUrl(siteId : Long, url : String)
-
-POST	/setHomepage					controllers.DataEditor.setHomepage()
-POST 	/acceptSuggested				controllers.DataEditor.acceptSuggested()
-POST 	/ignoreSuggested				controllers.DataEditor.ignoreSuggested()
-POST	/redoUrlCheck					controllers.DataEditor.redoUrlCheck()
-POST	/markMaybeDefunct				controllers.DataEditor.markMaybeDefunct()
-POST	/reviewLater					controllers.DataEditor.reviewLater()
-POST	/approveSmallCrawl				controllers.DataEditor.approveSmallCrawl()
-POST	/markGroupSite					controllers.DataEditor.markGroupSite()
-POST	/markCrawlProtected				controllers.DataEditor.markCrawlProtected()
-POST	/markRecrawl					controllers.DataEditor.markRecrawl()
-POST	/editFetchJobOptions			controllers.DataEditor.editFetchJobOptions()
-
-POST	/submitTaskReview				controllers.TaskSetController.submitTaskReview()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

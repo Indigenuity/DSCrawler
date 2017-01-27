@@ -1,9 +1,7 @@
 package crawling;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -11,12 +9,9 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 
 import persistence.PageCrawl;
-import persistence.PageInformation;
 import persistence.SiteCrawl;
-import persistence.SiteInformationOld;
 import play.Logger;
 import utilities.DSFormatter;
-import analysis.PageAnalyzer;
 
 import com.google.common.io.Files;
 
@@ -24,7 +19,6 @@ import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.crawler.WebCrawler;
 import edu.uci.ics.crawler4j.parser.HtmlParseData;
 import edu.uci.ics.crawler4j.url.WebURL;
-import global.Global;
 
 public class DealerCrawler extends WebCrawler {
 
@@ -35,7 +29,6 @@ public class DealerCrawler extends WebCrawler {
 	private final static Pattern FILTERS = Pattern.compile(".*(\\.(css|js|gif|jpg|png|mp3|mp4|zip|gz|pdf|jpeg))$");
 	
 	private File storageFolder;
-	private String crawlSeed = "Default Value";
 	private String crawlDomain = "Default Value";
 	
 	private Set<String> visitedUrls = new HashSet<String>();
@@ -56,7 +49,6 @@ public class DealerCrawler extends WebCrawler {
 	        }
 	        siteCrawl = myController.getSiteCrawl();
 	        
-	        crawlSeed = myController.getCrawlSeed();
 	        crawlDomain = myController.getCrawlDomain();
 //	        System.out.println("crawlseed : " + crawlSeed);
 //	        System.out.println("crawlDomain : " + crawlDomain);

@@ -42,10 +42,10 @@ import datatransfer.reports.Report;
 import datatransfer.reports.ReportFactory;
 import global.Global;
 import net.sf.sprockets.google.Place;
-import persistence.salesforce.SalesforceAccount;
 import places.PlacesMaster;
 import places.TextSearchWorker;
 import play.db.jpa.JPA;
+import salesforce.persistence.SalesforceAccount;
 import utilities.DSFormatter;
 
 public class BhphCrawl {

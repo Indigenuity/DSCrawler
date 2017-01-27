@@ -15,9 +15,14 @@ $(document).ready(function() {
 	$(".load-dashboard").each(function() {
 		$(this).load($(this).attr("data-dashboard-href"), function() {
 			localEventBindings(this);
-		})
+		});
 	})
 	
+	$(".relevant-salesforce-accounts").each(function() {
+		$(this).load("/salesforce/siteMismatchForms?siteId=" + $(this).attr("data-siteId"), function() {
+			localEventBindings(this);
+		});
+	})
 	
 });
 
@@ -53,6 +58,17 @@ $(document).ready(function() {
 			return false;
 		});
 		
+		$(scope).find(".faux-submit-form").submit(function(event) {
+			var form = $(this);
+			openLoadingOverlay();
+			$.post(form.attr("action"), form.serialize()).done( function(jqXHR, textStatus, response) {
+				successfulOverlay(response.responseText);
+			}).fail(function(jqXHR, textStatus, response) {
+				failureOverlay("When visiting url (" + url + "), received response : " + response);
+			});
+			return false;
+		});
+		
 		$(scope).find(".accept-temp").click(function() {
 			var form = $(this).parents(".single-action-container").find("form");
 			var siteContainer = $(this).parents(".indented-container");
@@ -65,15 +81,17 @@ $(document).ready(function() {
 			form.submit()
 		});
 		
-		$(scope).find(".checkbox-container").click(function() {
-			alert("here");
+		$(scope).find(".checkbox-container").click(function(e) {
 			var checkbox = $(this).find("input[type=checkbox]");
-			alert("checkbox : " + checkbox);
-			if(checkbox.prop('checked', true)){
+			if(checkbox.prop('checked') == true){
 				checkbox.prop('checked', false);
 			}else {
 				checkbox.prop('checked', true);
 			}
+		});
+		
+		$(scope).find(".checkbox-container input[type=checkbox]").click(function(e) {
+			e.stopPropagation();
 		});
 		
 		//********************** Ajax Utilities *******************
@@ -91,6 +109,7 @@ $(document).ready(function() {
 		});
 		
 		/***************************   Task Reviewing ***********************/
+		/*
 		$(scope).find(".approve-resolved-button").click(function() {
 			var form = this.form
 			$(form).find("input[name='action']").val("APPROVE_RESOLVED");
@@ -132,6 +151,8 @@ $(document).ready(function() {
 			$(form).find("input[name='action']").val("OTHER_ISSUE");
 			$(form).attr("action", "/review/submit/otherIssue");
 		});
+		
+		*/
 	}
 
 	function openLoadingOverlay() {

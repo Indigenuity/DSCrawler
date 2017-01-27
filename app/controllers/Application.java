@@ -2,12 +2,10 @@ package controllers;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.persistence.Query;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -18,15 +16,9 @@ import audit.sync.Sync;
 import audit.sync.SyncControl;
 import audit.sync.SyncType;
 import dao.GeneralDAO;
-import dao.SitesDAO;
 import datatransfer.reports.Report;
-import persistence.Dealer;
 import persistence.GroupAccount;
-import persistence.Site.SiteStatus;
 import persistence.Site;
-import persistence.Temp;
-import persistence.TestEntity;
-import persistence.salesforce.SalesforceAccount;
 import play.*;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -35,12 +27,11 @@ import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.*;
 import salesforce.SalesforceLogic;
-import sites.SiteLogic;
+import salesforce.persistence.SalesforceAccount;
 import urlcleanup.ListCheck;
 import urlcleanup.ListCheckConfig;
 import urlcleanup.ListCheckFactory;
 import urlcleanup.ListCheckConfig.InputType;
-import viewmodels.SharedEntity;
 import views.html.*;
 import experiment.Experiment;
 import global.Global;
@@ -63,18 +54,6 @@ public class Application extends Controller {
     @Transactional 
     public static Result sitesDashboard() {
     	return ok(views.html.sitesDashboard.render());
-    }
-    
-    @Transactional
-    public static Result validateSites() {
-    	System.out.println("Validating sites");
-		List<Site> sites = JPA.em()
-				.createQuery("from Site s where s.siteStatus = :siteStatus", Site.class)
-				.setParameter("siteStatus", SiteStatus.UNVALIDATED)
-				.getResultList();
-		
-		SiteLogic.validateSites(sites);
-    	return ok("Queued URL checks for " + sites.size() + " sites");
     }
     
     @Transactional
@@ -134,10 +113,6 @@ public class Application extends Controller {
     	Sync sync = JPA.em().find(Sync.class, syncId);
     	if(sync.getSyncType() == SyncType.GROUP_ACCOUNTS){
     		SyncControl.generateAllReports(GroupAccount.class, sync);
-    	} else if(sync.getSyncType() == SyncType.DEALERS){
-    		SyncControl.generateAllReports(Dealer.class, sync);
-    	} else if(sync.getSyncType() == SyncType.TEST){
-    		SyncControl.generateAllReports(TestEntity.class, sync);
     	} else if(sync.getSyncType() == SyncType.SALESFORCE_ACCOUNTS){
     		SyncControl.generateAllReports(SalesforceAccount.class, sync);
     	}
@@ -202,7 +177,8 @@ public class Application extends Controller {
     	    {
     	        return Long.valueOf(f1.lastModified()).compareTo(f2.lastModified());
     	    } });
-    	return ok(views.html.tasks.urlCleanupForm.render());
+//    	return ok(views.html.tasks.urlCleanupForm.render());
+    	return ok();
     }
     
     @Transactional
@@ -265,56 +241,6 @@ public class Application extends Controller {
     	        return Long.valueOf(f2.lastModified()).compareTo(f1.lastModified());
     	    } });
     	return ok(Json.toJson(sortedFiles));
-    }
-    
-    
-    @Transactional
-    public static Result duplicateDomains(int numToProcess, int offset){
-    	List<SharedEntity> items = new ArrayList<SharedEntity>();
-    	Query q = JPA.em().createQuery("from Temp t where t.intermediateUrl is null and t.suggestedUrl is null and t.domain is not null and t.domain != ''").setMaxResults(20);
-    	List<Temp> sfs = new ArrayList<Temp>();
-    	do {
-    		sfs = q.getResultList();
-    		for(Temp temp : sfs) {
-    			List<Site> sites = SitesDAO.getSitesWithRedirectUrl(temp.getDomain(), 20, 0);
-    			if(sites.size() > 0){
-    				SharedEntity item = new SharedEntity();
-    				item.setSites(sites);
-    				item.setTemp(temp);
-    				items.add(item);
-//    				System.out.println("found one ");
-    			}
-    			else{
-    				temp.setIntermediateUrl("checked");
-    			}
-    		}
-    		JPA.em().getTransaction().commit();
-    		JPA.em().getTransaction().begin();
-    		
-    	}
-    	while(items.size() < 20 && sfs.size() > 1);
-    	 
-		System.out.println("sfs : " + sfs.size());
-		
-		
-		
-		
-//    	List<String> domains = SitesDAO.getDuplicateDomains(numToProcess, offset);
-//    	
-//    	for(String domain : domains){
-//    		List<Site> sites = SitesDAO.getList("domain", domain, numToProcess, offset);
-//    		SharedEntity item = new SharedEntity();
-//    		item.setSites(sites);
-//    		item.setUrl(domain);
-//    		items.add(item);
-//    	}
-    	
-    	return ok(views.html.duplicateDomains.render(items));
-    }
-    
-    public static Result createTaskSetForm(){
-    	
-    	return ok(views.html.tasks.newTaskSetForm.render());
     }
     
     @Transactional

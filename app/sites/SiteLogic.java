@@ -16,8 +16,17 @@ import utilities.UrlSniffer;
 
 public class SiteLogic {
 	
+	public static void validateSitesById(List<Long> siteIds) {
+		ActorRef workMaster = Asyncleton.getInstance().getFunctionalMaster(25, true);
+		Consumer<Long> validator = JpaFunctionalBuilder.wrapConsumerInFind(SiteLogic::validateSite, Site.class);
+		for(Long siteId: siteIds){
+			ConsumerWorkOrder<Long> workOrder = new ConsumerWorkOrder<Long>(validator, siteId);
+			workMaster.tell(workOrder, ActorRef.noSender());
+		}
+	}
+	
 	public static void validateSites(List<Site> sites) {
-		ActorRef workMaster = Asyncleton.getInstance().getFunctionalMaster(5, true);
+		ActorRef workMaster = Asyncleton.getInstance().getFunctionalMaster(25, true);
 		Consumer<Long> validator = JpaFunctionalBuilder.wrapConsumerInFind(SiteLogic::validateSite, Site.class);
 		for(Site site : sites){
 			ConsumerWorkOrder<Long> workOrder = new ConsumerWorkOrder<Long>(validator, site.getSiteId());
@@ -25,12 +34,13 @@ public class SiteLogic {
 		}
 	}
 
-	public static void validateSite(Site site) {
+	public static UrlCheck validateSite(Site site) {
 		System.out.println("checking site : " + site.getHomepage());
 		UrlCheck urlCheck = UrlSniffer.checkUrl(site.getHomepage());
 		JPA.em().persist(urlCheck);
 		site.setUrlCheck(urlCheck);
 		SiteLogic.applyUrlCheck(site);
+		return urlCheck;
 	}
 
 	public static void applyUrlCheck(Site site){
@@ -44,13 +54,17 @@ public class SiteLogic {
 		} else if(urlCheck.getStatusCode() >= 400){
 			SiteLogic.markDefunct(site);
 		} else if(urlCheck.isNoChange()){
-			if(urlCheck.isAllApproved()){
+			if(urlCheck.isAllApproved() && site.getForwardsTo() == null && site.getManualForwardsTo() == null){
 				SiteLogic.approve(site);
 			} else if(site.getSiteStatus() != SiteStatus.APPROVED){
 				SiteLogic.review(site);
 			}
 		} else {
-			if(urlCheck.isAllApproved()){
+			if(site.getForwardsTo()!= null && !urlCheck.getResolvedSeed().equals(site.getForwardsTo().getHomepage())){
+				SiteLogic.review(site);
+			} else if(site.getManualForwardsTo()!= null && !urlCheck.getResolvedSeed().equals(site.getManualForwardsTo().getHomepage())){
+				SiteLogic.review(site);
+			} else if(urlCheck.isAllApproved()){
 				SiteLogic.acceptRedirect(site, urlCheck.getResolvedSeed());
 			} else if (urlCheck.isDomainApproved()){
 				SiteLogic.reviewRedirect(site, urlCheck.getResolvedSeed());
@@ -85,19 +99,24 @@ public class SiteLogic {
 	public static Site acceptRedirect(Site site, String newHomepage) {
 		return SiteLogic.applyRedirect(site, newHomepage, true);
 	}
+	
+	public static Site acceptRedirect(Site site) {
+		return SiteLogic.applyRedirect(site, site.getUrlCheck().getResolvedSeed(), true);
+	}
 
 	public static Site reviewRedirect(Site site, String newHomepage) {
 		return SiteLogic.applyRedirect(site, newHomepage, false);
 	}
 
 	public static Site applyRedirect(Site site, String newHomepage, boolean approved){
-		Site newSite = new Site(newHomepage);
-		if(approved){
-			newSite.setSiteStatus(SiteStatus.APPROVED);
-		} else {
-			newSite.setSiteStatus(SiteStatus.UNVALIDATED);
+		Site newSite = SitesDAO.getFirst("homepage", newHomepage);
+		if(newSite == null){
+			newSite = new Site(newHomepage);
+			JPA.em().persist(newSite);
+			if(approved){
+				newSite.setSiteStatus(SiteStatus.APPROVED);
+			}
 		}
-		JPA.em().persist(newSite);
 		site.setSiteStatus(SiteStatus.REDIRECTS);
 		site.setForwardsTo(newSite);
 		return newSite;
@@ -124,5 +143,10 @@ public class SiteLogic {
 			acceptRedirect(site, urlCheck.getResolvedSeed())
 				.setSharedSite(sharedSite);
 		}
+	}
+	
+	public static Site disapprove(Site site){
+		site.setSiteStatus(SiteStatus.DISAPPROVED);
+		return site;
 	}
 }

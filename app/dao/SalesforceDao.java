@@ -8,16 +8,24 @@ import java.util.Map.Entry;
 import javax.persistence.TypedQuery;
 
 import datadefinitions.newdefinitions.WPAttribution;
-import persistence.salesforce.SalesforceAccount;
+import persistence.Site;
+import persistence.Site.SiteStatus;
 import play.db.jpa.JPA;
+import salesforce.persistence.SalesforceAccount;
 
 
 
 public class SalesforceDao {
 	
+	public static List<Long> getUsFranchiseSites(){
+		String queryString = "select distinct(s.siteId) from SalesforceAccount sa join sa.site s where sa.country = 'United States' and sa.franchise = true and s.siteStatus = :siteStatus";
+		List<Long> siteIds = JPA.em().createQuery(queryString, Long.class).setParameter("siteStatus", SiteStatus.APPROVED).getResultList();
+		return siteIds;
+	}
+	
 	public static List<Long> findByWpAttribution(WPAttribution wp){
 		String queryString = "select sa.salesforceAccountId from SalesforceAccount sa where :wp member of sa.site.mostRecentCrawl.siteCrawlAnalysis.wpAttributions) ";
-		List<Long> siteIds = JPA.em().createQuery(queryString, Long.class).setParameter("wp", wp.name()).getResultList();
+		List<Long> siteIds = JPA.em().createQuery(queryString, Long.class).setParameter("wp", wp).getResultList();
 		return siteIds;
 	}
 
@@ -40,6 +48,11 @@ public class SalesforceDao {
 			q.setParameter(entry.getKey(), entry.getValue());
 		}
 		return q.getResultList();
+	}
+	
+	public static List<SalesforceAccount> findBySite(Site site) {
+		String queryString = "from SalesforceAccount sa where sa.site = :site";
+		return JPA.em().createQuery(queryString, SalesforceAccount.class).setParameter("site",  site).getResultList();
 	}
 	
 	//Searches based on the sites of SAlesforceAccounts

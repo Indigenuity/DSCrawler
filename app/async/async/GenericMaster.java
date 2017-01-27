@@ -12,13 +12,8 @@ import akka.routing.ActorRefRoutee;
 import akka.routing.RoundRobinRoutingLogic;
 import akka.routing.Routee;
 import akka.routing.Router;
-import async.monitoring.AsyncMonitor;
 import async.work.Order;
 import async.work.Result;
-import async.work.WorkItem;
-import async.work.TypedWorkOrder;
-import async.work.WorkStatus;
-import datatransfer.CSVGenerator;
 import newwork.WorkOrder;
 import newwork.WorkResult;
 
@@ -53,22 +48,7 @@ public class GenericMaster extends UntypedActor {
 	public void onReceive(Object work) throws Exception {
 		try{
 //			System.out.println("received message in generic master (" + this.clazz + ") : " + work);
-			if(work instanceof WorkItem) {
-				WorkItem workItem = (WorkItem) work;
-				if(workItem.getWorkStatus() == WorkStatus.DO_WORK){
-					workItem.setWorkStatus(WorkStatus.WORK_IN_PROGRESS);
-					router.route(workItem, getSender());
-				}
-				else if(workItem.getWorkStatus() == WorkStatus.WORK_COMPLETED){
-					AsyncMonitor.instance().finishWip(workItem.getWorkType().toString(), workItem.getUuid());
-					Asyncleton.instance().getMainMaster().tell(workItem, getSelf());
-				}
-				else if(workItem.getWorkStatus() == WorkStatus.WORK_IN_PROGRESS){	//Worker ended in error
-					AsyncMonitor.instance().finishWip(workItem.getWorkType().toString(), workItem.getUuid());
-				}
-				
-			}
-			else if(work instanceof WorkResult) {
+			if(work instanceof WorkResult) {
 				WorkResult workResult = (WorkResult) work;
 //				System.out.println("GenericMaster got work result: " + workResult);
 				ActorRef customer = waitingRoom.remove(workResult.getUuid()); 

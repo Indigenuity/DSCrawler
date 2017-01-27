@@ -10,7 +10,7 @@ import javax.persistence.Table;
 
 import org.hibernate.envers.Audited;
 
-import persistence.salesforce.SalesforceAccount;
+import salesforce.persistence.SalesforceAccount;
 
 @Entity
 @Table(indexes = {@Index(name = "name_index",  columnList="name", unique = false),

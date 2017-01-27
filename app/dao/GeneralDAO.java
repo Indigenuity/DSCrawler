@@ -7,6 +7,8 @@ import java.util.Map.Entry;
 
 import javax.persistence.TypedQuery;
 
+import com.google.common.collect.Multimap;
+
 import play.db.jpa.JPA;
 
 public class GeneralDAO {
@@ -96,14 +98,14 @@ public class GeneralDAO {
 	public static <T> List<T> getList(Class<T> clazz, String valueName, Object value){
 		Map<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put(valueName , value);
-		return getList(clazz, parameters);
+		return getListAnd(clazz, parameters);
 	}
-	public static <T> List<T> getList(Class<T> clazz, Map<String, Object> parameters){
+	public static <T> List<T> getList(Class<T> clazz, Map<String, Object> parameters, String operator){
 		String query = "from " + clazz.getSimpleName() + " t";
 		String delimiter = " where t.";
 		for(String key : parameters.keySet()) {
 			query += delimiter + key + " = :" + key;
-			delimiter = " and t.";
+			delimiter = " " + operator + " t.";
 		}
 		
 		TypedQuery<T> q = JPA.em().createQuery(query, clazz);
@@ -112,6 +114,61 @@ public class GeneralDAO {
 		}
 		return q.getResultList();
 	}
+	public static <T> List<T> getListAnd(Class<T> clazz, Map<String, Object> parameters){
+		return getList(clazz, parameters, "and");
+	}
+	public static <T> List<T> getListOr(Class<T> clazz, Map<String, Object> parameters){
+		return getList(clazz, parameters, "or");
+	}
+	public static <T> List<T> getList(Class<T> clazz, Multimap<String, Object> parameters, String operator){
+		String query = "from " + clazz.getSimpleName() + " t";
+		String delimiter = " where t.";
+		int suffix = 0;
+		for(Entry<String, Object> entry : parameters.entries()) {
+			query += delimiter + entry.getKey() + " = :" + entry.getKey() + String.valueOf(suffix);
+			suffix++;
+			delimiter = " " + operator + " t.";
+		}
+		System.out.println("query : " + query);
+		suffix = 0;
+		TypedQuery<T> q = JPA.em().createQuery(query, clazz);
+		for(Entry<String, Object> entry : parameters.entries()) {
+			q.setParameter(entry.getKey() + suffix, entry.getValue());
+			suffix++;
+		}
+		return q.getResultList();
+	}
+	public static <T> List<T> getListAnd(Class<T> clazz, Multimap<String, Object> parameters){
+		return getList(clazz, parameters, "and");
+	}
+	public static <T> List<T> getListOr(Class<T> clazz, Multimap<String, Object> parameters){
+		return getList(clazz, parameters, "or");
+	}
+	public static <T> List<Long> getKeyList(Class<T> clazz, String keyName, Multimap<String, Object> parameters, String operator){
+		String query = "select t." + keyName + " from " + clazz.getSimpleName() + " t";
+		String delimiter = " where t.";
+		int suffix = 0;
+		for(Entry<String, Object> entry : parameters.entries()) {
+			query += delimiter + entry.getKey() + " = :" + entry.getKey() + String.valueOf(suffix);
+			suffix++;
+			delimiter = " " + operator + " t.";
+		}
+		System.out.println("query : " + query);
+		suffix = 0;
+		TypedQuery<Long> q = JPA.em().createQuery(query, Long.class);
+		for(Entry<String, Object> entry : parameters.entries()) {
+			q.setParameter(entry.getKey() + suffix, entry.getValue());
+			suffix++;
+		}
+		return q.getResultList();
+	}
+	public static <T> List<Long> getKeyListAnd(Class<T> clazz, String keyName, Multimap<String, Object> parameters){
+		return getKeyList(clazz, keyName, parameters, "and");
+	}
+	public static <T> List<Long> getKeyListOr(Class<T> clazz, String keyName, Multimap<String, Object> parameters){
+		return getKeyList(clazz, keyName, parameters, "or");
+	}
+	
 	
 	public static <T> Long getCount(Class<T> clazz, String valueName, Object value){
 		Map<String, Object> parameters = new HashMap<String, Object>();

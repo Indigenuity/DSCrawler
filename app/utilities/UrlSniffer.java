@@ -119,7 +119,9 @@ public class UrlSniffer {
 		}
 		//If no redirect, just return what we get
 		check.setResolvedSeed(con.getURL().toString());
+		con.getInputStream().close();
 		con.disconnect();
+		
 		return check;
 	}
 	

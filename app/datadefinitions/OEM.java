@@ -1,5 +1,7 @@
 package datadefinitions;
 
+import java.util.regex.Pattern;
+
 public enum OEM {
 
 	ACURA			("acura"),
@@ -50,11 +52,23 @@ public enum OEM {
 	VW				("vw");
 	
 	
-	public final String definition;
+	private final String definition;
+	private final Pattern pattern; 
 	
 	private OEM(String definition) {
 		this.definition = definition;
+		pattern = Pattern.compile("(?i)\\b" + definition + "\\b");
 	}
+
+	public String getDefinition() {
+		return definition;
+	}
+
+	public Pattern getPattern() {
+		return pattern;
+	}
+	
+	
 	
 	
 }

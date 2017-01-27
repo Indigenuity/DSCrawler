@@ -12,9 +12,9 @@ import async.functionalwork.ConsumerWorkOrder;
 import async.functionalwork.JpaFunctionalBuilder;
 import dao.AnalysisDao;
 import persistence.SiteCrawl;
-import persistence.salesforce.SalesforceAccount;
 import play.db.jpa.JPA;
 import salesforce.SalesforceLogic;
+import salesforce.persistence.SalesforceAccount;
 
 public class AnalysisControl {
 	

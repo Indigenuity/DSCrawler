@@ -23,6 +23,7 @@ import persistence.SiteCrawl;
 import persistence.UrlCheck;
 import persistence.Site.SiteStatus;
 import play.db.jpa.JPA;
+import salesforce.persistence.SalesforceAccount;
 
 public class SitesDAO {
 	
@@ -34,6 +35,12 @@ public class SitesDAO {
 		Calendar calendar = Calendar.getInstance();
 		calendar.add(Calendar.MONTH, - 1);
 		STALE_DATE = calendar.getTime();
+	}
+	
+	public static List<String> findCities(Long siteId){
+		String queryString = "select sa.city from SalesforceAccount sa join sa.site s where s.siteId = :siteId";
+		List<String> cities= JPA.em().createQuery(queryString, String.class).setParameter("siteId", siteId).getResultList();
+		return cities;
 	}
 	
 	public static List<Long> findByWpAttribution(WPAttribution wp){

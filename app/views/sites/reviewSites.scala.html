@@ -1,0 +1,8 @@
+@(sitesList : java.util.List[_root_.persistence.Site])
+
+@main("Review Salesforce Sites") {
+
+	@for(site <- sitesList) {
+		@sites.reviewSite(site)
+	}
+}

@@ -1,18 +1,10 @@
 package async.monitoring;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListMap;
 
-import agarbagefolder.SiteWork;
-import persistence.Site;
-import persistence.SiteCrawl;
 import play.Logger;
 
 public class AsyncMonitor {
@@ -40,15 +32,6 @@ public class AsyncMonitor {
 	public static AsyncMonitor instance() {
 		return instance;
 	}
-	
-	
-	private final Map<Long, WorkInProgress> snifferWIP = new ConcurrentHashMap<Long, WorkInProgress>();
-	private final Map<Long, WorkInProgress> crawlWIP = new ConcurrentHashMap<Long, WorkInProgress>();
-	private final Map<Long, WorkInProgress> docAnalysisWIP = new ConcurrentHashMap<Long, WorkInProgress>();
-	private final Map<Long, WorkInProgress> metaAnalysisWIP = new ConcurrentHashMap<Long, WorkInProgress>();
-	private final Map<Long, WorkInProgress> amalgamationWIP = new ConcurrentHashMap<Long, WorkInProgress>();
-	private final Map<Long, WorkInProgress> textAnalysisWIP = new ConcurrentHashMap<Long, WorkInProgress>();
-	private final Map<Long, WorkInProgress> inferenceWIP = new ConcurrentHashMap<Long, WorkInProgress>();
 	
 	public Collection<WorkInProgress> getWipList(String listName) {
 		Map<Long, WorkInProgress> wipMap = wipLists.get(listName);

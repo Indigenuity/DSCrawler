@@ -9,8 +9,8 @@ import javax.persistence.ManyToOne;
 
 import org.hibernate.envers.Audited;
 
-import persistence.salesforce.SalesforceAccount;
 import places.PlacesDealer;
+import salesforce.persistence.SalesforceAccount;
 
 @Entity
 @Audited(withModifiedFlag=true)

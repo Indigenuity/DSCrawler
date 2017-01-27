@@ -3,16 +3,10 @@ package audit.sync;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.hibernate.Session;
-
-import com.google.common.base.Functions;
 
 import audit.AuditDao;
 import audit.map.SalesforceToSiteMapSession;
@@ -23,14 +17,10 @@ import datatransfer.CSVImporter;
 import datatransfer.reports.Report;
 import datatransfer.reports.ReportFactory;
 import datatransfer.reports.ReportRow;
-import persistence.Dealer;
-import persistence.GroupAccount;
 import persistence.Site;
 import persistence.Site.SiteStatus;
-import persistence.salesforce.DeletedSfAccount;
-import persistence.salesforce.SalesforceAccount;
 import play.db.jpa.JPA;
-import scaffolding.Scaffolder;
+import salesforce.persistence.SalesforceAccount;
 import sites.SiteLogic;
 import utilities.UrlSniffer;
 
@@ -51,7 +41,7 @@ public class SalesforceControl {
 	public static Sync sync(String filename, boolean generateReports) throws IOException{
 		
 		Report report = CSVImporter.importReportWithKey(filename, "Salesforce Unique ID");
-		List<String> existingIds = GeneralDAO.getFieldList(String.class, SalesforceAccount.class, "salesforceId"); 
+//		List<String> existingIds = GeneralDAO.getFieldList(String.class, SalesforceAccount.class, "salesforceId"); 
 		List<SalesforceAccount> localAccountsList = JPA.em().createQuery("from SalesforceAccount sa", SalesforceAccount.class).getResultList();
 		Map<String, SalesforceAccount> localAccounts = localAccountsList.stream().collect(Collectors.toMap(SalesforceAccount::getSalesforceId, Function.identity()));
 		

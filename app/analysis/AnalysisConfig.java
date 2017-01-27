@@ -43,6 +43,12 @@ public class AnalysisConfig {
 	protected Boolean extractStrings = false;
 	protected Boolean extractLinks = false;
 	
+	//*********** CapDB scores
+	protected Boolean doTitleTagScoring = false;
+	protected Boolean doUrlScoring = false;
+	protected Boolean doAltImageTagScore = false;
+	protected Boolean doH1Score = false;
+	protected Boolean doMetaDescriptionScore = false;
 	
 	//************ Custom
 	protected Boolean doCustomText = false;
@@ -52,7 +58,13 @@ public class AnalysisConfig {
 	
 	//************ Conditional Aggregates
 	public Boolean needsDoc(){
-		return doLinkTextMatches || doCustomDoc;
+		return doLinkTextMatches 
+				|| doCustomDoc 
+				|| doMetaBrandMatches 
+				|| doTitleTagScoring 
+				|| doAltImageTagScore 
+				|| doH1Score 
+				|| doMetaDescriptionScore;
 	}
 
 
@@ -208,7 +220,6 @@ public class AnalysisConfig {
 	}
 
 
-
 	public Boolean getDoTestMatches() {
 		return doTestMatches;
 	}
@@ -241,6 +252,66 @@ public class AnalysisConfig {
 
 	public void setDoCustomDoc(Boolean doCustomDoc) {
 		this.doCustomDoc = doCustomDoc;
+	}
+
+
+
+	public Boolean getDoTitleTagScoring() {
+		return doTitleTagScoring;
+	}
+
+
+
+	public void setDoTitleTagScoring(Boolean doTitleTagScoring) {
+		this.doTitleTagScoring = doTitleTagScoring;
+	}
+
+
+
+	public Boolean getDoUrlScoring() {
+		return doUrlScoring;
+	}
+
+
+
+	public void setDoUrlScoring(Boolean doUrlScoring) {
+		this.doUrlScoring = doUrlScoring;
+	}
+
+
+
+	public Boolean getDoAltImageTagScore() {
+		return doAltImageTagScore;
+	}
+
+
+
+	public void setDoAltImageTagScore(Boolean doAltImageTagScore) {
+		this.doAltImageTagScore = doAltImageTagScore;
+	}
+
+
+
+	public Boolean getDoH1Score() {
+		return doH1Score;
+	}
+
+
+
+	public void setDoH1Score(Boolean doH1Score) {
+		this.doH1Score = doH1Score;
+	}
+
+
+
+	public Boolean getDoMetaDescriptionScore() {
+		return doMetaDescriptionScore;
+	}
+
+
+
+	public void setDoMetaDescriptionScore(Boolean doMetaDescriptionScore) {
+		this.doMetaDescriptionScore = doMetaDescriptionScore;
 	}
 	
 	

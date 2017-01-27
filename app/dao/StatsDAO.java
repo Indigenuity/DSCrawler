@@ -1,30 +1,18 @@
 package dao;
 
 import java.lang.reflect.Field;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.persistence.Column;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import async.work.WorkStatus;
-import async.work.WorkType;
 import datadefinitions.newdefinitions.WPAttribution;
-import persistence.CrawlSet;
 import persistence.Site;
 import persistence.SiteCrawl;
-import persistence.stateful.FetchJob;
-import persistence.tasks.TaskSet;
-import play.db.DB;
 import play.db.jpa.JPA;
 import reporting.DashboardStats;
 
@@ -52,68 +40,7 @@ public class StatsDAO {
 		return stats;
 	}
 	
-	public static DashboardStats getTaskSetStats(TaskSet taskSet) throws SQLException {
-		DashboardStats stats = new DashboardStats("TaskSet Summary");
-		
-		stats.addSection("Task Statuses", getTaskSetTaskStats(taskSet));
-		stats.addSection("Subtask Statuses", getTaskSetSubtaskStats(taskSet));
-		
-		stats.put("Tasks", taskSet.getTasks().size());
-		stats.put("Supertasks", TaskDAO.countWorkType(taskSet.getTaskSetId(), WorkType.SUPERTASK));
-		stats.put("Tasks To Do", TaskDAO.countWorkStatus(taskSet.getTaskSetId(), WorkStatus.DO_WORK));
-		stats.put("Tasks Completed", TaskDAO.countWorkStatus(taskSet.getTaskSetId(), WorkStatus.WORK_COMPLETED));
-		stats.put("Tasks Need Review", TaskDAO.countWorkStatus(taskSet.getTaskSetId(), WorkStatus.NEEDS_REVIEW));
-		
-		return stats;
-	}
-	
-	public static DashboardStats getTaskSetSubtaskStats(TaskSet taskSet) throws SQLException {
-		String query = "select t2.workType, t2.workStatus, count(*) as numTasks from taskset ts " + 
-				"join taskset_task tst on ts.tasksetid = tst.tasksetid " + 
-				"join task t on tst.taskid = t.taskid " + 
-				"join task_subtask sub on t.taskid = sub.supertaskid " + 
-				"join task t2 on sub.subtaskid = t2.taskid " + 
-				"where ts.tasksetid = " + taskSet.getTaskSetId() + " " + 
-				"group by t2.workType, t2.workstatus " + 
-				"order by t2.workstatus";
-		
-		Connection connection = DB.getConnection();
-		Statement statement = connection.createStatement();
-		ResultSet rs= statement.executeQuery(query);
-		
-		DashboardStats stats = new DashboardStats("Subtask Statuses");
-		while(rs.next()){
-			ResultSetMetaData meta = rs.getMetaData();
-			String workStatus = rs.getString("workStatus");
-			String workType = rs.getString("workType");
-			Integer numTasks = rs.getInt("numTasks");
-			stats.put(workType + " " + workStatus, numTasks);
-		}
-		return stats;
-	}
-	
-	public static DashboardStats getTaskSetTaskStats(TaskSet taskSet) throws SQLException {
-		String query = "select t.workType, t.workStatus, count(*) as numTasks from taskset ts " + 
-				"join taskset_task tst on ts.tasksetid = tst.tasksetid " + 
-				"join task t on tst.taskid = t.taskid " + 
-				"where ts.tasksetid = " + taskSet.getTaskSetId() + " " +  
-				"group by t.workType, t.workstatus " + 
-				"order by t.workstatus";
-		
-		Connection connection = DB.getConnection();
-		Statement statement = connection.createStatement();
-		ResultSet rs= statement.executeQuery(query);
-		
-		DashboardStats stats = new DashboardStats("Task Statuses");
-		while(rs.next()){
-			String workStatus = rs.getString("workStatus");
-			String workType = rs.getString("workType");
-			Integer numTasks = rs.getInt("numTasks");
-			stats.put(workType + " " + workStatus, numTasks);
-		}
-		return stats;
-	}
-
+	@SuppressWarnings("unchecked")
 	public DashboardStats getDashboardStats() {
 		DashboardStats stats = new DashboardStats();
 		EntityManager em = JPA.em();
@@ -181,84 +108,6 @@ public class StatsDAO {
 			}
 		}
 		
-		
-		return stats;
-	}
-	
-	public static DashboardStats getFetchJobStats(FetchJob fetchJob) {
-		DashboardStats stats = new DashboardStats();
-		
-		fillSubtaskStats(fetchJob, stats, "urlCheck");
-		fillSubtaskStats(fetchJob, stats, "siteUpdate");
-		fillSubtaskStats(fetchJob, stats, "siteCrawl");
-		fillSubtaskStats(fetchJob, stats, "amalgamation");
-		fillSubtaskStats(fetchJob, stats, "textAnalysis");
-		fillSubtaskStats(fetchJob, stats, "docAnalysis");
-		fillSubtaskStats(fetchJob, stats, "placesPageFetch");
-//		stats.put("Total Sites", crawlSet.getSites().size());
-//		stats.put("Need Crawl", crawlSet.getUncrawled().size());
-//		stats.put("Need Mobile Crawl", crawlSet.getNeedMobile().size());
-//		stats.put("Need Redirect Resolve", crawlSet.getNeedRedirectResolve().size());
-//		stats.put("Site Crawls", crawlSet.getCompletedCrawls().size());
-//		
-//		for(Field field : Site.class.getDeclaredFields()) {
-//			if(field.getType() == boolean.class){
-//				long count = SitesDAO.getCrawlSetCount(crawlSet.getCrawlSetId(), field.getName(), true);
-//				stats.put(field.getName(), count);
-//			}
-//		}
-//		
-//		for(Field field : SiteCrawl.class.getDeclaredFields()) {
-//			if(field.getType() == boolean.class){
-//				long count = SiteCrawlDAO.getCrawlSetCount(crawlSet.getCrawlSetId(), field.getName(), true);
-//				stats.put(field.getName(), count);
-//			}
-//		}
-		
-		return stats;
-	}
-	
-	private static void fillSubtaskStats(FetchJob fetchJob, DashboardStats stats, String subtaskName){
-		String query = "select count(info) from FetchJob fj join fj.fetches info where fj.fetchJobId = :fetchJobId"
-				+ " and info." + subtaskName + ".workStatus = :workStatus";
-		Query q = JPA.em().createQuery(query);
-		q.setParameter("fetchJobId", fetchJob.getFetchJobId());
-		
-		q.setParameter("workStatus", WorkStatus.DO_WORK);
-		Integer value = Integer.parseInt(q.getSingleResult() + "");
-		stats.put(subtaskName + " Not Done", value);
-		
-		q.setParameter("workStatus", WorkStatus.WORK_COMPLETED);
-		value = Integer.parseInt(q.getSingleResult() + "");
-		stats.put(subtaskName + " Completed", value);
-		
-		q.setParameter("workStatus", WorkStatus.NEEDS_REVIEW);
-		value = Integer.parseInt(q.getSingleResult() + "");
-		stats.put(subtaskName + " Needs Review", value);
-	}
-	
-	public static DashboardStats getCrawlSetStats(CrawlSet crawlSet) {
-		DashboardStats stats = new DashboardStats();
-		
-		stats.put("Total Sites", crawlSet.getSites().size());
-		stats.put("Need Crawl", crawlSet.getUncrawled().size());
-		stats.put("Need Mobile Crawl", crawlSet.getNeedMobile().size());
-		stats.put("Need Redirect Resolve", crawlSet.getNeedRedirectResolve().size());
-		stats.put("Site Crawls", crawlSet.getCompletedCrawls().size());
-		
-		for(Field field : Site.class.getDeclaredFields()) {
-			if(field.getType() == boolean.class){
-				long count = SitesDAO.getCrawlSetCount(crawlSet.getCrawlSetId(), field.getName(), true);
-				stats.put(field.getName(), count);
-			}
-		}
-		
-		for(Field field : SiteCrawl.class.getDeclaredFields()) {
-			if(field.getType() == boolean.class){
-				long count = SiteCrawlDAO.getCrawlSetCount(crawlSet.getCrawlSetId(), field.getName(), true);
-				stats.put(field.getName(), count);
-			}
-		}
 		
 		return stats;
 	}

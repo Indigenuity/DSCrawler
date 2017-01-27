@@ -55,6 +55,8 @@ public class BasicDealer {
 	@Column(nullable = true, columnDefinition="varchar(1000)")
 	private String custom6;
 	
+	private Boolean outdated = false;
+	
 	
 	public String getName() {
 		return name;
@@ -199,6 +201,12 @@ public class BasicDealer {
 	}
 	public void setForeignIdentifierString(String foreignIdentifierString) {
 		this.foreignIdentifierString = foreignIdentifierString;
+	}
+	public Boolean getOutdated() {
+		return outdated;
+	}
+	public void setOutdated(Boolean outdated) {
+		this.outdated = outdated;
 	}
 	
 	

@@ -51,10 +51,6 @@ import datadefinitions.newdefinitions.WPClue;
 	subgraphs = {
 		@NamedSubgraph(name="pageCrawlFull", attributeNodes = {
 			@NamedAttributeNode("links"),
-			@NamedAttributeNode("metatags"),
-			@NamedAttributeNode("imageTags"),
-			@NamedAttributeNode("brandMatchCounts"),
-			@NamedAttributeNode("metaBrandMatchCounts")
 		})
 }
 	
@@ -133,15 +129,15 @@ public class SiteCrawl {
 	@ManyToOne(fetch=FetchType.LAZY)
 	private PageCrawl usedInventoryPage;
 	
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="siteCrawlStatsId")
-	private SiteCrawlStats siteCrawlStats;
+//	@ManyToOne(fetch=FetchType.LAZY)
+//	@JoinColumn(name="siteCrawlStatsId")
+//	private SiteCrawlStats siteCrawlStats;
 	
 	@ManyToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
 	protected Set<FBPage> fbPages = new HashSet<FBPage>();
 	
-	@OneToOne(mappedBy="siteCrawl")
-	private SiteCrawlAnalysis siteCrawlAnalysis;
+//	@OneToOne(mappedBy="siteCrawl")
+//	private SiteCrawlAnalysis siteCrawlAnalysis;
 	
 	
 	/******************************************  Calculated Attributes Collections ***********************************/
@@ -710,17 +706,7 @@ public class SiteCrawl {
 	public void setMaxInventoryCount(InventoryNumber maxInventoryCount) {
 		this.maxInventoryCount = maxInventoryCount;
 	}
-	
-	
 
-	public SiteCrawlStats getSiteCrawlStats() {
-		return siteCrawlStats;
-	}
-
-	public void setSiteCrawlStats(SiteCrawlStats siteCrawlStats) {
-		this.siteCrawlStats = siteCrawlStats;
-	}
-	
 	public datadefinitions.newdefinitions.WebProvider getWebProvider() {
 		return webProvider;
 	}

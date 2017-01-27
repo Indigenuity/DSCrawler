@@ -5,8 +5,8 @@ import dao.PlacesDealerDao;
 import dao.SalesforceDao;
 import persistence.Site;
 import persistence.Site.SiteStatus;
-import persistence.salesforce.SalesforceAccount;
-import persistence.salesforce.SalesforceAccountType;
+import salesforce.persistence.SalesforceAccount;
+import salesforce.persistence.SalesforceAccountType;
 
 public class StatsBuilder {
 

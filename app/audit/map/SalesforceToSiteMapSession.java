@@ -10,8 +10,8 @@ import audit.sync.Sync;
 import audit.sync.SyncType;
 import dao.SitesDAO;
 import persistence.Site;
-import persistence.salesforce.SalesforceAccount;
 import play.db.jpa.JPA;
+import salesforce.persistence.SalesforceAccount;
 
 public class SalesforceToSiteMapSession extends SingleMapSession<SalesforceAccount, Site> {
 

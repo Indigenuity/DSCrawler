@@ -15,8 +15,8 @@ import audit.ListMatcher;
 import datatransfer.CSVGenerator;
 import datatransfer.reports.Report;
 import datatransfer.reports.ReportRow;
-import persistence.salesforce.SalesforceAccount;
 import play.db.jpa.JPA;
+import salesforce.persistence.SalesforceAccount;
 import tyrex.services.UUID;
 
 public class NyControl {

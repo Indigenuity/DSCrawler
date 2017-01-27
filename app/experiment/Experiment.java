@@ -5,268 +5,97 @@ import net.sf.sprockets.google.Place;
 import net.sf.sprockets.google.Places;
 import net.sf.sprockets.google.Places.Params;
 import net.sf.sprockets.google.Places.Response;
-import newwork.urlcheck.UrlCheckWorkOrder;
 
 import java.beans.IntrospectionException;
-import java.beans.PropertyDescriptor;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Reader;
-import java.lang.instrument.Instrumentation;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Root;
-import javax.persistence.metamodel.EntityType;
-import javax.tools.JavaCompiler;
-import javax.tools.ToolProvider;
 
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.beanutils.PropertyUtilsBean;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.csv.CSVPrinter;
 
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
-import org.hibernate.Hibernate;
-import org.hibernate.Session;
-import org.hibernate.envers.AuditReader;
-import org.hibernate.envers.AuditReaderFactory;
-import org.hibernate.envers.query.AuditEntity;
-import org.hibernate.envers.query.AuditQuery;
-import org.hibernate.envers.query.AuditQueryCreator;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.safety.Whitelist;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Proxy;
-import org.openqa.selenium.StaleElementReferenceException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.remote.CapabilityType;
-import org.openqa.selenium.remote.DesiredCapabilities;
-import org.openqa.selenium.support.ui.ExpectedCondition;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
-import com.google.common.base.Functions;
-import com.google.common.collect.MapDifference;
-import com.google.common.collect.Maps;
-import com.google.maps.GeoApiContext;
-import com.google.maps.PlaceDetailsRequest;
-import com.google.maps.PlacesApi;
-import com.google.maps.model.AddressComponent;
-import com.google.maps.model.AddressComponentType;
-import com.google.maps.model.PlaceDetails;
-
-import agarbagefolder.InfoFetch;
-import agarbagefolder.SiteWork;
-import agarbagefolder.WorkSet;
-import agarbagefolder.urlresolve.UrlResolveWorkOrder;
 import crawling.CrawlSession;
 import crawling.DealerCrawlController;
-import crawling.GoogleCrawler;
 import crawling.MobileCrawler;
 import crawling.discovery.async.TempCrawlingWorker;
 import crawling.discovery.html.DocDerivationStrategy;
 import crawling.discovery.html.HttpConfig;
 import crawling.discovery.html.HttpEndpoint;
-import crawling.discovery.html.Scraper;
-import crawling.nydmv.County;
 import crawling.nydmv.NYDealer;
-import crawling.nydmv.NyControl;
-import crawling.nydmv.NyDao;
 import crawling.projects.BasicDealer;
-import crawling.projects.BhphCrawl;
 import dao.AnalysisDao;
-import dao.GeneralDAO;
-import dao.SalesforceDao;
-import dao.SiteCrawlDAO;
 import dao.SitesDAO;
-import dao.StatsDAO;
-import dao.TaskDAO;
-import dao.TaskSetDAO;
 import datadefinitions.GeneralMatch;
-import datadefinitions.Scheduler;
-import datadefinitions.StringExtraction;
-import datadefinitions.UrlExtraction;
-import datadefinitions.WebProvider;
-import datadefinitions.newdefinitions.InventoryType;
 import datadefinitions.newdefinitions.LinkTextMatch;
-import datadefinitions.newdefinitions.WPAttribution;
 import datatransfer.Amalgamater;
 import datatransfer.CSVGenerator;
-import datatransfer.CSVImporter;
 import datatransfer.Cleaner;
 import datatransfer.reports.Report;
-import datatransfer.reports.ReportFactory;
 import datatransfer.reports.ReportRow;
 import akka.actor.ActorRef;
-import akka.actor.Props;
 import analysis.AnalysisConfig;
-import analysis.AnalysisControl;
 import analysis.AnalysisSet;
-import analysis.PageCrawlAnalysis;
 import analysis.SiteCrawlAnalysis;
 import analysis.SiteCrawlAnalyzer;
 import analysis.TextAnalyzer;
 import analysis.AnalysisConfig.AnalysisMode;
 import async.async.Asyncleton;
-import async.async.GenericMaster;
-import async.functionalwork.ConsumerWorkOrder;
-import async.functionalwork.FunctionWorkOrder;
-import async.tools.InventoryTool;
-import async.tools.Tool;
-import async.tools.ToolGuide;
-import async.tools.UrlResolveTool;
-import async.work.WorkItem;
-import async.work.WorkStatus;
-import async.work.WorkType;
 import audit.AuditDao;
-import audit.Distance;
-import audit.ListMatchResult;
-import audit.ListMatcher;
-import audit.sync.SalesforceDealerSyncSession;
-import audit.sync.SalesforceGroupAccountSyncSession;
-import audit.sync.SalesforceControl;
-import audit.sync.SingleSyncSession;
 import audit.sync.Sync;
-import audit.sync.SyncSession;
-import audit.sync.SyncType;
-import persistence.CrawlSet;
-import persistence.Dealer;
 import persistence.ExtractedString;
-import persistence.ExtractedUrl;
-import persistence.FBPage;
-import persistence.GoogleCrawl;
-import persistence.GroupAccount;
-import persistence.ImageTag;
 import persistence.MobileCrawl;
-import persistence.PageCrawl;
-import persistence.SFEntry;
 import persistence.Site;
 import persistence.SiteCrawl;
-import persistence.Temp;
-import persistence.TestEntity;
-import persistence.TestOtherEntity;
 import persistence.UrlCheck;
 import persistence.Site.SiteStatus;
 import persistence.SiteCrawl.FileStatus;
-import persistence.salesforce.SalesforceAccount;
-import persistence.stateful.FetchJob;
-import persistence.tasks.Task;
-import persistence.tasks.TaskSet;
-import places.CanadaPostal;
-import places.DataBuilder;
-import places.MyEntity;
-import places.PlacesDealer;
-import places.PlacesPage;
-import places.PostalLocation;
-import places.PostalSearchWorker;
-import places.Retriever;
-import places.ZipLocation;
-import play.db.DB;
 import play.db.jpa.JPA;
-import reporting.DashboardStats;
-import scaffolding.Scaffolder;
-import sites.crawling.SiteCrawlLogic;
-import tyrex.services.UUID;
+import salesforce.persistence.SalesforceAccount;
 import urlcleanup.ListCheck;
 import urlcleanup.ListCheckExecutor;
 import utilities.DSFormatter;
-import utilities.FB;
 import utilities.Tim;
-import utilities.UrlSniffer;
 
 public class Experiment { 
 	
 	public static void runExperiment() throws Exception {
 		
-//		String queryString = "from PlacesDealer pd";
-//		List<PlacesDealer> dealers = JPA.em().createQuery(queryString, PlacesDealer.class).setMaxResults(5).getResultList();
-//		queryString = "from SalesforceAccount sa where sa.site = :site";
-//		TypedQuery<SalesforceAccount> query = JPA.em().createQuery(queryString, SalesforceAccount.class);
-//		for(PlacesDealer dealer : dealers) {
-//			System.out.print("Site : " + dealer.getSite().getHomepage());
-//			query.setParameter("site", dealer.getSite());
-//			List<SalesforceAccount> resultList = query.getResultList();
-//			System.out.println("resultList: " + resultList.size());
-//			
-//		}
+		DealerCrawlController.crawlSite("http://conquerclub.com");
 		
-//		String queryString = "select s.siteId from SalesforceAccount sa join sa.site s where sa.country = 'CANADA'";
-//		List<Long> siteIds = JPA.em().createQuery(queryString, Long.class).getResultList();
-//		System.out.println("sites : " + siteIds.size());
-//		
-//		SiteCrawlLogic.crawlSites(siteIds);
+//		SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, 88148L);
+//		System.out.println("siteCrawl : " + siteCrawl);
+//		SiteCrawlAnalysis analysis = AnalysisDao.getOrNew(siteCrawl);
+//		AnalysisConfig config = new AnalysisConfig();
+//		config.setDoTitleTagScoring(true);
+//		config.setDoUrlScoring(true);
+//		config.setDoH1Score(true);
+//		config.setDoMetaDescriptionScore(true);
+//		config.setDoBrandMatches(true);
+//		config.setDoMetaBrandMatches(true);
+//		config.setDoAltImageTagScore(true);
+//		analysis.setConfig(config);
+//		SiteCrawlAnalyzer.runSiteCrawlAnalysis(analysis);
+//		System.out.println("url contains city : " + analysis.getNumUrlContainsCity());
 		
-//		String queryString = "select sc.siteCrawlId from SiteCrawl sc where sc.crawlDate = '2017-1-10'";
-//		List<Long> siteCrawlIds = JPA.em().createQuery(queryString, Long.class).getResultList();
-//		System.out.println("siteCrawlIds : " + siteCrawlIds.size());
-//		AnalysisControl.runDefaultAnalysis(siteCrawlIds);
-		
-//		WPAttribution wp = WPAttribution.STRATHCOM_GENERAL;
-//		String queryString = "from SiteCrawlAnalysis s where :wp member of s.wpAttributions ";
-//		List<SiteCrawlAnalysis> siteIds = JPA.em().createQuery(queryString, SiteCrawlAnalysis.class).setParameter("wp", wp).getResultList();
-//		System.out.println("siteIds : " + siteIds.size()); 
-		
-		System.out.println("Site ids : " + SalesforceDao.findByWpAttribution(WPAttribution.STRATHCOM_GENERAL));
-		
+//		System.out.println("cities : " + SitesDAO.findCities(18511L));
 	}
 	
 	public static void setMostRecentCrawls() {
@@ -611,7 +440,7 @@ public class Experiment {
 	}
 	
 	public static void siteCrawlAnalysisExperiment() throws Exception {
-		SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, 55426L);
+//		SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, 55426L);
 		
 //		SiteCrawlAnalysis analysis = SiteCrawlAnalyzer.analyzeSiteCrawl(siteCrawl, AnalysisMode.PAGED);
 		
@@ -631,7 +460,6 @@ public class Experiment {
 	
 	public static void runUrlExperiment() throws IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InterruptedException {
 		
-		experimentTaskSet();
 //		useUrlChecks();
 //		String queryString = "from Site s where domain is null";
 //		List<Site> sites = JPA.em().createQuery(queryString, Site.class).getResultList();
@@ -745,69 +573,6 @@ public class Experiment {
 //			}
 			
 		}
-	}
-	
-	public static void runSyncExperiment(){
-		System.out.println("gettnig listcheck");
-		ListCheck listCheck = JPA.em().find(ListCheck.class, 1L);
-		System.out.println("getting report");
-		Report report = listCheck.getReport();
-		System.out.println("number of rows in report : " + report.getReportRows().size());
-		
-		Map<String, GroupAccount> groupAccounts = new HashMap<String, GroupAccount>();
-		
-		report.getReportRows().values().stream()
-		.filter((reportRow) -> {
-			return reportRow.getCell("Account Level") != null && reportRow.getCell("Account Level").equals("Group");
-		}).forEach((reportRow) -> {
-			
-//			
-			
-//			if(dealer.getParentAccountSalesforceId() != null){
-//				
-//			}
-			
-		}); 
-		
-		JPA.em().getTransaction().commit();
-		JPA.em().getTransaction().begin();
-		
-		
-		report.getReportRows().values().stream()
-		.forEach((reportRow) -> {
-			Dealer dealer = GeneralDAO.getFirst(Dealer.class, "dealerName", reportRow.getCell("Account Name"));
-			boolean isNew = false;
-			if(dealer == null){
-				dealer = new Dealer();
-				isNew = true;
-			}
-			
-			dealer.setDealerName(reportRow.getCell("Account Name"));
-			dealer.setSalesforceId(reportRow.getCell("Salesforce Unique ID"));
-			dealer.setSalesforceWebsite(reportRow.getCell("Website"));
-			dealer.setParentAccountSalesforceId(reportRow.getCell("Parent Account ID"));
-			dealer.setParentAccountName(reportRow.getCell("Parent Account"));
-			dealer.setGroupAccount(groupAccounts.get(dealer.getParentAccountSalesforceId()));
-			
-		});
-		
-		
-		
-		List<Dealer> dealers = JPA.em().createQuery("from Dealer d where d.parentAccountSalesforceId is not null", Dealer.class).getResultList();
-		
-		dealers.stream()
-			.forEach( (dealer) ->  {
-				GroupAccount groupAccount = GeneralDAO.getFirst(GroupAccount.class, "salesforceId", dealer.getParentAccountSalesforceId());
-				System.out.println("dealer : " + dealer.getDealerName());
-				if(groupAccount != null) {
-					dealer.setGroupAccount(groupAccount);
-					
-					System.out.println("group account : " + groupAccount.getName());
-				} else {
-					System.out.println("no group account");
-				}
-			});
-		
 	}
 	
 	public static void runEnversExperiment() throws IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
@@ -927,77 +692,10 @@ public class Experiment {
 	public static void twitterExperiment() {
 	}
 	
-	public static void experimentTaskSet() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException, InterruptedException {
-		
-		TaskSet taskSet = new TaskSet();
-		taskSet.setName("Crawling");
-		
-		String query = "select s from SalesforceAccount sf join sf.site s where sf.country ='Canada' and s.siteStatus = :siteStatus";
-		List<Site> sites = JPA.em().createQuery(query, Site.class).setParameter("siteStatus", SiteStatus.APPROVED).getResultList();
-		
-//		List<String> dupDomains = SitesDAO.getDuplicateDomains(100000, 0);
-//		System.out.println("dupDomains : " + dupDomains.size());
-//		
-//		for(String domain : dupDomains){
-//			System.out.println("marking dupes on domain : " + domain);
-//			List<Site> sites = GeneralDAO.getList(Site.class, "domain", domain);
-//			System.out.println("found sites on dup domain : " + sites.size());
-//			for(Site site : sites) {
-//				site.setSiteStatus(SiteStatus.SUSPECTED_DUPLICATE);
-//			}
-//		}
-		
-		System.out.println("sites size : " + sites.size());
-		for(Site site : sites){
-			if(site.getHomepage().toLowerCase().contains("basant")){
-				System.out.println("found basant");
-			}
-//			Task supertask = new Task();
-//			supertask.setWorkStatus(WorkStatus.DO_WORK);
-//			supertask.setWorkType(WorkType.SUPERTASK);
-//			supertask.addContextItem("seed", site.getHomepage());
-//			supertask.addContextItem("siteId", site.getSiteId() + "");
-//			taskSet.addTask(supertask);
-			
-//			Task urlTask = new Task();
-//			urlTask.setWorkType(WorkType.REDIRECT_RESOLVE);
-//			urlTask.setWorkStatus(WorkStatus.DO_WORK);
-//			supertask.addSubtask(urlTask);
-//			
-//			Task updateTask = new Task();
-//			updateTask.setWorkType(WorkType.SITE_UPDATE);
-//			updateTask.setWorkStatus(WorkStatus.DO_WORK);
-//			updateTask.addPrerequisite(urlTask);
-//			supertask.addSubtask(updateTask);
-//			
-//			Task crawlTask = new Task();
-//			crawlTask.setWorkType(WorkType.SITE_CRAWL);
-//			crawlTask.setWorkStatus(WorkStatus.DO_WORK);
-//			supertask.addSubtask(crawlTask);
-			
-//			Task amalgTask = new Task();
-//			amalgTask.setWorkStatus(WorkStatus.DO_WORK);
-//			amalgTask.setWorkType(WorkType.AMALGAMATION);
-//			amalgTask.addPrerequisite(crawlTask);
-//			JPA.em().persist(amalgTask);
-//			
-//			
-//			Task analysisTask = new Task();
-//			analysisTask.setWorkType(WorkType.ANALYSIS);
-//			analysisTask.setWorkStatus(WorkStatus.DO_WORK);
-//			analysisTask.addPrerequisite(amalgTask);
-//			supertask.addSubtask(analysisTask);
-//			
-//			site.setHomepage(site.getHomepage());
-		}
-		
-		JPA.em().persist(taskSet);
-	}
-	
 	public static void fetchingBenchmark(){
 		Tim.start();
 		int count = 5000;
-		int offset = 0;
+//		int offset = 0;
 		
 //		List<PageCrawl> pageCrawls = JPA.em().createQuery("from PageCrawl pc", PageCrawl.class).setMaxResults(count).setFirstResult(offset)
 //				.setHint("pageCrawlFull", JPA.em().getEntityGraph("pageCrawlFull"))
@@ -1025,9 +723,9 @@ public class Experiment {
 		
 		;
 		
-		TypedQuery<SiteCrawl> typed = JPA.em().createQuery(q)
+//		TypedQuery<SiteCrawl> typed = JPA.em().createQuery(q)
 //				.setHint("javax.persistence.loadgraph", JPA.em().getEntityGraph("siteCrawlFull"))
-				.setParameter(id, 5000L);
+//				.setParameter(id, 5000L);
 		
 //		SiteCrawl siteCrawl = typed.getSingleResult();
 		List<SiteCrawl> siteCrawls = JPA.em().createQuery("from SiteCrawl sc", SiteCrawl.class).setMaxResults(count).getResultList();
@@ -1045,15 +743,6 @@ public class Experiment {
 		Tim.end();
 	}
 	
-	public static void invTask() throws Exception {
-		runAnalysis();
-		Task task = new Task();
-		task.setWorkType(WorkType.INVENTORY_COUNT);
-		task.addContextItem("siteCrawlId", 76 + "");
-		InventoryTool.doathing(task);
-		System.out.println("task : " + task.getWorkStatus());
-		System.out.println("task : " + task.getNote());
-	}
 	
 	public static void runAnalysis() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
 		SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, 2L);
@@ -1062,120 +751,6 @@ public class Experiment {
 //		InventoryTool.doExperiment(siteCrawl);
 //		System.out.println("sitecrawl invNumbers : " + siteCrawl.getInventoryNumbers().size()); 
 	}
-	
-	public static void modifyTaskSet() {
-		
-		File folder = new File("C:\\Workspace\\DSStorage\\crawldata\\05-02-2016\\");
-		
-		System.out.println("is folder : " + folder.isDirectory());
-		
-		
-		TaskSet taskSet = JPA.em().find(TaskSet.class, 9L);
-		System.out.println("got task set : " + taskSet);
-		Task doc = null;
-		Task text = null;
-		Task meta = null;
-		Task inv = null;
-		Task siteCrawlTask = null;
-		Task url = null;
-		Task analysis = null;
-		int count = 1;
-		for(Task supertask : taskSet.getTasks()){
-			for(Task subtask : supertask.getSubtasks()){
-				if(subtask.getWorkType() == WorkType.DOC_ANALYSIS){
-					doc = subtask;
-				}else if(subtask.getWorkType() == WorkType.INVENTORY_COUNT){
-					inv = subtask;
-				}else if(subtask.getWorkType() == WorkType.TEXT_ANALYSIS){
-					text = subtask;
-				}else if(subtask.getWorkType() == WorkType.META_ANALYSIS){
-					meta = subtask;
-				}else if(subtask.getWorkType() == WorkType.SITE_CRAWL){
-					siteCrawlTask = subtask;
-				}else if(subtask.getWorkType() == WorkType.REDIRECT_RESOLVE){
-					url = subtask;
-				}else if(subtask.getWorkType() == WorkType.ANALYSIS){
-					analysis = subtask;
-				}
-			}
-			
-
-			Task amalgTask = new Task();
-			amalgTask.setWorkStatus(WorkStatus.DO_WORK);
-			amalgTask.setWorkType(WorkType.AMALGAMATION);
-			amalgTask.addPrerequisite(siteCrawlTask);
-			JPA.em().persist(amalgTask);
-			analysis.getPrerequisites().clear();
-			analysis.addPrerequisite(amalgTask);
-			supertask.addSubtask(amalgTask);
-			
-//			analysis.addPrerequisite(siteCrawl);
-			
-			
-			
-//			UrlCheck urlCheck = JPA.em().find(UrlCheck.class, Long.parseLong(url.getContextItem("urlCheckId")));
-//			
-//			if(!urlCheck.isAllApproved()){
-//				url.setNote("URL not approved");
-//				url.setWorkStatus(WorkStatus.NEEDS_REVIEW);
-//				supertask.setWorkStatus(WorkStatus.DO_WORK);
-//			}
-			
-			count++;
-			if(count %500 == 0){
-				System.out.println("count : " + count);
-				JPA.em().getTransaction().commit();
-				JPA.em().getTransaction().begin();
-			}
-		}
-	}
-	
-	
-	
-	public static void createTaskSet() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
-		
-		TaskSet taskSet = new TaskSet();
-		taskSet.setName("WP Experiment Task Set");
-		JPA.em().persist(taskSet);
-		
-		System.out.println("retrieving sitecrawls");
-		List<SiteCrawl> siteCrawls = JPA.em().createQuery("from SiteCrawl sc where sc.amalgamationDone = true", SiteCrawl.class).getResultList();
-		System.out.println("siteCrawls : " + siteCrawls.size());
-		for(SiteCrawl siteCrawl : siteCrawls){
-//			siteCrawl.initAll();
-			if(siteCrawl.getPageCrawls().size() > 10){
-				Task supertask = new Task();
-				supertask.setWorkType(WorkType.SUPERTASK);
-				JPA.em().persist(supertask);
-				taskSet.addTask(supertask);
-				
-				Task textAnalysisTask = new Task();
-				textAnalysisTask.setWorkType(WorkType.TEXT_ANALYSIS);
-				textAnalysisTask.addContextItem("siteCrawlId", siteCrawl.getSiteCrawlId() + "");
-				JPA.em().persist(textAnalysisTask);
-				supertask.addSubtask(textAnalysisTask);
-				
-//				Task docAnalysisTask = new Task();
-//				docAnalysisTask.setWorkType(WorkType.DOC_ANALYSIS);
-//				docAnalysisTask.addContextItem("siteCrawlId", siteCrawl.getSiteCrawlId() + "");
-//				JPA.em().persist(docAnalysisTask);
-//				supertask.addSubtask(docAnalysisTask);
-//				
-//				Task metaAnalysisTask = new Task();
-//				metaAnalysisTask.setWorkType(WorkType.META_ANALYSIS);
-//				metaAnalysisTask.addPrerequisite(docAnalysisTask);
-//				metaAnalysisTask.addPrerequisite(textAnalysisTask);
-//				JPA.em().persist(metaAnalysisTask);
-//				supertask.addSubtask(metaAnalysisTask);
-				
-				
-//				Task siteImportTask = new Task();
-//				siteImportTask.setWorkType(WorkType.SITE_IMPORT);
-//				siteImportTask.addPrerequisite(urlCheckTask);				
-			}
-		}
-	}
-	
 	
 	public static void testPlaces() throws Exception {
 
@@ -1229,10 +804,6 @@ public class Experiment {
 		System.out.println("slmost responsieve: " + almostResponsive);
 	}
 	
-	public static void gcrawl() throws Exception {
-		GoogleCrawler.googleCrawl("toyota houston tx");
-	}
-	
 	public static void mobileExperiment() throws Exception {
 		String seed = "http://www.sewelltoyota.com/";
 //		seed = "http://www.jaguarhoustoncentral.com/";
@@ -1280,58 +851,34 @@ public class Experiment {
 		System.out.println();
 	}
 	
-	public static void setSiteCities() {
-		List<Site> sites = JPA.em().createQuery("from Site s", Site.class).setMaxResults(5000).setFirstResult(50000).getResultList();
-		System.out.println("sites size : " + sites.size());
-		int count = 0;
-		for(Site site : sites) {
-			List<Dealer> dealers = JPA.em().createQuery("from Dealer d where d.mainSite.siteId = " + site.getSiteId(), Dealer.class).getResultList();
-			Set<String> cities = new HashSet<String>();
-//			System.out.println("dealers : " + dealers.size());
-			for(Dealer dealer : dealers) {
-				if(!StringUtils.isEmpty(dealer.getCity())){
-					cities.add(dealer.getCity());					
-				}
-				
-			}
-//			System.out.println("cities : " + cities);
-			site.setCities(cities);
-			if(count++ % 499 == 0) {
-				System.out.println("count : " + count);
-				JPA.em().getTransaction().commit();
-				JPA.em().getTransaction().begin();
-			}
-		}
-	}
-	
 	public static void parseDealerAddresses() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, IntrospectionException, NoSuchMethodException {
-		List<Dealer> dealers = JPA.em().createQuery("from Dealer d where d.address is not null", Dealer.class).getResultList();
-		
-		Matcher matcher;
-		System.out.println("City matcher : " + StringExtraction.CITY.getPattern());
-		int count = 0;
-		int nomatch = 0;
-		for(Dealer dealer : dealers) {
-			matcher = StringExtraction.CITY.getPattern().matcher(dealer.getAddress());
-			if(matcher.find()) {
-				String city = matcher.group(1);
-				String state = matcher.group(2);
-//				System.out.println("city : " + city);
-//				System.out.println("state : " + state);
-				dealer.setCity(city);
-				dealer.setState(state);
-			}
-			else {
-				nomatch++;
-//				System.out.println("no match : " + dealer.getAddress());
-			}
-			if(count++ % 500 == 0) {
-				System.out.println("count : " + count);
-				JPA.em().getTransaction().commit();
-				JPA.em().getTransaction().begin();
-			}
-		}
-		System.out.println("nomatch : " + nomatch);
+//		List<Dealer> dealers = JPA.em().createQuery("from Dealer d where d.address is not null", Dealer.class).getResultList();
+//		
+//		Matcher matcher;
+//		System.out.println("City matcher : " + StringExtraction.CITY.getPattern());
+//		int count = 0;
+//		int nomatch = 0;
+//		for(Dealer dealer : dealers) {
+//			matcher = StringExtraction.CITY.getPattern().matcher(dealer.getAddress());
+//			if(matcher.find()) {
+//				String city = matcher.group(1);
+//				String state = matcher.group(2);
+////				System.out.println("city : " + city);
+////				System.out.println("state : " + state);
+//				dealer.setCity(city);
+//				dealer.setState(state);
+//			}
+//			else {
+//				nomatch++;
+////				System.out.println("no match : " + dealer.getAddress());
+//			}
+//			if(count++ % 500 == 0) {
+//				System.out.println("count : " + count);
+//				JPA.em().getTransaction().commit();
+//				JPA.em().getTransaction().begin();
+//			}
+//		}
+//		System.out.println("nomatch : " + nomatch);
 	}
 	
 	public static void dedupDomains() {

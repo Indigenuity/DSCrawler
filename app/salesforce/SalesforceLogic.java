@@ -10,7 +10,7 @@ import async.functionalwork.ConsumerWorkOrder;
 import async.functionalwork.JpaFunctionalBuilder;
 import dao.SitesDAO;
 import persistence.Site;
-import persistence.salesforce.SalesforceAccount;
+import salesforce.persistence.SalesforceAccount;
 import sites.SiteLogic;
 
 public class SalesforceLogic {

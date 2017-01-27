@@ -12,7 +12,6 @@ public class JpaFunctionalWorker extends FunctionalWorker {
 		JPA.withTransaction(() ->{
 			workResult[0] = super.processWorkOrder(workOrder);
 		});
-		
 		return workResult[0];
 	}
 }

@@ -6,26 +6,48 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import datadefinitions.GeneralMatch;
+import datadefinitions.OEM;
 import datadefinitions.Scheduler;
 import datadefinitions.StringExtraction;
 import datadefinitions.StringMatch;
-import datadefinitions.UrlExtraction;
 import datadefinitions.newdefinitions.TestMatch;
 import persistence.ExtractedString;
 import persistence.ExtractedUrl;
 import utilities.DSFormatter;
 
 public class TextAnalyzer {
+	
+	public static boolean containsCity(String text, List<String> customCities){
+		if(text == null){
+			return false;
+		}
+		for(String city : customCities){
+			city = city.replaceAll(" ", "[ -]");
+			city = city.replaceAll("\\.", "");
+			Pattern pattern = Pattern.compile(city);
+			if(TextAnalyzer.matchesPattern(pattern, text)){
+				return true;
+			}
+		}
+		if(TextAnalyzer.matchesPattern(StringExtraction.POPULOUS_US_CITIES.getPattern(), text)){
+			return true;
+		}
+		if(TextAnalyzer.matchesPattern(StringExtraction.POPULOUS_CANADA_CITIES.getPattern(), text)){
+			return true;
+		}
+		return false;
+	}
 
 	public static Set<Scheduler> getSchedulers(String text) {
 		Set<Scheduler> matches = new HashSet<Scheduler>();
@@ -65,6 +87,22 @@ public class TextAnalyzer {
 		return getMatches(text, new HashSet<T>(Arrays.asList(searchSet)));
 	}
 	
+	public static int countOccurrences(String text, Pattern pattern){
+		Matcher matcher = pattern.matcher(text);
+		int count = 0;
+		while(matcher.find()){
+			count++;
+		}
+		return count;
+	}
+	
+	public static boolean hasOccurrence(String text, Pattern pattern){
+		Matcher matcher = pattern.matcher(text);
+		if(matcher.find()){
+			return true;
+		}
+		return false;
+	}
 
 	public static Set<ExtractedString> extractStrings(File file) throws IOException{
 		if(!file.exists()) {
@@ -104,21 +142,30 @@ public class TextAnalyzer {
 	    Document doc = Jsoup.parse(text);
 	    inputStream.close();
 	    
-	    return TextAnalyzer.extractUrls(doc);
+	    return DocAnalyzer.extractUrls(doc);
 	}
 
-	public static Set<ExtractedUrl> extractUrls(Document doc) {
-		Set<ExtractedUrl> extractedUrls = new HashSet<ExtractedUrl>();
-		for(UrlExtraction enumElement : UrlExtraction.values()){
-			Elements links = doc.select("a[href*=" +enumElement.getDefinition() + "]");
-			for(Element element : links) {
-				if(element.attr("href") != null){
-					ExtractedUrl item = new ExtractedUrl(element.attr("href"), enumElement);
-					extractedUrls.add(item);
-				}
+	public static boolean matchesPattern(Pattern pattern, String original) {
+		if(pattern == null || original == null)
+			return false;
+		Matcher matcher = pattern.matcher(original);
+		if(matcher.find()) {
+			return true;
+		}
+		return false;
+	}
+
+	public static boolean containsMake(String original) {
+		if(StringUtils.isEmpty(original))
+			return false;
+		
+		for(OEM oem : OEM.values()){
+			if(StringUtils.contains(original, oem.getDefinition())){
+				return true;
 			}
 		}
-		return extractedUrls;
+		
+		return false;
 	}
 
 }

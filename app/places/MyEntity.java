@@ -39,8 +39,18 @@ public class MyEntity {
 		bob.conditions.add(Condition.BAD);
 		JPA.em().persist(bob);
 		
-		String queryString = "from MyEntity me where :condition member of me.conditions";
+		String queryString = "from MyEntity me join me.conditions c where c = :condition";
 		List<MyEntity> things = JPA.em().createQuery(queryString, MyEntity.class).setParameter("condition", Condition.BAD).getResultList();
 		System.out.println("things : " + things);
+		
+		queryString = "FROM MyEntity me WHERE :condition MEMBER OF me.conditions";
+		things = JPA.em().createQuery(queryString, MyEntity.class).setParameter("condition", Condition.BAD).getResultList();
+		
+		// Also produces results
+		queryString = "FROM MyEntity me WHERE me.myCondition = :condition";
+		things = JPA.em().createQuery(queryString, MyEntity.class).setParameter("condition", Condition.BAD).getResultList();
+		
+		queryString = "FROM MyEntity me WHERE 'BAD' MEMBER OF me.conditions";
+		things = JPA.em().createQuery(queryString, MyEntity.class).getResultList();
 	}
 }

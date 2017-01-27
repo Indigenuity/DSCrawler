@@ -1,6 +1,6 @@
 @import _root_.utilities.DSFormatter
 @import _root_.persistence.UrlCheck
-@(account : _root_.persistence.salesforce.SalesforceAccount)
+@(account : _root_.salesforce.persistence.SalesforceAccount)
 
 <div class="review-site single-action-container">
 	<h4> Salesforce Account (<a href="http://dealersocket.my.salesforce.com/@account.getSalesforceId()" target="_blank">@account.getSalesforceId()</a>) : @account.getName()</h4>

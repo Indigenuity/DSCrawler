@@ -31,17 +31,14 @@ import persistence.InventoryNumber;
 import persistence.PageCrawl;
 import persistence.SiteCrawl;
 import persistence.Staff;
+import play.db.jpa.JPA;
 import utilities.DSFormatter;
 
 public class SiteCrawlAnalyzer {
 	
 	public static void runSiteCrawlAnalysis(SiteCrawlAnalysis analysis){
-		try{
-			if(analysis.getConfig().getAnalysisMode() == AnalysisMode.PAGED){
-				pagedMode(analysis);
-			}
-		}catch(Exception e){
-			throw new RuntimeException(e);
+		if(analysis.getConfig().getAnalysisMode() == AnalysisMode.PAGED){
+			pagedMode(analysis);
 		}
 	}
 	
@@ -50,7 +47,7 @@ public class SiteCrawlAnalyzer {
 		
 	}
 	
-	public static void pagedMode(SiteCrawlAnalysis analysis) throws IOException {
+	public static void pagedMode(SiteCrawlAnalysis analysis) {
 		System.out.println("running paged Sitecrawl analysis");
 		SiteCrawl siteCrawl = analysis.getSiteCrawl();
 		for(PageCrawl pageCrawl : siteCrawl.getPageCrawls()){
@@ -58,44 +55,152 @@ public class SiteCrawlAnalyzer {
 				PageCrawlAnalysis pageAnalysis = analysis.getForPageCrawl(pageCrawl);
 				if(pageAnalysis == null) {
 					pageAnalysis = new PageCrawlAnalysis(pageCrawl);
-					analysis.getPageAnalyses().add(pageAnalysis);
+					JPA.em().persist(pageAnalysis);
+					analysis.addPageCrawlAnalysis(pageAnalysis);
 				} 
-				PageCrawlAnalyzer.runPageCrawlAnalysis(analysis, pageAnalysis);
+				PageCrawlAnalyzer pageAnalyzer = new PageCrawlAnalyzer(pageAnalysis);
+				pageAnalyzer.runAnalysis();
 			}
 		}
 		aggregatePageAnalyses(analysis);
 	}
 	
 	public static void aggregatePageAnalyses(SiteCrawlAnalysis analysis) {
+		int numHaveTitle = 0;
+		int numTitleGoodLength = 0;
+		int numTitleContainsCity = 0;
+		int numTitleContainsState = 0;
+		int numTitleContainsMake = 0;
+		
+		int numUrlContainsCity = 0;
+		int numUrlContainsState = 0;
+		int numUrlContainsMake = 0;
+		
+		int numHaveH1 = 0;
+		int numH1ContainsCity = 0;
+		int numH1ContainsState = 0;
+		int numH1ContainsMake = 0;
+		
+		int numHaveMetaDescription = 0;
+		int numMetaDescriptionGoodLength = 0;
+		int numMetaDescriptionContainsCity = 0;
+		int numMetaDescriptionContainsState = 0;
+		int numMetaDescriptionContainsMake = 0;
+		
+		int totalImages = 0;
+		int totalAltImages = 0;
+		
+		Set<String> h1s = new HashSet<String>();
+		Set<String> titles = new HashSet<String>();
+		Set<String> urls = new HashSet<String>();
+		Set<String> metas = new HashSet<String>();
+		
+		for(OEM oem : OEM.values()){
+			analysis.getOemCounts().remove(oem);
+			analysis.getOemMetaCounts().remove(oem);
+		}
 		for(PageCrawlAnalysis pageAnalysis : analysis.getPageAnalyses()){
 			analysis.getGeneralMatches().addAll(pageAnalysis.getGeneralMatches());
 			analysis.getLinkTextMatches().addAll(pageAnalysis.getLinkTextMatches());
 			analysis.getTestMatches().addAll(pageAnalysis.getTestMatches());
 			analysis.getWpAttributions().addAll(pageAnalysis.getWpAttributions());
+			
+			for(OEM oem : OEM.values()){
+				Integer pageOemCount = pageAnalysis.getOemCounts().get(oem);
+				Integer pageOemMetaCount = pageAnalysis.getOemMetaCounts().get(oem);
+				Integer siteOemCount = analysis.getOemCounts().get(oem);
+				Integer siteOemMetaCount = analysis.getOemMetaCounts().get(oem);
+				if(pageOemCount != null && pageOemCount > 0){
+					siteOemCount = pageOemCount + (siteOemCount == null ? 0 : siteOemCount);
+					analysis.getOemCounts().put(oem, siteOemCount);
+				}
+				if(pageOemCount != null && pageOemCount > 0){
+					siteOemMetaCount = pageOemMetaCount + (siteOemMetaCount == null ? 0 : siteOemMetaCount);
+					analysis.getOemMetaCounts().put(oem, siteOemMetaCount);
+				}
+				
+			}
+			
+			numHaveTitle += (pageAnalysis.getHasTitle() ? 1 : 0);
+			numTitleGoodLength += (pageAnalysis.getTitleGoodLength() ? 1 : 0);
+			numTitleContainsCity += (pageAnalysis.getTitleContainsCity() ? 1 : 0);
+			numTitleContainsState +=  (pageAnalysis.getTitleContainsState() ? 1 : 0);
+			numTitleContainsMake += (pageAnalysis.getTitleContainsMake() ? 1 : 0);
+			
+			numUrlContainsCity += (pageAnalysis.getUrlContainsCity() ? 1 : 0);
+			numUrlContainsState += (pageAnalysis.getUrlContainsState() ? 1 : 0);
+			numUrlContainsMake += (pageAnalysis.getUrlContainsMake() ? 1 : 0);
+			
+			numHaveH1 += (pageAnalysis.getHasH1() ? 1 : 0);
+			numH1ContainsCity += (pageAnalysis.getH1ContainsCity() ? 1 : 0);
+			numH1ContainsState += (pageAnalysis.getH1ContainsState() ? 1 : 0);
+			numH1ContainsMake += (pageAnalysis.getH1ContainsMake() ? 1 : 0);
+			
+			numHaveMetaDescription += (pageAnalysis.getHasMetaDescription() ? 1 : 0);
+			numMetaDescriptionGoodLength += (pageAnalysis.getMetaDescriptionGoodLength() ? 1 : 0);
+			numMetaDescriptionContainsCity += (pageAnalysis.getMetaDescriptionContainsCity() ? 1 : 0);
+			numMetaDescriptionContainsState += (pageAnalysis.getMetaDescriptionContainsState() ? 1 : 0);
+			numMetaDescriptionContainsMake += (pageAnalysis.getMetaDescriptionContainsMake() ? 1 : 0);
+			
+			totalImages += pageAnalysis.getNumImages();
+			totalAltImages += pageAnalysis.getNumAltImages();
+			
+			h1s.add(pageAnalysis.getH1Text());
+			titles.add(pageAnalysis.getTitleText());
+			urls.add(DSFormatter.removeQueryString(pageAnalysis.getPageCrawl().getUrl()));
+			metas.add(pageAnalysis.getMetaDescriptionText());
 		}
+		
+		analysis.setNumHaveTitle(numHaveTitle);
+		analysis.setNumTitleGoodLength(numTitleGoodLength);
+		analysis.setNumTitleContainsCity(numTitleContainsCity);
+		analysis.setNumTitleContainsState(numTitleContainsState);
+		analysis.setNumTitleContainsMake(numTitleContainsMake);
+		analysis.setNumUniqueTitles(titles.size());
+		
+		analysis.setNumUrlContainsCity(numUrlContainsCity);
+		analysis.setNumUrlContainsState(numUrlContainsState);
+		analysis.setNumUrlContainsMake(numUrlContainsMake);
+		analysis.setNumUniqueUrls(urls.size());
+		
+		analysis.setNumHaveH1(numHaveH1);
+		analysis.setNumH1ContainsCity(numH1ContainsCity);
+		analysis.setNumH1ContainsState(numH1ContainsState);
+		analysis.setNumH1ContainsMake(numH1ContainsMake);
+		analysis.setNumUniqueH1s(h1s.size());
+		
+		analysis.setNumHaveMetaDescription(numHaveMetaDescription);
+		analysis.setNumMetaDescriptionGoodLength(numMetaDescriptionGoodLength);
+		analysis.setNumMetaDescriptionContainsCity(numMetaDescriptionContainsCity);
+		analysis.setNumMetaDescriptionContainsState(numMetaDescriptionContainsState);
+		analysis.setNumMetaDescriptionContainsMake(numMetaDescriptionContainsMake);
+		analysis.setNumUniqueMetaDescriptions(metas.size());
+		
+		analysis.setTotalImages(totalImages);
+		analysis.setTotalAltImages(totalAltImages);
 	}
 	
-	public static void doFull(SiteCrawl siteCrawl) throws IOException { 
-		doPageCrawlAnalysis(siteCrawl);
-		doBlobTextAnalysis(siteCrawl);
-		aggregatePageCrawlData(siteCrawl);
-		metaAnalysis(siteCrawl);
-	}
-	
-	public static void doCustom(SiteCrawl siteCrawl) throws IOException {
-		doBlobTextAnalysis(siteCrawl);
-	}
-	
-	public static void doPageCrawlAnalysis(SiteCrawl siteCrawl) throws IOException{
-		for(PageCrawl pageCrawl : siteCrawl.getPageCrawls()) {
-			PageCrawlAnalyzer.fullAnalysis(pageCrawl);
+	public static void calculateCapDbScores(SiteCrawlAnalysis analysis) {
+		int numPages = analysis.getPageAnalyses().size();
+		if(numPages == 0){
+			numPages = 1;
 		}
-//		if(siteCrawl.getNewInventoryPage() != null){
-//			PageCrawlAnalyzer.fullAnalysis(siteCrawl.getNewInventoryPage());
-//		}
-//		if(siteCrawl.getUsedInventoryPage() != null){
-//			PageCrawlAnalyzer.fullAnalysis(siteCrawl.getUsedInventoryPage());
-//		}
+		analysis.setUrlUniqueScore((analysis.getNumUniqueUrls() * 100) / (numPages * 100));
+		analysis.setUrlLocationScore(((analysis.getNumUrlContainsCity() + analysis.getNumUrlContainsState() + analysis.getNumUrlContainsMake() ) * 100) / (numPages * 3 * 100));
+		analysis.setUrlCleanScore(0);
+		
+		analysis.setTitleUniqueScore((analysis.getNumUniqueTitles() * 100) / (numPages * 100));
+		analysis.setTitleLengthScore((analysis.getNumTitleGoodLength() * 100) / (numPages * 100));
+		analysis.setTitleContentScore(((analysis.getNumTitleContainsCity() + analysis.getNumTitleContainsState() + analysis.getNumTitleContainsMake() ) * 100) / (numPages * 3 * 100));
+		
+		analysis.setH1UniqueScore((analysis.getNumUniqueH1s() * 100) / (numPages * 100));
+		analysis.setH1ContentScore(((analysis.getNumH1ContainsCity() + analysis.getNumH1ContainsState() + analysis.getNumH1ContainsMake() ) * 100) / (numPages * 3 * 100));
+		
+		analysis.setMetaDescriptionUniqueScore((analysis.getNumUniqueMetaDescriptions() * 100) / (numPages * 100));
+		analysis.setMetaDescriptionLengthScore((analysis.getNumMetaDescriptionGoodLength() * 100) / (numPages * 100));
+		analysis.setMetaDescriptionContentScore(((analysis.getNumMetaDescriptionContainsCity() + analysis.getNumMetaDescriptionContainsState() + analysis.getNumMetaDescriptionContainsMake() ) * 100) / (numPages * 3 * 100));
+		
+		analysis.setAltImageScore((analysis.getTotalAltImages() * 100) / (analysis.getTotalImages() * 100));
 	}
 	
 	
@@ -151,44 +256,6 @@ public class SiteCrawlAnalyzer {
 	
 	/**************************** Aggregation  ************************************/
 	
-	public static void aggregatePageCrawlData(SiteCrawl siteCrawl){
-		getBrandMatchAverages(siteCrawl);
-//		aggregateInventoryNumbers(siteCrawl);
-	}
-	
-	public static void getBrandMatchAverages(SiteCrawl siteCrawl){
-		Map<OEM, Integer> counts = new HashMap<OEM, Integer>();
-		Map<OEM, Integer> metaCounts = new HashMap<OEM, Integer>();
-		for(PageCrawl pageCrawl : siteCrawl.getPageCrawls()){
-			for(Entry<OEM, Integer> entry : pageCrawl.getBrandMatchCounts().entrySet()){
-				if(counts.containsKey(entry.getKey())){
-					counts.put(entry.getKey(), entry.getValue() + counts.get(entry.getKey()));
-				}
-				else{
-					counts.put(entry.getKey(), entry.getValue());
-				}
-			}
-			for(Entry<OEM, Integer> entry : pageCrawl.getMetaBrandMatchCounts().entrySet()){
-				if(metaCounts.containsKey(entry.getKey())){
-					metaCounts.put(entry.getKey(), entry.getValue() + metaCounts.get(entry.getKey()));
-				}
-				else{
-					metaCounts.put(entry.getKey(), entry.getValue());
-				}
-			}
-		}
-		Map<OEM, Double> averages = siteCrawl.getBrandMatchAverages();
-		Map<OEM, Double> metaAverages = siteCrawl.getMetaBrandMatchAverages();
-		Double size = siteCrawl.getPageCrawls().size() * 1.0;
-		for(Entry<OEM, Integer> entry : counts.entrySet()){
-			Double average = entry.getValue() / size;
-			averages.put(entry.getKey(), average);
-		}
-		for(Entry<OEM, Integer> entry : metaCounts.entrySet()){
-			Double average = entry.getValue() / size;
-			metaAverages.put(entry.getKey(), average);
-		}
-	}
 	
 	public static void aggregateInventoryNumbers(SiteCrawl siteCrawl) {
 		for(PageCrawl pageCrawl : siteCrawl.getPageCrawls()){
@@ -198,68 +265,6 @@ public class SiteCrawlAnalyzer {
 			}
 		}
 	}
-	
-	public static void aggregateImageTags(SiteCrawl siteCrawl){
-		Integer urlCityQualifier = 0;
-		Integer urlStateQualifier = 0;
-		Integer urlMakeQualifier = 0;
-		Integer titleCityQualifier = 0;
-		Integer titleStateQualifier = 0;
-		Integer titleMakeQualifier = 0;
-		Integer h1CityQualifier = 0;
-		Integer h1StateQualifier = 0;
-		Integer h1MakeQualifier = 0;
-		Integer metaDescriptionCityQualifier = 0;
-		Integer metaDescriptionStateQualifier = 0;
-		Integer metaDescriptionMakeQualifier = 0;
-		Integer descriptionLength = 0;
-		Integer titleLength = 0;
-		Integer titleKeywordStuffing = 0;
-		Integer urlClean = 0;
-		Integer totalImages = 0;
-		Integer altImages = 0;
-		
-		for(PageCrawl pageCrawl : siteCrawl.getPageCrawls()){
-			totalImages += pageCrawl.getNumImages();
-			altImages += pageCrawl.getNumAltImages();
-			urlCityQualifier += pageCrawl.isUrlCityQualifier() ? 1 : 0;
-			urlStateQualifier += pageCrawl.isUrlStateQualifier() ? 1 : 0;
-			urlMakeQualifier += pageCrawl.isUrlMakeQualifier() ? 1 : 0;
-			titleCityQualifier += pageCrawl.isTitleCityQualifier() ? 1 : 0;
-			titleStateQualifier += pageCrawl.isTitleStateQualifier() ? 1 : 0;
-			titleMakeQualifier += pageCrawl.isTitleMakeQualifier() ? 1 : 0;
-			h1CityQualifier += pageCrawl.isH1CityQualifier() ? 1 : 0;
-			h1StateQualifier += pageCrawl.isH1StateQualifier() ? 1 : 0;
-			h1MakeQualifier += pageCrawl.isH1MakeQualifier() ? 1 : 0;
-			metaDescriptionCityQualifier += pageCrawl.isMetaDescriptionCityQualifier() ? 1 : 0;
-			metaDescriptionStateQualifier += pageCrawl.isMetaDescriptionStateQualifier() ? 1 : 0;
-			metaDescriptionMakeQualifier += pageCrawl.isMetaDescriptionMakeQualifier() ? 1 : 0;
-			descriptionLength += pageCrawl.isDescriptionLength() ? 1 : 0;
-			titleLength += pageCrawl.isTitleLength() ? 1 : 0;
-			titleKeywordStuffing += pageCrawl.isTitleKeywordStuffing() ? 1 : 0;
-			urlClean += pageCrawl.isUrlClean() ? 1 : 0;
-		}
-		siteCrawl.getSiteCrawlStats().setTotalImages(totalImages);
-		siteCrawl.getSiteCrawlStats().setAltImages(altImages);
-		siteCrawl.getSiteCrawlStats().setUrlCityQualifier(urlCityQualifier);
-		siteCrawl.getSiteCrawlStats().setUrlStateQualifier(urlStateQualifier);
-		siteCrawl.getSiteCrawlStats().setUrlMakeQualifier(urlMakeQualifier);
-		siteCrawl.getSiteCrawlStats().setTitleCityQualifier(titleCityQualifier);
-		siteCrawl.getSiteCrawlStats().setTitleStateQualifier(titleStateQualifier);
-		siteCrawl.getSiteCrawlStats().setTitleMakeQualifier(titleMakeQualifier);
-		siteCrawl.getSiteCrawlStats().setH1CityQualifier(h1CityQualifier);
-		siteCrawl.getSiteCrawlStats().setH1StateQualifier(h1StateQualifier);
-		siteCrawl.getSiteCrawlStats().setH1MakeQualifier(h1MakeQualifier);
-		siteCrawl.getSiteCrawlStats().setMetaDescriptionCityQualifier(metaDescriptionCityQualifier);
-		siteCrawl.getSiteCrawlStats().setMetaDescriptionStateQualifier(metaDescriptionStateQualifier);
-		siteCrawl.getSiteCrawlStats().setMetaDescriptionMakeQualifier(metaDescriptionMakeQualifier);
-		siteCrawl.getSiteCrawlStats().setDescriptionLength(descriptionLength);
-		siteCrawl.getSiteCrawlStats().setTitleLength(titleLength);
-		siteCrawl.getSiteCrawlStats().setTitleKeywordStuffing(titleKeywordStuffing);
-		siteCrawl.getSiteCrawlStats().setUrlClean(urlClean);
-		
-	}
-	
 	
 	
 	
@@ -385,125 +390,6 @@ public class SiteCrawlAnalyzer {
 	}
 	
 	
-	public static void uniqueContentScores(SiteCrawl siteCrawl) {
-		Set<String> h1s = new HashSet<String>();
-		Set<String> titles = new HashSet<String>();
-		Set<String> urls = new HashSet<String>();
-		Set<String> metas = new HashSet<String>();
-		float total = siteCrawl.getPageCrawls().size();
-		for(PageCrawl outer : siteCrawl.getPageCrawls()){
-			h1s.add(outer.getH1());
-			titles.add(outer.getTitle());
-			urls.add(DSFormatter.removeQueryString(outer.getUrl()));
-			if(outer.getMetaDescription() != null){
-				metas.add(outer.getMetaDescription().getContent());
-			}
-		}
-		siteCrawl.getSiteCrawlStats().setUniqueH1Score(Math.round((h1s.size() / total) * 100));
-		siteCrawl.getSiteCrawlStats().setUniqueTitleScore(Math.round((titles.size() / total) * 100));
-		siteCrawl.getSiteCrawlStats().setUniqueUrlScore(Math.round((urls.size() / total) * 100));
-		siteCrawl.getSiteCrawlStats().setUniqueMetaDescriptionScore(Math.round((metas.size() / total) * 100));
-	}
-	
-	public static void contentLengthScores(SiteCrawl siteCrawl) {
-//		System.out.println("checking length : " + siteCrawl.getSiteCrawlId());
-		float total = siteCrawl.getPageCrawls().size();
-		float titleTotal = 0;
-		float metaTotal = 0;
-		for(PageCrawl pageCrawl : siteCrawl.getPageCrawls()){
-			if(pageCrawl.isTitleLength()) {
-				titleTotal++;
-			}
-			if(pageCrawl.isDescriptionLength()) {
-				metaTotal++;
-			}
-		}
-//		siteCrawl.setLengthTitleScore(Math.round((1 - (titleTotal/total)) * 100));
-//		siteCrawl.setLengthMetaDescriptionScore(Math.round((1 - (metaTotal/total)) * 100));
-	}
-	
-	public static void checkContent(SiteCrawl siteCrawl) {
-		System.out.println("checking content : " + siteCrawl.getSiteCrawlId());
-		float total = siteCrawl.getPageCrawls().size() * 3;	//The number of elements in the content
-		float url = 0;
-		float title = 0;
-		float h1 = 0;
-		float meta = 0;
-		for(PageCrawl pageCrawl : siteCrawl.getPageCrawls()){
-//			System.out.println("page url : " + pageCrawl.getUrl());
-			if(pageCrawl.isUrlCityQualifier()){
-//				System.out.println("url city");
-				url++;
-			}
-			if(pageCrawl.isUrlMakeQualifier()){
-//				System.out.println("url make");
-				url++;
-			}
-			if(pageCrawl.isUrlStateQualifier()){
-//				System.out.println("url state");
-				url++;
-			}
-			
-//			System.out.println("page title : " + pageCrawl.getTitle());
-			if(pageCrawl.isTitleCityQualifier()){
-//				System.out.println("title city");
-				title++;
-			}
-			if(pageCrawl.isTitleMakeQualifier()){
-//				System.out.println("title make");
-				title++;
-			}
-			if(pageCrawl.isTitleStateQualifier()){
-//				System.out.println("title state");
-				title++;
-			}
-			
-//			System.out.println("page h1: " + pageCrawl.getH1());
-			if(pageCrawl.isH1CityQualifier()){
-//				System.out.println("h1 city");
-				h1++;
-			}
-			if(pageCrawl.isH1MakeQualifier()){
-//				System.out.println("h1 make");
-				h1++;
-			}
-			if(pageCrawl.isH1StateQualifier()){
-//				System.out.println("h1 state");
-				h1++;
-			}
-			
-//			System.out.println("page meta: " + pageCrawl.getMetaDescription().getContent());
-			if(pageCrawl.isMetaDescriptionCityQualifier()){
-//				System.out.println("meta city");
-				meta++;
-			}
-			if(pageCrawl.isMetaDescriptionMakeQualifier()){
-//				System.out.println("meta make");
-				meta++;
-			}
-			if(pageCrawl.isMetaDescriptionStateQualifier()){
-//				System.out.println("meta state");
-				meta++;
-			}
-		}
-		
-//		System.out.println("url : " + url);
-//		System.out.println("title : " + title);
-//		System.out.println("h1 : " + h1);
-//		System.out.println("meta : " + meta);
-		
-//		siteCrawl.setContentUrlScore(Math.round((url/total) * 100));
-//		siteCrawl.setContentTitleScore(Math.round(title/total * 100));
-//		siteCrawl.setContentH1Score(Math.round(h1/total * 100));
-//		siteCrawl.setContentMetaDescriptionScore(Math.round(meta/total * 100));
-		
-//		System.out.println("url score : " + siteCrawl.getContentUrlScore());
-//		System.out.println("title score : " + siteCrawl.getContentTitleScore());
-//		System.out.println("h1 score : " + siteCrawl.getContentH1Score());
-//		System.out.println("meta score : " + siteCrawl.getContentMetaDescriptionScore());
-		
-	}
-	
 	public static void docAnalysis(SiteCrawl siteCrawl) throws IOException {
 		System.out.println("doc analysis : " + siteCrawl.getSiteCrawlId());
 //		if(siteCrawl.isFilesMoved() || !FileMover.crawlIsOnLocal(siteCrawl)){
@@ -533,7 +419,7 @@ public class SiteCrawlAnalyzer {
 		        Set<Staff> allStaff = StaffExtractor.extractStaff(doc, siteCrawl.getWebProviders());
 		        siteCrawl.addStaff(allStaff);
 //		        System.out.println("allstaff after set : " + siteCrawl.getAllStaff().size());
-		        siteCrawl.addExtractedUrls(TextAnalyzer.extractUrls(doc));
+		        siteCrawl.addExtractedUrls(DocAnalyzer.extractUrls(doc));
 		        
 //		        siteCrawl.addInventoryNumbers(invNumbers);
 		        

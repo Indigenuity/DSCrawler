@@ -7,10 +7,10 @@ import java.util.function.Supplier;
 
 
 import datatransfer.reports.ReportRow;
-import persistence.salesforce.DealershipType;
-import persistence.salesforce.SalesforceAccount;
-import persistence.salesforce.SalesforceAccountType;
 import play.db.jpa.JPA;
+import salesforce.persistence.DealershipType;
+import salesforce.persistence.SalesforceAccount;
+import salesforce.persistence.SalesforceAccountType;
 
 public class SalesforceSyncSession extends SingleSyncSession<String, ReportRow, SalesforceAccount>{
 	

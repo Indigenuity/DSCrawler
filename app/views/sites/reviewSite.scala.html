@@ -1,0 +1,51 @@
+@import _root_.utilities.DSFormatter
+@import _root_.persistence.UrlCheck
+@(site : _root_.persistence.Site)
+
+<div class="review-site single-action-container">
+	<h4> Site @site.getSiteId()</h4>
+	<form method="POST" name="review-site-form" class="review-site-form faux-submit" action="/sites/siteReviewSubmit">
+		<input type="hidden" name="actionType" value="NONE"/>
+		<input type="hidden" name="siteId" value="@site.getSiteId()">
+		
+		<table class="attributes">
+			<tr>
+				<td>Seed</td>
+				<td><a href="@site.getUrlCheck().getSeed()" target="_blank">@site.getUrlCheck().getSeed()</a></td>
+			</tr>
+			<tr>
+				<td>Resolved Seed</td>
+				<td><a href="@site.getUrlCheck().getResolvedSeed()" target="_blank">@site.getUrlCheck().getResolvedSeed()</a></td>
+			</tr>
+			<tr>
+				<td>Status</td>
+				<td>@site.getUrlCheck().getStatusCode()</td>
+			</tr>
+			<tr>
+				<td>Error</td>
+				<td>@site.getUrlCheck().getErrorMessage()</td>
+			</tr>
+			@if(site.getForwardsTo() != null || site.getManualForwardsTo() != null){
+				<tr>
+					<td><b>FORWARDS TO</b></td>
+					<td>@site.getForwardsTo().getHomepage()</td>
+				</tr>
+				<tr>
+					<td><b>MANUAL FORWARDS TO</b></td>
+					<td>@site.getManualForwardsTo()</td>
+				</tr>
+			}
+		</table>
+		<p><input type="text" name="manualRedirect"  class="url-input" value="@site.getUrlCheck().getResolvedSeed()">
+		<!-- Apparently Play's forms don't parse the name or value of submit buttons, so there's this stupid inline shit -->
+		<button type="submit" onclick="this.form.elements[0].value='Manual Redirect'">Manual Redirect</button>
+		<br>
+		<button type="submit" onclick="this.form.elements[0].value='Approve Redirect'">Approve Redirect</button>
+		<button type="submit" onclick="this.form.elements[0].value='Approve Shared Site'">Approve Shared Site</button>
+		<button type="submit" onclick="this.form.elements[0].value='Mark Defunct'">Mark Defunct</button>
+		<button type="submit" onclick="this.form.elements[0].value='Other Issue'">Other Issue</button>
+		<button type="submit" onclick="this.form.elements[0].value='Disapprove'">Disapprove</button>
+		<button type="submit" onclick="this.form.elements[0].value='Redirect and Disapprove'">Redirect and Disapprove</button>
+	</form>
+	<div class="relevant-salesforce-accounts indented" data-siteId="@site.getSiteId()"></div>
+</div>
