@@ -12,7 +12,7 @@ import akka.routing.ActorRefRoutee;
 import akka.routing.RoundRobinRoutingLogic;
 import akka.routing.Routee;
 import akka.routing.Router;
-import async.async.WaitingRoom;
+import async.monitoring.WaitingRoom;
 import crawling.discovery.execution.Crawl;
 import crawling.discovery.execution.FetchQueue;
 import crawling.discovery.planning.CrawlPlan;

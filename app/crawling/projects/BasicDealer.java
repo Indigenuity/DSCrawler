@@ -22,6 +22,7 @@ public class BasicDealer {
 	private String street;
 	private String city;
 	private String state;
+	private String country;
 	private String postal;
 	private String phone;
 	
@@ -32,7 +33,9 @@ public class BasicDealer {
 	private String stdStreet; 
 	private String stdCity;
 	private String stdState;
+	private String stdCountry;
 	private String stdPhone;
+	private String stdPostal;
 	
 	
 	private String identifier;
@@ -207,6 +210,24 @@ public class BasicDealer {
 	}
 	public void setOutdated(Boolean outdated) {
 		this.outdated = outdated;
+	}
+	public String getCountry() {
+		return country;
+	}
+	public void setCountry(String country) {
+		this.country = country;
+	}
+	public String getStdCountry() {
+		return stdCountry;
+	}
+	public void setStdCountry(String stdCountry) {
+		this.stdCountry = stdCountry;
+	}
+	public String getStdPostal() {
+		return stdPostal;
+	}
+	public void setStdPostal(String stdPostal) {
+		this.stdPostal = stdPostal;
 	}
 	
 	

@@ -11,7 +11,7 @@ import play.GlobalSettings;
 import play.Logger;
 
 
-public class Global extends GlobalSettings {
+public class Global extends GlobalSettings { 
 
 	private static final String STORAGE_FOLDER = "C:/Workspace/DSStorage";
 	private static final String SECONDARY_STORAGE_FOLDER = "E:/DSStorage";
@@ -40,7 +40,7 @@ public class Global extends GlobalSettings {
 	
 	private static boolean useProxy = true;
 	private static String proxyUrl = "35.160.145.33";
-	private static int proxyPort = 3128;
+	private static int proxyPort = 80;
 
 //	private static String proxyUrl = "97.77.104.22";
 //	private static int proxyPort = 3128;

@@ -7,12 +7,18 @@ import java.util.Map.Entry;
 
 import javax.persistence.TypedQuery;
 
+import org.apache.poi.ss.formula.functions.T;
+
+import com.google.common.base.CaseFormat;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
+import persistence.UsState;
 import play.db.jpa.JPA;
 
 public class GeneralDAO {
 
+	
 	
 	public static Integer getSingleInt(String query, boolean isNative) {
 		return Integer.parseInt(GeneralDAO.getSingleString(query, isNative));
@@ -34,10 +40,10 @@ public class GeneralDAO {
 		return getFieldList(clazz, parentEntityClazz, fieldName, parameters);
 	}
 	
-	public static <T> List<T> getFieldList(Class<T> clazz, Class<?> parentEntityClazz, String fieldName, String valueName, Object value){
+	public static <T> List<T> getFieldList(Class<T> fieldClazz, Class<?> parentEntityClazz, String fieldName, String valueName, Object value){
 		Map<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put(valueName , value);
-		return getFieldList(clazz, parentEntityClazz, fieldName, parameters);
+		return getFieldList(fieldClazz, parentEntityClazz, fieldName, parameters);
 	}
 	
 	public static <T> List<T> getFieldList(Class<T> clazz, Class<?> parentEntityClazz, String fieldName,  Map<String, Object> parameters){
@@ -51,6 +57,25 @@ public class GeneralDAO {
 		for(Entry<String, Object> entry : parameters.entrySet()) {
 			q.setParameter(entry.getKey(), entry.getValue());
 		}
+		return q.getResultList();
+	}
+	
+	public static <T> List<T> getAll(Class<T> clazz){
+		String query = "from " + clazz.getSimpleName() + " t";
+		TypedQuery<T> q = JPA.em().createQuery(query, clazz);
+		return q.getResultList();
+	}
+	
+	public static Long countAll(Class<?> clazz){
+		String query = "select count(t) from " + clazz.getSimpleName() + " t";
+		TypedQuery<Long> q = JPA.em().createQuery(query, Long.class);
+		return q.getSingleResult();
+	}
+	
+	public static List<Long> getAllIds(Class<?> clazz){
+		String idName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, clazz.getSimpleName()) + "Id";
+		String query = "select t." + idName + " from " + clazz.getSimpleName() + " t";
+		TypedQuery<Long> q = JPA.em().createQuery(query, Long.class);
 		return q.getResultList();
 	}
 	
@@ -100,6 +125,7 @@ public class GeneralDAO {
 		parameters.put(valueName , value);
 		return getListAnd(clazz, parameters);
 	}
+	
 	public static <T> List<T> getList(Class<T> clazz, Map<String, Object> parameters, String operator){
 		String query = "from " + clazz.getSimpleName() + " t";
 		String delimiter = " where t.";
@@ -144,6 +170,11 @@ public class GeneralDAO {
 	public static <T> List<T> getListOr(Class<T> clazz, Multimap<String, Object> parameters){
 		return getList(clazz, parameters, "or");
 	}
+	public static <T> List<Long> getKeyList(Class<T> clazz, String keyName, String valueName, Object value) {
+		Multimap<String, Object> parameters = ArrayListMultimap.create();
+		parameters.put(valueName, value);
+		return getKeyList(clazz, keyName, parameters, "and");
+	}
 	public static <T> List<Long> getKeyList(Class<T> clazz, String keyName, Multimap<String, Object> parameters, String operator){
 		String query = "select t." + keyName + " from " + clazz.getSimpleName() + " t";
 		String delimiter = " where t.";
@@ -182,11 +213,90 @@ public class GeneralDAO {
 			query += delimiter + key + " = :" + key;
 			delimiter = " and t.";
 		}
-		
 		TypedQuery<Long> q = JPA.em().createQuery(query, Long.class);
 		for(Entry<String, Object> entry : parameters.entrySet()) {
 			q.setParameter(entry.getKey(), entry.getValue());
 		}
 		return q.getSingleResult();
+	}
+	
+	public static void refreshUsStates(){
+		String query = "delete from UsState s";
+		JPA.em().createQuery(query).executeUpdate();
+		query = "insert into usState (stateName, stateCode, projectCode)"
+				+ "values "
+				+ "('Alabama', 'AL', 'none'),"
+				+ "('Alaska', 'AK', 'none'),"
+				+ "('Arizona', 'AZ', 'none'),"
+				+ "('Arkansas', 'AR', 'none'),"
+				+ "('California', 'CA', 'none'),"
+				+ "('Colorado', 'CO', 'none'),"
+				+ "('Connecticut', 'CT', 'none'),"
+				+ "('Delaware', 'DE', 'none'),"
+				+ "('District of Columbia', 'DC', 'none'),"
+				+ "('Florida', 'FL', 'none'),"
+				+ "('Georgia', 'GA', 'none'),"
+				+ "('Hawaii', 'HI', 'none'),"
+				+ "('Idaho', 'ID', 'none'),"
+				+ "('Illinois', 'IL', 'none'),"
+				+ "('Indiana', 'IN', 'none'),"
+				+ "('Iowa', 'IA', 'none'),"
+				+ "('Kansas', 'KS', 'none'),"
+				+ "('Kentucky', 'KY', 'none'),"
+				+ "('Louisiana', 'LA', 'none'),"
+				+ "('Maine', 'ME', 'none'),"
+				+ "('Maryland', 'MD', 'none'),"
+				+ "('Massachusetts', 'MA', 'none'),"
+				+ "('Michigan', 'MI', 'none'),"
+				+ "('Minnesota', 'MN', 'none'),"
+				+ "('Mississippi', 'MS', 'none'),"
+				+ "('Missouri', 'MO', 'none'),"
+				+ "('Montana', 'MT', 'none'),"
+				+ "('Nebraska', 'NE', 'none'),"
+				+ "('Nevada', 'NV', 'none'),"
+				+ "('New Hampshire', 'NH', 'none'),"
+				+ "('New Jersey', 'NJ', 'none'),"
+				+ "('New Mexico', 'NM', 'none'),"
+				+ "('New York', 'NY', 'none'),"
+				+ "('North Carolina', 'NC', 'none'),"
+				+ "('North Dakota', 'ND', 'none'),"
+				+ "('Ohio', 'OH', 'none'),"
+				+ "('Oklahoma', 'OK', 'none'),"
+				+ "('Oregon', 'OR', 'none'),"
+				+ "('Pennsylvania', 'PA', 'none'),"
+				+ "('Rhode Island', 'RI', 'none'),"
+				+ "('South Carolina', 'SC', 'none'),"
+				+ "('South Dakota', 'SD', 'none'),"
+				+ "('Tennessee', 'TN', 'none'),"
+				+ "('Texas', 'TX', 'none'),"
+				+ "('Utah', 'UT', 'none'),"
+				+ "('Vermont', 'VT', 'none'),"
+				+ "('Virginia', 'VA', 'none'),"
+				+ "('Washington', 'WA', 'none'),"
+				+ "('West Virginia', 'WV', 'none'),"
+				+ "('Wisconsin', 'WI', 'none'),"
+				+ "('Wyoming', 'WY', 'none');";
+		JPA.em().createNativeQuery(query).executeUpdate();
+	}
+	
+	public static void refreshCaProvinces(){
+		String query = "delete from CaProvince c";
+		JPA.em().createQuery(query).executeUpdate();
+		query = "INSERT INTO `caProvince` (`provinceName`, `provinceCode`, `projectCode`)"
+				+ " VALUES " 
+				+ "('Alberta', 'AB', 'none'),"
+    			+ "('British Columbia', 'BC', 'none'),"
+    			+ "('Manitoba', 'MB', 'none'),"
+    			+ "('New Brunswick', 'NB', 'none'),"
+    			+ "('Newfoundland and Labrador', 'NL', 'none'),"
+    			+ "('Northwest Territories', 'NT', 'none'),"
+    			+ "('Nova Scotia', 'NS', 'none'),"
+    			+ "('Nunavut', 'NU', 'none'),"
+    			+ "('Ontario', 'ON', 'none'),"
+    			+ "('Prince Edward Island', 'PE', 'none'),"
+    			+ "('Quebec', 'QC', 'none'),"
+    			+ "('Saskatchewan', 'SK', 'none'),"
+    			+ "('Yukon', 'YT', 'none');";
+		JPA.em().createNativeQuery(query).executeUpdate();
 	}
 }

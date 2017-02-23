@@ -16,6 +16,7 @@ import javax.persistence.Table;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.envers.Audited;
 
+import datadefinitions.RecordType;
 import persistence.Site;
 import urlcleanup.SiteOwner;
 
@@ -39,6 +40,10 @@ public class PlacesDealer implements SiteOwner {
 	private PlacesType actualType;
 	
 	private String formattedAddress;
+	private String street;
+	private String city;
+	private String postal;
+	private String province;
 	private String country;
 	private String formattedPhoneNumber; 
 	private Double longitude;
@@ -53,6 +58,14 @@ public class PlacesDealer implements SiteOwner {
 	private Integer utcOffset;
 	private String vicinity;
 	private String shortCountry;
+	
+	private String stdStreet;
+	private String stdCity;
+	private String stdProvince;
+	private String stdCountry;
+	private String stdPostal;
+	private String stdPhone;
+	
 	
 	@Column(nullable=true, columnDefinition="TEXT")
 	private String iconUrl;
@@ -74,15 +87,18 @@ public class PlacesDealer implements SiteOwner {
 	@Column(nullable = true, columnDefinition="varchar(500)")
 	private String errorMessage;
 	
+	@Enumerated(value=EnumType.STRING)
+	private RecordType recordType = RecordType.UNCLASSIFIED;
+	
 	
 	@ManyToOne
 	private PlacesDealer forwardsTo;
-	
 	@ManyToOne
 	private Site site;
-	
 	@ManyToOne
-	private Site originalSite;
+	private Site unresolvedSite;
+	
+	private String salesforceMatchString;
 	
 	
 	public void setId(long id) {
@@ -190,7 +206,7 @@ public class PlacesDealer implements SiteOwner {
 	public void setVicinity(String vicinity) {
 		this.vicinity = vicinity;
 	}
-	public String getWebsite() {
+	public String getWebsiteString() {
 		return website;
 	}
 	public void setWebsite(String website) {
@@ -267,20 +283,104 @@ public class PlacesDealer implements SiteOwner {
 	}
 	public void setSite(Site site) {
 		this.site = site;
-		if(this.originalSite == null){
-			this.originalSite = this.site;
+		if(this.unresolvedSite == null){
+			this.unresolvedSite = this.site;
 		}
 	}
-	public void setOriginalSite(Site site) {
-		this.originalSite = site;
+	public Site setUnresolvedSite(Site site) {
+		this.unresolvedSite = site;
 		if(this.site == null) {
-			this.site = this.originalSite;
+			this.site = this.unresolvedSite;
 		}
+		return this.unresolvedSite;
 	}
 	
+	
+	public String getStreet() {
+		return street;
+	}
+	public void setStreet(String street) {
+		this.street = street;
+	}
+	public String getCity() {
+		return city;
+	}
+	public void setCity(String city) {
+		this.city = city;
+	}
+	public String getPostal() {
+		return postal;
+	}
+	public void setPostal(String postal) {
+		this.postal = postal;
+	}
+	public String getProvince() {
+		return province;
+	}
+	public void setProvince(String province) {
+		this.province = province;
+	}
+	public Boolean getPermanentlyClosed() {
+		return permanentlyClosed;
+	}
+	public void setPermanentlyClosed(Boolean permanentlyClosed) {
+		this.permanentlyClosed = permanentlyClosed;
+	}
+	public String getStdStreet() {
+		return stdStreet;
+	}
+	public void setStdStreet(String stdStreet) {
+		this.stdStreet = stdStreet;
+	}
+	public String getStdCity() {
+		return stdCity;
+	}
+	public void setStdCity(String stdCity) {
+		this.stdCity = stdCity;
+	}
+	public String getStdProvince() {
+		return stdProvince;
+	}
+	public void setStdProvince(String stdProvince) {
+		this.stdProvince = stdProvince;
+	}
+	public String getStdCountry() {
+		return stdCountry;
+	}
+	public void setStdCountry(String stdCountry) {
+		this.stdCountry = stdCountry;
+	}
+	public String getStdPostal() {
+		return stdPostal;
+	}
+	public void setStdPostal(String stdPostal) {
+		this.stdPostal = stdPostal;
+	}
+	public void setLongitude(Double longitude) {
+		this.longitude = longitude;
+	}
+	public void setLatitude(Double latitude) {
+		this.latitude = latitude;
+	}
+	public void setRating(Double rating) {
+		this.rating = rating;
+	}
+	public void setRatingCount(Double ratingCount) {
+		this.ratingCount = ratingCount;
+	}
+	public void setUtcOffset(Integer utcOffset) {
+		this.utcOffset = utcOffset;
+	}
+	
+	public String getStdPhone() {
+		return stdPhone;
+	}
+	public void setStdPhone(String stdPhone) {
+		this.stdPhone = stdPhone;
+	}
 	@Override
-	public Site getOriginalSite() {
-		return this.originalSite;
+	public Site getUnresolvedSite() {
+		return this.unresolvedSite;
 	}
 	@Override
 	public Site getResolvedSite() {
@@ -291,7 +391,20 @@ public class PlacesDealer implements SiteOwner {
 		setSite(site);
 		return this.site;
 	}
-
-	
+	public String getSalesforceMatchString() {
+		return salesforceMatchString;
+	}
+	public void setSalesforceMatchString(String salesforceMatch) {
+		this.salesforceMatchString = salesforceMatch;
+	}
+	public String getWebsite() {
+		return website;
+	}
+	public RecordType getRecordType() {
+		return recordType;
+	}
+	public void setRecordType(RecordType recordType) {
+		this.recordType = recordType;
+	}
 	
 }

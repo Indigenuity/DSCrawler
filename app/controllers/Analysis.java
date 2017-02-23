@@ -39,7 +39,7 @@ public class Analysis extends Controller {
 	@Transactional
 	public static Result runAnalysisSet(Long analysisSetId) {
 		AnalysisSet analysisSet = JPA.em().find(AnalysisSet.class, analysisSetId);
-		ActorRef master = Asyncleton.getInstance().getGenericMaster(25, AnalysisWorker.class);
+		ActorRef master = Asyncleton.getInstance().getMonotypeMaster(25, AnalysisWorker.class);
 //		analysisSet.setOperandType(OperandType.SITE_CRAWL);
 		System.out.println("Operand Type : " + analysisSet.getOperandType());
 		

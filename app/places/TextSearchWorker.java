@@ -25,8 +25,8 @@ public class TextSearchWorker extends UntypedActor {
 			
 			
 			JPA.withTransaction(() ->{
-				PlacesDealer placesDealer = PlacesMaster.updateOrNew(placesId);
-				dealer.setWebsite(placesDealer.getWebsite());
+				PlacesDealer placesDealer = PlacesLogic.updateOrNew(placesId);
+				dealer.setWebsite(placesDealer.getWebsiteString());
 				dealer.setForeignIdentifier(placesDealer.getPlacesDealerId());
 				dealer.setForeignIdentifierString(placesDealer.getPlacesId());
 				dealer.setForeignType("Places");

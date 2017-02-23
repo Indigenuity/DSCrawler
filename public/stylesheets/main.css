@@ -187,6 +187,10 @@ p {
 
 /*********************Dashboard ***********************/
 
+#monitoring-container {
+	display:inline-block;
+	width:65%;
+}
 .monitoring-panel-inner {
 	max-height: 300px;
 	width: 450px;
@@ -207,6 +211,7 @@ p {
 	display:inline-block;
 	margin:0 50px;
 	vertical-align:top;
+	width:25%;
 }
 #dashboard-actions-container{
 	display: inline-block;

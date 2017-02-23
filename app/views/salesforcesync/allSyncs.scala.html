@@ -16,11 +16,17 @@
 		</div>
 		<div class="small-panel load-dashboard" data-dashboard-href="/salesforceDashboardStats">
 		</div>
+		<div class="small-panel">
+			<h3>Crawling</h3>
+			<a id="crawl-us-franchise-button" class="large-button in-page-link" href="/salesforce/crawlUsFranchise">Crawl US Franchise</a>
+		</div>
 		<a id="assign-siteless-button" class="large-button in-page-link" href="/assignSiteless">Assign Siteless</a>
 		<a id="salesforce-reset-sites-button" class="large-button in-page-link" href="/salesforce/resetSites">Reset Sites</a>
 		<a id="salesforce-forward-sites-button" class="large-button in-page-link" href="/salesforce/forwardSites">Forward Sites</a>
 		<a id="mark-significant-differences-button" class="large-button in-page-link" href="/markSignificantDifferences">Mark Differences</a>
 		<a id="salesforce-website-report-button" class="large-button in-page-link" href="/salesforceWebsiteReport">Website Report</a>
+		<a id="standardize-accounts-button" class="large-button in-page-link" href="/salesforce/standardizeAccounts">Standardize Accounts</a>		
+		
 	</div>
 	<div id="salesforce-sync-wrapper">
 		@for(syncType <- SyncType.values){

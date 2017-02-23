@@ -26,7 +26,7 @@ public class NyControl {
 		String queryString = "from NYDealer ny where ny.linkStatus = 'No Link'";
 		List<NYDealer> nyDealers= JPA.em().createQuery(queryString, NYDealer.class).setMaxResults(13000).getResultList();
 		
-		ActorRef master = Asyncleton.getInstance().getGenericMaster(5, NyLinkWorker.class);
+		ActorRef master = Asyncleton.getInstance().getMonotypeMaster(5, NyLinkWorker.class);
 		for(NYDealer nyDealer : nyDealers) {
 			NyLinkWorkOrder workOrder = new NyLinkWorkOrder(nyDealer.getNyDealerId());
 			master.tell(workOrder, ActorRef.noSender());
@@ -46,11 +46,11 @@ public class NyControl {
 		System.out.println("nyDealers : " + nyDealers.size());
 		
 		BiFunction<NYDealer, SalesforceAccount, Double> distanceFunction = (sfAccount, nyDealer) -> {
-			if(sfAccount.getStandardStreet() == null || nyDealer.getStandardStreet() == null){
+			if(sfAccount.getStandardStreet() == null || nyDealer.getStdStreet() == null){
 				return null;
 			}
 			
-			Double distance = StringUtils.getJaroWinklerDistance(sfAccount.getStandardStreet(), nyDealer.getStandardStreet());
+			Double distance = StringUtils.getJaroWinklerDistance(sfAccount.getStandardStreet(), nyDealer.getStdStreet());
 			if(distance > .9){
 				return distance;
 			}
@@ -58,10 +58,10 @@ public class NyControl {
 		};
 		
 		BiFunction<NYDealer, SalesforceAccount, Boolean> equalityFunction = (sfAccount, nyDealer) -> {
-			if(sfAccount.getStandardStreet() == null || nyDealer.getStandardStreet() == null){
+			if(sfAccount.getStandardStreet() == null || nyDealer.getStdStreet() == null){
 				return false;
 			}
-			return StringUtils.equals(sfAccount.getStandardStreet(), nyDealer.getStandardStreet());
+			return StringUtils.equals(sfAccount.getStandardStreet(), nyDealer.getStdStreet());
 		};
 		
 		ListMatchResult<NYDealer, SalesforceAccount, Double> listMatch = ListMatcher.compareLists(nyDealers, sfAccounts, equalityFunction, distanceFunction);
@@ -75,7 +75,7 @@ public class NyControl {
 				reportRow.putCell("sfId", distance.getItem().getSalesforceId());
 				reportRow.putCell("sfAccountId", distance.getItem().getSalesforceAccountId() + "");
 				reportRow.putCell("sfName", distance.getItem().getName());
-				reportRow.putCell("sfStreet", distance.getItem().getStandardStreet());
+				reportRow.putCell("sfStreet", distance.getItem().getStdStreet());
 				reportRow.putCell("nyDealerId", entry.getKey().getNyDealerId() + "");
 				reportRow.putCell("nyDealerName", entry.getKey().getFacilityName());
 				reportRow.putCell("nyDealerStreet", entry.getKey().getStandardStreet());
@@ -101,7 +101,7 @@ public class NyControl {
 				reportRow.putCell("sfId", sfAccount.getSalesforceId());
 				reportRow.putCell("sfAccountId", sfAccount.getSalesforceAccountId() + "");
 				reportRow.putCell("sfName", sfAccount.getName());
-				reportRow.putCell("sfStreet", sfAccount.getStandardStreet());
+				reportRow.putCell("sfStreet", sfAccount.getStdStreet());
 				reportRow.putCell("nyDealerId", entry.getKey().getNyDealerId() + "");
 				reportRow.putCell("nyDealerName", entry.getKey().getFacilityName());
 				reportRow.putCell("nyDealerStreet", entry.getKey().getStandardStreet());

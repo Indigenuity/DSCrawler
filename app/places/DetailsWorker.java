@@ -18,7 +18,7 @@ public class DetailsWorker extends UntypedActor {
 			JPA.withTransaction(() ->{
 				PlacesDealer dealer = JPA.em().find(PlacesDealer.class, placesDealerId);
 				Response<Place> detailsResponse = Places.details(Params.create().placeId(dealer.getPlacesId()));
-				DataBuilder.fillPlacesDealer(dealer, detailsResponse);
+				PlacesLogic.fillPlacesDealer(dealer, detailsResponse);
 				JPA.em().merge(dealer);
 			});
 		}

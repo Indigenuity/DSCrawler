@@ -83,7 +83,7 @@ public class Retriever {
 		String queryString = "from ZipLocation zl where zl.dateFetched is null or zl.dateFetched < :monthAgo";
 		List<ZipLocation> zips = JPA.em().createQuery(queryString, ZipLocation.class).setParameter("monthAgo", monthAgo).getResultList();
 		System.out.println("size : " + zips.size());
-		ActorRef master = Asyncleton.getInstance().getGenericMaster(50, PostalSearchWorker.class);
+		ActorRef master = Asyncleton.getInstance().getMonotypeMaster(50, PostalSearchWorker.class);
 		
 		int count = 0;
 		for(ZipLocation zip : zips) {
@@ -108,7 +108,7 @@ public class Retriever {
 		System.out.println("Retrieving PlacesDealers to retrieve details");
 		List<PlacesDealer> dealers = JPA.em().createQuery(queryString, PlacesDealer.class).setMaxResults(1).getResultList();
 		System.out.println("Dealers : " + dealers.size());
-		ActorRef master = Asyncleton.getInstance().getGenericMaster(50, DetailsWorker.class);
+		ActorRef master = Asyncleton.getInstance().getMonotypeMaster(50, DetailsWorker.class);
 		for(PlacesDealer dealer : dealers) {
 			master.tell(dealer.getPlacesDealerId(), ActorRef.noSender());
 		}
@@ -148,12 +148,12 @@ public class Retriever {
 	
 	public static void retrieveDetails(String placesId) throws IOException {
 		Response<Place> detailsResponse = Places.details(Params.create().placeId(placesId));
-		PlacesDealer dealer = DataBuilder.getPlacesDealer(detailsResponse);
+		PlacesDealer dealer = PlacesLogic.getPlacesDealer(detailsResponse);
 		JPA.em().merge(dealer);
 	}
 	
 	public static void retrieveDetails(PlacesDealer dealer) throws IOException {
 		Response<Place> detailsResponse = Places.details(Params.create().placeId(dealer.getPlacesId()));
-		DataBuilder.fillPlacesDealer(dealer, detailsResponse);
+		PlacesLogic.fillPlacesDealer(dealer, detailsResponse);
 	}
 }

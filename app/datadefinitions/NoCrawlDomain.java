@@ -1,29 +1,47 @@
 package datadefinitions;
 
-public enum NoCrawlDomain {
-	FACEBOOK		("facebook.com"),
-	GOOGLE_PLUS		("plus.google.com"),
-	JD_BYRIDER		("jdbyrider.com"),
-	CARHOP			("carhop.com"),
-	AUTOTRADER		("autotrader.com"),
-	MANHEIM			("manheim.com"),
+public enum NoCrawlDomain implements StringMatch {
 	ADESA			("adesa.com"),
-	CHEVRON			("chevronwithtechron.com"),
-	DRIVE_TIME		("drivetime.com"),
-	CARS_COM		("cars.com"),
-	IAAI			("iaai.com"),
-	HONDA			("honda.com"),
-	HERTZ			("hertzcarsales.com"),
-	COPART			("copart.com"),
-	GM				("gm.com"),
+	AUTOSHOPPER		("autoshopper.com"),
+	AUTOTRADER		("autotrader.com"),
+	AUTOTRADER_CA	("autotrader.ca"),
+	CARHOP			("carhop.com"),
 	CARMAX			("carmax.com"),
-	PAACO			("paaco.com"),
+	CARS_COM		("cars.com"),
+	CARS_ONLINE_FREE	("carsonlinefree.com"),
+	CHEVRON			("chevronwithtechron.com"),
 	CLICK_MOTIVE	("clickmotive.com"),
+	COPART			("copart.com"),
+	DRIVE_TIME		("drivetime.com"),
+	FACEBOOK		("facebook.com"),
+	GM				("gm.com"),
+	GOOGLE_PLUS		("plus.google.com"),
+	HERTZ			("hertzcarsales.com"),
+	HONDA			("honda.com"),
+	IAAI			("iaai.com"),
+	JD_BYRIDER		("jdbyrider.com"),
+	JIVE			("jive.com"),
+	MANHEIM			("manheim.com"),
+	PAACO			("paaco.com"),
 	PINTEREST		("pinterest.com"),
-	SMART			("smart.com");
+	SMART			("smart.com"),
+	TOYOTA			("toyota.ca");
+	
 	
 	public final String definition;
 	private NoCrawlDomain(String definition) {
 		this.definition = definition;
 	}
+	public String getDefinition() {
+		return definition;
+	}
+	@Override
+	public String getDescription() {
+		return "This signifies a domain that shouldn't be crawled for data";
+	}
+	@Override
+	public String getNotes() {
+		return "This signifies a domain that shouldn't be crawled for data";
+	}
+	
 }

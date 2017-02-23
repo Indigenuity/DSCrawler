@@ -12,6 +12,8 @@ import akka.routing.ActorRefRoutee;
 import akka.routing.RoundRobinRoutingLogic;
 import akka.routing.Routee;
 import akka.routing.Router;
+import async.monitoring.Lobby;
+import async.monitoring.WaitingRoom;
 import async.work.Order;
 import async.work.Result;
 import newwork.WorkOrder;
@@ -33,6 +35,7 @@ public class GenericMaster extends UntypedActor {
 		this.numWorkers = numWorkers;
 		this.clazz = clazz;
 		this.waitingRoom = new WaitingRoom("Waiting room for " + clazz);
+		Lobby.add(waitingRoom);
 //		Router balancedRouter = getContext().actorOf(new BalancingPool(numWorkers).props(Props.create(clazz)), "BalancedRouter");
 		List<Routee> routees = new ArrayList<Routee>();
 	    for (int i = 0; i < this.numWorkers; i++) {

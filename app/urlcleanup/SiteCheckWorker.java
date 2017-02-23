@@ -10,7 +10,7 @@ import persistence.Site.SiteStatus;
 import persistence.UrlCheck;
 import play.db.jpa.JPA;
 import sites.SiteLogic;
-import utilities.UrlSniffer;
+import sites.UrlChecker;
 
 public class SiteCheckWorker extends UntypedActor {
 
@@ -19,11 +19,11 @@ public class SiteCheckWorker extends UntypedActor {
 		@Override
 		public void accept(Site site) {
 			System.out.println("checking site : " + site.getHomepage());
-			UrlCheck urlCheck = UrlSniffer.checkUrl(site.getHomepage());
+			UrlCheck urlCheck = UrlChecker.checkUrl(site.getHomepage());
 			JPA.withTransaction( () -> {
 				JPA.em().persist(urlCheck);
 				site.setUrlCheck(urlCheck);
-				SiteLogic.applyUrlCheck(site);
+				SiteLogic.httpRedirect(site);
 				JPA.em().merge(site);
 			});
 		}

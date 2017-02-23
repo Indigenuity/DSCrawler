@@ -1,0 +1,39 @@
+@import _root_.persistence.Site.SiteStatus
+
+@main("Sites Dashboard") {
+
+
+	<div class="small-panel load-dashboard loading" data-dashboard-href="/sitesDashboardStats">
+	
+	</div>
+	
+	<div class="small-panel">
+	<a class="small-button" href="/sites/reviewSites">Review Sites</a>
+		<a class="small-button" href="/sites/reviewNotStandardPaths">Review Not Standard Paths</a>
+		<a class="small-button" href="/sites/reviewNotStandardQueries">Review Not Standard Queries</a>
+		<a class="in-page-link small-button" href="/sites/checkUnvalidated">Check Unvalidated</a>
+		<a class="in-page-link small-button" href="/sites/validateAll">Re-validate All</a>
+		<a class="in-page-link small-button" href="/sites/validateUrls">Validate URLs</a>
+		<a class="in-page-link small-button" href="/sites/checkUrls">Check URLs</a>
+		<a class="in-page-link small-button" href="/sites/logicalRedirects">Logical Redirects</a>
+		<a class="in-page-link small-button" href="/sites/httpRedirects">Http Redirects</a>
+		
+		
+	</div>
+	
+	<div class="small-panel">
+		<form id="site-validation-form" name="site-validation-form" class="faux-submit-form" action="/sites/validationSubmit" method="POST">
+			@for(item <- SiteStatus.values()){
+				<div class="checkbox-container">
+					@if(item == SiteStatus.UNVALIDATED){
+						<input type="checkbox" name="siteStatuses[]" value="@item.name()" checked="true"/>
+					} else{
+						<input type="checkbox" name="siteStatuses[]" value="@item.name()"/>
+					}
+					<label name="siteStatuses[]" value="@item.name()">@item.name()</label>
+				</div>
+			}
+			<button type="submit" name="validation-submit" value="validation-submit">Validate Sites</button>
+		</form>
+	</div>
+}

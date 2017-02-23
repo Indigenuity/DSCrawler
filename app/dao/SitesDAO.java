@@ -30,11 +30,28 @@ public class SitesDAO {
 	private static final long MONTH_IN_MS = 1000 * 60 * 60 * 24 * 31;
 	
 	
-	private static final Date STALE_DATE;
+	public static final Date STALE_DATE;
 	static {
 		Calendar calendar = Calendar.getInstance();
 		calendar.add(Calendar.MONTH, - 1);
 		STALE_DATE = calendar.getTime();
+	}
+	
+	public static List<Long> staleCrawls(){
+		String queryString = "select distinct s.siteId from Site s left join s.mostRecentCrawl sc where (s.mostRecentCrawl is null or sc.crawlDate > :staleDate) and s.siteStatus = :siteStatus";
+		List<Long> siteIds = JPA.em().createQuery(queryString, Long.class)
+				.setParameter("staleDate",  STALE_DATE, TemporalType.DATE)
+				.setParameter("siteStatus", SiteStatus.APPROVED)
+				.getResultList();
+		return siteIds;
+	}
+	
+	public static List<Long> staleUrlChecks(){
+		String queryString = "select distinct s.siteId from Site s left join s.urlCheck uc where (s.urlCheck is null or uc.checkDate > :staleDate)";
+		List<Long> siteIds = JPA.em().createQuery(queryString, Long.class)
+				.setParameter("staleDate",  STALE_DATE, TemporalType.DATE)
+				.getResultList();
+		return siteIds;
 	}
 	
 	public static List<String> findCities(Long siteId){
@@ -57,6 +74,13 @@ public class SitesDAO {
 		return site;
 	}
 	
+	public synchronized static Site getOrNewThreadsafe(String homepage) {
+		Site site = getOrNew(homepage);
+		JPA.em().getTransaction().commit();
+		JPA.em().getTransaction().begin();
+		return site;
+	}
+	
 	public static Site updateFromUrlCheck(UrlCheck urlCheck){
 		String queryString = "from Site s where s.homepage = :seed";
 		List<Site> resultList = JPA.em().createQuery(queryString, Site.class).setParameter("seed", urlCheck.getSeed()).getResultList();
@@ -71,31 +95,20 @@ public class SitesDAO {
 		return site;
 	}
 	
-	public static List<Long> getStaleSiteIds(){
-		System.out.println("getting stale siteIds ");
-//		q.setParameter("staleDate", STALE_DATE, TemporalType.DATE);
-		String queryString = "select s.siteId from Site s join s.crawls where";
-		List<Long> siteIds = JPA.em().createQuery(queryString, Long.class).getResultList();
-		System.out.println("siteIds : " + siteIds.size());
-		
-		return siteIds;
-	}
-	
 	public static Site getRedirectEndpoint(Site site, boolean allowManualRedirects){
 		if(site == null) {
 			return null;
 		}
-		if(site.getSiteStatus() == SiteStatus.REDIRECTS){
-			if(site.getForwardsTo() == null){
-				throw new IllegalStateException("Site status shows redirect but forwardsTo field is null : " + site.getSiteId());	
+		if(site.getRedirects()){
+			Site destination = site.getRedirectsTo();
+			if(destination == null){
+				throw new IllegalStateException("Site status shows redirect but redirectsTo field is null : " + site.getSiteId());	
 			}
-			return getRedirectEndpoint(site.getForwardsTo(), allowManualRedirects);
-		} else if(site.getSiteStatus() == SiteStatus.MANUALLY_REDIRECTS && allowManualRedirects){
-			if(site.getManualForwardsTo() == null){
-				throw new IllegalStateException("Site status shows manual redirect but manualForwardsTo field is null : " + site.getSiteId());
+			if(site.getSiteId() == destination.getSiteId()){
+				throw new IllegalStateException("Illegal State!  Site redirects to itself : " + site.getSiteId() + " : " + site.getHomepage());
 			}
-			return getRedirectEndpoint(site.getManualForwardsTo(), allowManualRedirects);
-		} 
+			return getRedirectEndpoint(destination, allowManualRedirects);
+		}
 		return site;
 	}
 	
@@ -256,6 +269,13 @@ public class SitesDAO {
 		q.setFirstResult(offset);
 		q.setMaxResults(count);
 		return q.getResultList();
+	}
+	
+	public static List<Site> getNoRedirectsList(String valueName, Object value, int count, int offset){
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		parameters.put(valueName , value);
+		parameters.put("redirects", false);
+		return getList(parameters, count, offset);
 	}
 	
 	public static Site getFirst(String valueName, Object value){

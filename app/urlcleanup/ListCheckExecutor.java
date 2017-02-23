@@ -12,8 +12,8 @@ import datatransfer.reports.Report;
 import datatransfer.reports.ReportRow;
 import persistence.UrlCheck;
 import play.db.jpa.JPA;
+import sites.UrlChecker;
 import urlcleanup.ListCheckConfig.InputType;
-import utilities.UrlSniffer;
 
 public class ListCheckExecutor {
 
@@ -33,22 +33,22 @@ public class ListCheckExecutor {
 					if(!StringUtils.isEmpty(reportRow.getCell("Manual Seed"))){
 						seed = reportRow.getCell("Manual Seed");
 					}
-					UrlCheck urlCheck = UrlSniffer.checkUrl(seed);
+					UrlCheck urlCheck = UrlChecker.checkUrl(seed);
 					JPA.em().persist(urlCheck);
 					reportRow.putCell("urlCheckId", urlCheck.getUrlCheckId() + "");
-					reportRow.putCell("Standardized Seed", urlCheck.getStandardizedSeed());
+//					reportRow.putCell("Standardized Seed", urlCheck.getStandardizedSeed());
 					reportRow.putCell("Resolved Seed", urlCheck.getResolvedSeed());
 					reportRow.putCell("Status Code", urlCheck.getStatusCode() + "");
-					reportRow.putCell("Valid URL", urlCheck.isValid() + "");
-					reportRow.putCell("Generic Redirect", urlCheck.isGenericChange() + "");
-					reportRow.putCell("Valid Path", urlCheck.isPathApproved() + "");
-					reportRow.putCell("Valid Query", urlCheck.isQueryApproved() + "");
-					reportRow.putCell("Language Query", urlCheck.isLanguageQuery() + "");
-					reportRow.putCell("Language Path", urlCheck.isLanguagePath() + "");
-					reportRow.putCell("Domain", urlCheck.getResolvedHost());
-					reportRow.putCell("Valid Domain", urlCheck.isDomainApproved() + "");
-					reportRow.putCell("Shared Site", urlCheck.isSharedSite() + "");
-					reportRow.putCell("All Approved", urlCheck.isAllApproved() + "");
+//					reportRow.putCell("Valid URL", urlCheck.isValid() + "");
+//					reportRow.putCell("Generic Redirect", urlCheck.isGenericChange() + "");
+//					reportRow.putCell("Valid Path", urlCheck.isPathApproved() + "");
+//					reportRow.putCell("Valid Query", urlCheck.isQueryApproved() + "");
+//					reportRow.putCell("Language Query", urlCheck.isLanguageQuery() + "");
+//					reportRow.putCell("Language Path", urlCheck.isLanguagePath() + "");
+//					reportRow.putCell("Domain", urlCheck.getResolvedHost());
+//					reportRow.putCell("Valid Domain", urlCheck.isDomainApproved() + "");
+//					reportRow.putCell("Shared Site", urlCheck.isSharedSite() + "");
+//					reportRow.putCell("All Approved", urlCheck.isAllApproved() + "");
 					reportRow.putCell("Recommendation", getRecommendation(urlCheck));
 				} catch(Exception e) {
 					reportRow.putCell("Error", e.getClass().getSimpleName() + " exception : " + e.getMessage());
@@ -113,14 +113,14 @@ public class ListCheckExecutor {
 	}
 	
 	public static String getRecommendation(UrlCheck urlCheck) {
-		if(urlCheck.isAllApproved()){
-			if(urlCheck.isNoChange()){
-				return "No Action";
-			} else {
-				return "Accept Generic Update";
-			}
-		} else {
+//		if(urlCheck.isAllApproved()){
+//			if(urlCheck.isNoChange()){
+//				return "No Action";
+//			} else {
+//				return "Accept Generic Update";
+//			}
+//		} else {
 			return "Undecided";
-		}
+//		}
 	}
 }

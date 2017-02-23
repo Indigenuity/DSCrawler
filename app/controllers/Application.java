@@ -45,7 +45,7 @@ public class Application extends Controller {
     }
     
     @Transactional
-    public static Result runExperiment() throws Exception 
+    public static Result runExperiment() throws Exception  
     {
     	Experiment.runExperiment();
     	return ok();
@@ -53,14 +53,10 @@ public class Application extends Controller {
     
     @Transactional 
     public static Result sitesDashboard() {
-    	return ok(views.html.sitesDashboard.render());
+    	return ok(views.html.sites.sitesDashboard.render());
     }
     
-    @Transactional
-    public static Result salesforceWebsiteReport() throws IOException {
-    	SalesforceControl.printSignificantDifferenceReport();
-    	return ok();
-    }
+  
     
     @Transactional
     public static Result assignChangedWebsites(long syncId){
@@ -69,26 +65,7 @@ public class Application extends Controller {
     	return ok();
     }
     
-    @Transactional
-    public static Result resetSites(){
-    	List<Long> accountIds = GeneralDAO.getFieldList(Long.class, SalesforceAccount.class, "salesforceAccountId");
-    	SalesforceLogic.resetSites(accountIds);
-    	return ok("Queued " + accountIds.size() + " accounts to have Site objects reset");
-    }
     
-    @Transactional
-    public static Result forwardSites(){
-    	List<Long> accountIds = GeneralDAO.getFieldList(Long.class, SalesforceAccount.class, "salesforceAccountId");
-    	SalesforceLogic.forwardSites(accountIds);
-    	return ok("Queued " + accountIds.size() + " accounts to be assigned the most redirected Site objects");
-    }
-    
-    @Transactional
-    public static Result assignSiteless(){
-    	List<Long> accountIds = GeneralDAO.getFieldList(Long.class, SalesforceAccount.class, "salesforceAccountId", null);
-    	SalesforceLogic.resetSites(accountIds);
-    	return ok("Queued " + accountIds.size() + " accounts to be assigned Site objects");
-    }
     
     @Transactional
     public static Result viewSync(long syncId) {
@@ -148,27 +125,7 @@ public class Application extends Controller {
     }
     
     
-    @Transactional
-    public static Result runSalesforceSync() throws IOException {
-    	DynamicForm data = Form.form().bindFromRequest();
-		String inputFilename = data.get("inputFilename");
-		Boolean generateReports = data.get("generateReports") == null ? false : true;
-		
-		System.out.println("Running Salesforce Sync Session...");
-		Sync importSync = SalesforceControl.sync(inputFilename, generateReports);
-		
-		System.out.println("Mapping siteless salesforce accounts to Site objects...");
-		Sync sitelessSync = SalesforceControl.assignSiteless();
-		
-		System.out.println("Assigning new Site objects to salesforce accounts with changed websites...");
-		SalesforceControl.assignChangedWebsites(importSync);
-		if(generateReports){
-			System.out.println("Generating reports");
-			SyncControl.generateAllReports(SalesforceAccount.class, importSync);
-		}
-		
-		return ok("Synced with salesforce accounts from file : " + inputFilename);
-    }
+    
     
     public static Result urlCleanupForm() {
     	File inputFolder = new File(Global.getWebsiteListInputFolder());

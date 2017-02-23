@@ -1,0 +1,11 @@
+@(roomSummary : _root_.async.monitoring.WaitingRoomSummary)
+
+<div class="monitoring-panel">
+	<h3>Waiting Room: @roomSummary.getName()</h3>
+	<div class="monitoring-panel-inner">
+		<p>Status : <span class="monitoring-status">@roomSummary.getRoomStatus()</span>
+		<p>Items in Queue : <span class="monitoring-count">@roomSummary.getSize()</span></p>
+		<p>Total Items Added : <span class="monitoring-total-added">@roomSummary.getTotalAdded()</span></p>
+		<p>Total Items Finished: <span class="monitoring-total-finished">@roomSummary.getTotalFinished()</span></p>
+	</div>
+</div>

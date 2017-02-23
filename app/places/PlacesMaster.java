@@ -38,19 +38,6 @@ public class PlacesMaster {
 		return null;
 	}
 	
-	
-	
-	public static PlacesDealer updateOrNew(String placesId) throws IOException{
-		PlacesDealer dealer = PlacesDealerDao.findByPlacesId(placesId);
-		if(dealer == null){
-			dealer = new PlacesDealer();
-			dealer.setPlacesId(placesId);
-		}
-		Response<Place> detailsResponse = Places.details(Params.create().placeId(dealer.getPlacesId()));
-		DataBuilder.fillPlacesDealer(dealer, detailsResponse);
-		return JPA.em().merge(dealer);
-	}
-	
 	public static String getGoogleSearchUrl(String query){
 		query = DSFormatter.encode(query);
 		return "https://www.google.com/webhp?sourceid=chrome-instant&ion=1&espv=2&ie=UTF-8#q=" + query;

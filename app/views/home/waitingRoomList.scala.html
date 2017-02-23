@@ -1,0 +1,5 @@
+@(roomSummaries : java.util.Set[_root_.async.monitoring.WaitingRoomSummary])
+
+@for(roomSummary <- roomSummaries){
+	@home.waitingRoom(roomSummary)
+}

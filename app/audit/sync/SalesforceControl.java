@@ -22,7 +22,7 @@ import persistence.Site.SiteStatus;
 import play.db.jpa.JPA;
 import salesforce.persistence.SalesforceAccount;
 import sites.SiteLogic;
-import utilities.UrlSniffer;
+import sites.UrlChecker;
 
 public class SalesforceControl {
 	
@@ -84,7 +84,7 @@ public class SalesforceControl {
 			System.out.println("created site");
 			System.out.println("new site : " + newSite.getHomepage());
     		System.out.println("old Site : " + oldSite.getHomepage());
-			if(oldSite != null && UrlSniffer.isGenericRedirect(newSite.getHomepage(), oldSite.getHomepage())){
+			if(oldSite != null && UrlChecker.isGenericRedirect(newSite.getHomepage(), oldSite.getHomepage())){
 				System.out.println("was generic redirect");
 				oldSite.setSiteStatus(SiteStatus.REDIRECTS);
     			oldSite.setForwardsTo(newSite);
@@ -129,7 +129,7 @@ public class SalesforceControl {
 			if(account.getSite() == null){
 				return;
 			}
-			if(UrlSniffer.isGenericRedirect(account.getSite().getHomepage(), account.getSalesforceWebsite())){
+			if(UrlChecker.isGenericRedirect(account.getSite().getHomepage(), account.getSalesforceWebsite())){
 				account.setSignificantDifference(true);
 			} else {
 				account.setSignificantDifference(false);
@@ -196,7 +196,7 @@ public class SalesforceControl {
 			if(site.getHomepage().equals(account.getSalesforceWebsite())){
 				return "No Change";
 			}
-			if(UrlSniffer.isGenericRedirect(site.getHomepage(), account.getSalesforceWebsite())){
+			if(UrlChecker.isGenericRedirect(site.getHomepage(), account.getSalesforceWebsite())){
 				return "Accept Generic Redirect";
 			}
 			return "Accept Significant Change";

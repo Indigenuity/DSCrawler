@@ -1,15 +1,24 @@
 package async.async;
 
 import play.Logger;
+
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
-import async.functionalwork.FunctionalMaster;
+import async.functionalwork.ConsumerWorkOrder;
+import async.functionalwork.FunctionWorkOrder;
+import async.functionalwork.FunctionalWorker;
+import async.functionalwork.JpaFunctionalWorker;
+import async.functionalwork.MonotypeMaster;
 
 public class Asyncleton {
 	
-	public static final int DEFAULT_NUM_WORKERS = 5;
+	public static final int DEFAULT_NUM_WORKERS = 5;    
 
 	private static final Asyncleton instance = new Asyncleton();
 	
@@ -23,18 +32,29 @@ public class Asyncleton {
 	
 	protected Asyncleton(){
 		initialize();
-//		for(Entry<WorkType, RegistryEntry> entry: WorkerRegistry.getInstance().getRegistry().entrySet()){
-//			ActorRef master = mainSystem.actorOf(Props.create(GenericMaster.class, entry.getValue().getNumWorkers(), mainListener, entry.getValue().getClazz()));
-//			masters.put(entry.getKey(), master);
-//		}
+	} 
+	
+	public ActorRef getMonotypeMaster(int numWorkers, Class<?> clazz) {
+		return mainSystem.actorOf(Props.create(MonotypeMaster.class, numWorkers, clazz).withDispatcher("akka.master-dispatcher")); 
 	}
 	
-	public ActorRef getGenericMaster(int numWorkers, Class<? extends UntypedActor> clazz) {
-		return mainSystem.actorOf(Props.create(GenericMaster.class, numWorkers, mainListener, clazz));
+	public <T> void runConsumerMaster(int numWorkers, Consumer<T> consumer, Stream<T> inputs, boolean needsJpa){
+		Class<?> clazz = needsJpa ? JpaFunctionalWorker.class : FunctionalWorker.class;
+		ActorRef functionalMaster = getMonotypeMaster(numWorkers, clazz);
+		
+		inputs.forEach((input) -> {
+			ConsumerWorkOrder<T> workOrder = new ConsumerWorkOrder<T>(consumer, input);
+			functionalMaster.tell(workOrder, ActorRef.noSender());
+		});
 	}
 	
-	public ActorRef getFunctionalMaster(int numWorkers, boolean needsJpa) {
-		return mainSystem.actorOf(Props.create(FunctionalMaster.class, numWorkers,needsJpa)); 
+	public <T, U> void runFunctionMaster(int numWorkers, Function<T, U> consumer, Stream<T> inputs, boolean needsJpa){
+		Class<?> clazz = needsJpa ? JpaFunctionalWorker.class : FunctionalWorker.class;
+		ActorRef functionalMaster = getMonotypeMaster(numWorkers, clazz);
+		inputs.forEach((input) -> {
+			FunctionWorkOrder<T, U> workOrder = new FunctionWorkOrder<T, U>(consumer, input);
+			functionalMaster.tell(workOrder, ActorRef.noSender());
+		});
 	}
 	
 	private void initialize() {
@@ -44,7 +64,6 @@ public class Asyncleton {
 			mainSystem = ActorSystem.create("mainSystem");
 			mainListener = mainSystem.actorOf(Props.create(MainListener.class), "mainListener");
 			Logger.info("Main async system ready for jobs");
-			 
 		}
 	}
 	

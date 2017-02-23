@@ -25,20 +25,25 @@
 				<td>Error</td>
 				<td>@site.getUrlCheck().getErrorMessage()</td>
 			</tr>
-			@if(site.getForwardsTo() != null || site.getManualForwardsTo() != null){
+			@if(site.getRedirectsTo() != null){
 				<tr>
-					<td><b>FORWARDS TO</b></td>
+					<td><b>REDIRECTS TO</b></td>
 					<td>@site.getForwardsTo().getHomepage()</td>
 				</tr>
 				<tr>
-					<td><b>MANUAL FORWARDS TO</b></td>
-					<td>@site.getManualForwardsTo()</td>
+					<td><b>REDIRECTS REASON</b></td>
+					<td>@site.getRedirectReason()</td>
 				</tr>
 			}
 		</table>
 		<p><input type="text" name="manualRedirect"  class="url-input" value="@site.getUrlCheck().getResolvedSeed()">
 		<!-- Apparently Play's forms don't parse the name or value of submit buttons, so there's this stupid inline shit -->
-		<button type="submit" onclick="this.form.elements[0].value='Manual Redirect'">Manual Redirect</button>
+		<button type="submit" onclick="this.form.elements[0].value='Inference Redirect'">Inference Redirect</button>
+		<br>
+		<button type="submit" onclick="this.form.elements[0].value='Path Paring'">Path Paring</button>
+		<button type="submit" onclick="this.form.elements[0].value='Attempt Path Paring'">Attempt Path Paring</button>
+		<button type="submit" onclick="this.form.elements[0].value='Approve Path'">Approve Path</button>
+		<button type="submit" onclick="this.form.elements[0].value='Unapprove Site'">Unapprove Site</button>
 		<br>
 		<button type="submit" onclick="this.form.elements[0].value='Approve Redirect'">Approve Redirect</button>
 		<button type="submit" onclick="this.form.elements[0].value='Approve Shared Site'">Approve Shared Site</button>

@@ -1,7 +1,7 @@
 package newwork.urlcheck;
 
 import persistence.UrlCheck;
-import utilities.UrlSniffer;
+import sites.UrlChecker;
 
 import java.util.concurrent.Callable;
 
@@ -14,7 +14,7 @@ public class UrlCheckWorkInstructionsBuilder implements TerminalWorkInstructions
 	}
 	@Override
 	public Callable<UrlCheck> build(String seed) {
-		Callable<UrlCheck> instructions = () -> UrlSniffer.checkUrl(seed);
+		Callable<UrlCheck> instructions = () -> UrlChecker.checkUrl(seed);
 		return instructions;
 	}
 

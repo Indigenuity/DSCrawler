@@ -20,6 +20,20 @@ public class JpaFunctionalBuilder {
 		});
 	}
 	
+	public static <T> Consumer<Long> wrapConsumerInTransactionFind(Consumer<T> consumer, Class<T> clazz){
+		return (key) -> {
+			try {
+				T t =  JPA.withTransaction(() ->{
+					T item = JPA.em().find(clazz, key);
+					return item;
+				});
+				consumer.accept(t);
+			} catch (Throwable e) {
+				throw new RuntimeException(e);
+			}
+		};
+	}
+	
 	public static <T, U> Function<Long, U> wrapFunctionInFind(Function<T, U> function, Class<T> clazz){
 		return (key) -> {
 			return function.apply(JPA.em().find(clazz, key));
@@ -30,6 +44,6 @@ public class JpaFunctionalBuilder {
 		return ((key) -> {
 			consumer.accept(JPA.em().find(clazz, key));
 		});
-	} 
+	}
 	
 }

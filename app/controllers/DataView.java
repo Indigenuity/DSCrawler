@@ -10,7 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import dao.SitesDAO;
 import dao.StatsDAO;
 import datatransfer.FileMover;
-import async.monitoring.AsyncMonitor;
+import async.monitoring.Lobby;
 import persistence.SiteCrawl;
 import play.db.jpa.JPA;
 import play.db.jpa.Transactional;
@@ -83,7 +83,7 @@ public class DataView extends Controller {
 	}
 	
 	public static Result getMonitoringQueues() {
-		return ok(views.html.allWips.render(AsyncMonitor.instance().getWipLists()));
+		return ok(views.html.home.waitingRoomList.render(Lobby.getRoomSummaries()));
 	} 
 	
 	public static Result getMonitoringQueue(String queueName) {

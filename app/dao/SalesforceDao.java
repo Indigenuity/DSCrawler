@@ -17,6 +17,7 @@ import salesforce.persistence.SalesforceAccount;
 
 public class SalesforceDao {
 	
+	
 	public static List<Long> getUsFranchiseSites(){
 		String queryString = "select distinct(s.siteId) from SalesforceAccount sa join sa.site s where sa.country = 'United States' and sa.franchise = true and s.siteStatus = :siteStatus";
 		List<Long> siteIds = JPA.em().createQuery(queryString, Long.class).setParameter("siteStatus", SiteStatus.APPROVED).getResultList();

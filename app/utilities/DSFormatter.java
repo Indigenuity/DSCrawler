@@ -9,13 +9,21 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Function;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
 import datadefinitions.InvalidDomain;
-import datadefinitions.ValidPathMatch;
+import datadefinitions.NoCrawlDomain;
+import datadefinitions.StringExtraction;
+import datadefinitions.StringMatchUtils;
+import datadefinitions.HomepagePath;
 import datadefinitions.ValidQueryMatch;
+import datadefinitions.newdefinitions.AutoRemoveQuery;
+import datadefinitions.newdefinitions.DefunctDomain;
+import datadefinitions.newdefinitions.DefunctPath;
+import datadefinitions.newdefinitions.SharedDomain;
 import play.Logger;
 
 public class DSFormatter {
@@ -151,6 +159,9 @@ public class DSFormatter {
 		street = street.replaceAll("\\bpl\\b", "place");
 		street = street.replaceAll("\\bcntry\\b", "country");
 		street = street.replaceAll("\\bterr\\b", "terrace");
+		street = street.replaceAll("\\bbldg\\b", "building");
+		street = street.replaceAll("\\bste\\b", "suite");
+		street = street.replaceAll("\\bterr\\b", "terrace");
 		street = street.replaceAll("\\bn\\b", "north");
 		street = street.replaceAll("\\bs\\b", "south");
 		street = street.replaceAll("\\be\\b", "east");
@@ -169,6 +180,41 @@ public class DSFormatter {
 			return state;
 		}
 		return stateFullToAbbr(state);
+	}
+	
+	public static String standardizeCountry(String country){
+		if(country == null) {
+			return "Country Unknown";
+		}
+		return country
+				.toLowerCase()
+				.trim()
+				.replaceAll("\\bus\\b", "United States")
+				.replaceAll("\\busa\\b", "United States")
+				.replaceAll("\\bu\\.s\\.\\b", "United States")
+				.replaceAll("\\bunited states\\b", "United States")
+				.replaceAll("\\bcan\\b", "Canada")
+				.replaceAll("\\bcanada\\b", "Canada")
+				.replaceAll("\\bca\\b", "Canada");
+	}
+	
+	public static String standardizeCanadaPostal(String postal){
+		if(postal == null){
+			return null;
+		}
+		return postal.toUpperCase()
+				.replace(" ", "");
+	}
+	
+	public static String standardizeZip(String zip) {
+		if(zip == null){
+			return null;
+		}
+		String[] parts = zip.trim().split("[ -]");
+		while(parts[0].length() < 5){
+			parts[0] = "0" + parts[0];
+		}
+		return parts[0];
 	}
 	
 	public static String stateFullToAbbr(String stateFull){
@@ -216,29 +262,30 @@ public class DSFormatter {
 		return false;
 	}
 	
-	public static String standardizeUrl(String original) {
+	public static String autoRemoveQuery(String original){
 		try {
 			URL url = new URL(original);
-			String rebuilt = url.getProtocol() + "://" + url.getHost() + "/";
-			System.out.println("rebuilt : " + rebuilt);
+			String rebuilt = url.getProtocol() + "://" + url.getHost() + url.getPath();
+			if(!StringMatchUtils.matchesAny(AutoRemoveQuery.values(), url.getQuery())){
+				if(StringUtils.isEmpty(url.getPath())){
+					rebuilt += "/";
+				} else{
+					rebuilt += "?" + url.getQuery();
+				} 
+			} 
 			return rebuilt;
 		} catch (MalformedURLException e) {
 			throw new IllegalArgumentException("Illegal url");
 		}
 	}
 	
-	public static String standardize(String original) {
+	public static String standardizeBaseUrl(String original) {
 		try {
+			original = toHttp(original);
 			URL url = new URL(original);
-			String rebuilt = url.getProtocol() + "://" + url.getHost();
-			if(StringUtils.isEmpty(url.getPath())){
+			String rebuilt = url.toString();
+			if(StringUtils.isEmpty(url.getPath()) && StringUtils.isEmpty(url.getQuery())){
 				rebuilt = rebuilt + "/";
-			}
-			else {
-				rebuilt = rebuilt + url.getPath();
-			}
-			if(!StringUtils.isEmpty(url.getQuery())){
-				rebuilt += url.getQuery();	
 			}
 			return rebuilt;
 		} catch (MalformedURLException e) {
@@ -288,7 +335,10 @@ public class DSFormatter {
 	public static String removeWww(String original) {
 		
 		String returned = original.toLowerCase();
+		returned = returned.replaceAll("www3.", "");
 		returned = returned.replaceAll("www.", "");
+		returned = returned.replaceAll("ww12.", "");
+		returned = returned.replaceAll("ww1.", "");
 		returned = returned.replaceAll("ww2.", "");
 		returned = returned.replaceAll("ww3.", "");
 		
@@ -306,7 +356,7 @@ public class DSFormatter {
 	
 	public static String removeLanguage(String original) {
 		String returned = original.toLowerCase();
-		for(ValidPathMatch langPath : ValidPathMatch.langValues()){
+		for(HomepagePath langPath : HomepagePath.langValues()){
 			returned = returned.replaceAll(langPath.definition + "$", "/");	//We only want to replace paths at the end of the string
 		}
 		for(ValidQueryMatch langQuery : ValidQueryMatch.langValues()){
@@ -346,7 +396,7 @@ public class DSFormatter {
 			return false;
 		}
 		String path = original.toLowerCase();
-		for(ValidPathMatch match : ValidPathMatch.values()) {
+		for(HomepagePath match : HomepagePath.values()) {
 			if(path.equals(match.definition)) {
 				return true;
 			}
@@ -376,7 +426,7 @@ public class DSFormatter {
 			return false;
 		}
 		String path = original.toLowerCase();
-		for(ValidPathMatch match : ValidPathMatch.langValues()) {
+		for(HomepagePath match : HomepagePath.langValues()) {
 			if(path.equals(match.definition)) {
 				return true;
 			}
@@ -465,6 +515,28 @@ public class DSFormatter {
 		return truncate(path, 80);
 	}
 	
+	public static String parePath(String urlString) {
+		try{
+			URL url = new URL(urlString);
+			String rebuilt = url.getProtocol() + "://" + url.getHost() + "/";
+			if(!StringUtils.isEmpty(url.getQuery())){
+				rebuilt += "?" + url.getQuery();
+			}
+			return rebuilt;
+		} catch(MalformedURLException e) {
+			throw new IllegalArgumentException("Bad urlString, cannot pare path : " + urlString);
+		}
+	}
+	
+	public static String pareQuery(String urlString) {
+		try{
+			URL url = new URL(urlString);
+			return url.getProtocol() + "://" + url.getHost() + url.getPath();
+		} catch(MalformedURLException e) {
+			throw new IllegalArgumentException("Bad urlString, cannot pare query : " + urlString);
+		}
+	}
+	
 	public static String getDomain(String url) {
 		String domain;
 		url = toHttp(url);
@@ -478,5 +550,72 @@ public class DSFormatter {
 		}
 		
 		return domain;
+	}
+	
+	public static boolean isBadUrlStructure(String urlString){
+		try {
+			URL url = new URL(urlString);
+			if(StringUtils.isEmpty(url.getPath())){
+				return true;
+			}
+			Matcher matcher = StringExtraction.HOST.getPattern().matcher(url.getHost());
+			if(!matcher.matches()){
+				return true;
+			}
+			if(hasBadUrlCharacters(urlString)){
+				return true;
+			}
+		} catch (MalformedURLException e) {
+			return true;
+		}
+		return false;
+	}
+	
+	public static boolean hasBadUrlCharacters(String urlString) {
+		if(urlString.contains("@") || urlString.contains(" ") || urlString.contains("\\n") || urlString.contains("\\t")){
+			return true;
+		}
+		return false;
+	}
+	
+	public static boolean isEmail(String urlString) {
+		Matcher matcher = StringExtraction.EMAIL_ADDRESS.getPattern().matcher(urlString);
+		if(matcher.find()){
+			return true;
+		}
+		return false;
+	}
+	
+	public static boolean isDefunctDomain(URL url) {
+		return StringMatchUtils.equalsAny(DefunctDomain.values(), removeWww(url.getHost()));
+	}
+	
+	public static boolean isDefunctPath(URL url) {
+		return StringMatchUtils.equalsAny(DefunctPath.values(), url.getPath());
+	}
+	
+	public static boolean isNotStandardHomepagePath(URL url) {
+		if(!StringUtils.isEmpty(url.getQuery()) && StringUtils.isEmpty(url.getPath())){		//Blank path is only ok with queries
+			return false;
+		}
+		if(isSharedDomain(url)){
+			return false;
+		}
+		return !StringMatchUtils.equalsAny(HomepagePath.values(), url.getPath());
+	}
+	
+	public static boolean isUncrawlableDomain(URL url) {
+		return StringMatchUtils.equalsAny(NoCrawlDomain.values(), removeWww(url.getHost()));
+	}
+	
+	public static boolean isSharedDomain(URL url) {
+		return StringMatchUtils.equalsAny(SharedDomain.values(), removeWww(url.getHost()));
+	}
+	
+	public static boolean isBadQuery(URL url) {
+		if(StringUtils.isEmpty(url.getQuery())){
+			return false;
+		}
+		return !StringMatchUtils.matchesAny(ValidQueryMatch.values(), url.toString());		//Send the entire URL text, not just the query, since query matching uses the whole thing
 	}
 }

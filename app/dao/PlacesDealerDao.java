@@ -31,9 +31,9 @@ public class PlacesDealerDao {
 		return null;
 	}
 	
-	public static List<PlacesDealer> siteless(){
-		String queryString = "from PlacesDealer pd where pd.site is null";
-		return JPA.em().createQuery(queryString, PlacesDealer.class).getResultList();
+	public static List<Long> siteless(){
+		String queryString = "select pd.placesDealerId from PlacesDealer pd where pd.site is null";
+		return JPA.em().createQuery(queryString, Long.class).getResultList();
 	}
 	
 	

@@ -19,6 +19,7 @@ import persistence.PageCrawl;
 import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.Staff;
+import places.PlacesDealer;
 import persistence.Site.SiteStatus;
 import play.Logger;
 import play.db.DB;
@@ -50,7 +51,7 @@ public class Cleaner {
 	
 	public static void runUrlChecks(List<Site> sites) {
 		System.out.println("running url checks on " + sites.size() + " sites");
-		ActorRef master = Asyncleton.getInstance().getGenericMaster(25, SiteCheckWorker.class);
+		ActorRef master = Asyncleton.getInstance().getMonotypeMaster(25, SiteCheckWorker.class);
 		
 		sites.stream().forEach( (site) -> {
 			master.tell(new Order<Site>(site), ActorRef.noSender());
@@ -111,10 +112,28 @@ public class Cleaner {
 			account.setSite(site1);
 		}
 		
+		List<PlacesDealer> dealers = GeneralDAO.getList(PlacesDealer.class, "site", site2);
+		for(PlacesDealer dealer : dealers) {
+			System.out.println("Setting site for Places Dealer: " + dealer.getPlacesDealerId());
+			dealer.setSite(site1);
+		}
+		
+		dealers = GeneralDAO.getList(PlacesDealer.class, "unresolvedSite", site2);
+		for(PlacesDealer dealer : dealers) {
+			System.out.println("Setting unresolvedSite for Places Dealer: " + dealer.getPlacesDealerId());
+			dealer.setUnresolvedSite(site1);
+		}
+		
 		List<Site> forwarders = GeneralDAO.getList(Site.class, "forwardsTo", site2);
 		for(Site forwarder : forwarders) {
 			System.out.println("found forwarder");
 			forwarder.setForwardsTo(site1);
+		}
+		
+		List<Site> redirecters = GeneralDAO.getList(Site.class, "redirectsTo", site2);
+		for(Site redirecter : redirecters) {
+			System.out.println("found redirecter");
+			redirecter.setRedirectsTo(site1);
 		}
 		
 		JPA.em().remove(site2);

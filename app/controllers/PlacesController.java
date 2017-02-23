@@ -4,16 +4,22 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Consumer;
 
 import akka.actor.ActorRef;
 import async.async.Asyncleton;
+import async.functionalwork.JpaFunctionalBuilder;
+import audit.Standardizer;
+import dao.GeneralDAO;
 import dao.PlacesDealerDao;
+import dao.SiteOwnerLogic;
 import dao.SitesDAO;
 import persistence.Site;
 import places.CanadaPostal;
 import places.DataBuilder;
 import places.DetailsWorker;
 import places.PlacesDealer;
+import places.PlacesLogic;
 import places.PostalSearchWorker;
 import places.Retriever;
 import places.ZipLocation;
@@ -46,33 +52,26 @@ public class PlacesController extends Controller {
 		
 		return ok(views.html.viewstats.viewStats.render(StatsBuilder.placesDashboard()));
 	}
+	@Transactional
+    public static Result classifyRecords() {
+		List<Long> dealerIds = GeneralDAO.getAllIds(PlacesDealer.class);
+		Asyncleton.getInstance().runConsumerMaster(50, 
+				JpaFunctionalBuilder.wrapConsumerInFind(PlacesLogic::salesforceMatch, PlacesDealer.class), 
+				dealerIds.stream(), 
+				true);
+		return ok("Queued " + dealerIds.size() + " for salesforce matching");
+	}
 	
 	@Transactional
     public static Result assignSiteless() {
-		List<PlacesDealer> dealers = PlacesDealerDao.siteless();
-		System.out.println("Assigning siteless dealers : " + dealers.size());
+		List<Long> dealerIds = PlacesDealerDao.siteless();
+		System.out.println("Assigning siteless dealers : " + dealerIds.size());
+		Asyncleton.getInstance().runConsumerMaster(25, 
+				JpaFunctionalBuilder.wrapConsumerInFind(SiteOwnerLogic::assignUnresolvedSiteThreadsafe, PlacesDealer.class), 
+				dealerIds.stream(),
+				true);
 		
-		int count = 0;
-		for(PlacesDealer dealer : dealers){
-			Site site = SitesDAO.getFirst("homepage", dealer.getWebsite());
-			if(site == null && dealer.getWebsite() != null) {
-				System.out.println("Creating new site : " + dealer.getWebsite());
-				site = new Site(dealer.getWebsite());
-				JPA.em().persist(site);
-			}
-			dealer.setSite(site);
-			
-			if(count++ %50 == 0){
-				System.out.println("Processed : " + count);
-				JPA.em().getTransaction().commit();
-				JPA.em().getTransaction().begin();
-//				JPA.em().clear();
-			}
-		}
-		
-		
-		
-		return ok(dealers.size() + " Places dealers assigned sites");
+		return ok(dealerIds.size() + " Places dealers assigned sites");
 	}
 	
 	@Transactional
@@ -85,7 +84,7 @@ public class PlacesController extends Controller {
 		List<CanadaPostal> codes = JPA.em().createQuery(queryString, CanadaPostal.class).setParameter("monthAgo", monthAgo).getResultList();
 		System.out.println("size : " + codes.size());
 		
-		ActorRef master = Asyncleton.getInstance().getGenericMaster(50, PostalSearchWorker.class);
+		ActorRef master = Asyncleton.getInstance().getMonotypeMaster(50, PostalSearchWorker.class);
 		for(CanadaPostal code : codes) {
 			master.tell(code, ActorRef.noSender());
 		}
@@ -102,7 +101,7 @@ public class PlacesController extends Controller {
 		List<ZipLocation> zips = JPA.em().createQuery(queryString, ZipLocation.class).setParameter("monthAgo", monthAgo).getResultList();
 		System.out.println("size : " + zips.size());
 		
-		ActorRef master = Asyncleton.getInstance().getGenericMaster(50, PostalSearchWorker.class);
+		ActorRef master = Asyncleton.getInstance().getMonotypeMaster(50, PostalSearchWorker.class);
 		for(ZipLocation zip : zips) {
 			master.tell(zip, ActorRef.noSender());
 		}
@@ -124,12 +123,45 @@ public class PlacesController extends Controller {
 		List<Long> ids = JPA.em().createQuery(queryString, Long.class).setMaxResults(maxResults).setParameter("monthAgo", monthAgo).getResultList();
 		System.out.println("ids : " + ids.size());
 		
-		ActorRef master = Asyncleton.getInstance().getGenericMaster(5, DetailsWorker.class);
-		for(Long id : ids) {
-			master.tell(id, ActorRef.noSender());
-		}
+		Asyncleton.getInstance().runConsumerMaster(25, 
+				JpaFunctionalBuilder.wrapConsumerInFind(PlacesLogic::fillDetails, PlacesDealer.class), 
+				ids.stream(), 
+				true);
 		
 		return ok(ids.size() + " dealers queued for fetching details");
+	}
+	
+	@Transactional
+	public static Result expireDetails(){
+		String queryString = "update PlacesDealer pd set pd.detailFetchDate = null";
+		int affectedRows = JPA.em().createQuery(queryString).executeUpdate();
+		return ok("Expired " + affectedRows + " records");
+	}
+	
+	@Transactional
+	public static Result standardizeFields(){
+		Standardizer.standardizePlacesDealers();
+		return ok("Queued up PlacesDealers for standardization");
+	}
+	
+	@Transactional
+	public static Result forwardSites(){
+		List<Long> dealerIds = GeneralDAO.getAllIds(PlacesDealer.class);
+		Asyncleton.getInstance().runConsumerMaster(50, 
+				JpaFunctionalBuilder.wrapConsumerInFind(SiteOwnerLogic::forwardSite, PlacesDealer.class), 
+				dealerIds.stream(), 
+				true);
+		return ok("Queued " + dealerIds.size() + " for site forwarding");
+	}
+	
+	@Transactional
+	public static Result salesforceMatching(){
+		List<Long> dealerIds = GeneralDAO.getAllIds(PlacesDealer.class);
+		Asyncleton.getInstance().runConsumerMaster(50, 
+				JpaFunctionalBuilder.wrapConsumerInFind(PlacesLogic::salesforceMatch, PlacesDealer.class), 
+				dealerIds.stream(), 
+				true);
+		return ok("Queued " + dealerIds.size() + " for salesforce matching");
 	}
 	
 	@Transactional

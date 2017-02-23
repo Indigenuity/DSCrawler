@@ -12,6 +12,10 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -19,6 +23,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -31,9 +36,21 @@ import org.apache.commons.beanutils.PropertyUtilsBean;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.Proxy;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.htmlunit.HtmlUnitDriver;
+import org.openqa.selenium.remote.CapabilityType;
+import org.openqa.selenium.remote.DesiredCapabilities;
+
+import com.gargoylesoftware.htmlunit.WebClient;
 
 import crawling.CrawlSession;
 import crawling.DealerCrawlController;
+import crawling.HarleyCrawlingson;
 import crawling.MobileCrawler;
 import crawling.discovery.async.TempCrawlingWorker;
 import crawling.discovery.html.DocDerivationStrategy;
@@ -42,12 +59,16 @@ import crawling.discovery.html.HttpEndpoint;
 import crawling.nydmv.NYDealer;
 import crawling.projects.BasicDealer;
 import dao.AnalysisDao;
+import dao.GeneralDAO;
+import dao.SalesforceDao;
 import dao.SitesDAO;
 import datadefinitions.GeneralMatch;
 import datadefinitions.newdefinitions.LinkTextMatch;
 import datatransfer.Amalgamater;
 import datatransfer.CSVGenerator;
+import datatransfer.CSVImporter;
 import datatransfer.Cleaner;
+import datatransfer.SiteCrawlImporter;
 import datatransfer.reports.Report;
 import datatransfer.reports.ReportRow;
 import akka.actor.ActorRef;
@@ -65,10 +86,17 @@ import persistence.MobileCrawl;
 import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.UrlCheck;
+import places.PlacesDealer;
+import places.PlacesLogic;
 import persistence.Site.SiteStatus;
 import persistence.SiteCrawl.FileStatus;
 import play.db.jpa.JPA;
+import pods.PodZip;
+import pods.PodsLoader;
 import salesforce.persistence.SalesforceAccount;
+import sites.SiteLogic;
+import sites.UrlChecker;
+import sites.crawling.SiteCrawlLogic;
 import urlcleanup.ListCheck;
 import urlcleanup.ListCheckExecutor;
 import utilities.DSFormatter;
@@ -77,8 +105,46 @@ import utilities.Tim;
 public class Experiment { 
 	
 	public static void runExperiment() throws Exception {
+		Site site = JPA.em().find(Site.class, 130203L);
+		Site newSite = SiteLogic.logicalRedirect(site);
+		System.out.println("newSite : " + newSite.getHomepage());
+	}
+	
+	public static void harleyCrawling() throws Exception {
+//		PodsLoader.loadFromCsv();
+//		List<PodZip> pzs = GeneralDAO.getAll(PodZip.class);
+//		System.out.println("pzs: " + pzs.size());
+//		int count = 0;
+//		for(PodZip pz : pzs){
+//			if(count++ % 1000 == 0){
+//				System.out.println("count : " + count);
+//			}
+//			pz.setPostalCode(DSFormatter.standardizeZip(pz.getPostalCode()));
+//		}
 		
-		DealerCrawlController.crawlSite("http://conquerclub.com");
+		HarleyCrawlingson.standardizeDealers();
+		HarleyCrawlingson.classifyDealers();
+		HarleyCrawlingson.generateReport();
+//		
+		
+	}
+	
+	public static void testAsyncSystem() {
+		Asyncleton.getInstance().runConsumerMaster(5, 
+				(input) -> {
+					System.out.println("Start : " + input);
+					try {
+						Thread.sleep(3000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					System.out.println("End : " + input);
+				}, IntStream.range(1, 35).mapToObj(String::valueOf), false);
+	}
+	
+	public static void testAnalysis() throws Exception {
+		
 		
 //		SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, 88148L);
 //		System.out.println("siteCrawl : " + siteCrawl);
@@ -96,6 +162,7 @@ public class Experiment {
 //		System.out.println("url contains city : " + analysis.getNumUrlContainsCity());
 		
 //		System.out.println("cities : " + SitesDAO.findCities(18511L));
+		Asyncleton.getInstance();
 	}
 	
 	public static void setMostRecentCrawls() {
@@ -106,9 +173,9 @@ public class Experiment {
 		int count = 0;
 		for(Site site : sites){
 			for(SiteCrawl siteCrawl : site.getCrawls()){
-				if(site.getMostRecentCrawl() == null || siteCrawl.getCrawlDate().compareTo(site.getMostRecentCrawl().getCrawlDate()) > 0){
-					site.setMostRecentCrawl(siteCrawl);
-				}
+//				if(site.getMostRecentCrawl() == null || siteCrawl.getCrawlDate().compareTo(site.getMostRecentCrawl().getCrawlDate()) > 0){
+//					site.setMostRecentCrawl(siteCrawl);
+//				}
 			}
 			if(count++ %100 == 0){
 				System.out.println("count : " + count);
@@ -122,7 +189,7 @@ public class Experiment {
 		List<BasicDealer> dealers = JPA.em().createQuery(queryString, BasicDealer.class).setMaxResults(1).setFirstResult(5).getResultList();
 		System.out.println("dealers : " + dealers);
 		
-		ActorRef master = Asyncleton.getInstance().getGenericMaster(15, TempCrawlingWorker.class);
+		ActorRef master = Asyncleton.getInstance().getMonotypeMaster(15, TempCrawlingWorker.class);
 		for(BasicDealer dealer : dealers){
 			System.out.println("dealer : " + dealer.getName());
 			Site site = SitesDAO.getOrNew(dealer.getWebsite());

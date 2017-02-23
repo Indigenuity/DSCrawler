@@ -32,62 +32,6 @@ import play.db.jpa.JPA;
 
 public class DataBuilder {
 	
-	public static PlacesDealer getPlacesDealer(Response<Place> detailsResponse){
-		PlacesDealer dealer = new PlacesDealer();
-		fillPlacesDealer(dealer, detailsResponse);
-		return dealer;
-	}
-	
-	public static void fillPlacesDealer(PlacesDealer dealer, Response<Place> detailsResponse) {
-		dealer.setPlacesStatus(detailsResponse.getStatus());
-		dealer.setDetailFetchDate(Calendar.getInstance().getTime());
-		if(!detailsResponse.getStatus().equals(Response.STATUS_OK)){
-			return;
-		}
-		
-		Place place = detailsResponse.getResult();
-		
-		String placesId = place.getPlaceId().getId();
-		if(!placesId.equals(dealer.getPlacesId())){
-			PlacesDealer existingDealer = PlacesDealerDao.findByPlacesId(placesId);
-			if(existingDealer != null) {
-				dealer.setForwardsTo(existingDealer);
-				return;
-			}
-		}
-		
-		dealer.setFormattedAddress(place.getFormattedAddress());
-		dealer.setFormattedPhoneNumber(place.getFormattedPhoneNumber());
-		dealer.setGoogleUrl(place.getUrl()+ "");
-		dealer.setIconUrl(place.getIcon() + "");
-		dealer.setInternationalPhoneNumber(place.getIntlPhoneNumber());
-		dealer.setLatitude(place.getLatitude());
-		dealer.setLongitude(place.getLongitude());
-		dealer.setName(place.getName());
-		try{
-			dealer.setOpenHours(place.getOpeningHours() + "");
-		}
-		catch(NullPointerException e){
-			dealer.setOpenHours(null);
-		}
-		dealer.setPermanentlyClosed(place.isPermanentlyClosed());
-		dealer.setPlacesId(place.getPlaceId().getId());
-		dealer.setPriceLevel(place.getPriceLevel() + "");
-		dealer.setRating(place.getRating());
-		if(place.getTypes() != null)
-			dealer.setTypes(place.getTypes()+ "");
-		dealer.setUtcOffset(place.getUtcOffset());
-		dealer.setVicinity(place.getVicinity());
-		dealer.setWebsite(place.getWebsite());
-		
-		if(place.getAddress() != null){
-			dealer.setCountry(place.getAddress().getCountry());
-			dealer.setShortCountry(place.getAddress().getCountryAbbr());
-		}
-		
-//		System.out.println("after id : " + dealer.getPlacesId());
-	}
-	
 	public static void importPlaces(List<Place> places)  {
 		String queryString = "select pd.placesId from PlacesDealer pd";
 		List<String> ids = JPA.em().createQuery(queryString, String.class).getResultList();

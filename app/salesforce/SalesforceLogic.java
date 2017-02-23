@@ -8,6 +8,7 @@ import akka.actor.ActorRef;
 import async.async.Asyncleton;
 import async.functionalwork.ConsumerWorkOrder;
 import async.functionalwork.JpaFunctionalBuilder;
+import dao.SiteOwnerLogic;
 import dao.SitesDAO;
 import persistence.Site;
 import salesforce.persistence.SalesforceAccount;
@@ -22,12 +23,10 @@ public class SalesforceLogic {
 	}
 	
 	public static void resetSites(List<Long> accountIds){
-		ActorRef workMaster = Asyncleton.getInstance().getFunctionalMaster(5, true);
-		Consumer<Long> resetter = JpaFunctionalBuilder.wrapConsumerInFind(SalesforceLogic::resetSite, SalesforceAccount.class);
-		for(Long accountId : accountIds){
-			ConsumerWorkOrder<Long> workOrder = new ConsumerWorkOrder<Long>(resetter, accountId);
-			workMaster.tell(workOrder, ActorRef.noSender());
-		}
+		Asyncleton.getInstance().runConsumerMaster(5, 
+				JpaFunctionalBuilder.wrapConsumerInFind(SalesforceLogic::resetSite, SalesforceAccount.class), 
+				accountIds.stream(), 
+				true);
 	}
 	
 	public static void forwardSitesList(List<SalesforceAccount> accounts) {
@@ -37,23 +36,15 @@ public class SalesforceLogic {
 	}
 	
 	public static void forwardSites(List<Long> accountIds){
-		ActorRef workMaster = Asyncleton.getInstance().getFunctionalMaster(5, true);
-		Consumer<Long> resetter = JpaFunctionalBuilder.wrapConsumerInFind(SalesforceLogic::forwardSite, SalesforceAccount.class);
-		for(Long accountId : accountIds){
-			ConsumerWorkOrder<Long> workOrder = new ConsumerWorkOrder<Long>(resetter, accountId);
-			workMaster.tell(workOrder, ActorRef.noSender());
-		}
+		Asyncleton.getInstance().runConsumerMaster(50, 
+				JpaFunctionalBuilder.wrapConsumerInFind(SiteOwnerLogic::forwardSite, SalesforceAccount.class), 
+				accountIds.stream(), 
+				true);
 	}
 
 	public static void resetSite(SalesforceAccount account) {
 		String salesforceWebsite = account.getSalesforceWebsite();
 		Site site = SitesDAO.getOrNew(salesforceWebsite);
-		account.setSite(site);
+		account.setUnresolvedSite(site);
 	}
-	
-	public static void forwardSite(SalesforceAccount account) {
-		Site redirectEndpoint = SitesDAO.getRedirectEndpoint(account.getSite(), true);
-		account.setSite(redirectEndpoint);
-	}
-	
 }

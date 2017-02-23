@@ -18,6 +18,8 @@ import play.Logger;
 import utilities.DSFormatter;
 
 public class HttpFetcher {
+	
+	
 
 	public static PageCrawl getPageCrawl(URL url, File storageFolder) throws IOException{
 		String urlString = url.toString();

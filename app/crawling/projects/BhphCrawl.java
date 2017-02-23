@@ -57,7 +57,7 @@ public class BhphCrawl {
 		List<BasicDealer> dealers = JPA.em().createQuery(queryString, BasicDealer.class).getResultList();
 		System.out.println("Basic Dealers : " + dealers.size());
 		
-		ActorRef master = Asyncleton.instance().getGenericMaster(10, TextSearchWorker.class);
+		ActorRef master = Asyncleton.instance().getMonotypeMaster(10, TextSearchWorker.class);
 		int count = 0;
 		for(BasicDealer dealer : dealers) {
 			master.tell(dealer, ActorRef.noSender());

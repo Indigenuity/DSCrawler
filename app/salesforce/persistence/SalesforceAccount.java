@@ -15,13 +15,19 @@ import javax.persistence.Table;
 import org.hibernate.envers.Audited;
 
 import persistence.Site;
+import urlcleanup.SiteOwner;
 import utilities.DSFormatter;
 
 @Entity
 @Table(indexes = {@Index(name = "name_index",  columnList="name", unique = false),
+		@Index(name = "std_street_index",  columnList="stdStreet", unique = false),
+		@Index(name = "std_phone_index",  columnList="stdPhone", unique = false),
+		@Index(name = "std_country_index",  columnList="stdCountry", unique = false),
+		@Index(name = "std_state_index",  columnList="stdState", unique = false),
+		@Index(name = "std_postal_index",  columnList="stdPostal", unique = false),
         @Index(name = "salesforceId_index", columnList="salesforceId",     unique = false)})
 @Audited(withModifiedFlag=true)
-public class SalesforceAccount {
+public class SalesforceAccount implements SiteOwner{
 
 	
 	@Id
@@ -61,18 +67,21 @@ public class SalesforceAccount {
 	private Boolean siteMismatch = false;
 	
 	
-	private String standardStreet;
 	private String stdStreet;
 	private String stdCity;
 	private String stdState;
 	private String stdCountry;
 	private String stdPhone;
+	private String stdPostal;
 	
 	
 	/************************ Relationships ***************************/
 	
 	@ManyToOne
 	private Site site;
+	
+	@ManyToOne
+	private Site unresolvedSite;
 
 	public long getSalesforceAccountId() {
 		return salesforceAccountId;
@@ -241,12 +250,12 @@ public class SalesforceAccount {
 		this.dealershipType = dealershipType;
 	}
 
-	public String getStandardStreet() {
-		return standardStreet;
+	public String getStdPostal() {
+		return stdPostal;
 	}
 
-	public void setStandardStreet(String standardStreet) {
-		this.standardStreet = standardStreet;
+	public void setStdPostal(String stdPostal) {
+		this.stdPostal = stdPostal;
 	}
 
 	public String getStdStreet() {
@@ -303,6 +312,32 @@ public class SalesforceAccount {
 
 	public void setSiteMismatch(Boolean siteMismatch) {
 		this.siteMismatch = siteMismatch;
+	}
+
+	@Override
+	public String getWebsiteString() {
+		return salesforceWebsite;
+	}
+	@Override
+	public Site getUnresolvedSite() {
+		return unresolvedSite; 
+	}
+
+	@Override
+	public Site setUnresolvedSite(Site site) {
+		this.unresolvedSite = site;
+		return unresolvedSite;
+	}
+
+	@Override
+	public Site getResolvedSite() {
+		return this.getSite();
+	}
+
+	@Override
+	public Site setResolvedSite(Site site) {
+		this.setSite(site);
+		return this.getSite();
 	}
 	
 }

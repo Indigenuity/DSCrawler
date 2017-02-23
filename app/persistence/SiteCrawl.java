@@ -221,9 +221,8 @@ public class SiteCrawl {
 	
 	
 	
-	private SiteCrawl () {
-		
-	}
+	@SuppressWarnings("unused")
+	private SiteCrawl () {}
 	
 	
 	public SiteCrawl(String seed) {

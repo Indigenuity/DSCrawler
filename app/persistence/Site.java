@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -29,6 +30,7 @@ import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CollectionId;
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -53,10 +55,33 @@ public class Site {
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	private String homepage;
 	
-	@Column(nullable = true, columnDefinition="varchar(4000)")
-	private String standardizedHomepage;
-	
 	private Date createdDate;
+	
+	/*********************** Validity **************************************/
+	
+	//*****URL structure
+	private Boolean badUrlStructure = false;			// emails, non-url text, or just no http:// 
+	private Boolean defunctDomain = false;				//
+	private Boolean defunctPath = false;
+	private Boolean uncrawlableDomain = false;
+	private Boolean uncrawlablePath = false;
+	private Boolean notStandardHomepagePath = false;
+	private Boolean notStandardQuery = false;
+	private Boolean isEmail = false;
+	private Boolean approvedHomepagePath = false;
+	private Boolean approvedQuery = false;
+	
+	private Boolean unapproved = false; 
+	
+	//*****Request results
+	private Boolean httpError = false;
+	private Boolean defunctContent = false;
+	
+	
+	@NotAudited
+	@Formula("badUrlStructure = 1 OR (notStandardHomepagePath = 1 AND approvedHomepagePath = 0)")
+	private Boolean needsReview;
+	
 	
 	/**************************************  Relationships **********************************/
 	@ManyToOne
@@ -79,6 +104,12 @@ public class Site {
 		    inverseJoinColumns={@JoinColumn(name="mobileCrawls_mobileCrawlId")})
 	private List<MobileCrawl> mobileCrawls = new ArrayList<MobileCrawl>();
 	
+	private Boolean redirects = false;
+	@Enumerated(EnumType.STRING)
+	private RedirectType redirectReason;
+	
+	@ManyToOne
+	private Site redirectsTo;
 	
 	@OneToOne
 	private Site forwardsTo;
@@ -86,13 +117,16 @@ public class Site {
 	@OneToOne
 	private Site manualForwardsTo;
 	
-	@OneToOne
-	@NotAudited
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval=true)
+	@NotAudited 
 	private UrlCheck urlCheck;
 	
-	@OneToOne
+	@Formula("(SELECT max(sc.crawlDate) FROM site s "
+			+ "join site_sitecrawl ssc on ssc.Site_siteId = s.siteId "
+			+ "join sitecrawl sc on ssc.crawls_siteCrawlId = sc.sitecrawlid "
+			+ "where s.siteId = siteId)")
 	@NotAudited
-	private SiteCrawl mostRecentCrawl;
+	private Date mostRecentCrawl;
 	
 	
 	
@@ -137,8 +171,13 @@ public class Site {
 	public enum SiteStatus {
 		UNVALIDATED, INVALID, ACTIVE, NEEDS_REVIEW, REDIRECTS, DEFUNCT, APPROVED, TEMP_DEFUNCT, SUSPECTED_DUPLICATE, OTHER_ISSUE, MANUALLY_REDIRECTS, DISAPPROVED;
 	}
+	public enum RedirectType {
+		STANDARDIZATION, HTTP, CLERICAL, PATH_PARING, INFERENCE, QUERY_PARING;
+	}
 	
-	public Site(){}
+	public Site(){
+		this.createdDate = new Date();
+	}
 	public Site(String homepage){
 		this.setHomepage(homepage);
 	}
@@ -316,11 +355,11 @@ public class Site {
 	}
 
 	public String getStandardizedHomepage() {
-		return standardizedHomepage;
+		return null;
 	}
 
 	public void setStandardizedHomepage(String standardizedHomepage) {
-		this.standardizedHomepage = standardizedHomepage;
+//		this.standardizedHomepage = standardizedHomepage;
 	}
 
 	public void addCrawls(List<SiteCrawl> siteCrawls) {
@@ -439,13 +478,113 @@ public class Site {
 	public void setUrlCheck(UrlCheck urlCheck) {
 		this.urlCheck = urlCheck;
 	}
-	public SiteCrawl getMostRecentCrawl() {
+	public Date getMostRecentCrawl() {
 		return mostRecentCrawl;
 	}
-	public void setMostRecentCrawl(SiteCrawl mostRecentCrawl) {
+	public void setMostRecentCrawl(Date mostRecentCrawl) {
 		this.mostRecentCrawl = mostRecentCrawl;
-		this.crawls.add(this.mostRecentCrawl);
 	}
-
+	public Boolean getBadUrlStructure() {
+		return badUrlStructure;
+	}
+	public void setBadUrlStructure(Boolean badUrlStructure) {
+		this.badUrlStructure = badUrlStructure;
+	}
+	public Boolean getDefunctDomain() {
+		return defunctDomain;
+	}
+	public void setDefunctDomain(Boolean defunctDomain) {
+		this.defunctDomain = defunctDomain;
+	}
+	public Boolean getDefunctPath() {
+		return defunctPath;
+	}
+	public void setDefunctPath(Boolean defunctPath) {
+		this.defunctPath = defunctPath;
+	}
+	public Boolean getUncrawlableDomain() {
+		return uncrawlableDomain;
+	}
+	public void setUncrawlableDomain(Boolean uncrawlableDomain) {
+		this.uncrawlableDomain = uncrawlableDomain;
+	}
+	public Boolean getUncrawlablePath() {
+		return uncrawlablePath;
+	}
+	public void setUncrawlablePath(Boolean uncrawlablePath) {
+		this.uncrawlablePath = uncrawlablePath;
+	}
+	public Boolean getHttpError() {
+		return httpError;
+	}
+	public void setHttpError(Boolean httpError) {
+		this.httpError = httpError;
+	}
+	public Boolean getDefunctContent() {
+		return defunctContent;
+	}
+	public void setDefunctContent(Boolean defunctContent) {
+		this.defunctContent = defunctContent;
+	}
+	public Boolean getRedirects() {
+		return redirects;
+	}
+	public void setRedirects(Boolean redirects) {
+		this.redirects = redirects;
+	}
+	public Boolean getNotStandardHomepagePath() {
+		return notStandardHomepagePath;
+	}
+	public void setNotStandardHomepagePath(Boolean notStandardHomepagePath) {
+		this.notStandardHomepagePath = notStandardHomepagePath;
+	}
+	public Boolean getApprovedHomepagePath() {
+		return approvedHomepagePath;
+	}
+	public void setApprovedHomepagePath(Boolean approvedHomepagePath) {
+		this.approvedHomepagePath = approvedHomepagePath;
+	}
+	public Boolean getNeedsReview() {
+		return needsReview;
+	}
+	public void setNeedsReview(Boolean needsReview) {
+		this.needsReview = needsReview;
+	}
+	public RedirectType getRedirectReason() {
+		return redirectReason;
+	}
+	public void setRedirectReason(RedirectType redirectType) {
+		this.redirectReason = redirectType;
+	}
+	public Site getRedirectsTo() {
+		return redirectsTo;
+	}
+	public void setRedirectsTo(Site redirectsTo) {
+		this.redirectsTo = redirectsTo;
+	}
+	public Boolean getNotStandardQuery() {
+		return notStandardQuery;
+	}
+	public void setNotStandardQuery(Boolean notStandardQuery) {
+		this.notStandardQuery = notStandardQuery;
+	}
+	public Boolean getIsEmail() {
+		return isEmail;
+	}
+	public void setIsEmail(Boolean isEmail) {
+		this.isEmail = isEmail;
+	}
+	public Boolean getUnapproved() {
+		return unapproved;
+	}
+	public void setUnapproved(Boolean unapproved) {
+		this.unapproved = unapproved;
+	}
+	public Boolean getApprovedQuery() {
+		return approvedQuery;
+	}
+	public void setApprovedQuery(Boolean approvedQuery) {
+		this.approvedQuery = approvedQuery;
+	}
 	
 }

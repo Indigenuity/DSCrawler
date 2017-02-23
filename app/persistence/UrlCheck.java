@@ -1,6 +1,7 @@
 package persistence;
 
-import java.sql.Date;
+
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,60 +18,26 @@ public class UrlCheck {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long urlCheckId;
 	
-	
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	private String seed;
 	
-	private String seedHost;
-	
-	@Column(nullable = true, columnDefinition="varchar(4000)")
-	private String standardizedSeed;
-
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	private String resolvedSeed;
-	private String resolvedHost;
 	
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	private String errorMessage;
 	
-	private String domain;
-	
-	private Date checkDate;
-	
+	private Date checkDate = new Date();
 	private int statusCode;
-
-	private boolean genericChange;
-	private boolean error;
-	private boolean pathApproved;
-	private boolean queryApproved;
-	private boolean statusApproved;
-	private boolean domainApproved;
-	private boolean manuallyApproved;
-	private boolean domainChanged;
-	private boolean valid = true;
-	private boolean languagePath;
-	private boolean languageQuery;
-	
-	private boolean sharedSite = false;
-	
 	private boolean noChange;
-	private boolean accepted;
-	
-	private boolean markedDefunct = false;
+
+	//Refers to errors related to program execution, not HTTP errors
+	private boolean error;
+	private boolean statusApproved;
 	
 	public UrlCheck(){}
 	public UrlCheck(String seed) {
 		this.seed = seed;
-	}
-	public boolean isAllApproved(){
-		return !this.isError() 
-				&& this.isValid()
-				&& this.isStatusApproved()
-				&& (this.isNoChange() || this.isGenericChange())
-				&& this.isPathApproved()
-				&& this.isDomainApproved()
-				&& this.isQueryApproved()
-				&& !this.isMarkedDefunct();
 	}
 	
 	public long getUrlCheckId() {
@@ -85,18 +52,6 @@ public class UrlCheck {
 	public void setSeed(String seed) {
 		this.seed = DSFormatter.truncate(seed, 4000);
 	}
-	public String getSeedHost() {
-		return seedHost;
-	}
-	public void setSeedHost(String seedHost) {
-		this.seedHost = seedHost;
-	}
-	public String getResolvedHost() {
-		return resolvedHost;
-	}
-	public void setResolvedHost(String resolvedHost) {
-		this.resolvedHost = resolvedHost;
-	}
 	public Date getCheckDate() {
 		return checkDate;
 	}
@@ -109,53 +64,17 @@ public class UrlCheck {
 	public void setStatusCode(int statusCode) {
 		this.statusCode = statusCode;
 	}
-	public boolean isGenericChange() {
-		return genericChange;
-	}
-	public void setGenericChange(boolean genericChange) {
-		this.genericChange = genericChange;
-	}
 	public boolean isError() {
 		return error;
 	}
 	public void setError(boolean error) {
 		this.error = error;
 	}
-	public boolean isPathApproved() {
-		return pathApproved;
-	}
-	public void setPathApproved(boolean pathApproved) {
-		this.pathApproved = pathApproved;
-	}
-	public boolean isQueryApproved() {
-		return queryApproved;
-	}
-	public void setQueryApproved(boolean queryApproved) {
-		this.queryApproved = queryApproved;
-	}
 	public boolean isStatusApproved() {
 		return statusApproved;
 	}
 	public void setStatusApproved(boolean statusApproved) {
 		this.statusApproved = statusApproved;
-	}
-	public boolean isDomainApproved() {
-		return domainApproved;
-	}
-	public void setDomainApproved(boolean domainApproved) {
-		this.domainApproved = domainApproved;
-	}
-	public boolean isDomainChanged() {
-		return domainChanged;
-	}
-	public void setDomainChanged(boolean domainChanged) {
-		this.domainChanged = domainChanged;
-	}
-	public boolean isAccepted() {
-		return accepted;
-	}
-	public void setAccepted(boolean accepted) {
-		this.accepted = accepted;
 	}
 	public String getResolvedSeed() {
 		return resolvedSeed;
@@ -175,54 +94,4 @@ public class UrlCheck {
 	public void setNoChange(boolean noChange) {
 		this.noChange = noChange;
 	}
-	public boolean isValid() {
-		return valid;
-	}
-	public void setValid(boolean valid) {
-		this.valid = valid;
-	}
-	public boolean isLanguagePath() {
-		return languagePath;
-	}
-	public void setLanguagePath(boolean languagePath) {
-		this.languagePath = languagePath;
-	}
-	public boolean isLanguageQuery() {
-		return languageQuery;
-	}
-	public void setLanguageQuery(boolean languageQuery) {
-		this.languageQuery = languageQuery;
-	}
-	public boolean isManuallyApproved() {
-		return manuallyApproved;
-	}
-	public void setManuallyApproved(boolean manuallyApproved) {
-		this.manuallyApproved = manuallyApproved;
-	}
-	public boolean isSharedSite() {
-		return sharedSite;
-	}
-	public void setSharedSite(boolean sharedSite) {
-		this.sharedSite = sharedSite;
-	}
-	public boolean isMarkedDefunct() {
-		return markedDefunct;
-	}
-	public void setMarkedDefunct(boolean markedDefunct) {
-		this.markedDefunct = markedDefunct;
-	}
-	public String getStandardizedSeed() {
-		return standardizedSeed;
-	}
-	public void setStandardizedSeed(String standardizedSeed) {
-		this.standardizedSeed = standardizedSeed;
-	}
-	public String getDomain() {
-		return domain;
-	}
-	public void setDomain(String domain) {
-		this.domain = domain;
-	}
-	
-
 }

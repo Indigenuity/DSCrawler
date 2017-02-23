@@ -1,30 +1,23 @@
 package analysis;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.function.Consumer;
 
 import akka.actor.ActorRef;
 import analysis.work.AnalysisOrder;
 import analysis.work.AnalysisWorker;
 import async.async.Asyncleton;
-import async.functionalwork.ConsumerWorkOrder;
 import async.functionalwork.JpaFunctionalBuilder;
 import dao.AnalysisDao;
 import persistence.SiteCrawl;
 import play.db.jpa.JPA;
-import salesforce.SalesforceLogic;
-import salesforce.persistence.SalesforceAccount;
 
 public class AnalysisControl {
 	
 	public static void runDefaultAnalysis(List<Long> siteCrawlIds){
-		ActorRef workMaster = Asyncleton.getInstance().getFunctionalMaster(5, true);
-		Consumer<Long> analyzer = JpaFunctionalBuilder.wrapConsumerInFind(AnalysisControl::runDefaultAnalysis, SiteCrawl.class);
-		for(Long siteCrawlId : siteCrawlIds){
-			ConsumerWorkOrder<Long> workOrder = new ConsumerWorkOrder<Long>(analyzer, siteCrawlId);
-			workMaster.tell(workOrder, ActorRef.noSender());
-		}
+		Asyncleton.getInstance().runConsumerMaster(5, 
+				JpaFunctionalBuilder.wrapConsumerInFind(AnalysisControl::runDefaultAnalysis, SiteCrawl.class), 
+				siteCrawlIds.stream(), 
+				true);
 	}
 	
 	public static void runDefaultAnalysis(SiteCrawl siteCrawl){
@@ -43,7 +36,7 @@ public class AnalysisControl {
 //		String queryString = "from SiteCrawl sc where sc.crawlDate > '2016-09-08'";
 		List<Long> ids= JPA.em().createQuery(queryString, Long.class).getResultList();
 		
-		ActorRef master = Asyncleton.getInstance().getGenericMaster(10, AnalysisWorker.class);
+		ActorRef master = Asyncleton.getInstance().getMonotypeMaster(10, AnalysisWorker.class);
 		System.out.println("siteCrawls : " + ids.size());
 		
 		AnalysisConfig config = new AnalysisConfig();
