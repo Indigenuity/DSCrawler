@@ -3,7 +3,7 @@ package crawling.discovery.entities;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GenericResource implements Resource {
+public class GenericResource  {
 
 	protected final String name;
 	protected final Resource parent;
@@ -14,20 +14,20 @@ public class GenericResource implements Resource {
 		this.name = name;
 	}
 
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public Resource getParent() {
-		return parent;
-	}
-
-	@Override
-	public List<List<Resource>> getChildResourceLists() {
-		return childResourceLists;
-	}
+//	@Override
+//	public String getName() {
+//		return name;
+//	}
+//
+//	@Override
+//	public Resource getParent() {
+//		return parent;
+//	}
+//
+//	@Override
+//	public List<List<Resource>> getChildResourceLists() {
+//		return childResourceLists;
+//	}
 	
 	
 }

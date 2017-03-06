@@ -135,9 +135,9 @@ public class DealerCrawler extends WebCrawler {
 			String pathAndQuery = path + "?" + query;
 			String safePath;
 			if(!StringUtils.isEmpty(query)){
-				safePath = DSFormatter.makeSafePath(pathAndQuery);
+				safePath = DSFormatter.makeSafeFilePath(pathAndQuery);
 			} else {
-				safePath = DSFormatter.makeSafePath(path);
+				safePath = DSFormatter.makeSafeFilePath(path);
 			}
 			String filename = storageFolder.getAbsolutePath() + "/" + safePath;
 			

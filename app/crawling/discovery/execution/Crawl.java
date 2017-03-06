@@ -1,6 +1,5 @@
 package crawling.discovery.execution;
 
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,43 +7,26 @@ import java.util.Objects;
 
 import crawling.discovery.entities.Resource;
 import crawling.discovery.planning.CrawlPlan;
-import crawling.discovery.planning.PrimaryResourcePlan;
-import crawling.discovery.planning.ResourcePlan;
+import crawling.discovery.planning.ResourceHandler;
 
-public class Crawl implements Resource {
+public class Crawl {
 	
 	
 	
-	QueueMap queueMap = new QueueMap();
+	
 	CrawlPlan plan;
 	
-	Map<ResourcePlan<?, ?>, List<?>> resultLists = new LinkedHashMap<ResourcePlan<?,?>, List<?>>();
+	Map<ResourceHandler<?, ?>, List<?>> resultLists = new LinkedHashMap<ResourceHandler<?,?>, List<?>>();
 
 	public Crawl(CrawlPlan plan) {
 		this.plan = plan;
-		for(PrimaryResourcePlan<?> resourcePlan : plan.getResourcePlans()){
-			generateFetchQueue(resourcePlan);
-		}
 	}
 	
 	public void start(){
 		plan.getStartPlan().accept(this);
 	}
 	
-	public FetchQueue<?> getReadyQueue(){
-		for(FetchQueue<?> queue : queueMap.getQueues()){
-			if(!queue.queueIsEmpty()){
-				return queue;
-			}
-		}
-		return null;
-	}
-	
-	public Collection<FetchQueue<?>> getQueues(){
-		return queueMap.getQueues();
-	}
-	
-	public <R> void persistResults(ResourcePlan<?, R> resourcePlan, List<R> results){
+	public <R extends Resource<?>> void persistResults(ResourceHandler<?, R> resourcePlan, List<R> results){
 		Objects.requireNonNull(resourcePlan);
 		Objects.requireNonNull(results);
 		synchronized(resultLists){
@@ -60,7 +42,7 @@ public class Crawl implements Resource {
 	}
 	
 	// TODO this is entirely not threadsafe, especially with the Worker system
-	public Map<ResourcePlan<?, ?>, List<?>> getResultLists(){
+	public Map<ResourceHandler<?, ?>, List<?>> getResultLists(){
 		return resultLists;
 	}
 	
@@ -88,35 +70,5 @@ public class Crawl implements Resource {
 	
 	
 	
-	private <T> void generateFetchQueue(PrimaryResourcePlan<T> resourcePlan){
-		FetchQueue<T> fetchQueue = new FetchQueue<T>(resourcePlan);
-		queueMap.put(resourcePlan, fetchQueue);
-	}
-	
-	public <T> FetchQueue<T> getFetchQueue(PrimaryResourcePlan<T> resourcePlan) {
-		return queueMap.get(resourcePlan);
-	}
 
-	@Override
-	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Resource getParent() {
-		return null;
-	}
-
-	@Override
-	public List<List<Resource>> getChildResourceLists() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	@Override
-	public Crawl getRoot(){
-		return this;
-	}
-	
 }

@@ -9,7 +9,7 @@ import crawling.discovery.entities.Endpoint;
 public class FetchPlan<V extends Endpoint, T> {
 
 	protected final FetchStrategy<V, T> fetchStrategy;
-	protected final List<ResourcePlan<T, ?>> resourcePlans = new ArrayList<ResourcePlan<T, ?>>();
+	protected final List<ResourceHandler<T, ?>> resourcePlans = new ArrayList<ResourceHandler<T, ?>>();
 	
 	public FetchPlan(FetchStrategy<V, T> fetchStrategy) {
 		super();
@@ -20,12 +20,12 @@ public class FetchPlan<V extends Endpoint, T> {
 		return fetchStrategy;
 	}
 	
-	public FetchPlan<V, T> addResourcePlan(ResourcePlan<T, ?> resourcePlan){
+	public FetchPlan<V, T> addResourcePlan(ResourceHandler<T, ?> resourcePlan){
 		resourcePlans.add(resourcePlan);
 		return this;
 	}
 
-	public List<ResourcePlan<T, ?>> getResourcePlans() {
+	public List<ResourceHandler<T, ?>> getResourcePlans() {
 		return Collections.unmodifiableList(resourcePlans);
 	}
 	

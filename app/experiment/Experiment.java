@@ -7,10 +7,15 @@ import net.sf.sprockets.google.Places.Params;
 import net.sf.sprockets.google.Places.Response;
 
 import java.beans.IntrospectionException;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
+import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -35,6 +40,7 @@ import org.apache.commons.beanutils.PropertyUtilsBean;
 
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.jsoup.nodes.Document;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
@@ -47,11 +53,17 @@ import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import com.gargoylesoftware.htmlunit.WebClient;
+import com.google.common.io.Files;
 
 import crawling.CrawlSession;
 import crawling.DealerCrawlController;
 import crawling.HarleyCrawlingson;
+import crawling.HttpFetcher;
 import crawling.MobileCrawler;
+import crawling.anansi.PageFetch;
+import crawling.anansi.SiteCrawlConfig;
+import crawling.anansi.SiteCrawlWorkOrder;
+import crawling.anansi.SiteCrawler;
 import crawling.discovery.async.TempCrawlingWorker;
 import crawling.discovery.html.DocDerivationStrategy;
 import crawling.discovery.html.HttpConfig;
@@ -72,6 +84,8 @@ import datatransfer.SiteCrawlImporter;
 import datatransfer.reports.Report;
 import datatransfer.reports.ReportRow;
 import akka.actor.ActorRef;
+import akka.actor.Props;
+import akka.pattern.Patterns;
 import analysis.AnalysisConfig;
 import analysis.AnalysisSet;
 import analysis.SiteCrawlAnalysis;
@@ -79,10 +93,13 @@ import analysis.SiteCrawlAnalyzer;
 import analysis.TextAnalyzer;
 import analysis.AnalysisConfig.AnalysisMode;
 import async.async.Asyncleton;
+import async.functionalwork.FunctionWorkOrder;
+import async.functionalwork.FunctionalWorker;
 import audit.AuditDao;
 import audit.sync.Sync;
 import persistence.ExtractedString;
 import persistence.MobileCrawl;
+import persistence.PageCrawl;
 import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.UrlCheck;
@@ -90,10 +107,12 @@ import places.PlacesDealer;
 import places.PlacesLogic;
 import persistence.Site.SiteStatus;
 import persistence.SiteCrawl.FileStatus;
+import play.Logger;
 import play.db.jpa.JPA;
 import pods.PodZip;
 import pods.PodsLoader;
 import salesforce.persistence.SalesforceAccount;
+import scala.concurrent.Future;
 import sites.SiteLogic;
 import sites.UrlChecker;
 import sites.crawling.SiteCrawlLogic;
@@ -105,9 +124,44 @@ import utilities.Tim;
 public class Experiment { 
 	
 	public static void runExperiment() throws Exception {
-		Site site = JPA.em().find(Site.class, 130203L);
-		Site newSite = SiteLogic.logicalRedirect(site);
-		System.out.println("newSite : " + newSite.getHomepage());
+		SiteCrawlConfig config = new SiteCrawlConfig();
+		config.setRelativeStorageFolder("/conquerclub");
+		ActorRef siteCrawler = Asyncleton.getInstance().getMainSystem().actorOf(Props.create(SiteCrawler.class, config, "http://www.conquerclub.com"));
+		siteCrawler.tell(new SiteCrawlWorkOrder(), ActorRef.noSender());
+		
+		
+//		CloseableHttpClient httpClient = config.buildHttpClient();
+//		
+//		URI uri = new URI("http://www.conquerclub.com");
+//		PageFetch homepageFetch = HttpFetcher.fetchPage(uri, httpClient);
+//		System.out.println("status code : " + homepageFetch.getStatusCode());
+//		System.out.println("result length : " + homepageFetch.getResultText().length());
+//		
+//		
+//		ActorRef master = Asyncleton.getInstance().getMonotypeMaster(config.getNumWorkers(), FunctionalWorker.class);
+//		
+//		FunctionWorkOrder<URI, PageFetch> workOrder = new FunctionWorkOrder<URI, PageFetch>((inputUri) -> {
+//			return HttpFetcher.fetchPage(inputUri, httpClient);
+//		}, uri);
+//		
+//		
+//		URI uri1 = new URI("http://www.conquerclub.com/");
+//		homepageFetch = SiteCrawler.fetchPage(uri1, httpClient);
+//		System.out.println("status code : " + homepageFetch.getStatusCode());
+//		System.out.println("result length : " + homepageFetch.getResultText().length());
+//		
+//		URI uri2 = new URI("http://www.aasdfasdfconquerclub.com");
+//		homepageFetch = SiteCrawler.fetchPage(uri2, httpClient);
+//		System.out.println("status code : " + homepageFetch.getStatusCode());
+//		System.out.println("result length : " + homepageFetch.getResultText().length());
+		
+		
+		
+		
+	}
+	
+	public static void processObject(Object bob) {
+		System.out.println("bob : " + bob);
 	}
 	
 	public static void harleyCrawling() throws Exception {
@@ -217,7 +271,7 @@ public class Experiment {
 		config.setProxyAddress(Global.getProxyUrl());
 		config.setProxyPort(Global.getProxyPort());
 		config.setUseProxy(false);
-		config.setPolitenessDelay(1000);
+		config.setRequestsPerSecond(1);
 		config.setUserAgent(Global.getDefaultUserAgentString());
 		System.out.println("–");
 //		URL url = new URL("http://buyherepayherevehicles.com/buy-here-pay-here-car-dealerships-directory/illinois/aurora/");

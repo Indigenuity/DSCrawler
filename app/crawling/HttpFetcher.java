@@ -7,10 +7,19 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.net.URI;
 import java.net.URL;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.util.EntityUtils;
 
 import com.google.common.io.Files;
 
+import crawling.anansi.PageFetch;
 import edu.uci.ics.crawler4j.parser.HtmlParseData;
 import global.Global;
 import persistence.PageCrawl;
@@ -19,7 +28,20 @@ import utilities.DSFormatter;
 
 public class HttpFetcher {
 	
-	
+	public static PageFetch fetchPage(URI uri, CloseableHttpClient httpClient) {
+		System.out.println("Fetching page from URI : " + uri);
+		PageFetch pageFetch = new PageFetch(uri);
+		HttpGet request = new HttpGet(uri);
+		
+		try(CloseableHttpResponse response = httpClient.execute(request)){
+			pageFetch.setStatusCode(response.getStatusLine().getStatusCode());
+			HttpEntity entity = response.getEntity();
+			pageFetch.setResultText(EntityUtils.toString(entity));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		} 
+		return pageFetch;
+	}
 
 	public static PageCrawl getPageCrawl(URL url, File storageFolder) throws IOException{
 		String urlString = url.toString();
@@ -56,7 +78,7 @@ public class HttpFetcher {
 		    String path = url.getPath();
 			String query = url.getQuery();
 			String pathAndQuery = path + "?" + query;
-			String safePath = DSFormatter.makeSafePath(pathAndQuery);
+			String safePath = DSFormatter.makeSafeFilePath(pathAndQuery);
 			String filename = storageFolder.getAbsolutePath() + "/" + safePath;
 			 
 			File out = new File(filename);

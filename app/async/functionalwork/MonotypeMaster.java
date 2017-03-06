@@ -95,7 +95,7 @@ public class MonotypeMaster extends UntypedActor {
 			customer.tell(workResult, getSelf());
 		}
 		if(waitingRoom.size() == 0) {
-			doShutdown();
+//			doShutdown();
 		}
 	}
 	

@@ -1,23 +1,25 @@
 package crawling.discovery.planning;
 
+import java.util.UUID;
 
-public class ResourcePlan<T, R> {
+import crawling.discovery.entities.Resource;
 
-	protected final DerivationStrategy<T, R> derivationStrategy;
-	protected final PersistStrategy<R> persistStrategy;
+public class ResourcePlan<S, R extends Resource<?>> {
+
+	protected final Long uuid = UUID.randomUUID().getLeastSignificantBits();
 	
-	public ResourcePlan(DerivationStrategy<T, R> derivationStrategy, PersistStrategy<R> persistStrategy) {
-		super();
-		this.derivationStrategy = derivationStrategy;
-		this.persistStrategy = persistStrategy;
+	protected Class<ResourceHandler<S, R>> handlerClazz;
+	
+	public ResourcePlan(Class<ResourceHandler<S, R>> handlerClazz) {
+		this.handlerClazz = handlerClazz;
 	}
 	
-	public DerivationStrategy<T, R> getDerivationStrategy(){
-		return derivationStrategy;
+	public ResourcePlan<S, R> copy(){
+		return new ResourcePlan<S, R>(handlerClazz);
 	}
-	
-	public PersistStrategy<R> getPersistStrategy() {
-		return persistStrategy;
+
+	public Long getUuid() {
+		return uuid;
 	}
 	
 	

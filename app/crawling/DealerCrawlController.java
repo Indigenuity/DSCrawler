@@ -76,7 +76,7 @@ public class DealerCrawlController extends CrawlController {
 	public static SiteCrawl crawlSite(String seed, DealerCrawlConfig config) throws Exception {
 //		seed = seed.toLowerCase();
 		System.out.println("DealerCrawlController starting crawl from thread " + Thread.currentThread().getName());
-		String encodeedSeed = DSFormatter.makeSafePath(seed);
+		String encodeedSeed = DSFormatter.makeSafeFilePath(seed);
 		String date = new SimpleDateFormat("MM-dd-yyyy").format(new java.util.Date());  
 		String relativeStorageFolder = "/" + date + "/" + encodeedSeed;
 		config.setRelativeStorageFolder(relativeStorageFolder);

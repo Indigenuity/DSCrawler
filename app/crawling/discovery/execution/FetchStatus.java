@@ -1,6 +1,6 @@
 package crawling.discovery.execution;
 
-public enum RequestStatus {
+public enum FetchStatus {
 
 	TO_DO, IN_PROGRESS, COMPLETE, ERROR;
 }

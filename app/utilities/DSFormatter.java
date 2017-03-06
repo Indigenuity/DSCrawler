@@ -500,7 +500,7 @@ public class DSFormatter {
 		}
 	}
 	
-	public static String makeSafePath(String path) {
+	public static String makeSafeFilePath(String path) {
 		if(path == null || "".equals(path)){
 			path = "nofilename" + String.valueOf(System.currentTimeMillis());
 		}

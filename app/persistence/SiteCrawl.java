@@ -90,6 +90,12 @@ public class SiteCrawl {
 	private Set<String> crawledUrls = new HashSet<String>();		//Includes failed urls
 	@Column(columnDefinition="varchar(4000)")
 	@ElementCollection(fetch=FetchType.LAZY)
+	private Set<String> crawledPaths = new HashSet<String>();
+	@Column(columnDefinition="varchar(4000)")
+	@ElementCollection(fetch=FetchType.LAZY)
+	private Set<String> unCrawledUrls = new HashSet<String>();		
+	@Column(columnDefinition="varchar(4000)")
+	@ElementCollection(fetch=FetchType.LAZY)
 	private Set<String> failedUrls = new HashSet<String>();
 	
 	@Column(nullable = true, columnDefinition="varchar(1000)")
@@ -227,6 +233,11 @@ public class SiteCrawl {
 	
 	public SiteCrawl(String seed) {
 		this.setSeed(seed);
+	}
+	
+	public SiteCrawl(Site site) {
+		this.setSeed(site.getHomepage());
+		this.setSite(site);
 	}
 	
 	public void lazyInit() {
@@ -565,8 +576,38 @@ public class SiteCrawl {
 		}
 	}
 	
+	public Set<String> getUnCrawledUrls() {
+		return unCrawledUrls;
+	}
+
+	public void setUnCrawledUrls(Set<String> unCrawledUrls) {
+		this.unCrawledUrls.clear();
+		for(String url : unCrawledUrls){
+			this.unCrawledUrls.add(DSFormatter.truncate(url, 4000));
+		}
+	}
+	
+	public Set<String> getCrawledPaths() {
+		return crawledPaths;
+	}
+
+	public void setCrawledPaths(Set<String> crawledPaths) {
+		this.crawledPaths.clear();
+		for(String url : crawledPaths){
+			this.crawledPaths.add(DSFormatter.truncate(url, 4000));
+		}
+	}
+	
+	public boolean addCrawledPath(String crawledPath) {
+		return this.crawledPaths.add(DSFormatter.truncate(crawledPath, 4000));
+	}
+
 	public boolean addCrawledUrl(String crawledUrl) {
 		return this.crawledUrls.add(DSFormatter.truncate(crawledUrl, 4000));
+	}
+
+	public boolean addUncrawledUrl(String uncrawledUrl) {
+		return this.unCrawledUrls.add(DSFormatter.truncate(uncrawledUrl, 4000));
 	}
 
 	public Set<String> getFailedUrls() {

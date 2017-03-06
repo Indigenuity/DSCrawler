@@ -6,6 +6,7 @@ import com.google.maps.GeoApiContext;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
+import crawling.discovery.html.HttpConfig;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;
@@ -53,6 +54,14 @@ public class Global extends GlobalSettings {
 	}
 	
 	private static GeoApiContext placesContext = new GeoApiContext().setApiKey("AIzaSyD3GEnaHTMZPNdfd1kdWtu61rxkaBEghsw");
+	
+	public HttpConfig getHttpConfig(){
+		HttpConfig config = new HttpConfig();
+		config.setUseProxy(useProxy());
+		config.setProxyAddress(getProxyUrl());
+		config.setProxyPort(getProxyPort());
+		return config;
+	}
 	
 	public void onStart(Application app) {
 		System.out.println("in startup");

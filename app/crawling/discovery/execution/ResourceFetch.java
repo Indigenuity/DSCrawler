@@ -1,15 +1,30 @@
 package crawling.discovery.execution;
 
-import crawling.discovery.entities.Endpoint;
 import crawling.discovery.entities.Resource;
-import crawling.discovery.planning.ResourcePlan;
 
-public class ResourceFetch {
+public class ResourceFetch<T, U extends Resource> {
 
-	private Endpoint endpoint;
-	private ResourcePlan fetchStrategy;
-	
-	private Class<Resource> primaryResourceType;
+	private T source;
+	private U resource;
+	private FetchStatus fetchStatus;
+	public T getSource() {
+		return source;
+	}
+	public void setSource(T source) {
+		this.source = source;
+	}
+	public U getResource() {
+		return resource;
+	}
+	public void setResource(U resource) {
+		this.resource = resource;
+	}
+	public FetchStatus getFetchStatus() {
+		return fetchStatus;
+	}
+	public void setFetchStatus(FetchStatus fetchStatus) {
+		this.fetchStatus = fetchStatus;
+	}
 	
 	
 	
