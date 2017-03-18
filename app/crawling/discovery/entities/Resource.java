@@ -3,17 +3,19 @@ package crawling.discovery.entities;
 import java.util.List;
 
 
-public class Resource<V> {
+public class Resource {
 	
-	protected V value;
-	protected Resource<?> parent;
-	protected List<Resource<?>> children;
+	protected Object value;
+	protected Resource parent;
+	protected List<Resource> children;
+	protected final ResourceId resourceId;
 	
-	public Resource(V value) {
+	public Resource(Object value, ResourceId resourceId) {
 		this.setValue(value);
+		this.resourceId = resourceId;
 	}
 	
-	public Resource<?> getRoot() {
+	public Resource getRoot() {
 		if(this.parent == null){
 			return this;
 		}
@@ -27,24 +29,27 @@ public class Resource<V> {
 		return 1 + parent.getDepth();
 	}
 	
-	public V getValue() {
+	public Object getValue() {
 		return value;
 	}
 
-	public void setValue(V value) {
+	public void setValue(Object value) {
 		this.value = value;
 	}
 
-	public Resource<?> getParent() {
+	public Resource getParent() {
 		return parent;
 	}
-	public void setParent(Resource<?> parent) {
+	public void setParent(Resource parent) {
 		this.parent = parent;
 	}
-	public List<Resource<?>> getChildren() {
+	public List<Resource> getChildren() {
 		return children;
 	}
-	public void addChild(Resource<?> child) {
+	public void addChild(Resource child) {
 		this.children.add(child);
+	}
+	public ResourceId getResourceId() {
+		return resourceId;
 	}
 }

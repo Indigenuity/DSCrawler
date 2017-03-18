@@ -6,6 +6,7 @@ public class WorkResult {
 	private Object result;
 	private WorkStatus workStatus = WorkStatus.NOT_STARTED;
 	private String error;
+	private Exception exception;
 	
 	public WorkResult(Long workUuid){
 		this.uuid = workUuid;
@@ -42,6 +43,13 @@ public class WorkResult {
 	public void setError(String error) {
 		this.error = error;
 	}
-	
-	
+
+	public Exception getException() {
+		return exception;
+	}
+
+	public void setException(Exception exception) {
+		this.exception = exception;
+		this.setError(exception.getMessage());
+	}
 }

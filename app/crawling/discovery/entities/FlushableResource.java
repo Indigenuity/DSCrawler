@@ -1,20 +1,20 @@
 package crawling.discovery.entities;
 
-public abstract class FlushableResource<K, V> extends Resource<V>{
+public abstract class FlushableResource extends Resource{
 	
-	private K key;
+	private Object key;
 	private FlushState state;
 	
-	public FlushableResource(K key, V value) {
-		super(value);
-		this.key = key;
-		
-	}
 	
-	public abstract V produceValue(K key);
+	public FlushableResource(Object value, ResourceId resourceId) {
+		super(value, resourceId);
+		// TODO Auto-generated constructor stub
+	}
+
+	public abstract Object produceValue(Object key);
 	
 	@Override
-	public synchronized V getValue(){
+	public synchronized Object getValue(){
 		if(this.getState() == FlushState.FLUSHED){
 			this.setValue(produceValue(this.getKey()));
 		}
@@ -22,7 +22,7 @@ public abstract class FlushableResource<K, V> extends Resource<V>{
 	}
 	
 	@Override
-	public synchronized void setValue(V value) {
+	public synchronized void setValue(Object value) {
 		this.value = value;
 		this.state = FlushState.FILLED;
 	}
@@ -32,11 +32,11 @@ public abstract class FlushableResource<K, V> extends Resource<V>{
 		this.state = FlushState.FLUSHED;
 	}
 
-	public K getKey() {
+	public Object getKey() {
 		return key;
 	}
 
-	public void setKey(K key) {
+	public void setKey(Object key) {
 		this.key = key;
 	}
 

@@ -2,14 +2,14 @@ package crawling.anansi;
 
 import java.net.URI;
 
-public class PageFetch {
+public class UriFetch {
 
 	private URI uri;
 	private int statusCode;
-	private String resultText;
+	private byte[] result;
 	
-	public PageFetch(){}
-	public PageFetch(URI uri) {
+	public UriFetch(){}
+	public UriFetch(URI uri) {
 		this.uri = uri;
 	}
 	
@@ -19,11 +19,11 @@ public class PageFetch {
 	public void setStatusCode(int statusCode) {
 		this.statusCode = statusCode;
 	}
-	public String getResultText() {
-		return resultText;
+	public byte[] getResult() {
+		return result;
 	}
-	public void setResultText(String resultText) {
-		this.resultText = resultText;
+	public void setResult(byte[] result) {
+		this.result = result;
 	}
 	public URI getUri() {
 		return uri;

@@ -109,13 +109,13 @@ public class SiteCrawler extends UntypedActor{
 	}
 	
 	public SiteCrawler startPageFetch(URI uri){
-		System.out.println("Starting page fetch for URI : " + uri);
-		PageFetchWorkOrder workOrder = new PageFetchWorkOrder(uri, httpClient);
-		synchronized(uriMutex){
-			this.crawledUris.add(uri);
-			this.crawledPaths.add(uri.getPath());
-		}
-		pageCrawlMaster.tell(workOrder, getSelf());
+//		System.out.println("Starting page fetch for URI : " + uri);
+//		PageFetchWorkOrder workOrder = new PageFetchWorkOrder(uri, httpClient);
+//		synchronized(uriMutex){
+//			this.crawledUris.add(uri);
+//			this.crawledPaths.add(uri.getPath());
+//		}
+//		pageCrawlMaster.tell(workOrder, getSelf());
 		return this;
 	}
 	

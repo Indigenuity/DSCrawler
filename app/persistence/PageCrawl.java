@@ -46,6 +46,8 @@ public class PageCrawl {
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	private String url;
 	
+	private Integer statusCode;
+	
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	private String path;
 	
@@ -177,10 +179,12 @@ public class PageCrawl {
 	public void setInventoryNumber(InventoryNumber inventoryNumber) {
 		this.inventoryNumber = inventoryNumber;
 	}
-	
-	
-	
-	
-	
-	
+
+	public Integer getStatusCode() {
+		return statusCode;
+	}
+
+	public void setStatusCode(Integer statusCode) {
+		this.statusCode = statusCode;
+	}
 }

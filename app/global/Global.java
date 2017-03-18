@@ -1,4 +1,5 @@
 package global;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -152,6 +153,10 @@ public class Global extends GlobalSettings {
 
 	public static String getCrawlStorageFolder() {
 		return CRAWL_STORAGE_FOLDER;
+	}
+	
+	public static String getTodaysCrawlStorageFolder() {
+		return CRAWL_STORAGE_FOLDER + "/" + new SimpleDateFormat("MM-dd-yyyy").format(new java.util.Date());
 	}
 
 	public static String getCombinedStorageFolder() {

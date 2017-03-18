@@ -9,8 +9,10 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URI;
 import java.net.URL;
+import java.util.Locale;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -19,7 +21,7 @@ import org.apache.http.util.EntityUtils;
 
 import com.google.common.io.Files;
 
-import crawling.anansi.PageFetch;
+import crawling.anansi.UriFetch;
 import edu.uci.ics.crawler4j.parser.HtmlParseData;
 import global.Global;
 import persistence.PageCrawl;
@@ -28,19 +30,20 @@ import utilities.DSFormatter;
 
 public class HttpFetcher {
 	
-	public static PageFetch fetchPage(URI uri, CloseableHttpClient httpClient) {
-		System.out.println("Fetching page from URI : " + uri);
-		PageFetch pageFetch = new PageFetch(uri);
+	public static UriFetch fetchUri(URI uri, CloseableHttpClient httpClient) throws IOException {
+		UriFetch uriFetch = new UriFetch(uri);
 		HttpGet request = new HttpGet(uri);
-		
 		try(CloseableHttpResponse response = httpClient.execute(request)){
-			pageFetch.setStatusCode(response.getStatusLine().getStatusCode());
+			uriFetch.setStatusCode(response.getStatusLine().getStatusCode());
 			HttpEntity entity = response.getEntity();
-			pageFetch.setResultText(EntityUtils.toString(entity));
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+			uriFetch.setResult(EntityUtils.toByteArray(entity));
 		} 
-		return pageFetch;
+		return uriFetch;
+	}
+	
+	public static CloseableHttpResponse fetchUriRaw(URI uri, CloseableHttpClient httpClient) throws IOException{
+		HttpGet request = new HttpGet(uri);
+		return httpClient.execute(request);
 	}
 
 	public static PageCrawl getPageCrawl(URL url, File storageFolder) throws IOException{

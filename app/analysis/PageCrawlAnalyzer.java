@@ -1,6 +1,7 @@
 package analysis;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,6 +42,15 @@ public class PageCrawlAnalyzer {
 		this.pageAnalysis = pageAnalysis;
 		this.siteAnalysis = pageAnalysis.getSiteCrawlAnalysis();
 		this.config = siteAnalysis.getConfig();
+	}
+	
+	public static String getText(PageCrawl pageCrawl){
+		String filename = pageCrawl.getFilename();
+		try(FileInputStream inputStream = new FileInputStream(filename)){
+			return IOUtils.toString(inputStream, "UTF-8");	
+		} catch(IOException e){
+			throw new RuntimeException(e);
+		}
 	}
 	
 	public synchronized String text()  {

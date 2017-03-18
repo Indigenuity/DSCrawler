@@ -5,6 +5,7 @@ import net.sf.sprockets.google.Place;
 import net.sf.sprockets.google.Places;
 import net.sf.sprockets.google.Places.Params;
 import net.sf.sprockets.google.Places.Response;
+import newwork.StartWork;
 
 import java.beans.IntrospectionException;
 import java.io.BufferedReader;
@@ -54,20 +55,33 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.google.common.io.Files;
+import com.google.common.util.concurrent.RateLimiter;
 
 import crawling.CrawlSession;
 import crawling.DealerCrawlController;
 import crawling.HarleyCrawlingson;
 import crawling.HttpFetcher;
 import crawling.MobileCrawler;
-import crawling.anansi.PageFetch;
+import crawling.anansi.UriFetch;
 import crawling.anansi.SiteCrawlConfig;
 import crawling.anansi.SiteCrawlWorkOrder;
 import crawling.anansi.SiteCrawler;
 import crawling.discovery.async.TempCrawlingWorker;
+import crawling.discovery.entities.SourcePool;
+import crawling.discovery.execution.CrawlContext;
+import crawling.discovery.execution.Crawler;
+import crawling.discovery.execution.SeedWorkOrder;
 import crawling.discovery.html.DocDerivationStrategy;
 import crawling.discovery.html.HttpConfig;
 import crawling.discovery.html.HttpEndpoint;
+import crawling.discovery.html.HttpToFilePlan;
+import crawling.discovery.html.InternalLinkDiscoveryTool;
+import crawling.discovery.html.PageCrawlDiscoveryPlan;
+import crawling.discovery.html.PageCrawlPlan;
+import crawling.discovery.html.SiteCrawlPlan;
+import crawling.discovery.planning.CrawlPlan;
+import crawling.discovery.planning.DiscoveryPlan;
+import crawling.discovery.planning.ResourcePlan;
 import crawling.nydmv.NYDealer;
 import crawling.projects.BasicDealer;
 import dao.AnalysisDao;
@@ -124,10 +138,38 @@ import utilities.Tim;
 public class Experiment { 
 	
 	public static void runExperiment() throws Exception {
-		SiteCrawlConfig config = new SiteCrawlConfig();
-		config.setRelativeStorageFolder("/conquerclub");
-		ActorRef siteCrawler = Asyncleton.getInstance().getMainSystem().actorOf(Props.create(SiteCrawler.class, config, "http://www.conquerclub.com"));
-		siteCrawler.tell(new SiteCrawlWorkOrder(), ActorRef.noSender());
+		URI uri = new URI("http://www.conquerclub.com/");
+		CrawlPlan crawlPlan = new CrawlPlan();
+		crawlPlan.setMaxPages(15);
+		crawlPlan.setMaxDepth(1);
+		
+		HttpConfig config = new HttpConfig();
+		config.setUserAgent(Global.getDefaultUserAgentString());
+		HttpToFilePlan resourcePlan = new HttpToFilePlan(config);
+		resourcePlan.setRateLimiter(RateLimiter.create(1));
+		resourcePlan.putContextObject("crawlStorageFolder", new File(Global.getTodaysCrawlStorageFolder()));
+		crawlPlan.registerResourcePlan(resourcePlan);
+		
+		DiscoveryPlan discoveryPlan = new DiscoveryPlan();
+		discoveryPlan.setDiscoveryTool(new InternalLinkDiscoveryTool());
+		resourcePlan.registerDiscoveryPlan(discoveryPlan);
+		discoveryPlan.setDefaultDestination(resourcePlan);
+		crawlPlan.registerDiscoveryPlan(discoveryPlan);
+		
+		
+		
+		
+		ActorRef crawler = Asyncleton.getInstance().getMainSystem().actorOf(Props.create(Crawler.class, crawlPlan.generateContext()));
+		System.out.println("Created crawler");
+		SeedWorkOrder workOrder = new SeedWorkOrder(uri, resourcePlan.getPlanReference());
+		crawler.tell(workOrder, ActorRef.noSender());
+		
+		
+		
+//		SiteCrawlConfig config = new SiteCrawlConfig();
+//		config.setRelativeStorageFolder("/conquerclub");
+//		ActorRef siteCrawler = Asyncleton.getInstance().getMainSystem().actorOf(Props.create(SiteCrawler.class, config, "http://www.conquerclub.com"));
+//		siteCrawler.tell(new SiteCrawlWorkOrder(), ActorRef.noSender());
 		
 		
 //		CloseableHttpClient httpClient = config.buildHttpClient();
