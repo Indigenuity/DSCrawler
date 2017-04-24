@@ -5,17 +5,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.persistence.TemporalType;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
+import analysis.PageCrawlAnalysis;
+import analysis.SiteCrawlAnalysis;
 import async.async.Asyncleton;
 import async.functionalwork.JpaFunctionalBuilder;
 import dao.GeneralDAO;
 import dao.SitesDAO;
+import global.Global;
+import persistence.PageCrawl;
 import persistence.Site;
 import persistence.Site.RedirectType;
 import persistence.Site.SiteStatus;
+import persistence.SiteCrawl;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -29,6 +36,71 @@ public class SitesController extends Controller {
 	
 	final static Logger.ALogger dsLogger = Logger.of("ds");
 
+	
+	@Transactional
+	public static Result viewSiteCrawlAnalysis(long siteCrawlAnalysisId){
+		SiteCrawlAnalysis analysis = JPA.em().find(SiteCrawlAnalysis.class, siteCrawlAnalysisId);
+		if(analysis == null){
+			return badRequest("No SiteCrawlAnalysis with id : " + siteCrawlAnalysisId);
+		}
+		return ok(views.html.sites.analysis.siteCrawlAnalysis.render(analysis));
+	}
+	
+	@Transactional
+	public static Result recentSiteCrawls(){
+		String queryString = "from SiteCrawl sc order by sc.crawlDate desc";
+		List<SiteCrawl> siteCrawls = JPA.em().createQuery(queryString, SiteCrawl.class).setMaxResults(10).getResultList();
+		return ok(views.html.sites.snippets.recentSiteCrawls.render(siteCrawls));
+	}
+	
+	@Transactional
+	public static Result viewPageCrawlAnalysis(long pageCrawlAnalysisId){
+		PageCrawlAnalysis analysis = JPA.em().find(PageCrawlAnalysis.class, pageCrawlAnalysisId);
+		if(analysis == null){
+			return badRequest("No PageCrawlAnalysis with id : " + pageCrawlAnalysisId);
+		}
+		return ok(views.html.sites.analysis.pageCrawlAnalysis.render(analysis));
+	}
+	
+	@Transactional
+	public static Result viewSite(long siteId){
+		Site site = JPA.em().find(Site.class, siteId);
+		return ok(views.html.sites.site.render(site));
+	}
+	
+	@Transactional
+	public static Result viewSiteCrawl(long siteCrawlId){
+		SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, siteCrawlId);
+		return ok(views.html.sites.siteCrawl.render(siteCrawl));
+	}
+	
+	@Transactional
+	public static Result viewPageCrawl(long pageCrawlId){
+		PageCrawl pageCrawl = JPA.em().find(PageCrawl.class, pageCrawlId);
+		return ok(views.html.sites.pageCrawl.render(pageCrawl));
+	}
+	
+	@Transactional
+	public static Result reAnalyzeSites(){
+		List<Long> siteIds = GeneralDAO.getAllIds(Site.class);
+		Asyncleton.getInstance().runConsumerMaster(50, 
+				JpaFunctionalBuilder.wrapConsumerInFind((site) -> {site.setHomepage(site.getHomepage());}, Site.class), 
+				siteIds.stream(), 
+				true);
+		return ok("Queued " + siteIds.size() + " for re-analysis");
+	}
+	
+	@Transactional
+	public static Result noInventoryCrawls(){
+		String queryString = "from SiteCrawl sc where (sc.newInventoryRoot is null or sc.usedInventoryRoot is null) and sc.crawlDate > :staleDate";
+		List<SiteCrawl> siteCrawls = JPA.em().createQuery(queryString, SiteCrawl.class)
+				.setMaxResults(100)
+				.setParameter("staleDate",  Global.getStaleDate(), TemporalType.DATE)
+				.getResultList();
+		
+		return ok(views.html.sites.noInventoryCrawls.render(siteCrawls));
+	}
+	
 	@Transactional
 	public static Result reviewSites(){
 		List<Site> sites = SitesDAO.getList("siteStatus", SiteStatus.NEEDS_REVIEW, 20, 0);
@@ -145,7 +217,7 @@ public class SitesController extends Controller {
 	public static Result validateUrls() {
 		List<Long> siteIds = GeneralDAO.getAllIds(Site.class);
 		Asyncleton.getInstance().runConsumerMaster(50, 
-				JpaFunctionalBuilder.wrapConsumerInFind(SiteLogic::validateUrl, Site.class), 
+				JpaFunctionalBuilder.wrapConsumerInFind(SiteLogic::analyzeUrlStructure, Site.class), 
 				siteIds.stream(), 
 				true);
 		return ok("Queued URL validation for " + siteIds.size() + " sites");
@@ -165,7 +237,7 @@ public class SitesController extends Controller {
 		
 		badUrlIds.addAll(badQueryIds);
 		Asyncleton.getInstance().runConsumerMaster(50, 
-				JpaFunctionalBuilder.wrapConsumerInFind(SiteLogic::logicalRedirect, Site.class), 
+				JpaFunctionalBuilder.wrapConsumerInFind(SiteLogic::tryRedirectByStructure, Site.class), 
 				badUrlIds.stream().distinct(), 
 				true);
 		return ok("Queued URL validation for " + badUrlIds.size() + " sites");
@@ -176,7 +248,7 @@ public class SitesController extends Controller {
 		String queryString = "select s.siteId from Site s join s.urlCheck uc where uc.noChange = false and s.redirects = false";
 		List<Long> siteIds = JPA.em().createQuery(queryString, Long.class).getResultList();
 		Asyncleton.getInstance().runConsumerMaster(50, 
-				JpaFunctionalBuilder.wrapConsumerInFind(SiteLogic::httpRedirect, Site.class), 
+				JpaFunctionalBuilder.wrapConsumerInFind(SiteLogic::applyHttpCheck, Site.class), 
 				siteIds.stream(), 
 				true);
 		return ok("Queued URL validation for " + siteIds.size() + " sites");
@@ -187,7 +259,7 @@ public class SitesController extends Controller {
 		List<Long> siteIds = SitesDAO.staleUrlChecks();
 //		List<Long> siteIds = GeneralDAO.getAllIds(Site.class);
 		Asyncleton.getInstance().runConsumerMaster(50, 
-				JpaFunctionalBuilder.wrapConsumerInFind(SiteLogic::checkUrl, Site.class), 
+				JpaFunctionalBuilder.wrapConsumerInFind(SiteLogic::performHttpCheck, Site.class), 
 				siteIds.stream(), 
 				true);
 		return ok("Queued URL checking for " + siteIds.size() + " sites");

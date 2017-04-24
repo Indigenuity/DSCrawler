@@ -33,6 +33,7 @@ import persistence.ExtractedString;
 import persistence.ExtractedUrl;
 import persistence.Metatag;
 import persistence.PageCrawl;
+import sites.persistence.Vehicle;
 
 @Entity
 public class PageCrawlAnalysis {
@@ -54,6 +55,12 @@ public class PageCrawlAnalysis {
 	@ManyToOne
 	private PageCrawl pageCrawl;
 	
+	
+	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, orphanRemoval=true)
+	protected Set<Vehicle> vehicles = new HashSet<Vehicle>();
+	
+	@ElementCollection(fetch=FetchType.LAZY)
+	protected Set<String> vins = new HashSet<String>();
 	
 	//**************  Extracted Elements
 	@Column(nullable = true, columnDefinition="varchar(4000)")
@@ -384,5 +391,33 @@ public class PageCrawlAnalysis {
 	public void setMetaDescriptionText(String metaDescriptionText) {
 		this.metaDescriptionText = metaDescriptionText;
 	}
+
+	public Set<Vehicle> getVehicles() {
+		return vehicles;
+	}
+
+	public void setVehicles(Set<Vehicle> vehicles) {
+		this.vehicles.clear();
+		this.vehicles.addAll(vehicles);
+	}
+
+	public Set<String> getVins() {
+		return vins;
+	}
+
+	public void setVins(Set<String> vins) {
+		this.vins.clear();
+		this.vins = vins;
+	}
+
+	public void setNumImages(int numImages) {
+		this.numImages = numImages;
+	}
+
+	public void setNumAltImages(int numAltImages) {
+		this.numAltImages = numAltImages;
+	}
+	
+	
 	
 }

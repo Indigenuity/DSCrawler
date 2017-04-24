@@ -1,5 +1,7 @@
 package salesforce.persistence;
 
+import java.util.Date;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -37,6 +39,7 @@ public class SalesforceAccount implements SiteOwner{
 	/************************** Basics ********************************/
 	
 	private Boolean outdated = false;
+	private Date lastUpdated = new Date();
 	
 	private String name;
 	private String salesforceId;
@@ -338,6 +341,14 @@ public class SalesforceAccount implements SiteOwner{
 	public Site setResolvedSite(Site site) {
 		this.setSite(site);
 		return this.getSite();
+	}
+
+	public Date getLastUpdated() {
+		return lastUpdated;
+	}
+
+	public void setLastUpdated(Date lastUpdated) {
+		this.lastUpdated = lastUpdated;
 	}
 	
 }

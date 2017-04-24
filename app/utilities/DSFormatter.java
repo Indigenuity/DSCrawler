@@ -20,7 +20,6 @@ import datadefinitions.StringExtraction;
 import datadefinitions.StringMatchUtils;
 import datadefinitions.HomepagePath;
 import datadefinitions.ValidQueryMatch;
-import datadefinitions.newdefinitions.AutoRemoveQuery;
 import datadefinitions.newdefinitions.DefunctDomain;
 import datadefinitions.newdefinitions.DefunctPath;
 import datadefinitions.newdefinitions.SharedDomain;
@@ -261,38 +260,6 @@ public class DSFormatter {
 		}
 		return false;
 	}
-	
-	public static String autoRemoveQuery(String original){
-		try {
-			URL url = new URL(original);
-			String rebuilt = url.getProtocol() + "://" + url.getHost() + url.getPath();
-			if(!StringMatchUtils.matchesAny(AutoRemoveQuery.values(), url.getQuery())){
-				if(StringUtils.isEmpty(url.getPath())){
-					rebuilt += "/";
-				} else{
-					rebuilt += "?" + url.getQuery();
-				} 
-			} 
-			return rebuilt;
-		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException("Illegal url");
-		}
-	}
-	
-	public static String standardizeBaseUrl(String original) {
-		try {
-			original = toHttp(original);
-			URL url = new URL(original);
-			String rebuilt = url.toString();
-			if(StringUtils.isEmpty(url.getPath()) && StringUtils.isEmpty(url.getQuery())){
-				rebuilt = rebuilt + "/";
-			}
-			return rebuilt;
-		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException("Illegal url");
-		}
-	}
-	
 	
 	public static boolean needsTruncation(String original, int length) {
 		if(original == null || original.length() <= length)
@@ -550,25 +517,6 @@ public class DSFormatter {
 		}
 		
 		return domain;
-	}
-	
-	public static boolean isBadUrlStructure(String urlString){
-		try {
-			URL url = new URL(urlString);
-			if(StringUtils.isEmpty(url.getPath())){
-				return true;
-			}
-			Matcher matcher = StringExtraction.HOST.getPattern().matcher(url.getHost());
-			if(!matcher.matches()){
-				return true;
-			}
-			if(hasBadUrlCharacters(urlString)){
-				return true;
-			}
-		} catch (MalformedURLException e) {
-			return true;
-		}
-		return false;
 	}
 	
 	public static boolean hasBadUrlCharacters(String urlString) {

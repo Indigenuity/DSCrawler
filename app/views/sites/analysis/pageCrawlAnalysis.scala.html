@@ -1,0 +1,30 @@
+@import _root_.sites.persistence.Vehicle
+@(analysis : _root_.analysis.PageCrawlAnalysis)
+
+@main("PageCrawlAnalysis"){
+
+	<h3>PageCrawlAnalysis @analysis.getPageCrawlAnalysisId()</h3>
+	<h4><a href="/sites/pageCrawl/@analysis.getPageCrawl().getPageCrawlId()">PageCrawl @analysis.getPageCrawl().getPageCrawlId()</a> -- <a href="@analysis.getPageCrawl().getUrl()" target="_blank">@analysis.getPageCrawl().getUrl()</a> </h4>
+	<h4>
+		<a href="/sites/analysis/siteCrawlAnalysis/@analysis.getSiteCrawlAnalysis().getSiteCrawlAnalysisId()">SiteCrawlAnalysis @analysis.getSiteCrawlAnalysis().getSiteCrawlAnalysisId()</a>
+		 -- <a href="@analysis.getSiteCrawlAnalysis().getSiteCrawl().getSeed()" target="_blank">@analysis.getSiteCrawlAnalysis().getSiteCrawl().getSeed()</a>
+	</h4>
+	<div class="small-panel">
+		<h4>Attributes</h4>
+		<table class="attributes-table">
+			<tr>
+				<td>Inventory Type</td>
+				<td>@analysis.getPageCrawl().getInvType()</td>
+			</tr>
+		</table>
+	</div>
+	<div class="small-panel">
+		<h4>@analysis.getVehicles.size() Vehicles</h4>
+		<ul>
+			@for(vehicle <- analysis.getVehicles){
+				<li>@vehicle.getVin()--@vehicle.getMsrp()--@vehicle.getOfferedPrice()--@vehicle.getMileage--<a href="@vehicle.getUrl()" target="_blank">@vehicle.getUrl()</a></li>
+			}
+		</ul>
+	</div>
+
+}

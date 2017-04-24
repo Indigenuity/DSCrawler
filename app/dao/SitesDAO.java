@@ -29,6 +29,7 @@ public class SitesDAO {
 	
 	private static final long MONTH_IN_MS = 1000 * 60 * 60 * 24 * 31;
 	
+	private static final Object newSiteMutex = new Object();
 	
 	public static final Date STALE_DATE;
 	static {
@@ -74,44 +75,14 @@ public class SitesDAO {
 		return site;
 	}
 	
-	public synchronized static Site getOrNewThreadsafe(String homepage) {
-		Site site = getOrNew(homepage);
-		JPA.em().getTransaction().commit();
-		JPA.em().getTransaction().begin();
-		return site;
-	}
-	
-	public static Site updateFromUrlCheck(UrlCheck urlCheck){
-		String queryString = "from Site s where s.homepage = :seed";
-		List<Site> resultList = JPA.em().createQuery(queryString, Site.class).setParameter("seed", urlCheck.getSeed()).getResultList();
-		if(resultList.size() < 1){
-			return null;
-		} else if(resultList.size() > 1) {
-			throw new IllegalStateException("Found more than one Site with homepage : " + urlCheck.getSeed());
+	public static Site getOrNewThreadsafe(String homepage) {
+		synchronized(newSiteMutex){
+			Site site = getOrNew(homepage);
+			JPA.em().getTransaction().commit();
+			JPA.em().getTransaction().begin();
+			return site;
 		}
-		Site site = resultList.get(0);
-		site.setHomepage(urlCheck.getResolvedSeed());
-		
-		return site;
 	}
-	
-	public static Site getRedirectEndpoint(Site site, boolean allowManualRedirects){
-		if(site == null) {
-			return null;
-		}
-		if(site.getRedirects()){
-			Site destination = site.getRedirectsTo();
-			if(destination == null){
-				throw new IllegalStateException("Site status shows redirect but redirectsTo field is null : " + site.getSiteId());	
-			}
-			if(site.getSiteId() == destination.getSiteId()){
-				throw new IllegalStateException("Illegal State!  Site redirects to itself : " + site.getSiteId() + " : " + site.getHomepage());
-			}
-			return getRedirectEndpoint(destination, allowManualRedirects);
-		}
-		return site;
-	}
-	
 	
 	public static List<String> getDuplicateHomepages(int count, int offset) {
 		String query = "select homepage from Site group by homepage having count(*) > 1";

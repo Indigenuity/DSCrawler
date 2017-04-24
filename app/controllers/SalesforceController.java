@@ -2,14 +2,21 @@ package controllers;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Consumer;
 
+import async.async.Asyncleton;
+import async.functionalwork.JpaFunctionalBuilder;
 import audit.Standardizer;
 import audit.sync.SalesforceControl;
 import audit.sync.Sync;
 import audit.sync.SyncControl;
 import dao.GeneralDAO;
 import dao.SalesforceDao;
+import dao.SiteOwnerLogic;
 import dao.SitesDAO;
+import datatransfer.CSVImporter;
+import datatransfer.reports.Report;
+import datatransfer.reports.ReportRow;
 import persistence.Site;
 import persistence.Site.SiteStatus;
 import play.Logger;
@@ -73,6 +80,16 @@ public class SalesforceController extends Controller {
     }
     
     @Transactional
+    public static Result refreshRedirectPaths(){
+    	List<Long> accountIds = GeneralDAO.getAllIds(SalesforceAccount.class);
+    	Asyncleton.getInstance().runConsumerMaster(50, 
+				JpaFunctionalBuilder.wrapConsumerInFind(SiteOwnerLogic::refreshRedirectPath, SalesforceAccount.class), 
+				accountIds.stream(), 
+				true);
+    	return ok("Queued " + accountIds.size() + " accounts to be assigned the most redirected Site objects");
+    }
+    
+    @Transactional
     public static Result assignSiteless(){
     	String queryString = "select sa.salesforceAccountId from SalesforceAccount sa where sa.site is null";
     	List<Long> accountIds = JPA.em().createQuery(queryString, Long.class).getResultList();
@@ -89,19 +106,43 @@ public class SalesforceController extends Controller {
     	DynamicForm data = Form.form().bindFromRequest();
 		String inputFilename = data.get("inputFilename");
 		Boolean generateReports = data.get("generateReports") == null ? false : true;
+		Boolean refreshRedirects = data.get("refreshRedirects") == null ? false : true;
 		
-		System.out.println("Running Salesforce Sync Session...");
-		Sync importSync = SalesforceControl.sync(inputFilename, generateReports);
+		Report report = CSVImporter.importReportWithKey(inputFilename, "Salesforce Unique ID");
 		
-		System.out.println("Mapping siteless salesforce accounts to Site objects...");
-		Sync sitelessSync = SalesforceControl.assignSiteless();
+		Consumer<ReportRow> consumer = (reportRow) -> {
+			SalesforceAccount account = SalesforceLogic.importReportRow(reportRow);
+			if(refreshRedirects){
+				SiteOwnerLogic.refreshRedirectPath(account);
+			}
+		};
+		Asyncleton.getInstance().runConsumerMaster(50, 
+				consumer, 
+				report.getReportRows().values().stream(), 
+				true);
 		
-		System.out.println("Assigning new Site objects to salesforce accounts with changed websites...");
-		SalesforceControl.assignChangedWebsites(importSync);
-		if(generateReports){
-			System.out.println("Generating reports");
-			SyncControl.generateAllReports(SalesforceAccount.class, importSync);
-		}
+//		int count = 0;
+//		for(ReportRow reportRow : report.getReportRows().values()){
+//			SalesforceLogic.importReportRow(reportRow);
+//			if(count ++ % 500 == 0){
+//				System.out.println("imported : " + count);
+//			}
+//		}
+//		System.out.println("imported");
+		
+		
+//		System.out.println("Running Salesforce Sync Session...");
+//		Sync importSync = SalesforceControl.sync(inputFilename, generateReports);
+//		
+//		System.out.println("Mapping siteless salesforce accounts to Site objects...");
+//		Sync sitelessSync = SalesforceControl.assignSiteless();
+//		
+//		System.out.println("Assigning new Site objects to salesforce accounts with changed websites...");
+//		SalesforceControl.assignChangedWebsites(importSync);
+//		if(generateReports){
+//			System.out.println("Generating reports");
+//			SyncControl.generateAllReports(SalesforceAccount.class, importSync);
+//		}
 		
 		return ok("Synced with salesforce accounts from file : " + inputFilename);
     }

@@ -76,7 +76,7 @@ public class HttpFetcher {
 		    String pageText = result.toString();
 		    
 		    
-			pageCrawl.setHttpStatus(con.getResponseCode());
+			pageCrawl.setStatusCode(con.getResponseCode());
 			
 		    String path = url.getPath();
 			String query = url.getQuery();

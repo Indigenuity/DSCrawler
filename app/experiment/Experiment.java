@@ -17,6 +17,7 @@ import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -41,7 +42,11 @@ import org.apache.commons.beanutils.PropertyUtilsBean;
 
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
@@ -62,6 +67,7 @@ import crawling.DealerCrawlController;
 import crawling.HarleyCrawlingson;
 import crawling.HttpFetcher;
 import crawling.MobileCrawler;
+import crawling.SiteCrawlOrder;
 import crawling.anansi.UriFetch;
 import crawling.anansi.SiteCrawlConfig;
 import crawling.anansi.SiteCrawlWorkOrder;
@@ -70,15 +76,23 @@ import crawling.discovery.async.TempCrawlingWorker;
 import crawling.discovery.entities.SourcePool;
 import crawling.discovery.execution.CrawlContext;
 import crawling.discovery.execution.Crawler;
+import crawling.discovery.execution.DiscoveryContext;
+import crawling.discovery.execution.ResourceContext;
+import crawling.discovery.execution.ResourceWorkResult;
 import crawling.discovery.execution.SeedWorkOrder;
 import crawling.discovery.html.DocDerivationStrategy;
 import crawling.discovery.html.HttpConfig;
 import crawling.discovery.html.HttpEndpoint;
+import crawling.discovery.html.HttpResponseFile;
 import crawling.discovery.html.HttpToFilePlan;
+import crawling.discovery.html.HttpToFileTool;
 import crawling.discovery.html.InternalLinkDiscoveryTool;
-import crawling.discovery.html.PageCrawlDiscoveryPlan;
-import crawling.discovery.html.PageCrawlPlan;
-import crawling.discovery.html.SiteCrawlPlan;
+import crawling.discovery.local.RegularToInventoryDiscoveryTool;
+import crawling.discovery.local.PageCrawlDiscoveryPlan;
+import crawling.discovery.local.PageCrawlPlan;
+import crawling.discovery.local.PageCrawlTool;
+import crawling.discovery.local.SiteCrawlPlan;
+import crawling.discovery.local.SiteCrawlTool;
 import crawling.discovery.planning.CrawlPlan;
 import crawling.discovery.planning.DiscoveryPlan;
 import crawling.discovery.planning.ResourcePlan;
@@ -89,6 +103,8 @@ import dao.GeneralDAO;
 import dao.SalesforceDao;
 import dao.SitesDAO;
 import datadefinitions.GeneralMatch;
+import datadefinitions.inventory.InvType;
+import datadefinitions.inventory.InventoryTool;
 import datadefinitions.newdefinitions.LinkTextMatch;
 import datatransfer.Amalgamater;
 import datatransfer.CSVGenerator;
@@ -109,6 +125,7 @@ import analysis.AnalysisConfig.AnalysisMode;
 import async.async.Asyncleton;
 import async.functionalwork.FunctionWorkOrder;
 import async.functionalwork.FunctionalWorker;
+import async.functionalwork.JpaFunctionalBuilder;
 import audit.AuditDao;
 import audit.sync.Sync;
 import persistence.ExtractedString;
@@ -125,6 +142,7 @@ import play.Logger;
 import play.db.jpa.JPA;
 import pods.PodZip;
 import pods.PodsLoader;
+import salesforce.persistence.DealershipType;
 import salesforce.persistence.SalesforceAccount;
 import scala.concurrent.Future;
 import sites.SiteLogic;
@@ -138,68 +156,133 @@ import utilities.Tim;
 public class Experiment { 
 	
 	public static void runExperiment() throws Exception {
-		URI uri = new URI("http://www.conquerclub.com/");
-		CrawlPlan crawlPlan = new CrawlPlan();
-		crawlPlan.setMaxPages(15);
-		crawlPlan.setMaxDepth(1);
+//		SiteCrawl siteCrawl= JPA.em().find(SiteCrawl.class, 16625L);
+//		SiteCrawlPlan siteCrawlPlan = new SiteCrawlPlan(siteCrawl);
+//		System.out.println("uncrawled : " + siteCrawl.getUnCrawledUrls().size());
+//		System.out.println("failed: " + siteCrawl.getFailedUrls().size());
+//		siteCrawlPlan.setMaxPages(SiteCrawlPlan.DEFAULT_MAX_PAGES_TO_FETCH);
 		
+		Site site = SitesDAO.getOrNewThreadsafe("http://www.conquerclub.com/");
+		SiteCrawlPlan siteCrawlPlan = new SiteCrawlPlan(site);
+//		siteCrawlPlan.setMaxPages(1);
+		
+		Asyncleton.getInstance().getCrawlMaster().tell(siteCrawlPlan, ActorRef.noSender());
+//		crawlingStuff();
+//		analyzingStuff();
+		
+	}
+	
+	public static void analyzingStuff() throws Exception {
+		String queryString = "select sc from SiteCrawl sc join sc.pageCrawls pc where pc.invType = :invType";
+		List<SiteCrawl> siteCrawls = JPA.em().createQuery(queryString, SiteCrawl.class).setParameter("invType", InvType.DEALER_COM)
+				.setMaxResults(1)
+				.setFirstResult(1)
+				.getResultList();
+		System.out.println("siteCrawls :" + siteCrawls.size());
+		for(SiteCrawl siteCrawl : siteCrawls){
+			SiteCrawlAnalysis analysis = AnalysisDao.getOrNew(siteCrawl);
+			analysis.getConfig().setDoVehicles(true);
+			SiteCrawlAnalyzer.runSiteCrawlAnalysis(analysis);
+		}
+	}
+	
+	public static void crawlingStuff() throws Exception {
+		String queryString = "select s from SalesforceAccount sa join sa.site s where sa.dealershipType = :dealershipType";
+		List<Site> sites = JPA.em().createQuery(queryString, Site.class)
+				.setFirstResult(111)
+				.setMaxResults(200)
+				.setParameter("dealershipType", DealershipType.FRANCHISE)
+				.getResultList();
+		System.out.println("siteIds : " + sites.size());
+		
+		for(Site site : sites) {
+			SiteCrawlPlan siteCrawlPlan = new SiteCrawlPlan(site);
+			Asyncleton.getInstance().getCrawlMaster().tell(siteCrawlPlan, ActorRef.noSender());
+		}
+		
+//		ActorRef master = Asyncleton.getInstance().runConsumerMaster(50, 
+//				JpaFunctionalBuilder.wrapConsumerInFind((site) -> SiteLogic.refreshRe, Site.class), inputs, needsJpa);.getMonotypeMaster(50, FunctionalWorker.class);
+		
+//		Site site = JPA.em().find(Site.class, 45517L);
+//		site.setHomepage(site.getHomepage());
+		
+//		System.out.println("url check : " + site.getUrlCheck().getCheckDate());
+//		Site redirected = SiteLogic.refreshRedirectPath(site, true);
+//		
+//		System.out.println("site : " + site.getHomepage());
+//		System.out.println("redirected : " + redirected.getHomepage());
+		
+		singlePlace();
+	}
+	
+	public static void singlePlace() throws IOException {
+		PlacesLogic.updateOrNew("ChIJ4f___7_7bFMROocwBIzFXe8");
+	}
+	
+	public static void testApache() throws IOException, URISyntaxException{
 		HttpConfig config = new HttpConfig();
 		config.setUserAgent(Global.getDefaultUserAgentString());
-		HttpToFilePlan resourcePlan = new HttpToFilePlan(config);
-		resourcePlan.setRateLimiter(RateLimiter.create(1));
-		resourcePlan.putContextObject("crawlStorageFolder", new File(Global.getTodaysCrawlStorageFolder()));
-		crawlPlan.registerResourcePlan(resourcePlan);
+		config.setUseProxy(true);
+		config.setProxyAddress(Global.getProxyUrl());
+		config.setProxyPort(Global.getProxyPort());
+		config.setFollowRedirects(false);
 		
-		DiscoveryPlan discoveryPlan = new DiscoveryPlan();
-		discoveryPlan.setDiscoveryTool(new InternalLinkDiscoveryTool());
-		resourcePlan.registerDiscoveryPlan(discoveryPlan);
-		discoveryPlan.setDefaultDestination(resourcePlan);
-		crawlPlan.registerDiscoveryPlan(discoveryPlan);
+		URI uri = new URI("http://httpstat.us/500");
+		try(CloseableHttpClient httpClient = config.buildHttpClient()){
+			HttpGet request = new HttpGet(uri);
+			try(CloseableHttpResponse response = httpClient.execute(request)){
+				System.out.println("status : " + response.getStatusLine().getStatusCode());
+				System.out.println("entity : " + response.getEntity());
+				System.out.println("entitytoString : " + EntityUtils.toString(response.getEntity()));
+//				System.out.println("location : " + response.getFirstHeader("Location").getValue());
+//				URI redirectedUri = new URI(response.getFirstHeader("Location").getValue());
+//				System.out.println(redirectedUri);
+//				System.out.println("is absolute : " + redirectedUri.isAbsolute());
+//				redirectedUri = uri.resolve(redirectedUri);
+//				System.out.println(redirectedUri);
+			}
+		} catch(Exception e) {
+			System.out.println("exception class : " + e.getClass().getSimpleName());
+		}
 		
+	}
+	
+	public static void crawlTesting() throws Exception {
+//		String queryString = "select pd.placesDealerId from PlacesDealer pd join pd.site s where pd.salesforceMatchString is null and s";
+		ActorRef crawlMaster = Asyncleton.getInstance().getCrawlMaster();
+		String queryString = "select s.siteId from SalesforceAccount sa join sa.site s where sa.dealershipType = :dealershipType";
+		List<Long> keyList = JPA.em().createQuery(queryString, Long.class).setParameter("dealershipType", DealershipType.FRANCHISE).setMaxResults(500).setFirstResult(2).getResultList();
+		System.out.println("found : " + keyList.size());
 		
+		for(Long key : keyList) {
+			SiteCrawlOrder workOrder = new SiteCrawlOrder(key);
+			crawlMaster.tell(workOrder, ActorRef.noSender());
+		}
 		
+//		Site site = SitesDAO.getOrNewThreadsafe("http://www.gregbell.com/VehicleSearchResults?search=used");
+//		SiteCrawlOrder workOrder = new SiteCrawlOrder(site.getSiteId());
+//		crawlMaster.tell(workOrder, ActorRef.noSender());
 		
-		ActorRef crawler = Asyncleton.getInstance().getMainSystem().actorOf(Props.create(Crawler.class, crawlPlan.generateContext()));
-		System.out.println("Created crawler");
-		SeedWorkOrder workOrder = new SeedWorkOrder(uri, resourcePlan.getPlanReference());
-		crawler.tell(workOrder, ActorRef.noSender());
-		
-		
-		
-//		SiteCrawlConfig config = new SiteCrawlConfig();
-//		config.setRelativeStorageFolder("/conquerclub");
-//		ActorRef siteCrawler = Asyncleton.getInstance().getMainSystem().actorOf(Props.create(SiteCrawler.class, config, "http://www.conquerclub.com"));
-//		siteCrawler.tell(new SiteCrawlWorkOrder(), ActorRef.noSender());
-		
-		
-//		CloseableHttpClient httpClient = config.buildHttpClient();
-//		
-//		URI uri = new URI("http://www.conquerclub.com");
-//		PageFetch homepageFetch = HttpFetcher.fetchPage(uri, httpClient);
-//		System.out.println("status code : " + homepageFetch.getStatusCode());
-//		System.out.println("result length : " + homepageFetch.getResultText().length());
-//		
-//		
-//		ActorRef master = Asyncleton.getInstance().getMonotypeMaster(config.getNumWorkers(), FunctionalWorker.class);
-//		
-//		FunctionWorkOrder<URI, PageFetch> workOrder = new FunctionWorkOrder<URI, PageFetch>((inputUri) -> {
-//			return HttpFetcher.fetchPage(inputUri, httpClient);
-//		}, uri);
-//		
-//		
-//		URI uri1 = new URI("http://www.conquerclub.com/");
-//		homepageFetch = SiteCrawler.fetchPage(uri1, httpClient);
-//		System.out.println("status code : " + homepageFetch.getStatusCode());
-//		System.out.println("result length : " + homepageFetch.getResultText().length());
-//		
-//		URI uri2 = new URI("http://www.aasdfasdfconquerclub.com");
-//		homepageFetch = SiteCrawler.fetchPage(uri2, httpClient);
-//		System.out.println("status code : " + homepageFetch.getStatusCode());
-//		System.out.println("result length : " + homepageFetch.getResultText().length());
-		
-		
-		
-		
+//		URI uri = new URI("http://www.gregbell.com/");
+//		crawlUri(uri);
+	}
+	
+
+	
+	public static void crawlUri(Site site) {
+		SiteCrawlPlan crawlPlan = new SiteCrawlPlan(site);
+		Asyncleton.getInstance().getCrawlMaster().tell(crawlPlan, ActorRef.noSender());
+	}
+	
+	public static void checkInvType() throws URISyntaxException{
+		URI uri = new URI("http://www.donmcgilltoyota.com/");
+//		Document doc = Jsoup.parse(uri.toURL(), 5000);
+//		for(InvType invType : InvType.getInvTypes()){
+//			System.out.println("next page : " + invType.getNextPageLink(doc, uri));
+//			if(invType.isNewPath(uri)){
+//				System.out.println("Found match");
+//			}
+//		}
 	}
 	
 	public static void processObject(Object bob) {
@@ -1328,6 +1411,60 @@ public class Experiment {
 		System.out.println("split : (" + splitNum + ")" + splitTime);
 		System.out.println("large : (" + largeNum + ")" + largeTime);
 		System.out.println("line large : (" + lineLargeNum + ")" + lineLargeTime);
+	}
+	
+	public static void binaryStuff(){
+		int oddPositions = 		0b0101010;
+		int evenPositions = 	0b1010101;
+		int max = 				0b1111111;
+		System.out.println("Trying on bits : " + Integer.bitCount(max) + " (" + max + " in decimal)");
+		int level2 = 0;
+		int level3 = 0;
+		int level4 = 0;
+		int level5 = 0;
+		int level6 = 0;
+		int unknown = 0;
+		for(int i = 1; i < max; i++){
+			boolean divisibleBy3 = i % 3 == 0;
+			
+			int odd = Integer.bitCount(i & oddPositions);
+			int even = Integer.bitCount(i & evenPositions);
+			int difference = odd - even;
+			
+//			even = even >> 1;
+//			System.out.println("i : " + i + " " + divisibleBy3);
+//			System.out.println("difference : " + (odd - even));
+			
+			if(divisibleBy3 && difference != 0){
+				System.out.println("i : " + i + " : " + Integer.toBinaryString(i));
+				if(Math.abs(difference) != 3){
+					if(Math.abs(difference) != 6){
+						if(Math.abs(difference) != 9){
+							if(Math.abs(difference) != 12){
+								unknown = difference;	
+							}else{
+								level5++;
+							}
+						}else {
+							level4++;
+						}
+					}else {
+						level3++;
+					}
+				}else{
+					level2++;
+				}
+			}
+//			System.out.println("even : " + Integer.toBinaryString(even));
+//			System.out.println("odd : " + Integer.toBinaryString(odd));
+//			System.out.println("xnor : " + ~(odd ^ even));
+//			System.out.println("i binary: " + Integer.toBinaryString(i) + " : " + Integer.toBinaryString(i & 0b01010101));
+		}
+		System.out.println("level2 : " + level2);
+		System.out.println("level3 : " + level3);
+		System.out.println("level4 : " + level4);
+		System.out.println("level5 : " + level5);
+		System.out.println("unknown : " + unknown);
 	}
 	
 }

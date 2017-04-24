@@ -10,6 +10,7 @@ import async.functionalwork.JpaFunctionalBuilder;
 import crawling.DealerCrawlController;
 import dao.SitesDAO;
 import datadefinitions.NoCrawlDomain;
+import persistence.PageCrawl;
 import persistence.Site;
 import persistence.SiteCrawl;
 import play.Logger;
@@ -18,6 +19,54 @@ import sites.SiteLogic;
 
 public class SiteCrawlLogic {
 
+	public static void removePageCrawl(PageCrawl pageCrawl){
+		SiteCrawl siteCrawl = pageCrawl.getSiteCrawl();
+		if(siteCrawl.getNewInventoryPage() == pageCrawl){
+			siteCrawl.setNewInventoryPage(null);
+		}
+		if(siteCrawl.getUsedInventoryPage() == pageCrawl){
+			siteCrawl.setUsedInventoryPage(null);
+		}
+		if(siteCrawl.getNewInventoryRoot() == pageCrawl){
+			siteCrawl.setNewInventoryRoot(null);
+		}
+		if(siteCrawl.getUsedInventoryRoot() == pageCrawl){
+			siteCrawl.setUsedInventoryRoot(null);
+		}
+		for(PageCrawl childPageCrawl : pageCrawl.getChildPages()){
+			childPageCrawl.setParentPage(null);
+		}
+		JPA.em().remove(pageCrawl);
+	}
+	
+	public static void replaceAsParent(PageCrawl oldParent, PageCrawl newParent){
+		System.out.println("oldParent's children : " + oldParent.getChildPages());
+		for(PageCrawl child : oldParent.getChildPages()){
+			if(!child.equals(newParent)){
+				child.setParentPage(newParent);
+			}
+			
+		}
+		newParent.setParentPage(oldParent.getParentPage());
+	}
+	
+	public static void replaceAndRemove(PageCrawl oldParent, PageCrawl newParent){
+		System.out.println("removing oldparent : " + oldParent.getPageCrawlId() + " with new parent : " + newParent.getPageCrawlId());
+		replaceAsParent(oldParent, newParent);
+		removePageCrawl(oldParent);
+	}
+	
+	public static PageCrawl getPageCrawlByUrl(String url, SiteCrawl siteCrawl){
+		List<PageCrawl> pageCrawls = JPA.em()
+				.createQuery("select pc from SiteCrawl sc join sc.pageCrawls pc where sc.siteCrawlId = :siteCrawlId and pc.url = :url", PageCrawl.class)
+				.setParameter("siteCrawlId", siteCrawl.getSiteCrawlId())
+				.setParameter("url", url)
+				.getResultList();
+		if(pageCrawls.size() > 0){
+			return pageCrawls.get(0);
+		}
+		return null;
+	}
 	
 	public static void crawlSites(List<Long> siteIds){
 		Asyncleton.getInstance().runConsumerMaster(25, 

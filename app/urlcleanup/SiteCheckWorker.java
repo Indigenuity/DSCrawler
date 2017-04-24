@@ -23,7 +23,7 @@ public class SiteCheckWorker extends UntypedActor {
 			JPA.withTransaction( () -> {
 				JPA.em().persist(urlCheck);
 				site.setUrlCheck(urlCheck);
-				SiteLogic.httpRedirect(site);
+				SiteLogic.applyHttpCheck(site);
 				JPA.em().merge(site);
 			});
 		}

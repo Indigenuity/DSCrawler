@@ -4,11 +4,12 @@ package crawling.discovery.planning;
 import java.util.HashSet;
 import java.util.Set;
 
+import crawling.discovery.entities.Resource;
 import crawling.discovery.execution.CrawlContext;
-import crawling.discovery.execution.PlanReference;
+import crawling.discovery.execution.PlanId;
 import crawling.discovery.execution.ResourceContext;
 
-public abstract class ResourcePlan extends Plan {
+public abstract class ResourcePlan extends Plan { 
 	
 	public final static int DEFAULT_NUM_WORKERS = 5;
 	public final static int DEFAULT_MAX_DEPTH_OF_CRAWLING = Integer.MAX_VALUE;
@@ -18,7 +19,9 @@ public abstract class ResourcePlan extends Plan {
 	protected int maxPages = DEFAULT_MAX_PAGES_TO_FETCH;
 	protected int numWorkers = DEFAULT_NUM_WORKERS;
 	
-	protected final Set<PlanReference> discoveryPlans = new HashSet<PlanReference>();
+	protected final Set<PlanId> discoveryPlans = new HashSet<PlanId>();
+	protected final Set<ResourcePreOrder> preOrders = new HashSet<ResourcePreOrder>();
+	protected final Set<Resource> resources = new HashSet<Resource>();
 	
 	protected ResourceFetchTool fetchTool;
 	
@@ -33,6 +36,10 @@ public abstract class ResourcePlan extends Plan {
 		return new ResourceContext(crawlContext, this);
 	}
 	
+	public void addPreOrder(ResourcePreOrder preOrder) {
+		this.preOrders.add(preOrder);
+	}
+	
 	public int getNumWorkers() {
 		return numWorkers;
 	}
@@ -42,11 +49,11 @@ public abstract class ResourcePlan extends Plan {
 	}
 
 	public void registerDiscoveryPlan(DiscoveryPlan discoveryPlan){
-		this.discoveryPlans.add(discoveryPlan.getPlanReference());
+		this.discoveryPlans.add(discoveryPlan.getPlanId());
 	}
 	
-	public void registerDiscoveryPlan(PlanReference reference){
-		this.discoveryPlans.add(reference);
+	public void registerDiscoveryPlan(PlanId planId){
+		this.discoveryPlans.add(planId);
 	}
 
 	public ResourceFetchTool getFetchTool() {
@@ -57,7 +64,7 @@ public abstract class ResourcePlan extends Plan {
 		this.fetchTool = fetchTool;
 	}
 
-	public Set<PlanReference> getDiscoveryPlans() {
+	public Set<PlanId> getDiscoveryPlans() {
 		return discoveryPlans;
 	}
 
@@ -76,9 +83,17 @@ public abstract class ResourcePlan extends Plan {
 	public void setMaxPages(int maxPages) {
 		this.maxPages = maxPages;
 	}
-	public Object putContextObject(String key, Object value){
-		synchronized(initialContextObjects){
-			return initialContextObjects.put(key, value);
-		}
+
+	public Set<ResourcePreOrder> getPreOrders() {
+		return preOrders;
 	}
+
+	public boolean addResource(Resource resource){
+		return this.resources.add(resource);
+	}
+	
+	public Set<Resource> getResources() {
+		return resources;
+	}
+	
 }

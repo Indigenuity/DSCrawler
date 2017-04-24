@@ -20,23 +20,23 @@ public class StatsDAO {
 	
 	public static DashboardStats getWpAttributionStats(Collection<SiteCrawl> siteCrawls) {
 		DashboardStats stats = new DashboardStats();
-		Map<WPAttribution, Integer> counts = new HashMap<WPAttribution, Integer>();
-		int noneCount = 0;
-		for(SiteCrawl siteCrawl : siteCrawls) {
-			if(siteCrawl.getWpAttributions().size() == 0){
-				noneCount++;
-			}
-			else{
-				for(WPAttribution wp : siteCrawl.getWpAttributions()){
-					counts.put(wp, counts.getOrDefault(wp, 0) + 1);
-				}
-			}
-		}
-	
-		for(Entry<WPAttribution, Integer> entry : counts.entrySet()){
-			stats.put(entry.getKey().name(), entry.getValue());
-		}
-		stats.put("No WPAttribution", noneCount);
+//		Map<WPAttribution, Integer> counts = new HashMap<WPAttribution, Integer>();
+//		int noneCount = 0;
+//		for(SiteCrawl siteCrawl : siteCrawls) {
+//			if(siteCrawl.getWpAttributions().size() == 0){
+//				noneCount++;
+//			}
+//			else{
+//				for(WPAttribution wp : siteCrawl.getWpAttributions()){
+//					counts.put(wp, counts.getOrDefault(wp, 0) + 1);
+//				}
+//			}
+//		}
+//	
+//		for(Entry<WPAttribution, Integer> entry : counts.entrySet()){
+//			stats.put(entry.getKey().name(), entry.getValue());
+//		}
+//		stats.put("No WPAttribution", noneCount);
 		return stats;
 	}
 	

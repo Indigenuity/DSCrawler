@@ -6,16 +6,16 @@ import newwork.WorkOrder;
 public class SeedWorkOrder extends WorkOrder{
 
 	protected final Object source;
-	protected final PlanReference planReference;
-	public SeedWorkOrder(Object source, PlanReference planReference) {
+	protected final PlanId planId;
+	public SeedWorkOrder(Object source, PlanId planId) {
 		super();
 		this.source = source;
-		this.planReference = planReference;
+		this.planId = planId;
 	}
 	public Object getSource() {
 		return source;
 	}
-	public PlanReference getPlanReference() {
-		return planReference;
+	public PlanId getPlanId() {
+		return planId;
 	}
 }

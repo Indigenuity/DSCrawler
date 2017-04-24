@@ -20,11 +20,11 @@ import crawling.discovery.entities.SourceQualification;
 import crawling.discovery.entities.SourceQualification.QualificationStatus;
 import crawling.discovery.execution.CrawlContext;
 import crawling.discovery.execution.ResourceContext;
+import crawling.discovery.execution.ResourceSupervisor;
 import crawling.discovery.execution.ResourceWorkOrder;
 import crawling.discovery.execution.ResourceWorkResult;
 import crawling.discovery.planning.ResourceFetchTool;
 import crawling.discovery.planning.ResourcePlan;
-import crawling.discovery.planning.ResourceSupervisor;
 import global.Global;
 
 public class HttpToFilePlan extends ResourcePlan{
@@ -58,6 +58,7 @@ public class HttpToFilePlan extends ResourcePlan{
 	public synchronized ResourceContext generateContext(CrawlContext crawlContext) {
 		ResourceContext context = super.generateContext(crawlContext);
 		context.putContextObject("httpConfig", config);
+//		System.out.println("config : " + config.getProxyAddress());
 		context.putContextObject("httpClient", config.buildHttpClient());
 		return context;
 	}

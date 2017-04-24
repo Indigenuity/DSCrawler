@@ -37,6 +37,7 @@ import org.hibernate.envers.NotAudited;
 
 import datadefinitions.WebProvider;
 import places.PlacesPage;
+import sites.SiteLogic;
 import utilities.DSFormatter;
 
 @Entity
@@ -104,7 +105,6 @@ public class Site {
 		    inverseJoinColumns={@JoinColumn(name="mobileCrawls_mobileCrawlId")})
 	private List<MobileCrawl> mobileCrawls = new ArrayList<MobileCrawl>();
 	
-	private Boolean redirects = false;
 	@Enumerated(EnumType.STRING)
 	private RedirectType redirectReason;
 	
@@ -211,7 +211,7 @@ public class Site {
 		return domain;
 	}
 
-	private void setDomain(String domain) { 
+	public void setDomain(String domain) { 
 		this.domain = domain;
 	}
 
@@ -223,14 +223,8 @@ public class Site {
 		if(homepage == null || homepage.length() > 4000){
 			throw new IllegalArgumentException("Can't set URL with length > 4000 as homepage of Site");
 		}
-		try {
-			URL url = new URL(homepage);
-			this.setDomain(DSFormatter.removeWww(url.getHost()));
-		} catch (MalformedURLException e) {
-//			System.out.println();
-//			throw new IllegalArgumentException("Can't have malformed url as homepage : " + homepage);
-		}
 		this.homepage = homepage;
+		SiteLogic.analyzeUrlStructure(this);
 	}
 
 	public List<SiteCrawl> getCrawls() {
@@ -263,14 +257,14 @@ public class Site {
 		Date mostRecent = null;
 		SiteCrawl returned = null;
 		
-		for(SiteCrawl siteCrawl : crawls) {
-			Date date = siteCrawl.getCrawlDate();
-			WebProvider wp = siteCrawl.getInferredWebProvider();
-			if(wp != null && wp != WebProvider.NONE && (mostRecent == null || date.compareTo(mostRecent) < 0)) {
-				mostRecent = date;
-				returned = siteCrawl;
-			}
-		}
+//		for(SiteCrawl siteCrawl : crawls) {
+//			Date date = siteCrawl.getCrawlDate();
+//			WebProvider wp = siteCrawl.getInferredWebProvider();
+//			if(wp != null && wp != WebProvider.NONE && (mostRecent == null || date.compareTo(mostRecent) < 0)) {
+//				mostRecent = date;
+//				returned = siteCrawl;
+//			}
+//		}
 		return returned;
 	}
 	
@@ -525,12 +519,6 @@ public class Site {
 	}
 	public void setDefunctContent(Boolean defunctContent) {
 		this.defunctContent = defunctContent;
-	}
-	public Boolean getRedirects() {
-		return redirects;
-	}
-	public void setRedirects(Boolean redirects) {
-		this.redirects = redirects;
 	}
 	public Boolean getNotStandardHomepagePath() {
 		return notStandardHomepagePath;

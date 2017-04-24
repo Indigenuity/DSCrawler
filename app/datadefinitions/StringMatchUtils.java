@@ -6,6 +6,7 @@ public class StringMatchUtils {
 			if(text.equals(match.getDefinition())){
 				return true;
 			}
+			
 		}
 		return false;
 	}

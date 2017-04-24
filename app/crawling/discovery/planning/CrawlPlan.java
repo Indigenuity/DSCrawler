@@ -5,17 +5,21 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import crawling.discovery.control.BasicIdGenerator;
+import crawling.discovery.control.IdGenerator;
 import crawling.discovery.execution.CrawlContext;
-import crawling.discovery.execution.PlanReference;
+import crawling.discovery.execution.EmptyCrawlTool;
+import crawling.discovery.execution.PlanId;
 
 public class CrawlPlan extends Plan{
 	
-	public final static int DEFAULT_MAX_DEPTH_OF_CRAWLING = 1;
-	public final static int DEFAULT_MAX_PAGES_TO_FETCH = 2000;
+	public final static int DEFAULT_MAX_DEPTH_OF_CRAWLING = Integer.MAX_VALUE;
+	public final static int DEFAULT_MAX_PAGES_TO_FETCH = Integer.MAX_VALUE;
 	
-	private int maxDepth = DEFAULT_MAX_DEPTH_OF_CRAWLING;
-	private int maxPages = DEFAULT_MAX_PAGES_TO_FETCH;
-	private CrawlTool crawlTool;
+	protected int maxDepth = DEFAULT_MAX_DEPTH_OF_CRAWLING;
+	protected int maxPages = DEFAULT_MAX_PAGES_TO_FETCH;
+	protected CrawlTool crawlTool = new EmptyCrawlTool();
+	protected IdGenerator idGenerator = new BasicIdGenerator();
 	
 	protected final Set<ResourcePlan> resourcePlans = new HashSet<ResourcePlan>();
 	protected final Set<DiscoveryPlan> discoveryPlans = new HashSet<DiscoveryPlan>();
@@ -23,6 +27,10 @@ public class CrawlPlan extends Plan{
 	
 	
 	public CrawlPlan(){
+		
+	}
+	public synchronized CrawlContext generateContext(){
+		return new CrawlContext(this);
 	}
 	
 	protected boolean isRegistered(ResourcePlan resourcePlan) {
@@ -94,8 +102,14 @@ public class CrawlPlan extends Plan{
 	public void setCrawlTool(CrawlTool crawlTool) {
 		this.crawlTool = crawlTool;
 	}
-	public synchronized CrawlContext generateContext(){
-		return new CrawlContext(this);
+	
+
+	public IdGenerator getIdGenerator() {
+		return idGenerator;
+	}
+
+	public void setIdGenerator(IdGenerator idGenerator) {
+		this.idGenerator = idGenerator;
 	}
 	
 }

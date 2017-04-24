@@ -10,7 +10,7 @@ public class DiscoveryContext extends Context{
 
 	protected final CrawlContext crawlContext;
 	protected final DiscoveryTool discoveryTool;
-	protected final PlanReference defaultDestination;
+	protected final PlanId defaultDestination;
 	protected final Set<Object> knownSources = new HashSet<Object>();
 	
 	public DiscoveryContext(CrawlContext crawlContext, DiscoveryPlan discoveryPlan){
@@ -19,6 +19,8 @@ public class DiscoveryContext extends Context{
 		this.discoveryTool = discoveryPlan.getDiscoveryTool();
 		this.crawlContext = crawlContext;
 		this.defaultDestination = discoveryPlan.getDefaultDestination();
+		this.knownSources.addAll(discoveryPlan.getStartingSources());
+//		System.out.println("knownSources upon creation: " + knownSources);
 	}
 
 	public CrawlContext getCrawlContext() {
@@ -29,13 +31,28 @@ public class DiscoveryContext extends Context{
 		return discoveryTool;
 	}
 
-	public PlanReference getDefaultDestination() {
+	public PlanId getDefaultDestination() {
 		return defaultDestination;
 	}
 	
 	public boolean discoverSource(Object source){
+		if(source == null){
+			return false;
+		}
 		synchronized(knownSources){
+//			System.out.println("known sources : " + knownSources);
 			return knownSources.add(source);
+		}
+	}
+	
+	
+	
+	public Object getContextObject(String key){
+		synchronized(contextObjects){
+			if(contextObjects.containsKey(key)){
+				return contextObjects.get(key);
+			}
+			return crawlContext.getContextObject(key);
 		}
 	}
 }

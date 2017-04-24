@@ -21,6 +21,7 @@ public enum OEM {
 	FORD			("ford"),
 	GM				("gm"),
 	GMC				("gmc"),
+	HARLEY_DAVIDSON	("harley davidson"),
 	HONDA			("honda"),
 	HUMMER			("hummer"),
 	HYUNDAI			("hyundai"),

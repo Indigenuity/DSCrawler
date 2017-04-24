@@ -16,11 +16,11 @@ import crawling.discovery.planning.ResourceFetchTool;
 public class HttpFetchTool extends ResourceFetchTool{
 
 	@Override
-	public Set<Resource> fetchResource(ResourceWorkOrder workOrder, ResourceContext context) throws Exception {
+	public Set<Object> fetchResources(ResourceWorkOrder workOrder, ResourceContext context) throws Exception {
 //		System.out.println("Fetching URI : " + workOrder.getSource());
 //		CloseableHttpClient httpClient = (CloseableHttpClient) workOrder.getResourceContext().getContextObject("httpClient");
 //		UriFetch pageFetch = HttpFetcher.fetchPage((URI)workOrder.getSource(), httpClient);
-		Set<Resource> resources = new HashSet<Resource>();
+		Set<Object> resources = new HashSet<Object>();
 //		resources.add(new Resource(pageFetch));
 		return resources;
 	}

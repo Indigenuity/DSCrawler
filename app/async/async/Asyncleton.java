@@ -15,6 +15,7 @@ import async.functionalwork.FunctionWorkOrder;
 import async.functionalwork.FunctionalWorker;
 import async.functionalwork.JpaFunctionalWorker;
 import async.functionalwork.MonotypeMaster;
+import crawling.CrawlMaster;
 
 public class Asyncleton {
 	
@@ -27,12 +28,17 @@ public class Asyncleton {
 	
 	private ActorRef mainListener;
 	private ActorRef mainMaster;
+	private ActorRef crawlMaster;
 	
 	private boolean initialized;
 	
 	protected Asyncleton(){
 		initialize();
 	} 
+	
+	public ActorRef getCrawlMaster() {
+		return crawlMaster;
+	}
 	
 	public ActorRef getMonotypeMaster(int numWorkers, Class<?> clazz) {
 		return mainSystem.actorOf(Props.create(MonotypeMaster.class, numWorkers, clazz).withDispatcher("akka.master-dispatcher")); 
@@ -63,6 +69,7 @@ public class Asyncleton {
 			Logger.info("Starting up main async system");
 			mainSystem = ActorSystem.create("mainSystem");
 			mainListener = mainSystem.actorOf(Props.create(MainListener.class), "mainListener");
+			crawlMaster = mainSystem.actorOf(Props.create(CrawlMaster.class).withDispatcher("akka.master-dispatcher"));
 			Logger.info("Main async system ready for jobs");
 		}
 	}

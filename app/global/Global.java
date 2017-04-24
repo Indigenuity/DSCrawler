@@ -32,6 +32,7 @@ public class Global extends GlobalSettings {
 	
 	private final static String OLD_LOGS_FOLDER = "logs/old";
 	
+	
 	private ActorSystem crawlingSystem; 
 	private ActorRef crawlingListener;
 	private ActorRef crawlingMaster;
@@ -47,7 +48,7 @@ public class Global extends GlobalSettings {
 //	private static String proxyUrl = "97.77.104.22";
 //	private static int proxyPort = 3128;
 	
-	public static final Date STALE_DATE;
+	private static final Date STALE_DATE;
 	static {
 		Calendar calendar = Calendar.getInstance();
 		calendar.add(Calendar.MONTH, - 1);
@@ -198,10 +199,6 @@ public class Global extends GlobalSettings {
 	public static Date getStaleDate() {
 		return STALE_DATE;
 	}
-
-
-
-
 	public static String getInputFolder() {
 		return INPUT_FOLDER;
 	}

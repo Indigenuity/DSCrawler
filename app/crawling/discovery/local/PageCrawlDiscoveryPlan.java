@@ -1,4 +1,4 @@
-package crawling.discovery.html;
+package crawling.discovery.local;
 
 import java.net.URI;
 import java.net.URISyntaxException;

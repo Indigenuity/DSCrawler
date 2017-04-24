@@ -1,0 +1,9 @@
+@(pageCrawl : _root_.persistence.PageCrawl)
+
+@main("PageCrawl"){
+
+<h3><a href="/sites/pageCrawl/@pageCrawl.getPageCrawlId()">PageCrawl @pageCrawl.getPageCrawlId()</a> -- <a href="@pageCrawl.getUrl()" target="_blank">@pageCrawl.getUrl()</a> </h3>
+<h4><a href="/sites/siteCrawl/@pageCrawl.getSiteCrawl().getSiteCrawlId()">SiteCrawl @pageCrawl.getSiteCrawl().getSiteCrawlId()</a> --
+		<a href="@pageCrawl.getSiteCrawl().getSeed()" target="_blank">@pageCrawl.getSiteCrawl().getSeed()</a> 
+
+}

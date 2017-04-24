@@ -30,6 +30,7 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import reporting.DashboardStats;
 import reporting.StatsBuilder;
+import salesforce.persistence.SalesforceAccount;
 import views.html.index;
 
 public class PlacesController extends Controller { 
@@ -56,11 +57,21 @@ public class PlacesController extends Controller {
     public static Result classifyRecords() {
 		List<Long> dealerIds = GeneralDAO.getAllIds(PlacesDealer.class);
 		Asyncleton.getInstance().runConsumerMaster(50, 
-				JpaFunctionalBuilder.wrapConsumerInFind(PlacesLogic::salesforceMatch, PlacesDealer.class), 
+				JpaFunctionalBuilder.wrapConsumerInFind(PlacesLogic::classifyRecordType, PlacesDealer.class), 
 				dealerIds.stream(), 
 				true);
 		return ok("Queued " + dealerIds.size() + " for salesforce matching");
 	}
+	
+	 @Transactional
+    public static Result refreshRedirectPaths(){
+    	List<Long> dealerIds = GeneralDAO.getAllIds(PlacesDealer.class);
+    	Asyncleton.getInstance().runConsumerMaster(50, 
+				JpaFunctionalBuilder.wrapConsumerInFind(SiteOwnerLogic::refreshRedirectPath, PlacesDealer.class), 
+				dealerIds.stream(), 
+				true);
+    	return ok("Queued " + dealerIds.size() + " dealers to be assigned the most redirected Site objects");
+    }
 	
 	@Transactional
     public static Result assignSiteless() {

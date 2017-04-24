@@ -37,6 +37,7 @@ public class AnalysisConfig {
 	protected Boolean doNewInventoryPage = false;
 	protected Boolean doUsedInventoryPage = false;
 	protected Boolean doInventoryNumbers = false;
+	protected Boolean doVehicles = false;
 	
 	//************ Extraction
 	protected Boolean extractUrls = false;
@@ -64,10 +65,41 @@ public class AnalysisConfig {
 				|| doTitleTagScoring 
 				|| doAltImageTagScore 
 				|| doH1Score 
-				|| doMetaDescriptionScore;
+				|| doMetaDescriptionScore
+				|| doVehicles;
 	}
 
 
+	public void setDoAll(){
+		this.doBrandMatches = true;
+		this.doMetaBrandMatches = true;
+		this.doGeneralMatches = true;
+		this.doSchedulerMatches= true;
+		this.doWpClues = true;
+		this.doWebProviderMatches = true;
+		this.doWpAttributionMatches= true;
+		this.doLinkTextMatches = true;
+		this.doTestMatches = true;
+		
+		
+		//*********** Inventory
+		this.doNewInventoryPage = true;
+		this.doUsedInventoryPage = true;
+		this.doInventoryNumbers = true;
+		this.doVehicles = true;
+		
+		//************ Extraction
+		this.extractUrls = true;
+		this.extractStrings = true;
+		this.extractLinks = true;
+		
+		//*********** CapDB scores
+		this.doTitleTagScoring = true;
+		this.doUrlScoring = true;
+		this.doAltImageTagScore = true;
+		this.doH1Score = true;
+		this.doMetaDescriptionScore = true;
+	}
 
 	public Boolean getDoBrandMatches() {
 		return doBrandMatches;
@@ -312,6 +344,16 @@ public class AnalysisConfig {
 
 	public void setDoMetaDescriptionScore(Boolean doMetaDescriptionScore) {
 		this.doMetaDescriptionScore = doMetaDescriptionScore;
+	}
+
+
+	public Boolean getDoVehicles() {
+		return doVehicles;
+	}
+
+
+	public void setDoVehicles(Boolean doVehicles) {
+		this.doVehicles = doVehicles;
 	}
 	
 	

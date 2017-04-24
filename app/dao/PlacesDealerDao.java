@@ -2,15 +2,49 @@ package dao;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
+import global.Global;
 import places.PlacesDealer;
 import play.db.jpa.JPA;
+import salesforce.persistence.SalesforceAccount;
 
 public class PlacesDealerDao {
-
+	
+	
+	public static PlacesDealer getFirstFresh(String valueName, Object value){
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		parameters.put(valueName , value);
+		return getFirstFresh(parameters);
+	}
+	public static PlacesDealer getFirstFresh(Map<String, Object> parameters){
+		String query = "from SalesforceAccount t";
+		String delimiter = " where t.";
+		for(String key : parameters.keySet()) {
+			query += delimiter + key + " = :" + key;
+			delimiter = " and t.";
+		}
+		query += " and detailFetchDate < :staleDate";
+		
+		TypedQuery<PlacesDealer> q = JPA.em().createQuery(query, PlacesDealer.class);
+		for(Entry<String, Object> entry : parameters.entrySet()) {
+			q.setParameter(entry.getKey(), entry.getValue());
+		}
+		q.setParameter("staleDate", Global.getStaleDate());
+		q.setMaxResults(1);
+		List<PlacesDealer> results = q.getResultList();
+		if(results.size() > 0){
+			return results.get(0);
+		}
+		return null;
+	}
+	
 	public static void insertIgnore(List<String> placesIds){
 		placesIds.stream().forEach(PlacesDealerDao::insertIgnore);
 	}

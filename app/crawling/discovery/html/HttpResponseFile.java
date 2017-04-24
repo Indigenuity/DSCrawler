@@ -24,29 +24,30 @@ public class HttpResponseFile implements HtmlResource{
 	public static int MAX_FILENAME_LENGTH = 260;
 	
 	private URI uri;
+	private URI redirectedUri;
 	private File file;
 	private Locale locale;
 	private Header[] headers;
 	private int statusCode;
 	
-	private HttpResponseFile(){}
+	public  HttpResponseFile(URI uri, File storageFile){
+		this.uri = uri;
+		this.file = storageFile;
+	}
 	
-	public static HttpResponseFile create(URI uri, File storageFile, HttpResponse response) throws IOException{
-		IOUtils.copy(response.getEntity().getContent(), new FileOutputStream(storageFile));
-		HttpResponseFile responseFile = new HttpResponseFile();
-		responseFile.setFile(storageFile);
-		responseFile.setUri(uri);
-		responseFile.setLocale(response.getLocale());
-		responseFile.setHeaders(response.getAllHeaders());
-		responseFile.setStatusCode(response.getStatusLine().getStatusCode());
-		return responseFile;
+	@Override
+	public Document getDocument() throws Exception{
+		String text = IOUtils.toString(new FileInputStream(file), "UTF-8");
+		Document doc = Jsoup.parse(text);
+		doc.setBaseUri(uri.toString());
+		return doc;
 	}
 	
 	public URI getUri() {
 		return uri;
 	}
 
-	private void setUri(URI uri) {
+	public void setUri(URI uri) {
 		this.uri = uri;
 	}
 
@@ -54,7 +55,7 @@ public class HttpResponseFile implements HtmlResource{
 		return file;
 	}
 
-	private void setFile(File file) {
+	public void setFile(File file) {
 		this.file = file;
 	}
 
@@ -62,7 +63,7 @@ public class HttpResponseFile implements HtmlResource{
 		return locale;
 	}
 
-	private void setLocale(Locale locale) {
+	public void setLocale(Locale locale) {
 		this.locale = locale;
 	}
 
@@ -70,7 +71,7 @@ public class HttpResponseFile implements HtmlResource{
 		return headers;
 	}
 
-	private void setHeaders(Header[] headers) {
+	public void setHeaders(Header[] headers) {
 		this.headers = headers;
 	}
 
@@ -78,15 +79,17 @@ public class HttpResponseFile implements HtmlResource{
 		return statusCode;
 	}
 
-	private void setStatusCode(int statusCode) {
+	public void setStatusCode(int statusCode) {
 		this.statusCode = statusCode;
 	}
 
-	@Override
-	public Document getDocument() throws Exception{
-		String text = IOUtils.toString(new FileInputStream(file), "UTF-8");
-		Document doc = Jsoup.parse(text);
-		doc.setBaseUri(HtmlUtils.findBaseUriString(uri));
-		return doc;
+	public URI getRedirectedUri() {
+		return redirectedUri;
 	}
+
+	public void setRedirectedUri(URI redirectedUri) {
+		this.redirectedUri = redirectedUri;
+	}
+	
+	
 }

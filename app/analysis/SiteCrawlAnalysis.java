@@ -35,6 +35,7 @@ import persistence.ExtractedUrl;
 import persistence.InventoryNumber;
 import persistence.PageCrawl;
 import persistence.SiteCrawl;
+import sites.persistence.Vehicle;
 
 @Entity
 public class SiteCrawlAnalysis {
@@ -63,6 +64,12 @@ public class SiteCrawlAnalysis {
 	protected AnalysisConfig config = new AnalysisConfig();
 	
 	protected Date analysisDate;
+	
+	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, orphanRemoval=true)
+	protected Set<Vehicle> vehicles = new HashSet<Vehicle>();
+	
+	@ElementCollection(fetch=FetchType.LAZY)
+	protected Set<String> vins = new HashSet<String>();
 	
 	//*************** Matching
 	@Enumerated(EnumType.STRING)
@@ -544,7 +551,28 @@ public class SiteCrawlAnalysis {
 	public void setMetaDescriptionContentScore(int metaDescriptionContentScore) {
 		this.metaDescriptionContentScore = metaDescriptionContentScore;
 	}
+
+	public Set<Vehicle> getVehicles() {
+		return vehicles;
+	}
+
+	public void setVehicles(Set<Vehicle> vehicles) {
+		this.vehicles = vehicles;
+	}
+	public void addVehicles(Set<Vehicle> vehicles) {
+		this.vehicles.addAll(vehicles);
+	}
+
+	public Set<String> getVins() {
+		return vins;
+	}
+
+	public void setVins(Set<String> vins) {
+		this.vins = vins;
+	}
 	
-	
+	public void addVins(Set<String> vins) {
+		this.vins.addAll(vins);
+	}
 	
 }

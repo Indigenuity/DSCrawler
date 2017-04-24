@@ -2,7 +2,7 @@ package crawling.discovery.execution;
 
 import java.util.UUID;
 
-public class PlanReference {
+public class PlanId {
 
 	private final long uuid = UUID.randomUUID().getLeastSignificantBits();
 
@@ -22,7 +22,7 @@ public class PlanReference {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		PlanReference other = (PlanReference) obj;
+		PlanId other = (PlanId) obj;
 		if (uuid != other.uuid)
 			return false;
 		return true;

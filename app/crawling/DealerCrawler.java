@@ -144,7 +144,7 @@ public class DealerCrawler extends WebCrawler {
 			pageCrawl.setUrl(urlString);
 			pageCrawl.setPath(path);
 			pageCrawl.setQuery(query);
-			pageCrawl.setHttpStatus(page.getStatusCode());
+			pageCrawl.setStatusCode(page.getStatusCode());
 			 
 //			System.out.println("visiting page : " + url);
 			 

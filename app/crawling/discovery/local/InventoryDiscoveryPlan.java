@@ -1,15 +1,15 @@
-package crawling.discovery.html;
+package crawling.discovery.local;
 
-import crawling.discovery.execution.PlanReference;
+import crawling.discovery.execution.PlanId;
 import crawling.discovery.planning.DiscoveryPlan;
 import crawling.discovery.planning.ResourcePlan;
 
 public class InventoryDiscoveryPlan extends DiscoveryPlan {
 	
-	protected PlanReference inventoryDestination;
+	protected PlanId inventoryDestination;
 	
 	protected void setInventoryDestination(ResourcePlan resourcePlan){
-		this.inventoryDestination = resourcePlan.getPlanReference();
+		this.inventoryDestination = resourcePlan.getPlanId();
 	}
 
 }

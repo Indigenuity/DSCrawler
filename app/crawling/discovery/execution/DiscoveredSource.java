@@ -7,9 +7,10 @@ public class DiscoveredSource {
 	
 	protected final Resource parent;
 	protected final Object source;
-	protected final PlanReference destinationPlan;
+	protected final PlanId destinationPlan;
 	
-	public DiscoveredSource(Resource parent, Object source, PlanReference destinationPlan) {
+	
+	public DiscoveredSource(Resource parent, Object source, PlanId destinationPlan) {
 		this.parent = parent;
 		this.source = source;
 		this.destinationPlan = destinationPlan;
@@ -20,7 +21,7 @@ public class DiscoveredSource {
 	public Object getSource() {
 		return source;
 	}
-	public PlanReference getDestinationPlan() {
+	public PlanId getDestinationPlan() {
 		return destinationPlan;
 	}
 }

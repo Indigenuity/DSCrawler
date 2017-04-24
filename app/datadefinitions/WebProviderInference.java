@@ -17,47 +17,47 @@ public class WebProviderInference {
 	
 	public static WebProvider inferFromManualRules(SiteCrawl siteCrawl) {
 		
-		Set<WebProvider> wps = siteCrawl.getWebProviders();
-		Set<GeneralMatch> gen = siteCrawl.getGeneralMatches();
-		
-		WebProvider result = null;
-		if(wps.contains(WebProvider.DEALER_DIRECT) && wps.contains(WebProvider.FORD_DIRECT) && wps.size() == 2){
-			return WebProvider.DEALER_DIRECT;
-		}
-		if(wps.contains(WebProvider.FORD_DIRECT) && wps.contains(WebProvider.DEALER_COM)){
-			if(wps.size() == 2 )
-				return WebProvider.DEALER_COM;
-			if(gen.contains(GeneralMatch.DEALER_COM_VERSION_8) || gen.contains(GeneralMatch.DEALER_COM_VERSION_9))
-				return WebProvider.DEALER_COM;	
-		}
-		if(wps.contains(WebProvider.FORD_DIRECT) && wps.contains(WebProvider.CLICK_MOTIVE) && wps.size() == 2){
-			return WebProvider.CLICK_MOTIVE;
-		}
-		if(gen.contains(GeneralMatch.DEALER_COM_VERSION_8) && gen.contains(GeneralMatch.DEALER_COM_VERSION_9)){
-			return WebProvider.DEALER_COM;
-		}
-		if(wps.contains(WebProvider.NAKED_LIME) && wps.contains(WebProvider.NAKED_LIME_SECONDARY) 
-				&& wps.contains(WebProvider.WEB_MAKER_X)){
-			return WebProvider.NAKED_LIME;
-		}
-		if(wps.contains(WebProvider.AUTO_REVO) && wps.contains(WebProvider.AUTO_REVO_SECONDARY) && wps.size() == 2) {
-			return WebProvider.AUTO_REVO;
-		}
-		if(wps.contains(WebProvider.VIN_SOLUTIONS) && wps.contains(WebProvider.DEALER_COM) && wps.size() ==2) {
-			return WebProvider.VIN_SOLUTIONS;
-		}
-		if(wps.contains(WebProvider.ELEAD_CONF) || wps.contains(WebProvider.ELEAD_CONF2)){
-			return WebProvider.ELEAD_DIGITAL_CRM;
-		}
-		if(wps.contains(WebProvider.DEALER_LAB) && wps.contains(WebProvider.DEALER_EPROCESS) && wps.size() == 2){
-			return WebProvider.DEALER_LAB;
-		}
-		if(wps.contains(WebProvider.DEALER_EPROCESS_PRIMARY) && wps.contains(WebProvider.DEALER_EPROCESS) && wps.size() == 2){
-			return WebProvider.DEALER_EPROCESS;
-		}
-		if(wps.contains(WebProvider.AUTOCON_X) && wps.contains(WebProvider.SECURITY_LABS) && wps.size() == 2){
-			return WebProvider.AUTOCON_X;
-		}
+//		Set<WebProvider> wps = siteCrawl.getWebProviders();
+//		Set<GeneralMatch> gen = siteCrawl.getGeneralMatches();
+//		
+//		WebProvider result = null;
+//		if(wps.contains(WebProvider.DEALER_DIRECT) && wps.contains(WebProvider.FORD_DIRECT) && wps.size() == 2){
+//			return WebProvider.DEALER_DIRECT;
+//		}
+//		if(wps.contains(WebProvider.FORD_DIRECT) && wps.contains(WebProvider.DEALER_COM)){
+//			if(wps.size() == 2 )
+//				return WebProvider.DEALER_COM;
+//			if(gen.contains(GeneralMatch.DEALER_COM_VERSION_8) || gen.contains(GeneralMatch.DEALER_COM_VERSION_9))
+//				return WebProvider.DEALER_COM;	
+//		}
+//		if(wps.contains(WebProvider.FORD_DIRECT) && wps.contains(WebProvider.CLICK_MOTIVE) && wps.size() == 2){
+//			return WebProvider.CLICK_MOTIVE;
+//		}
+//		if(gen.contains(GeneralMatch.DEALER_COM_VERSION_8) && gen.contains(GeneralMatch.DEALER_COM_VERSION_9)){
+//			return WebProvider.DEALER_COM;
+//		}
+//		if(wps.contains(WebProvider.NAKED_LIME) && wps.contains(WebProvider.NAKED_LIME_SECONDARY) 
+//				&& wps.contains(WebProvider.WEB_MAKER_X)){
+//			return WebProvider.NAKED_LIME;
+//		}
+//		if(wps.contains(WebProvider.AUTO_REVO) && wps.contains(WebProvider.AUTO_REVO_SECONDARY) && wps.size() == 2) {
+//			return WebProvider.AUTO_REVO;
+//		}
+//		if(wps.contains(WebProvider.VIN_SOLUTIONS) && wps.contains(WebProvider.DEALER_COM) && wps.size() ==2) {
+//			return WebProvider.VIN_SOLUTIONS;
+//		}
+//		if(wps.contains(WebProvider.ELEAD_CONF) || wps.contains(WebProvider.ELEAD_CONF2)){
+//			return WebProvider.ELEAD_DIGITAL_CRM;
+//		}
+//		if(wps.contains(WebProvider.DEALER_LAB) && wps.contains(WebProvider.DEALER_EPROCESS) && wps.size() == 2){
+//			return WebProvider.DEALER_LAB;
+//		}
+//		if(wps.contains(WebProvider.DEALER_EPROCESS_PRIMARY) && wps.contains(WebProvider.DEALER_EPROCESS) && wps.size() == 2){
+//			return WebProvider.DEALER_EPROCESS;
+//		}
+//		if(wps.contains(WebProvider.AUTOCON_X) && wps.contains(WebProvider.SECURITY_LABS) && wps.size() == 2){
+//			return WebProvider.AUTOCON_X;
+//		}
 		return WebProvider.NONE;
 	}
 	

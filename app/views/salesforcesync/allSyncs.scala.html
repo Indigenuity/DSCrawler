@@ -8,8 +8,12 @@
 			<h4>Import Salesforce Accounts From File</h4> 
 			<form id="run-sync-form" method="POST" action="/runSalesforceSync">
 				@snippets.localFilePicker(Global.getWebsiteListInputFolder(), "inputFilename")
+				<br>
 				<label for="generateReports">Generate Reports</label>
 				<input type="checkbox" name="generateReports" checked="checked">
+				<br>
+				<label for="refreshRedirects">Refresh Redirects</label>
+				<input type="checkbox" name="refreshRedirects" checked="checked">
 				<br>
 				<button type="submit" value="Submit">Submit</button>
 			</form>
@@ -20,6 +24,7 @@
 			<h3>Crawling</h3>
 			<a id="crawl-us-franchise-button" class="large-button in-page-link" href="/salesforce/crawlUsFranchise">Crawl US Franchise</a>
 		</div>
+		<a id="refresh-redirect-paths-button" class="large-button in-page-link" href="/refreshRedirectPaths">Refresh Redirect Paths</a>
 		<a id="assign-siteless-button" class="large-button in-page-link" href="/assignSiteless">Assign Siteless</a>
 		<a id="salesforce-reset-sites-button" class="large-button in-page-link" href="/salesforce/resetSites">Reset Sites</a>
 		<a id="salesforce-forward-sites-button" class="large-button in-page-link" href="/salesforce/forwardSites">Forward Sites</a>

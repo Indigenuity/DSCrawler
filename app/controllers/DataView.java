@@ -63,12 +63,6 @@ public class DataView extends Controller {
 	}
 	
 	@Transactional
-	public static Result viewSiteCrawl(long siteCrawlId) {
-		SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, siteCrawlId); 
-		return ok(views.html.persistence.siteCrawlFull.render(siteCrawl));
-	}
-	
-	@Transactional
 	public static Result reviewDupDomains(int numToProcess, int offset) {
 		List<String> dups = SitesDAO.getDuplicateDomains(numToProcess, offset);
 		return ok(views.html.reviewDupDomains.render(dups));

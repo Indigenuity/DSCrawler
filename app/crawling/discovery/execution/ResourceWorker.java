@@ -26,12 +26,14 @@ public class ResourceWorker extends UntypedActor {
 	ResourceWorkResult workResult;
 	/***************** End Stateful Fields ****************/
 	
-	public ResourceWorker(ResourceFetchTool fetchTool){
+	public ResourceWorker(ResourceFetchTool fetchTool, ResourceContext context){
 		this.fetchTool = fetchTool;
+		this.context = context;
 	}
 	
 	@Override
 	public void onReceive(Object message) throws Exception {
+//		System.out.println("Resource worker received work");
 		clearState();
 		establishState((ResourceWorkOrder)message);
 		try{
@@ -48,14 +50,13 @@ public class ResourceWorker extends UntypedActor {
 	
 	protected void preFetch() throws Exception{
 		fetchTool.preFetch(workOrder, context);
-		if(!context.acquireCrawlPermit()){
+		if(!context.approveWork(workOrder) || !context.acquireWorkPermit()){
 			throw new NoCrawlPermitException();
 		}
 	}
 	
 	protected void fetch() throws Exception{
-		resources.addAll(fetchTool.fetchResource(workOrder, context));
-		resources.stream().forEach((resource) -> {resource.setParent(workOrder.getParent());});
+		resources.addAll(fetchTool.generateResources(workOrder, context));
 		workResult.addResources(resources);
 	}
 	
@@ -76,11 +77,12 @@ public class ResourceWorker extends UntypedActor {
 	}
 	
 	protected void makeDiscoveries() throws Exception{
-		for(PlanReference reference : context.getDiscoveryPlans()){
-			DiscoveryContext discoveryContext = context.getDiscoveryContext(reference);
-			for(Resource resource : resources){
-				workResult.addDiscoveredSources(discoveryContext.getDiscoveryTool().discover(resource, discoveryContext));
-			}
+		for(PlanId planId : context.getDiscoveryPlans()){
+			DiscoveryContext discoveryContext = context.getDiscoveryContext(planId);
+			workResult.addDiscoveredSources(discoveryContext.getDiscoveryTool().discover(workResult, discoveryContext));
+//			for(Resource resource : resources){
+				
+//			}
 		}
 	}
 	
@@ -105,13 +107,11 @@ public class ResourceWorker extends UntypedActor {
 		this.discoveredSources.clear();
 		this.workOrder = null;
 		this.workResult = null;
-		this.context = null;
 	}
 	
 	protected void establishState(ResourceWorkOrder workOrder){
 		this.workOrder = workOrder;
 		this.workResult = new ResourceWorkResult(workOrder);
-		this.context = workOrder.getResourceContext();
 	}
 
 }

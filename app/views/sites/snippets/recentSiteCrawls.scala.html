@@ -1,0 +1,12 @@
+@(siteCrawls : java.util.List[_root_.persistence.SiteCrawl])
+<h3> Recent SiteCrawls</h3>
+<ul>
+@for(siteCrawl <- siteCrawls){
+	<li>
+		<a href="/sites/siteCrawl/@siteCrawl.getSiteCrawlId()">SiteCrawl @siteCrawl.getSiteCrawlId()</a> --
+		<a href="@siteCrawl.getSeed()" target="_blank">@siteCrawl.getSeed()</a> 
+	</li>
+
+}
+
+</ul>

@@ -1,0 +1,30 @@
+@(analysis : _root_.analysis.SiteCrawlAnalysis)
+
+@main("SiteCrawlAnalysis"){
+
+	<h3>SiteCrawlAnalysis @analysis.getSiteCrawlAnalysisId()</h3>
+	<h4><a href="/sites/siteCrawl/@analysis.getSiteCrawl().getSiteCrawlId()">SiteCrawl @analysis.getSiteCrawl().getSiteCrawlId()</a> --
+		<a href="@analysis.getSiteCrawl().getSeed()" target="_blank">@analysis.getSiteCrawl().getSeed()</a> 
+	</h4>
+	<div class="large-panel">
+		<h4>PageCrawls</h4>
+		<table class="properties-table">
+			@for(pageAnalysis <- analysis.getPageAnalyses()){
+				<tr>
+					<td>
+						<a href="/sites/analysis/pageCrawlAnalysis/@pageAnalysis.getPageCrawlAnalysisId()">@pageAnalysis.getPageCrawlAnalysisId() (@pageAnalysis.getVehicles.size() vehicles)</a> --
+						<a href="@pageAnalysis.getPageCrawl().getUrl()" target="_blank">@pageAnalysis.getPageCrawl().getUrl()</a>
+				</tr>
+			}
+			
+		</table>
+	</div>
+	<div class="large-panel">
+		<h4>@analysis.getVehicles.size() Vehicles</h4>
+		<ul>
+			@for(vehicle <- analysis.getVehicles){
+				<li>@vehicle.getVin()--@vehicle.getMsrp()--@vehicle.getOfferedPrice()--@vehicle.getMileage--<a href="@vehicle.getUrl()" target="_blank">@vehicle.getUrl()</a></li>
+			}
+		</ul>
+	</div>
+}

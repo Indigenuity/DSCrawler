@@ -4,19 +4,19 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import crawling.discovery.execution.PlanReference;
+import crawling.discovery.execution.PlanId;
 
 public class CrawlStructure {
 
-	protected Map<PlanReference, ResourceConfig> configs = new HashMap<PlanReference, ResourceConfig>();
+	protected Map<PlanId, ResourceConfig> configs = new HashMap<PlanId, ResourceConfig>();
 	
 	public CrawlStructure(){
 		
 	}
 	
-	public PlanReference registerConfig(ResourceConfig config){
-		PlanReference reference = new PlanReference();
-		configs.put(reference, config);
-		return reference;
+	public PlanId registerConfig(ResourceConfig config){
+		PlanId planId = new PlanId();
+		configs.put(planId, config);
+		return planId;
 	}
 }

@@ -4,6 +4,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.config.RequestConfig.Builder;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 
@@ -13,6 +14,7 @@ public class HttpConfig {
 	public final static int DEFAULT_CONNECT_TIMEOUT = 15 * 1000;
 	public final static int DEFAULT_READ_TIMEOUT = 15 * 1000;
 	public final static String DEFAULT_USER_AGENT_STRING = "Anansi Crawler";
+	public final static boolean DEFAULT_FOLLOW_REDIRECTS = false;
 
 	private String proxyAddress;
 	private int proxyPort;
@@ -22,7 +24,7 @@ public class HttpConfig {
 	private int readTimeout = DEFAULT_READ_TIMEOUT;
 	private String userAgent = DEFAULT_USER_AGENT_STRING;
 	private int requestsPerSecond = DEFAULT_REQUESTS_PER_SECOND;
-	private boolean followRedirects = true;
+	private boolean followRedirects = DEFAULT_FOLLOW_REDIRECTS;
 	
 	
 	protected RequestConfig requestConfig;
@@ -41,12 +43,19 @@ public class HttpConfig {
 	
 	public CloseableHttpClient buildHttpClient(){
 		PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
-		CloseableHttpClient httpClient = HttpClients.custom()
+		
+		HttpClientBuilder builder = HttpClients.custom()
 				.setUserAgent(userAgent)
 				.setDefaultRequestConfig(requestConfig)
-				.setConnectionManager(cm)
-				.build();
-		return httpClient;
+				.setConnectionManager(cm);
+		
+		if(!followRedirects){
+			builder.disableRedirectHandling();
+		}
+		if(isUseProxy()){
+			builder.setProxy(new HttpHost(getProxyAddress(), getProxyPort()));
+		}
+		return builder.build();
 	}
 	
 	public String getProxyAddress() {

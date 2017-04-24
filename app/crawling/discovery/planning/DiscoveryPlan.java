@@ -1,14 +1,19 @@
 package crawling.discovery.planning;
 
 
+import java.util.HashSet;
+import java.util.Set;
+
 import crawling.discovery.execution.CrawlContext;
 import crawling.discovery.execution.DiscoveryContext;
-import crawling.discovery.execution.PlanReference;
+import crawling.discovery.execution.PlanId;
 
 public class DiscoveryPlan extends Plan {
 
-	protected PlanReference defaultDestination;
+	protected PlanId defaultDestination;
 	protected DiscoveryTool discoveryTool;
+	
+	protected Set<Object> startingSources = new HashSet<Object>();
 	
 	public DiscoveryPlan(){
 	}
@@ -25,16 +30,27 @@ public class DiscoveryPlan extends Plan {
 		return new DiscoveryContext(crawlContext, this);
 	}
 
-	public PlanReference getDefaultDestination() {
+	public PlanId getDefaultDestination() {
 		return defaultDestination;
 	}
 
-	public void setDefaultDestination(PlanReference defaultDestination) {
+	public void setDefaultDestination(PlanId defaultDestination) {
 		this.defaultDestination = defaultDestination;
 	}
 	
 	public void setDefaultDestination(ResourcePlan defaultDestinationPlan) {
-		this.defaultDestination = defaultDestinationPlan.getPlanReference();
+		this.defaultDestination = defaultDestinationPlan.getPlanId();
 	}
-	
+	public Object putContextObject(String key, Object value){
+		synchronized(initialContextObjects){
+			return initialContextObjects.put(key, value);
+		}
+	}
+
+	public Set<Object> getStartingSources() {
+		return startingSources;
+	}
+	public boolean addStartingSource(Object source){
+		return startingSources.add(source);
+	}
 }

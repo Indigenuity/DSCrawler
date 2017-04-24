@@ -1,5 +1,9 @@
 package persistence;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -77,8 +81,10 @@ public class SiteCrawl {
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	private String resolvedSeed;
 	
-	private Date crawlDate;
+	private Date crawlDate = new Date();
 	private int crawlDepth = 0;
+	private Integer maxDepth = 1;
+	private Integer maxPages = 5000;
 	private boolean followNonUnique = true;
 	private boolean homepageCrawl = false;
 	
@@ -98,8 +104,16 @@ public class SiteCrawl {
 	@ElementCollection(fetch=FetchType.LAZY)
 	private Set<String> failedUrls = new HashSet<String>();
 	
+	@ElementCollection(fetch=FetchType.LAZY)
+	private Set<String> unCrawledInventoryUrls = new HashSet<String>();		
+	@Column(columnDefinition="varchar(4000)")
+	@ElementCollection(fetch=FetchType.LAZY)
+	private Set<String> failedInventoryUrls = new HashSet<String>();
+	
 	@Column(nullable = true, columnDefinition="varchar(1000)")
 	private String storageFolder;
+	
+	private String localFolderName;	//Guaranteed to be set in the constructor
 	
 	private boolean maxPagesReached = false;
 	private int numRepeatedUrls = 0;
@@ -109,38 +123,31 @@ public class SiteCrawl {
 	
 	/****************************************  Stateful metadata ***********************/
 	
-	private boolean reviewLater = false;
-	protected boolean crawlingDone = false;
-	protected boolean docAnalysisDone = false;
-	protected boolean amalgamationDone = false;
-	protected boolean textAnalysisDone = false;
-	protected boolean metaAnalysisDone = false;
-	protected boolean inferencesDone = false;
-	protected boolean filesMoved = false;
-	protected boolean filesDeleted = false;
-	protected boolean maybeDuplicate = false;
-	
 	protected FileStatus fileStatus = FileStatus.PRIMARY;
 	
 	
 	/********************************************* Relationships *********************************/
-	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval= true)
+	@OneToMany(fetch=FetchType.LAZY, cascade={CascadeType.DETACH, CascadeType.REMOVE}, orphanRemoval= true)
 	@JoinTable(name="sitecrawl_pagecrawl",
 		joinColumns={@JoinColumn(name="SiteCrawl_siteCrawlId")},
 		inverseJoinColumns={@JoinColumn(name="pageCrawls_pageCrawlId")})
 	@LazyCollection(LazyCollectionOption.EXTRA)
 	private Set<PageCrawl> pageCrawls = new HashSet<PageCrawl>();
 	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinTable(name="sitecrawl_newInventorypage")
 	private PageCrawl newInventoryPage;
 	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinTable(name="sitecrawl_usedInventorypage")
 	private PageCrawl usedInventoryPage;
 	
-//	@ManyToOne(fetch=FetchType.LAZY)
-//	@JoinColumn(name="siteCrawlStatsId")
-//	private SiteCrawlStats siteCrawlStats;
+	@ManyToOne(fetch=FetchType.LAZY)
+//	@JoinTable(name="sitecrawl_newInventoryroot")
+	private PageCrawl newInventoryRoot;
+	@ManyToOne(fetch=FetchType.LAZY)
+//	@JoinTable(name="sitecrawl_usedInventoryroot")
+	private PageCrawl usedInventoryRoot;
 	
-	@ManyToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
-	protected Set<FBPage> fbPages = new HashSet<FBPage>();
+	private Boolean inventoryCrawlSuccess = true;
 	
 //	@OneToOne(mappedBy="siteCrawl")
 //	private SiteCrawlAnalysis siteCrawlAnalysis;
@@ -156,75 +163,6 @@ public class SiteCrawl {
 	@ElementCollection(fetch=FetchType.LAZY)
 	private Set<String> intrasiteLinks = new HashSet<String>();
 	
-	@ElementCollection(fetch=FetchType.LAZY)
-	@MapKeyEnumerated(EnumType.STRING)
-	private Map<OEM, Double> metaBrandMatchAverages = new HashMap<OEM, Double>();
-	
-	@ElementCollection(fetch=FetchType.LAZY)
-	@MapKeyEnumerated(EnumType.STRING)
-	private Map<OEM, Double> brandMatchAverages = new HashMap<OEM, Double>();
-	
-	@Enumerated(EnumType.STRING)
-	@ElementCollection(fetch=FetchType.LAZY)
-	protected Set<WPClue> wpClues = new HashSet<WPClue>();
-	
-	@Enumerated(EnumType.STRING)
-	@ElementCollection(fetch=FetchType.LAZY)
-	protected Set<Scheduler> schedulers = new HashSet<Scheduler>();
-	
-	@Enumerated(EnumType.STRING)
-	@ElementCollection(fetch=FetchType.LAZY)
-	protected Set<GeneralMatch> generalMatches = new HashSet<GeneralMatch>();
-	
-	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, orphanRemoval=true)
-	protected Set<ExtractedString> extractedStrings = new HashSet<ExtractedString>();
-	
-	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, orphanRemoval=true)
-	protected Set<ExtractedUrl> extractedUrls = new HashSet<ExtractedUrl>();
-	
-	@Enumerated(EnumType.STRING)
-	@ElementCollection(fetch=FetchType.LAZY)
-	protected Set<WebProvider> webProviders = new HashSet<WebProvider>();
-	
-	@Enumerated(EnumType.STRING) 
-	@ElementCollection(fetch=FetchType.LAZY)
-	protected Set<WPAttribution> wpAttributions = new HashSet<WPAttribution>();
-	
-	@OneToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval=true)
-	protected Set<Staff> allStaff = new HashSet<Staff>();
-	
-	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, orphanRemoval=true)
-	private Set<InventoryNumber> inventoryNumbers = new HashSet<InventoryNumber>();
-	
-//	@Column(columnDefinition="varchar(1000)")
-//	@ElementCollection(fetch=FetchType.LAZY)
-//	private Set<String> h1s = new HashSet<String>();
-//	
-//	@Column(columnDefinition="varchar(4000)")
-//	@ElementCollection(fetch=FetchType.LAZY)
-//	private Set<String> titles = new HashSet<String>();
-	
-	
-	/******************************************  Calculated Attributes Singles ***********************************/
-	@Enumerated(EnumType.STRING)
-	private InventoryType inventoryType;
-	
-	@Enumerated(EnumType.STRING)
-	protected datadefinitions.newdefinitions.WebProvider webProvider;
-	
-	@ManyToOne(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
-	private InventoryNumber maxInventoryCount;
-	
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = true)
-	protected WebProvider inferredWebProvider;
-	
-	
-	
-	
-	
-	
-	
 	
 	
 	@SuppressWarnings("unused")
@@ -232,24 +170,42 @@ public class SiteCrawl {
 	
 	
 	public SiteCrawl(String seed) {
+		try {
+			URI uri = new URI(seed);
+			setLocalFolderName(URLEncoder.encode(uri.getHost(), "UTF-8"));
+		} catch (URISyntaxException e) {
+			throw new IllegalArgumentException("Cannot run SiteCrawl on invalid seed : " + seed);
+		} catch (UnsupportedEncodingException e) {
+			throw new IllegalStateException(e);
+		}
 		this.setSeed(seed);
+		
 	}
 	
 	public SiteCrawl(Site site) {
-		this.setSeed(site.getHomepage());
+		this(site.getHomepage());
 		this.setSite(site);
 	}
 	
-	public void lazyInit() {
-		allStaff.size();
-		extractedUrls.size();
-		extractedStrings.size();
-		generalMatches.size();
-		schedulers.size();
-		webProviders.size();
-		inventoryNumbers.size();
+	public PageCrawl getFirstRoot(){
+		for(PageCrawl pageCrawl : getPageCrawls()){
+			if(pageCrawl.getParentPage() == null){
+				return pageCrawl;
+			}
+		}
+		throw new IllegalStateException("SiteCrawl has no root PageCrawls : " + getSiteCrawlId());
 	}
-
+	
+	public Set<PageCrawl> getRoots(){
+		Set<PageCrawl> roots = new HashSet<PageCrawl>();
+		for(PageCrawl pageCrawl : getPageCrawls()){
+			if(pageCrawl.getParentPage() == null){
+				roots.add(pageCrawl);
+			}
+		}
+		return roots;
+	}
+	
 	public Site getSite() {
 		return site;
 	}
@@ -322,119 +278,6 @@ public class SiteCrawl {
 		this.numLargeFiles = numLargeFiles;
 	}
 
-	public Set<WebProvider> getWebProviders() {
-		return webProviders;
-	}
-
-	public void setWebProviders(Set<WebProvider> webProviders) {
-		this.webProviders.clear();
-		this.webProviders.addAll(webProviders);
-	}
-
-	public Set<Scheduler> getSchedulers() {
-		return schedulers;
-	}
-
-	public void setSchedulers(Set<Scheduler> schedulers) {
-		this.schedulers.clear();
-		this.schedulers.addAll(schedulers);
-	}
-
-	public Set<GeneralMatch> getGeneralMatches() {
-		return generalMatches;
-	}
-
-	public void setGeneralMatches(Set<GeneralMatch> generalMatches) {
-		this.generalMatches.clear();
-		this.generalMatches.addAll(generalMatches);
-	}
-
-	public Set<ExtractedString> getExtractedStrings() {
-		return extractedStrings;
-	}
-
-	public void setExtractedStrings(Set<ExtractedString> extractedStrings) {
-		this.extractedUrls.clear();
-		this.extractedUrls.addAll(extractedUrls);
-	}
-	
-	public void addExtractedStrings(Set<ExtractedString> extractedStrings) {
-		this.extractedStrings.addAll(extractedStrings);
-	}
-
-	public Set<ExtractedUrl> getExtractedUrls() {
-		return extractedUrls;
-	}
-
-	public void setExtractedUrls(Set<ExtractedUrl> extractedUrls) {
-		this.extractedUrls.clear();
-		this.extractedUrls.addAll(extractedUrls);
-	}
-	public void addExtractedUrls(Set<ExtractedUrl> extractedUrls) {
-		this.extractedUrls.addAll(extractedUrls);
-	}
-
-	public Set<Staff> getAllStaff() {
-		return allStaff;
-	}
-
-	public void setAllStaff(Set<Staff> allStaff) {
-		this.allStaff.clear();
-		this.allStaff.addAll(allStaff);
-	}
-	
-	public void addStaff(Set<Staff> someStaff) {
-		this.allStaff.addAll(someStaff);
-	}
-
-	public boolean isCrawlingDone() {
-		return crawlingDone;
-	}
-
-	public void setCrawlingDone(boolean crawlingDone) {
-		this.crawlingDone = crawlingDone;
-	}
-
-	public boolean isDocAnalysisDone() {
-		return docAnalysisDone;
-	}
-
-	public void setDocAnalysisDone(boolean docAnalysisDone) {
-		this.docAnalysisDone = docAnalysisDone;
-	}
-
-	public boolean isAmalgamationDone() {
-		return amalgamationDone;
-	}
-
-	public void setAmalgamationDone(boolean amalgamationDone) {
-		this.amalgamationDone = amalgamationDone;
-	}
-
-	public boolean isTextAnalysisDone() {
-		return textAnalysisDone;
-	}
-
-	public void setTextAnalysisDone(boolean textAnalysisDone) {
-		this.textAnalysisDone = textAnalysisDone;
-	}
-
-	public boolean isInferencesDone() {
-		return inferencesDone;
-	}
-
-	public void setInferencesDone(boolean inferencesDone) {
-		this.inferencesDone = inferencesDone;
-	}
-
-	public boolean isFilesDeleted() {
-		return filesDeleted;
-	}
-
-	public void setFilesDeleted(boolean filesDeleted) {
-		this.filesDeleted = filesDeleted;
-	}
-
 	public int getNumRepeatedUrls() {
 		return numRepeatedUrls;
 	}
@@ -451,43 +294,6 @@ public class SiteCrawl {
 		this.siteCrawlId = siteCrawlId;
 	}
 
-	public boolean isFilesMoved() {
-		return filesMoved;
-	}
-
-	public void setFilesMoved(boolean filesMoved) {
-		this.filesMoved = filesMoved;
-	}
-
-	public WebProvider getInferredWebProvider() {
-		return inferredWebProvider;
-	}
-
-	public void setInferredWebProvider(WebProvider inferredWebProvider) {
-		this.inferredWebProvider = inferredWebProvider;
-	}
-
-	public boolean isMaybeDuplicate() {
-		return maybeDuplicate;
-	}
-
-	public void setMaybeDuplicate(boolean maybeDuplicate) {
-		this.maybeDuplicate = maybeDuplicate;
-	}
-
-	public Set<FBPage> getFbPages() {
-		return fbPages;
-	}
-
-	public void setFbPages(Set<FBPage> fbPages) {
-		this.fbPages.clear();
-		this.fbPages.addAll(fbPages);
-	}
-	
-	public void addFbPage(FBPage fbPage) {
-		this.fbPages.add(fbPage);
-	}
-
 	public boolean isHomepageCrawl() {
 		return homepageCrawl;
 	}
@@ -502,14 +308,6 @@ public class SiteCrawl {
 
 	public void setSmallCrawlApproved(boolean smallCrawlApproved) {
 		this.smallCrawlApproved = smallCrawlApproved;
-	}
-
-	public boolean isReviewLater() {
-		return reviewLater;
-	}
-
-	public void setReviewLater(boolean reviewLater) {
-		this.reviewLater = reviewLater;
 	}
 
 	public boolean isFollowNonUnique() {
@@ -587,6 +385,21 @@ public class SiteCrawl {
 		}
 	}
 	
+	
+	public boolean addUncrawledInventoryUrl(String uncrawledInventoryUrl) {
+		return this.unCrawledInventoryUrls.add(DSFormatter.truncate(uncrawledInventoryUrl, 4000));
+	}
+	public Set<String> getUnCrawledInventoryUrls() {
+		return unCrawledInventoryUrls;
+	}
+
+	public void setUnCrawledInventoryUrls(Set<String> unCrawledInventoryUrls) {
+		this.unCrawledInventoryUrls.clear();
+		for(String url : unCrawledInventoryUrls){
+			this.unCrawledInventoryUrls.add(DSFormatter.truncate(url, 4000));
+		}
+	}
+	
 	public Set<String> getCrawledPaths() {
 		return crawledPaths;
 	}
@@ -610,6 +423,20 @@ public class SiteCrawl {
 		return this.unCrawledUrls.add(DSFormatter.truncate(uncrawledUrl, 4000));
 	}
 
+	public void setFailedInventoryUrls(Set<String> failedInventoryUrls) {
+		this.failedInventoryUrls.clear();
+		for(String url : failedInventoryUrls){
+			this.failedInventoryUrls.add(DSFormatter.truncate(url, 4000));
+		}
+	}
+	public boolean addFailedInventoryUrl(String failedInventoryUrl) {
+		return this.failedInventoryUrls.add(DSFormatter.truncate(failedInventoryUrl, 4000));
+	}
+	
+	public Set<String> getFailedInventoryUrls() {
+		return failedInventoryUrls;
+	}
+	
 	public Set<String> getFailedUrls() {
 		return failedUrls;
 	}
@@ -644,52 +471,8 @@ public class SiteCrawl {
 	
 	public void addPageCrawl(PageCrawl pageCrawl) {
 		this.pageCrawls.add(pageCrawl);
-	}
-	
-	public boolean isMetaAnalysisDone() {
-		return metaAnalysisDone;
-	}
-
-	public void setMetaAnalysisDone(boolean metaAnalysisDone) {
-		this.metaAnalysisDone = metaAnalysisDone;
-	}
-	
-	public Set<InventoryNumber> getInventoryNumbers() {
-		return inventoryNumbers;
-	}
-
-	public void setInventoryNumbers(Set<InventoryNumber> inventoryNumbers) {
-		this.inventoryNumbers.clear();
-		this.inventoryNumbers.addAll(inventoryNumbers);
-	}
-	public void addInventoryNumbers(Set<InventoryNumber> inventoryNumbers) {
-		this.inventoryNumbers.addAll(inventoryNumbers);
-	}
-
-	public Set<WPAttribution> getWpAttributions() {
-		return wpAttributions;
-	}
-
-	public void setWpAttributions(Set<WPAttribution> wpAttributions) {
-		this.wpAttributions.clear();
-		this.wpAttributions.addAll(wpAttributions);
-	}
-	
-	public boolean addWpAttribution(WPAttribution wp){
-		return this.wpAttributions.add(wp);
-	}
-	
-	public Set<WPClue> getWpClues() {
-		return wpClues;
-	}
-
-	public void setWpClues(Set<WPClue> wpClues) {
-		this.wpClues.clear();
-		this.wpClues.addAll(wpClues);
-	}
-	
-	public boolean addWpClue(WPClue wp){
-		return this.wpClues.add(wp);
+//		System.out.println("removed : " + this.unCrawledUrls.remove(pageCrawl.getUrl()));
+//		System.out.println("removed : " + pageCrawl.getUrl());
 	}
 	
 	public PageCrawl getNewInventoryPage() {
@@ -713,50 +496,6 @@ public class SiteCrawl {
 	}
 	
 
-	public InventoryType getInventoryType() {
-		return inventoryType;
-	}
-
-	public void setInventoryType(InventoryType inventoryType) {
-		this.inventoryType = inventoryType;
-	}
-	
-	public Map<OEM, Double> getBrandMatchAverages() {
-		return brandMatchAverages;
-	}
-
-	public void setBrandMatchAverages(Map<OEM, Double> brandMatchAverages) {
-		this.brandMatchAverages.clear();
-		this.brandMatchAverages.putAll(brandMatchAverages);
-	}
-	
-	public Map<OEM, Double> getMetaBrandMatchAverages() {
-		return metaBrandMatchAverages;
-	}
-
-	public void setMetaBrandMatchAverages(Map<OEM, Double> metaBrandMatchAverages) {
-		this.metaBrandMatchAverages.clear();
-		this.metaBrandMatchAverages.putAll(brandMatchAverages);
-	}
-	
-	public InventoryNumber getMaxInventoryCount() {
-		return maxInventoryCount;
-	}
-
-	public void setMaxInventoryCount(InventoryNumber maxInventoryCount) {
-		this.maxInventoryCount = maxInventoryCount;
-	}
-
-	public datadefinitions.newdefinitions.WebProvider getWebProvider() {
-		return webProvider;
-	}
-
-	public void setWebProvider(datadefinitions.newdefinitions.WebProvider webProvider) {
-		this.webProvider = webProvider;
-	}
-	
-	
-
 	public FileStatus getFileStatus() {
 		return fileStatus;
 	}
@@ -777,20 +516,71 @@ public class SiteCrawl {
 		uniqueCrawledPageUrls.size();
 		crawledUrls.size();
 		failedUrls.size();
-		webProviders.size();
-		schedulers.size();
-		generalMatches.size();
-		extractedStrings.size();
-		extractedUrls.size();
-		allStaff.size();
-		fbPages.size();
-		inventoryNumbers.size();
-		brandMatchAverages.size();
 	}
 	
 	public void initAll() {
 		initPageData();
 		initSiteCrawlData();
+	}
+
+
+	public PageCrawl getNewInventoryRoot() {
+		return newInventoryRoot;
+	}
+
+
+	public void setNewInventoryRoot(PageCrawl newInventoryRoot) {
+		this.newInventoryRoot = newInventoryRoot;
+	}
+
+
+	public PageCrawl getUsedInventoryRoot() {
+		return usedInventoryRoot;
+	}
+
+
+	public void setUsedInventoryRoot(PageCrawl usedInventoryRoot) {
+		this.usedInventoryRoot = usedInventoryRoot;
+	}
+
+
+	public Integer getMaxDepth() {
+		return maxDepth;
+	}
+
+
+	public void setMaxDepth(Integer maxDepth) {
+		this.maxDepth = maxDepth;
+	}
+
+
+	public Integer getMaxPages() {
+		return maxPages;
+	}
+
+
+	public void setMaxPages(Integer maxPages) {
+		this.maxPages = maxPages;
+	}
+
+
+	public Boolean getInventoryCrawlSuccess() {
+		return inventoryCrawlSuccess;
+	}
+
+
+	public void setInventoryCrawlSuccess(Boolean inventoryCrawlSuccess) {
+		this.inventoryCrawlSuccess = inventoryCrawlSuccess;
+	}
+
+
+	public String getLocalFolderName() {
+		return localFolderName;
+	}
+
+
+	public void setLocalFolderName(String localFolderName) {
+		this.localFolderName = localFolderName;
 	}
 	
 }

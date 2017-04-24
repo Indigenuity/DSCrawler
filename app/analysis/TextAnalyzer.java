@@ -3,6 +3,7 @@ package analysis;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -27,6 +28,10 @@ import persistence.ExtractedUrl;
 import utilities.DSFormatter;
 
 public class TextAnalyzer {
+	
+	public static Set<String> getVins(String text){
+		return getMatches(text, StringExtraction.VIN.getPattern());
+	}
 	
 	public static boolean containsCity(String text, List<String> customCities){
 		if(text == null){
@@ -87,6 +92,15 @@ public class TextAnalyzer {
 		return getMatches(text, new HashSet<T>(Arrays.asList(searchSet)));
 	}
 	
+	public static Set<String> getMatches(String text, Pattern pattern){
+		Set<String> matches = new HashSet<String>();
+		Matcher matcher = pattern.matcher(text);
+		while(matcher.find()){
+			matches.add(matcher.group(0));
+		}
+		return matches;
+	}
+	
 	public static int countOccurrences(String text, Pattern pattern){
 		Matcher matcher = pattern.matcher(text);
 		int count = 0;
@@ -102,6 +116,23 @@ public class TextAnalyzer {
 			return true;
 		}
 		return false;
+	}
+	
+	public static boolean hasOccurrence(String text, Collection<Pattern> patterns){
+		for(Pattern pattern : patterns){
+			if(hasOccurrence(text, pattern)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public static boolean hasOemOccurrence(String text){
+		List<Pattern> oemPatterns = new ArrayList<Pattern>();
+		for(OEM oem : OEM.values()){
+			oemPatterns.add(oem.getPattern());
+		}
+		return hasOccurrence(text, oemPatterns);
 	}
 
 	public static Set<ExtractedString> extractStrings(File file) throws IOException{

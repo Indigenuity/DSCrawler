@@ -147,24 +147,24 @@ public class Cleaner {
 		int count = 0;
 		for(SiteCrawl siteCrawl : crawls) {
 			List<Staff> remove = new ArrayList<Staff>();
-			for(Staff staff : siteCrawl.getAllStaff()) {
-				if(DSFormatter.isBlank(staff.getCell())
-						&& DSFormatter.isBlank(staff.getEmail())
-						&& DSFormatter.isBlank(staff.getFn())
-						&& DSFormatter.isBlank(staff.getName())
-						&& DSFormatter.isBlank(staff.getOther())
-						&& DSFormatter.isBlank(staff.getPhone())
-						&& DSFormatter.isBlank(staff.getTitle())
-						){
-					remove.add(staff);
-				}
-			}
-			
-			for(Staff staff : remove) {
-//				System.out.println("removing : " + staff);
-				siteCrawl.getAllStaff().remove(staff);
-				count++;
-			}
+//			for(Staff staff : siteCrawl.getAllStaff()) {
+//				if(DSFormatter.isBlank(staff.getCell())
+//						&& DSFormatter.isBlank(staff.getEmail())
+//						&& DSFormatter.isBlank(staff.getFn())
+//						&& DSFormatter.isBlank(staff.getName())
+//						&& DSFormatter.isBlank(staff.getOther())
+//						&& DSFormatter.isBlank(staff.getPhone())
+//						&& DSFormatter.isBlank(staff.getTitle())
+//						){
+//					remove.add(staff);
+//				}
+//			}
+//			
+//			for(Staff staff : remove) {
+////				System.out.println("removing : " + staff);
+//				siteCrawl.getAllStaff().remove(staff);
+//				count++;
+//			}
 		}
 		System.out.println("removed : " + count);
 	}

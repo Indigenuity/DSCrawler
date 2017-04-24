@@ -19,6 +19,8 @@ import newwork.MasterWorkOrder;
 import newwork.WorkOrder;
 import newwork.WorkResult;
 import newwork.WorkStatus;
+import places.CanadaPostal;
+import places.ZipLocation;
 import play.Logger;
 
 public class MonotypeMaster extends UntypedActor {
@@ -48,11 +50,14 @@ public class MonotypeMaster extends UntypedActor {
 	
 	@Override
 	public void onReceive(Object message) throws Exception {
+//		System.out.println("received message");
 		if(message instanceof WorkOrder){
 			processWorkOrder((WorkOrder) message);
 		} else if(message instanceof WorkResult) {
 			processWorkResult((WorkResult) message);
-		}else if(message instanceof Terminated) {
+		}else if (message instanceof ZipLocation || message instanceof CanadaPostal){
+			router.route(message, getSelf());
+		} else if(message instanceof Terminated) {
 			Logger.error("Monotype Master (" + this.clazz + ") received terminated worker");
 			router = router.removeRoutee(((Terminated) message).actor());
 			ActorRef worker = getContext().actorOf(Props.create(this.clazz));
@@ -71,6 +76,7 @@ public class MonotypeMaster extends UntypedActor {
 	}
 	
 	public void assignWork(WorkOrder workOrder, ActorRef customer) {
+//		System.out.println("Assigning work");
 		if(!waitingRoom.add(workOrder.getUuid(), customer)){
 			System.out.println("duplicate work");
 			//TODO figure out what to do when duplicate work order is sent in

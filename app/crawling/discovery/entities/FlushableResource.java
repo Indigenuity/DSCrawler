@@ -1,14 +1,19 @@
 package crawling.discovery.entities;
 
+import crawling.discovery.execution.PlanId;
+
 public abstract class FlushableResource extends Resource{
 	
-	private Object key;
-	private FlushState state;
+	protected Object key;
+	protected FlushState state;
 	
 	
-	public FlushableResource(Object value, ResourceId resourceId) {
-		super(value, resourceId);
-		// TODO Auto-generated constructor stub
+	public FlushableResource(Object source, Object value, Resource parent, ResourceId resourceId, PlanId planId) {
+		super(source, value, parent, resourceId, planId);
+	}
+	
+	public FlushableResource(Object source, Object value, Resource parent){
+		super(source, value, parent);
 	}
 
 	public abstract Object produceValue(Object key);

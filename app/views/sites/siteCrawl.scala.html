@@ -1,0 +1,82 @@
+@import _root_.persistence.ExtractedString
+
+@(siteCrawl : _root_.persistence.SiteCrawl)
+
+@main("SiteCrawl"){
+
+<h3>SiteCrawl @siteCrawl.getSiteCrawlId() -- <a href="@siteCrawl.getSeed()" target="_blank">@siteCrawl.getSeed()</a></h3>
+<div class="sitecrawl-full">
+	<div class="panel-item">
+		<table class="sitecrawl-properties">
+			<tr>
+				<td>Resolved Seed</td>
+				<td>@siteCrawl.getResolvedSeed()</td>
+			</tr>
+			<tr>
+				<td>Crawl Date</td>
+				<td>@siteCrawl.getCrawlDate()</td>
+			</tr>
+			<tr>
+				<td># Page Crawls</td>
+				<td>@siteCrawl.getPageCrawls().size()</td>
+			</tr>
+			<tr>
+				<td>Inventory Crawl Success</td>
+				<td>@siteCrawl.getInventoryCrawlSuccess()</td>
+			</tr>
+			<tr>
+				<td>Max Pages Reached</td>
+				<td>@siteCrawl.isMaxPagesReached()</td>
+			</tr>
+			<tr>
+				<td>Repeated Urls</td>
+				<td>@siteCrawl.getNumRepeatedUrls()</td>
+			</tr>
+			<tr>
+				<td>Retrieved Files</td>
+				<td>@siteCrawl.getNumRetrievedFiles()</td>
+			</tr>
+			<tr>
+				<td>Large Files</td>
+				<td>@siteCrawl.getNumLargeFiles()</td>
+			</tr>
+		</table>
+	</div>
+	<div class="accordion pagecrawls panel-item">
+		<h3>PageCrawls (@siteCrawl.getPageCrawls().size())</h3>
+		<ul class="url-list">
+			@for(pageCrawl <- siteCrawl.getPageCrawls()) {
+				<li>
+					<a href="/sites/pageCrawl/@pageCrawl.getPageCrawlId()">PageCrawl @pageCrawl.getPageCrawlId()</a> -- <a href="@pageCrawl.getUrl()" target="_blank">@pageCrawl.getUrl()</a>
+				</li>
+			}
+		</ul>
+	</div>
+	<div class="accordion failed-urls panel-item">
+		<h3>Failed Urls (@siteCrawl.getFailedUrls().size())</h3>
+		<ul class="url-list">
+			@for(url <- siteCrawl.getFailedUrls()) {
+				<li>@url</li>
+			}
+		</ul>
+	</div>
+	<div class="accordion uncrawled-urls panel-item">
+		<h3>Uncrawled Urls (@siteCrawl.getUnCrawledUrls().size())</h3>
+		<ul class="url-list">
+			@for(url <- siteCrawl.getUnCrawledUrls()) {
+				<li>@url</li>
+			}
+		</ul>
+	</div>
+	<div class="accordion uncrawled-urls panel-item">
+		<h3>Uncrawled Inventory Urls (@siteCrawl.getUnCrawledInventoryUrls().size())</h3>
+		<ul class="url-list">
+			@for(url <- siteCrawl.getUnCrawledInventoryUrls()) {
+				<li>@url</li>
+			}
+		</ul>
+	</div>
+
+</div>
+
+}

@@ -94,6 +94,18 @@ $(document).ready(function() {
 			e.stopPropagation();
 		});
 		
+		$(scope).find(".mini-link-form").submit(function(e) {
+			var link = $(this).attr("data-link");
+			var input = $(this).find(".mini-link-append").val();
+			link += input;
+//			alert(link);
+//			
+//			sleep(5);
+//			e.preventDefault();
+			document.location.href = link;
+			return false;
+		});
+		
 		//********************** Ajax Utilities *******************
 		$(scope).find("a.in-page-link").click(function(event) {
 			event.preventDefault();

@@ -17,6 +17,8 @@ import org.jsoup.select.Elements;
 import dao.SitesDAO;
 import datadefinitions.OEM;
 import datadefinitions.StringExtraction;
+import datadefinitions.inventory.InvType;
+import datadefinitions.inventory.InventoryTool;
 import datadefinitions.newdefinitions.InventoryType;
 import datadefinitions.newdefinitions.TestMatch;
 import datadefinitions.newdefinitions.WPAttribution;
@@ -56,7 +58,7 @@ public class PageCrawlAnalyzer {
 	public synchronized String text()  {
 		if(text == null) {
 			try {
-				String filename = Global.getCrawlStorageFolder() + siteAnalysis.getSiteCrawl().getStorageFolder() + "/" + pageAnalysis.getPageCrawl().getFilename();
+				String filename = pageAnalysis.getPageCrawl().getFilename();
 				FileInputStream inputStream = new FileInputStream(filename);
 		        text = IOUtils.toString(inputStream, "UTF-8");
 		        inputStream.close();
@@ -70,6 +72,7 @@ public class PageCrawlAnalyzer {
 	public synchronized Document doc() {
 		if(doc == null){
 			doc = Jsoup.parse(text());
+			doc.setBaseUri(pageAnalysis.getPageCrawl().getUrl());
 		}
 		return doc;
 	}
@@ -109,6 +112,9 @@ public class PageCrawlAnalyzer {
 		if(config.getDoBrandMatches()){
 			oemCount();
 		}
+		if(config.getDoVehicles()){
+			vins();
+		}
 		if(config.getDoCustomText()){
 			customText();
 		}
@@ -119,6 +125,10 @@ public class PageCrawlAnalyzer {
 			Integer count = TextAnalyzer.countOccurrences(text(), oem.getPattern());
 			pageAnalysis.getOemCounts().put(oem, count);
 		}
+	}
+	
+	public void vins(){
+		pageAnalysis.setVins(TextAnalyzer.getVins(text()));
 	}
 	
 	public void customText() {
@@ -149,6 +159,9 @@ public class PageCrawlAnalyzer {
 		}
 		if(config.getDoMetaBrandMatches()){
 			oemMetaCount();
+		}
+		if(config.getDoVehicles()){
+			vehicles();
 		}
 		if(config.getDoCustomDoc()){
 			customDoc();
@@ -214,6 +227,14 @@ public class PageCrawlAnalyzer {
 				metaCount += TextAnalyzer.hasOccurrence(metatag.outerHtml(), oem.getPattern()) ? 1 : 0;
 			}
 			pageAnalysis.getOemMetaCounts().put(oem, metaCount);
+		}
+	}
+	
+	public void vehicles() {
+		InvType invType = pageAnalysis.getPageCrawl().getInvType();
+		if(invType != null){
+			InventoryTool tool = invType.getTool();
+			pageAnalysis.setVehicles(tool.getVehicles(doc()));
 		}
 	}
 

@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import javax.persistence.TypedQuery;
 
 import datadefinitions.newdefinitions.WPAttribution;
+import global.Global;
 import persistence.Site;
 import persistence.Site.SiteStatus;
 import play.db.jpa.JPA;
@@ -17,6 +18,32 @@ import salesforce.persistence.SalesforceAccount;
 
 public class SalesforceDao {
 	
+	public static SalesforceAccount getFirstFresh(String valueName, Object value){
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		parameters.put(valueName , value);
+		return getFirstFresh(parameters);
+	}
+	public static SalesforceAccount getFirstFresh(Map<String, Object> parameters){
+		String query = "from SalesforceAccount t";
+		String delimiter = " where t.";
+		for(String key : parameters.keySet()) {
+			query += delimiter + key + " = :" + key;
+			delimiter = " and t.";
+		}
+		query += " and t.lastUpdated < :staleDate";
+		
+		TypedQuery<SalesforceAccount> q = JPA.em().createQuery(query, SalesforceAccount.class);
+		for(Entry<String, Object> entry : parameters.entrySet()) {
+			q.setParameter(entry.getKey(), entry.getValue());
+		}
+		q.setParameter("staleDate", Global.getStaleDate());
+		q.setMaxResults(1);
+		List<SalesforceAccount> results = q.getResultList();
+		if(results.size() > 0){
+			return results.get(0);
+		}
+		return null;
+	}
 	
 	public static List<Long> getUsFranchiseSites(){
 		String queryString = "select distinct(s.siteId) from SalesforceAccount sa join sa.site s where sa.country = 'United States' and sa.franchise = true and s.siteStatus = :siteStatus";

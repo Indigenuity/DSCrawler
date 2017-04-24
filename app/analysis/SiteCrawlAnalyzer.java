@@ -62,7 +62,17 @@ public class SiteCrawlAnalyzer {
 				pageAnalyzer.runAnalysis();
 			}
 		}
+		
+		clearAggregations(analysis);
+		
 		aggregatePageAnalyses(analysis);
+		aggregateInventory(analysis);
+	}
+	
+	//TODO finish all the clearing
+	public static void clearAggregations(SiteCrawlAnalysis analysis) {
+		analysis.getVehicles().clear();
+		analysis.getVins().clear();
 	}
 	
 	public static void aggregatePageAnalyses(SiteCrawlAnalysis analysis) {
@@ -180,6 +190,13 @@ public class SiteCrawlAnalyzer {
 		analysis.setTotalAltImages(totalAltImages);
 	}
 	
+	public static void aggregateInventory(SiteCrawlAnalysis analysis){
+		for(PageCrawlAnalysis pageAnalysis : analysis.getPageAnalyses()){
+			analysis.addVehicles(pageAnalysis.getVehicles());
+			analysis.addVins(pageAnalysis.getVins());
+		}
+	}
+	
 	public static void calculateCapDbScores(SiteCrawlAnalysis analysis) {
 		int numPages = analysis.getPageAnalyses().size();
 		if(numPages == 0){
@@ -229,26 +246,26 @@ public class SiteCrawlAnalyzer {
 //		        System.out.println("old web providers");
 //		        siteCrawl.setWebProviders(getWebProviders(text));
 //		        siteCrawl.setSchedulers(getSchedulers(text));
-		        siteCrawl.setGeneralMatches(TextAnalyzer.getGeneralMatches(text));
+//		        siteCrawl.setGeneralMatches(TextAnalyzer.getGeneralMatches(text));
 			}
 				
 		}
 	}
 	
 	public static void getWebProviderAttributions(SiteCrawl siteCrawl, String text) {
-		for(WPAttribution wp : WPAttribution.values()){
-			if(text.contains(wp.getDefinition())){
-				siteCrawl.addWpAttribution(wp);
-			}
-		}
+//		for(WPAttribution wp : WPAttribution.values()){
+//			if(text.contains(wp.getDefinition())){
+//				siteCrawl.addWpAttribution(wp);
+//			}
+//		}
 	}
 	
 	public static void getWebProviderClues(SiteCrawl siteCrawl, String text) {
-		for(WPClue wp : WPClue.values()){
-			if(text.contains(wp.getDefinition())){
-				siteCrawl.addWpClue(wp);
-			}
-		}
+//		for(WPClue wp : WPClue.values()){
+//			if(text.contains(wp.getDefinition())){
+//				siteCrawl.addWpClue(wp);
+//			}
+//		}
 	}
 		
 	
@@ -258,12 +275,12 @@ public class SiteCrawlAnalyzer {
 	
 	
 	public static void aggregateInventoryNumbers(SiteCrawl siteCrawl) {
-		for(PageCrawl pageCrawl : siteCrawl.getPageCrawls()){
-			InventoryNumber invNumber = pageCrawl.getInventoryNumber();
-			if(invNumber != null){
-				siteCrawl.getInventoryNumbers().add(pageCrawl.getInventoryNumber());
-			}
-		}
+//		for(PageCrawl pageCrawl : siteCrawl.getPageCrawls()){
+//			InventoryNumber invNumber = pageCrawl.getInventoryNumber();
+//			if(invNumber != null){
+//				siteCrawl.getInventoryNumbers().add(pageCrawl.getInventoryNumber());
+//			}
+//		}
 	}
 	
 	
@@ -288,36 +305,36 @@ public class SiteCrawlAnalyzer {
 	}
 	
 	public static void inferWP(SiteCrawl siteCrawl) {
-		if(siteCrawl.getWpAttributions().size() == 1){
-			WPAttribution wpAttribution = (WPAttribution)siteCrawl.getWpAttributions().toArray()[0];
-			siteCrawl.setWebProvider(wpAttribution.getWp());
-		}
-		else if(siteCrawl.getWpAttributions().size() > 1){
-			siteCrawl.setWebProvider(WebProvider.MULTIPLE);
-		}
-		else{
-			inferFromClues(siteCrawl);
-		}
+//		if(siteCrawl.getWpAttributions().size() == 1){
+//			WPAttribution wpAttribution = (WPAttribution)siteCrawl.getWpAttributions().toArray()[0];
+//			siteCrawl.setWebProvider(wpAttribution.getWp());
+//		}
+//		else if(siteCrawl.getWpAttributions().size() > 1){
+//			siteCrawl.setWebProvider(WebProvider.MULTIPLE);
+//		}
+//		else{
+//			inferFromClues(siteCrawl);
+//		}
 	}
 	
 	public static void inferFromClues(SiteCrawl siteCrawl){
-		if(siteCrawl.getWpClues().size() == 1){
-			siteCrawl.setWebProvider(((WPClue)siteCrawl.getWpClues().toArray()[0]).getWp());
-		}
-		else if(siteCrawl.getWpClues().size() > 1){
-			//TODO fill in some nice inferences here
-		}
+//		if(siteCrawl.getWpClues().size() == 1){
+//			siteCrawl.setWebProvider(((WPClue)siteCrawl.getWpClues().toArray()[0]).getWp());
+//		}
+//		else if(siteCrawl.getWpClues().size() > 1){
+//			//TODO fill in some nice inferences here
+//		}
 	}
 	
 	public static void getInventoryType(SiteCrawl siteCrawl) {
-		List<InventoryType> invTypes = new ArrayList<InventoryType>();
-		for(InventoryNumber num : siteCrawl.getInventoryNumbers()){
-			InventoryType temp = num.getInventoryType();
-			if(!invTypes.contains(temp)){
-				invTypes.add(temp);
-			}
-		}
-		siteCrawl.setInventoryType(inferInvTypeFromMultiple(invTypes));
+//		List<InventoryType> invTypes = new ArrayList<InventoryType>();
+//		for(InventoryNumber num : siteCrawl.getInventoryNumbers()){
+//			InventoryType temp = num.getInventoryType();
+//			if(!invTypes.contains(temp)){
+//				invTypes.add(temp);
+//			}
+//		}
+//		siteCrawl.setInventoryType(inferInvTypeFromMultiple(invTypes));
 	}
 	
 	protected static InventoryType inferInvTypeFromMultiple(List<InventoryType> invTypes){
@@ -337,34 +354,34 @@ public class SiteCrawlAnalyzer {
 	}
 	
 	public static void getExistingInventoryPage(boolean used, SiteCrawl siteCrawl) throws MalformedURLException{
-		InventoryType invType = siteCrawl.getInventoryType();
-		if(invType == null){
-			return;
-		}
-		for(PageCrawl pageCrawl : siteCrawl.getPageCrawls()){
-			String path = pageCrawl.getPath();
-			String query = pageCrawl.getQuery();
-			if(query != null){
-				query = "?" + query;
-			}
-			String pathAndQuery = path + query;
-			if(used && invType.getUsedPath().equals(pathAndQuery)){ 
-				siteCrawl.setUsedInventoryPage(pageCrawl);
-			}
-			if(!used && invType.getNewPath().equals(pathAndQuery)){
-				siteCrawl.setNewInventoryPage(pageCrawl);
-			}
-		}
+//		InventoryType invType = siteCrawl.getInventoryType();
+//		if(invType == null){
+//			return;
+//		}
+//		for(PageCrawl pageCrawl : siteCrawl.getPageCrawls()){
+//			String path = pageCrawl.getPath();
+//			String query = pageCrawl.getQuery();
+//			if(query != null){
+//				query = "?" + query;
+//			}
+//			String pathAndQuery = path + query;
+//			if(used && invType.getUsedPath().equals(pathAndQuery)){ 
+//				siteCrawl.setUsedInventoryPage(pageCrawl);
+//			}
+//			if(!used && invType.getNewPath().equals(pathAndQuery)){
+//				siteCrawl.setNewInventoryPage(pageCrawl);
+//			}
+//		}
 	}
 	
 	public static void getMaxInventoryCount(SiteCrawl siteCrawl) {
-		InventoryNumber max = null; 
-		for(InventoryNumber invNumber: siteCrawl.getInventoryNumbers()){
-			if(max == null || invNumber.getCount() > max.getCount()){
-				max = invNumber;
-			}
-		}
-		siteCrawl.setMaxInventoryCount(max);
+//		InventoryNumber max = null; 
+//		for(InventoryNumber invNumber: siteCrawl.getInventoryNumbers()){
+//			if(max == null || invNumber.getCount() > max.getCount()){
+//				max = invNumber;
+//			}
+//		}
+//		siteCrawl.setMaxInventoryCount(max);
 	}
 	
 	public static void calculateScores(SiteCrawl siteCrawl){
@@ -416,10 +433,10 @@ public class SiteCrawlAnalyzer {
 		        Document doc = Jsoup.parse(text);
 		        
 		        
-		        Set<Staff> allStaff = StaffExtractor.extractStaff(doc, siteCrawl.getWebProviders());
-		        siteCrawl.addStaff(allStaff);
-//		        System.out.println("allstaff after set : " + siteCrawl.getAllStaff().size());
-		        siteCrawl.addExtractedUrls(DocAnalyzer.extractUrls(doc));
+//		        Set<Staff> allStaff = StaffExtractor.extractStaff(doc, siteCrawl.getWebProviders());
+//		        siteCrawl.addStaff(allStaff);
+////		        System.out.println("allstaff after set : " + siteCrawl.getAllStaff().size());
+//		        siteCrawl.addExtractedUrls(DocAnalyzer.extractUrls(doc));
 		        
 //		        siteCrawl.addInventoryNumbers(invNumbers);
 		        

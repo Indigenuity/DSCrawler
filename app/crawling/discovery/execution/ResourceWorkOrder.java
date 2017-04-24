@@ -8,16 +8,16 @@ import crawling.discovery.planning.DiscoveryPlan;
 import newwork.WorkOrder;
 
 public class ResourceWorkOrder extends WorkOrder{
-
+	
 	protected final Object source;
 	protected final Resource parent;
-	protected final ResourceContext resourceContext;
+	protected final PlanId planId;
 	
-	public ResourceWorkOrder(Object source, Resource parent, ResourceContext resourceContext) {
+	public ResourceWorkOrder(Object source, Resource parent, PlanId planId) {
 		super();
 		this.source = source;
 		this.parent = parent;
-		this.resourceContext = resourceContext;
+		this.planId = planId;
 	}
 	public Object getSource() {
 		return source;
@@ -25,8 +25,8 @@ public class ResourceWorkOrder extends WorkOrder{
 	public Resource getParent() {
 		return parent;
 	}
-	public ResourceContext getResourceContext() {
-		return resourceContext;
+	public PlanId getPlanId() {
+		return planId;
 	}
 	
 }

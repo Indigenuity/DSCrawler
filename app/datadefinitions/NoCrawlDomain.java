@@ -14,6 +14,7 @@ public enum NoCrawlDomain implements StringMatch {
 	COPART			("copart.com"),
 	DRIVE_TIME		("drivetime.com"),
 	FACEBOOK		("facebook.com"),
+	FOUR_CHAN		("4chan.com"),
 	GM				("gm.com"),
 	GOOGLE_PLUS		("plus.google.com"),
 	HERTZ			("hertzcarsales.com"),

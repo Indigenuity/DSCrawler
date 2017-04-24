@@ -1,4 +1,4 @@
-package crawling.discovery.planning;
+package crawling.discovery.execution;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,11 +19,6 @@ import crawling.discovery.entities.Resource;
 import crawling.discovery.entities.SourcePool;
 import crawling.discovery.entities.SourceQualification;
 import crawling.discovery.entities.SourceQualification.QualificationStatus;
-import crawling.discovery.execution.CrawlContext;
-import crawling.discovery.execution.ResourceContext;
-import crawling.discovery.execution.ResourceWorkOrder;
-import crawling.discovery.execution.ResourceWorkResult;
-import crawling.discovery.execution.ResourceWorker;
 import newwork.WorkStatus;
 
 public class ResourceSupervisor extends UntypedActor{
@@ -39,7 +34,7 @@ public class ResourceSupervisor extends UntypedActor{
 		
 		List<Routee> routees = new ArrayList<Routee>();
 	    for (int i = 0; i < resourceContext.getNumWorkers(); i++) {
-	      ActorRef r = getContext().actorOf(Props.create(ResourceWorker.class, resourceContext.getFetchTool()).withDispatcher("akka.worker-dispatcher"));
+	      ActorRef r = getContext().actorOf(Props.create(ResourceWorker.class, resourceContext.getFetchTool(), context).withDispatcher("akka.worker-dispatcher"));
 	      getContext().watch(r);
 	      routees.add(new ActorRefRoutee(r));
 	    }
@@ -63,6 +58,13 @@ public class ResourceSupervisor extends UntypedActor{
 	protected void processResourceWorkResult(ResourceWorkResult workResult) {
 		context.storeWorkResult(workResult);
 		ActorRef sender = waitingRoom.remove(workResult.getUuid());
+		if(workResult.getWorkStatus() == WorkStatus.COMPLETE){
+//			System.out.println("Work successful in supervisor (plan " + context.getPlanId() + "): " + workResult.getSource());
+			for(Resource resource : workResult.getResources()){
+//				System.out.println("depth : " + resource.getDepth());
+			}
+			
+		}
 		sender.tell(workResult, getSelf());
 	}
 	
@@ -81,11 +83,7 @@ public class ResourceSupervisor extends UntypedActor{
 //	}
 	
 	protected void processResourceWorkOrder(ResourceWorkOrder workOrder) {
-		if(context.isMaxDepth(workOrder.getParent()) || context.maxResourcesReached()){
-			sendNoCrawl(workOrder);
-		}else{
-			assignWork(workOrder);
-		}
+		assignWork(workOrder);
 	}
 	
 	protected void assignWork(ResourceWorkOrder workOrder){
@@ -97,11 +95,4 @@ public class ResourceSupervisor extends UntypedActor{
 		}
 		router.route(workOrder, getSelf());
 	}
-	
-	protected void sendNoCrawl(ResourceWorkOrder workOrder){
-		ResourceWorkResult workResult = new ResourceWorkResult(workOrder);
-		workResult.setWorkStatus(WorkStatus.NOT_STARTED);
-		getSender().tell(workResult, getSelf());
-	}
-	
 }
