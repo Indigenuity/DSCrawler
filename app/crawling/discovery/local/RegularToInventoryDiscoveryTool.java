@@ -65,9 +65,11 @@ public class RegularToInventoryDiscoveryTool extends InternalLinkDiscoveryTool {
 		//Discover inventory links for the inventory plan
 		if(pageCrawl.getNewRoot() || pageCrawl.getUsedRoot() || resource.getPlanId().equals(inventoryPlan)){
 			URI nextPageLink = getNextPageLink(pageCrawl.getInvType(), doc, currentUri);
-			//No if statement on discover, because during re-crawls we want inventory system to not be stopped by a link previously unrecognized as inventory
-			context.discoverSource(nextPageLink);		 
-			discoveredSources.add(new DiscoveredSource(resource, nextPageLink, inventoryPlan));
+			if(nextPageLink != null){
+				//No if statement on discover, because during re-crawls we want inventory system to not be stopped by a link previously unrecognized as inventory
+				context.discoverSource(nextPageLink);		 
+				discoveredSources.add(new DiscoveredSource(resource, nextPageLink, inventoryPlan));
+			}
 		}
 		
 		return discoveredSources;

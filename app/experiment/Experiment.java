@@ -156,20 +156,24 @@ import utilities.Tim;
 public class Experiment { 
 	
 	public static void runExperiment() throws Exception {
-//		SiteCrawl siteCrawl= JPA.em().find(SiteCrawl.class, 16625L);
+//		SiteCrawl siteCrawl= JPA.em().find(SiteCrawl.class, 17102L);
 //		SiteCrawlPlan siteCrawlPlan = new SiteCrawlPlan(siteCrawl);
 //		System.out.println("uncrawled : " + siteCrawl.getUnCrawledUrls().size());
 //		System.out.println("failed: " + siteCrawl.getFailedUrls().size());
 //		siteCrawlPlan.setMaxPages(SiteCrawlPlan.DEFAULT_MAX_PAGES_TO_FETCH);
 		
-		Site site = SitesDAO.getOrNewThreadsafe("http://www.conquerclub.com/");
-		SiteCrawlPlan siteCrawlPlan = new SiteCrawlPlan(site);
+//		Site site = SitesDAO.getOrNewThreadsafe("https://www.thisisnotavalidsitedontmakeanaccountwiththisurl.com/");
+//		SiteCrawlPlan siteCrawlPlan = new SiteCrawlPlan(site);
 //		siteCrawlPlan.setMaxPages(1);
 		
-		Asyncleton.getInstance().getCrawlMaster().tell(siteCrawlPlan, ActorRef.noSender());
+//		Asyncleton.getInstance().getCrawlMaster().tell(siteCrawlPlan, ActorRef.noSender());
 //		crawlingStuff();
 //		analyzingStuff();
 		
+		
+//		SiteCrawlLogic.ensureFreshInventorySiteCrawls(1, 0);
+		
+		PodsLoader.loadFromCsv();
 	}
 	
 	public static void analyzingStuff() throws Exception {

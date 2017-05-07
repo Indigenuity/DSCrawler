@@ -26,6 +26,17 @@ public class AnalysisDao {
 		return newGuy;
 	}
 	
+	public static SiteCrawlAnalysis get(SiteCrawl siteCrawl) {
+		String queryString = "from SiteCrawlAnalysis sca where sca.siteCrawl = :siteCrawl";
+		List<SiteCrawlAnalysis> existing = JPA.em().createQuery(queryString, SiteCrawlAnalysis.class)
+				.setParameter("siteCrawl", siteCrawl).getResultList();
+		
+		if(existing.size() > 0){
+			return existing.get(0);
+		}
+		return null;
+	}
+	
 	public static Long getCombinedCreditAppLinkMatches() {
 		List<LinkTextMatch> matches = Arrays.asList(LinkTextMatch.values());
 		String queryString = "select count(sc) from SiteCrawlAnalysis sca join sca.siteCrawl sc where sc.crawlDate > '2016-09-08' and exists (from SiteCrawlAnalysis sca2 join sca2.linkTextMatches ltm where ltm in :matches and sca2 = sca)";

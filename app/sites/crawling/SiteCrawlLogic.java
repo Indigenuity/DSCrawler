@@ -3,11 +3,14 @@ package sites.crawling;
 import java.util.List;
 import java.util.function.Consumer;
 
+import javax.persistence.NoResultException;
+
 import akka.actor.ActorRef;
 import async.async.Asyncleton;
 import async.functionalwork.ConsumerWorkOrder;
 import async.functionalwork.JpaFunctionalBuilder;
 import crawling.DealerCrawlController;
+import crawling.discovery.local.SiteCrawlPlan;
 import dao.SitesDAO;
 import datadefinitions.NoCrawlDomain;
 import persistence.PageCrawl;
@@ -18,6 +21,8 @@ import play.db.jpa.JPA;
 import sites.SiteLogic;
 
 public class SiteCrawlLogic {
+	
+	
 
 	public static void removePageCrawl(PageCrawl pageCrawl){
 		SiteCrawl siteCrawl = pageCrawl.getSiteCrawl();
@@ -112,6 +117,66 @@ public class SiteCrawlLogic {
 		}catch(Exception e){
 			Logger.error("error while crawling : " + e);
 			throw new RuntimeException(e);
+		}
+	}
+	
+	public static void queueCrawl(Site site){
+		SiteCrawlPlan crawlPlan = new SiteCrawlPlan(site);
+		Asyncleton.getInstance().getCrawlMaster().tell(crawlPlan, ActorRef.noSender());
+	}
+	
+	public static void queueRecrawl(SiteCrawl siteCrawl){
+		SiteCrawlPlan crawlPlan = new SiteCrawlPlan(siteCrawl);
+		Asyncleton.getInstance().getCrawlMaster().tell(crawlPlan, ActorRef.noSender());
+	}
+	
+	public static void ensureFreshInventorySiteCrawl(Site site){
+		System.out.println("ensuring inventorysitecrawl : "  + site.getHomepage());
+		SiteCrawl siteCrawl = getMostRecentCrawl(site);
+		
+		if(isStale(siteCrawl)){
+			System.out.println("stale : " + siteCrawl.getCrawlDate());
+			queueCrawl(site);
+		} else if(!isSatisfactoryInventoryCrawl(siteCrawl)){
+			System.out.println("unsatisfactory inventory crawl: " + siteCrawl);
+			queueRecrawl(siteCrawl);
+		}
+	}
+	
+	public static void ensureFreshInventorySiteCrawls(int limit, int offset){
+		String queryString = "select s.siteId from Site s";
+		List<Long> siteIds = JPA.em().createQuery(queryString, Long.class).setMaxResults(limit).setFirstResult(offset).getResultList();
+		System.out.println("siteIds : " + siteIds.size());
+		Asyncleton.getInstance().runConsumerMaster(25, 
+				JpaFunctionalBuilder.wrapConsumerInFind(SiteCrawlLogic::ensureFreshInventorySiteCrawl, Site.class), 
+				siteIds.stream(),
+				true);
+	}
+	
+	public static boolean isSatisfactoryInventoryCrawl(SiteCrawl siteCrawl){
+		System.out.println("suc : " + siteCrawl.getInventoryCrawlSuccess());
+		return siteCrawl != null && siteCrawl.getInventoryCrawlSuccess() && siteCrawl.getNewInventoryRoot() != null && siteCrawl.getUsedInventoryRoot() != null;
+	}
+	
+	public static boolean isStale(SiteCrawl siteCrawl){
+		if(siteCrawl == null){
+			return true;
+		}
+		return SitesDAO.STALE_DATE.after(siteCrawl.getCrawlDate());
+	}
+	
+	public static SiteCrawl getMostRecentCrawl(Site site){
+		String queryString = "select sc FROM Site s "
+				+ "join s.crawls sc "
+				+ "where s.siteId = :siteId "
+				+ "order by sc.crawlDate desc";
+		try{
+			return JPA.em().createQuery(queryString, SiteCrawl.class)
+				.setMaxResults(1)
+				.setParameter("siteId", site.getSiteId())
+				.getSingleResult();
+		}catch(NoResultException e){
+			return null;
 		}
 	}
 }

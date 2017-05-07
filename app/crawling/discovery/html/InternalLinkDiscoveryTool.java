@@ -18,7 +18,7 @@ import newwork.WorkStatus;
 
 public class InternalLinkDiscoveryTool extends DiscoveryTool{
 	
-	protected final static Pattern NO_CRAWL_FILE_EXTENSIONS = Pattern.compile(".*(\\.(css|js|gif|jpg|png|mp3|mp4|zip|gz|pdf|jpeg))$");
+	protected final static Pattern NO_CRAWL_FILE_EXTENSIONS = Pattern.compile(".*(\\.(css|js|gif|jpg|png|mp3|mp4|zip|gz|pdf|jpeg|exe|gzip|rar|mov|bmp|tif|ini))$");
 	
 
 	@Override

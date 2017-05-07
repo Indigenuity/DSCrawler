@@ -9,6 +9,8 @@ import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import async.async.Asyncleton;
+import async.async.TypedMaster;
+import crawling.discovery.execution.CrawlOrder;
 import crawling.discovery.execution.Crawler;
 import crawling.discovery.execution.EndWhenReady;
 import crawling.discovery.execution.PlanId;
@@ -23,37 +25,27 @@ import crawling.discovery.planning.CrawlPlan;
 import crawling.discovery.planning.DiscoveryPlan;
 import global.Global;
 import newwork.StartWork;
+import newwork.WorkOrder;
 import persistence.Site;
 import play.db.jpa.JPA;
 
-public class CrawlMaster extends UntypedActor{
+public class CrawlMaster extends TypedMaster<Crawler>{
 	
+	public CrawlMaster(int numWorkers) {
+		super(numWorkers);
+	}
+
 	@Override
-	public void onReceive(Object message) throws Exception {
-		if(message instanceof SiteCrawlOrder){
-			processCrawlOrder((SiteCrawlOrder) message);
-		}else if(message instanceof SiteCrawlPlan){
-			processCrawlPlan((SiteCrawlPlan) message);
-		}
-		
+	public Class<Crawler> getType() {
+		return Crawler.class;
 	}
-	
-	private void processCrawlOrder(SiteCrawlOrder workOrder){
-		JPA.withTransaction(() -> {
-			Site site = JPA.em().find(Site.class, workOrder.getSiteId());
-			System.out.println("CrawlMaster starting crawl for : " + site.getHomepage());
-			CrawlPlan crawlPlan = new SiteCrawlPlan(site);
-			ActorRef crawler = Asyncleton.getInstance().getMainSystem().actorOf(Props.create(Crawler.class, crawlPlan.generateContext()));
-			crawler.tell(new StartWork(), getSelf());	
-			crawler.tell(new EndWhenReady(), getSelf());	
-		});
-		
-	}
-	
-	private void processCrawlPlan(SiteCrawlPlan crawlPlan){
-		ActorRef crawler = Asyncleton.getInstance().getMainSystem().actorOf(Props.create(Crawler.class, crawlPlan.generateContext()));
-		crawler.tell(new StartWork(), getSelf());	
-		crawler.tell(new EndWhenReady(), getSelf());
+
+	@Override
+	protected WorkOrder generateWorkOrder(Object message) {
+		if(message instanceof CrawlPlan){
+			return new CrawlOrder((CrawlPlan)message);
+		} 
+		throw new IllegalArgumentException("Can't generate CrawlOrder for object of unknown type : " + message);
 	}
 	
 }

@@ -16,6 +16,7 @@ import dao.PlacesDealerDao;
 import dao.SalesforceDao;
 import dao.SitesDAO;
 import datadefinitions.RecordType;
+import datadefinitions.StringExtraction;
 import net.sf.sprockets.google.Place;
 import net.sf.sprockets.google.Places;
 import net.sf.sprockets.google.Places.Params;
@@ -31,6 +32,7 @@ public class PlacesLogic {
 	private static final Pattern ADDRESS = Pattern.compile("([^,]+),([^,]+), ([^0-9,]{2}) ([^,]+), ([a-zA-Z]+)");
 	
 	public static void classifyRecordType(PlacesDealer dealer) {
+		
 		String name = dealer.getName().toLowerCase();
 		String website = dealer.getSite().getHomepage().toLowerCase();
 		if(name.contains(" rv") || name.contains("rv ") || name.contains("recreation") || website.contains("recreation") ||
@@ -56,6 +58,22 @@ public class PlacesLogic {
 			dealer.setRecordType(RecordType.UNCLASSIFIED);
 		}
 //		System.out.println("Dealer: " + dealer.getName() + " " + dealer.getWebsite() + " : " + dealer.getRecordType());
+	}
+	
+	public static boolean sufficientAddress(PlacesDealer dealer){
+		if(StringUtils.isEmpty(dealer.getStdStreet()) 
+				|| StringUtils.isEmpty(dealer.getStdCity())
+				|| StringUtils.isEmpty(dealer.getStdProvince())
+				|| StringUtils.isEmpty(dealer.getStdCountry())
+				|| StringUtils.isEmpty(dealer.getStdPostal())){
+			return false;
+		}
+		Matcher matcher = StringExtraction.STATE_ABBR.getPattern().matcher(dealer.getStdStreet());
+		if(!matcher.find()){
+			System.out.println("insufficient address : " + dealer.getFormattedAddress()); 
+			return false;
+		}
+		return true;
 	}
 	
 	public static void salesforceMatch(PlacesDealer dealer){
@@ -146,6 +164,7 @@ public class PlacesLogic {
 		dealer.setPlacesId(place.getPlaceId().getId());
 		dealer.setPriceLevel(place.getPriceLevel() + "");
 		dealer.setRating(place.getRating());
+		dealer.setRatingCount(place.getRatingCount());
 		if(place.getTypes() != null)
 			dealer.setTypes(place.getTypes()+ "");
 		dealer.setUtcOffset(place.getUtcOffset());
@@ -189,7 +208,7 @@ public class PlacesLogic {
 //		System.out.println("after id : " + dealer.getPlacesId());
 	}
 	
-	public static boolean fixAddress(PlacesDealer dealer) {
+	public static boolean parseAddress(PlacesDealer dealer) {
 		if(dealer.getFormattedAddress() == null){
 			return false;
 		}
@@ -205,19 +224,19 @@ public class PlacesLogic {
 		matcher = ADDRESS_WITH_ADDRESSEE.matcher(dealer.getFormattedAddress());
 		if(matcher.matches()){
 			
-			dealer.setStreet(matcher.group(1));
-			dealer.setCity(matcher.group(2));
-			dealer.setProvince(matcher.group(3));
-			dealer.setPostal(matcher.group(4));
+			dealer.setStreet(matcher.group(1) + " " + matcher.group(2));
+			dealer.setCity(matcher.group(3));
+			dealer.setProvince(matcher.group(4));
+			dealer.setPostal(matcher.group(5));
 			return true;
 		}
 		matcher = ADDRESS_WITH_NO_STREET.matcher(dealer.getFormattedAddress());
 		if(matcher.matches()){
 			
-			dealer.setStreet(matcher.group(1));
-			dealer.setCity(matcher.group(2));
-			dealer.setProvince(matcher.group(3));
-			dealer.setPostal(matcher.group(4));
+			dealer.setStreet(null);
+			dealer.setCity(matcher.group(1));
+			dealer.setProvince(matcher.group(2));
+			dealer.setPostal(matcher.group(3));
 			return true;
 		}
 		return false;

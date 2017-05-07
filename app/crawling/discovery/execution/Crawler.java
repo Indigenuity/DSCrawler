@@ -15,6 +15,7 @@ import akka.actor.UntypedActor;
 import async.monitoring.Lobby;
 import async.monitoring.WaitingRoom;
 import crawling.discovery.entities.Resource;
+import crawling.discovery.local.SiteCrawlPlan;
 import crawling.discovery.planning.CrawlPlan;
 import crawling.discovery.planning.CrawlTool;
 import crawling.discovery.planning.DiscoveryPlan;
@@ -26,23 +27,27 @@ import newwork.WorkStatus;
 
 public class Crawler extends UntypedActor {
 
-	protected final CrawlContext crawlContext;
-	protected final CrawlTool crawlTool;
+	protected CrawlContext crawlContext;
+	protected CrawlTool crawlTool;
 	
 	protected final Map<PlanId, ActorRef> supervisors = new HashMap<PlanId, ActorRef>();
 	private WaitingRoom waitingRoom;
 	
-	protected boolean endWhenReady = false;
+	protected boolean endWhenReady = true;
 	
-	public Crawler(CrawlContext crawlContext){
-		this.crawlContext = crawlContext;
-		this.crawlTool = crawlContext.getCrawlTool();
+	public Crawler(){
 	}
 	
-	private void preCrawl() {
+	private void preCrawl(CrawlPlan crawlPlan) {
+		populateContext(crawlPlan);
 		populateSupervisors();
 		startWaitingRoom();
 		crawlTool.preCrawl(crawlContext);
+	}
+	
+	private void populateContext(CrawlPlan crawlPlan){
+		this.crawlContext = crawlPlan.generateContext();
+		this.crawlTool = crawlPlan.getCrawlTool();
 	}
 	
 	private void populateSupervisors(){
@@ -62,12 +67,8 @@ public class Crawler extends UntypedActor {
 	@Override
 	public void onReceive(Object message) throws Exception {
 //		System.out.println("Received message in Crawler : " + message);
-		if(message instanceof StartWork){
-			startCrawl();
-		} else if (message instanceof EndWhenReady){
-			endWhenReady = true;
-		} else if(message instanceof SeedWorkOrder){
-			processSeed((SeedWorkOrder)message);
+		if(message instanceof CrawlOrder){
+			startCrawl((CrawlOrder)message);
 		} else if(message instanceof ResourceWorkResult){
 			processResourceWorkResult((ResourceWorkResult) message);
 		}
@@ -121,9 +122,9 @@ public class Crawler extends UntypedActor {
 		assignWork(workOrder);
 	}
 	
-	public void startCrawl(){
-//		System.out.println("Starting crawl");
-		preCrawl();
+	public void startCrawl(CrawlOrder crawlOrder){
+		System.out.println("Starting crawl");
+		preCrawl(crawlOrder.getCrawlPlan());
 		processPreOrders();
 //		ResourceWorkOrder workOrder = new ResourceWorkOrder(crawlPlan.getSeed(),
 //				null,
@@ -144,14 +145,6 @@ public class Crawler extends UntypedActor {
 		ResourceWorkOrder workOrder = new ResourceWorkOrder(preOrder.getSource(),
 				preOrder.getParent(),
 				planId);
-		assignWork(workOrder);
-	}
-	
-	protected void processSeed(SeedWorkOrder seedWorkOrder){
-		crawlTool.preProcessSeed(crawlContext, seedWorkOrder);
-		ResourceWorkOrder workOrder = new ResourceWorkOrder(seedWorkOrder.getSource(),
-				null,
-				seedWorkOrder.getPlanId());
 		assignWork(workOrder);
 	}
 	

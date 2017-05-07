@@ -56,7 +56,7 @@ public class SiteCrawlPlan extends CrawlPlan {
 		this();
 		putContextObject("siteCrawlId", siteCrawl.getSiteCrawlId());
 		generateResources(siteCrawl);
-		generatePreOrdersFromResources();
+		generatePreOrdersFromResources(siteCrawl);
 		fillSources();
 		readSettings(siteCrawl);
 	}
@@ -81,10 +81,13 @@ public class SiteCrawlPlan extends CrawlPlan {
 		}
 	}
 	
-	protected void generatePreOrdersFromResources(){
+	protected void generatePreOrdersFromResources(SiteCrawl siteCrawl){
 		for(PageCrawlResource resource : resources){
 			generatePreOrderFromSelf(resource);
 			generatePreOrdersFromUncrawledAndError(resource);
+		}
+		if(resources.size() < 1){
+			generatePreOrder(siteCrawl.getSeed(), null);
 		}
 	}
 	

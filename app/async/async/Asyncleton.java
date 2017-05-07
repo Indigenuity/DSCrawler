@@ -19,7 +19,8 @@ import crawling.CrawlMaster;
 
 public class Asyncleton {
 	
-	public static final int DEFAULT_NUM_WORKERS = 5;    
+	public static final int DEFAULT_NUM_WORKERS = 5; 
+	public static final int NUM_CRAWLER_WORKERS = 25;
 
 	private static final Asyncleton instance = new Asyncleton();
 	
@@ -69,7 +70,7 @@ public class Asyncleton {
 			Logger.info("Starting up main async system");
 			mainSystem = ActorSystem.create("mainSystem");
 			mainListener = mainSystem.actorOf(Props.create(MainListener.class), "mainListener");
-			crawlMaster = mainSystem.actorOf(Props.create(CrawlMaster.class).withDispatcher("akka.master-dispatcher"));
+			crawlMaster = mainSystem.actorOf(Props.create(CrawlMaster.class, NUM_CRAWLER_WORKERS).withDispatcher("akka.master-dispatcher"));
 			Logger.info("Main async system ready for jobs");
 		}
 	}

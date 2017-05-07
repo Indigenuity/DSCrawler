@@ -25,12 +25,28 @@
 				<td>@siteCrawl.getInventoryCrawlSuccess()</td>
 			</tr>
 			<tr>
-				<td>Max Pages Reached</td>
-				<td>@siteCrawl.isMaxPagesReached()</td>
+				<td>Satisfactory Inventory Crawl</td>
+				<td>@siteCrawl.getSatisfactoryInventoryCrawl()</td>
 			</tr>
 			<tr>
-				<td>Repeated Urls</td>
-				<td>@siteCrawl.getNumRepeatedUrls()</td>
+				<td>New Inventory Root</td>
+				@if(siteCrawl.getNewInventoryRoot() == null){
+					<td>NONE</td>
+				}else{
+					<td><a href="/sites/pageCrawl/@siteCrawl.getNewInventoryRoot().getPageCrawlId()">PageCrawl @siteCrawl.getNewInventoryRoot().getPageCrawlId()</a> -- <a href="@siteCrawl.getNewInventoryRoot().getUrl()" target="_blank">@siteCrawl.getNewInventoryRoot().getUrl()</a></td>
+				}
+			</tr>
+			<tr>
+				<td>Used Inventory Root</td>
+				@if(siteCrawl.getUsedInventoryRoot() == null){
+					<td>NONE</td>
+				}else{
+					<td><a href="/sites/pageCrawl/@siteCrawl.getUsedInventoryRoot().getPageCrawlId()">PageCrawl @siteCrawl.getUsedInventoryRoot().getPageCrawlId()</a> -- <a href="@siteCrawl.getUsedInventoryRoot().getUrl()" target="_blank">@siteCrawl.getUsedInventoryRoot().getUrl()</a></td>
+				}
+			</tr>
+			<tr>
+				<td>Max Pages Reached</td>
+				<td>@siteCrawl.isMaxPagesReached()</td>
 			</tr>
 			<tr>
 				<td>Retrieved Files</td>

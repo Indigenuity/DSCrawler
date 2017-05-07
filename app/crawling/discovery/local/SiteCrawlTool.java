@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import crawling.discovery.entities.FlushableResource;
+import crawling.discovery.entities.Resource;
 import crawling.discovery.execution.CrawlContext;
 import crawling.discovery.execution.PlanId;
 import crawling.discovery.execution.ResourceWorkResult;
@@ -95,27 +96,33 @@ public class SiteCrawlTool extends CrawlTool {
 	
 	protected void processInventoryResults(Set<ResourceWorkResult> results){
 		for(ResourceWorkResult result : results){
-			PageCrawl pageCrawl = (PageCrawl)result.getParent().getValue();
-			if(result.getWorkStatus() == WorkStatus.ERROR){
-				pageCrawl.addFailedInventoryUrl(result.getSource().toString());
-				pageCrawl.getSiteCrawl().setInventoryCrawlSuccess(false);
-			} else if(result.getWorkStatus() == WorkStatus.NOT_STARTED){
-				pageCrawl.addUncrawledInventoryUrl(result.getSource().toString());
-				pageCrawl.getSiteCrawl().setInventoryCrawlSuccess(false);
+			Resource parent = result.getParent();
+			if(parent != null){
+				PageCrawl pageCrawl = (PageCrawl)result.getParent().getValue();
+				if(result.getWorkStatus() == WorkStatus.ERROR){
+					pageCrawl.addFailedInventoryUrl(result.getSource().toString());
+					pageCrawl.getSiteCrawl().setInventoryCrawlSuccess(false);
+				} else if(result.getWorkStatus() == WorkStatus.NOT_STARTED){
+					pageCrawl.addUncrawledInventoryUrl(result.getSource().toString());
+					pageCrawl.getSiteCrawl().setInventoryCrawlSuccess(false);
+				}
+	//			((FlushableResource)result.getParent()).flush();
 			}
-			((FlushableResource)result.getParent()).flush();
 		}
 	}
 	
 	protected void processRegularResults(Set<ResourceWorkResult> results){
 		for(ResourceWorkResult result : results){
-			PageCrawl pageCrawl = (PageCrawl)result.getParent().getValue();
-			if(result.getWorkStatus() == WorkStatus.ERROR){
-				pageCrawl.addFailedUrl(result.getSource().toString());
-			} else if(result.getWorkStatus() == WorkStatus.NOT_STARTED){
-				pageCrawl.addUncrawledUrl(result.getSource().toString());
+			Resource parent = result.getParent();
+			if(parent != null){
+				PageCrawl pageCrawl = (PageCrawl)result.getParent().getValue();
+				if(result.getWorkStatus() == WorkStatus.ERROR){
+					pageCrawl.addFailedUrl(result.getSource().toString());
+				} else if(result.getWorkStatus() == WorkStatus.NOT_STARTED){
+					pageCrawl.addUncrawledUrl(result.getSource().toString());
+				}
+	//			((FlushableResource)result.getParent()).flush();
 			}
-			((FlushableResource)result.getParent()).flush();
 		}
 	}
 	

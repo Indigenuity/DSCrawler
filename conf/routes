@@ -65,6 +65,7 @@ GET		/places/standardizeFields				controllers.PlacesController.standardizeFields
 GET		/places/salesforceMatching				controllers.PlacesController.salesforceMatching()
 GET		/places/refreshRedirectPaths			controllers.PlacesController.refreshRedirectPaths()
 GET		/places/classifyRecords					controllers.PlacesController.classifyRecords()
+GET		/places/parseAddresses					controllers.PlacesController.parseAddresses()
 
 
 GET		/sites/checkUnvalidated					controllers.SitesController.checkUnvalidated()

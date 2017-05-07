@@ -1,5 +1,4 @@
 Future things to do on Anansi crawler
 	Context checks number of resources gathered AND number of sources crawled to approve work
 	Change the incrementing for resources crawled to not require short circuit in approveWork
-	Change pagecraw
-	Change pagecraw
+	Change to FlushableResources

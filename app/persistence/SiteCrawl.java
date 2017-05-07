@@ -30,7 +30,9 @@ import javax.persistence.NamedEntityGraph;
 import javax.persistence.NamedSubgraph;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -148,6 +150,9 @@ public class SiteCrawl {
 	private PageCrawl usedInventoryRoot;
 	
 	private Boolean inventoryCrawlSuccess = true;
+	@Formula("inventoryCrawlSuccess AND usedInventoryRoot_pageCrawlId is not null AND newInventoryRoot_pageCrawlId is not null")
+//	@Transient
+	private Boolean satisfactoryInventoryCrawl;
 	
 //	@OneToOne(mappedBy="siteCrawl")
 //	private SiteCrawlAnalysis siteCrawlAnalysis;
@@ -582,5 +587,9 @@ public class SiteCrawl {
 	public void setLocalFolderName(String localFolderName) {
 		this.localFolderName = localFolderName;
 	}
-	
+
+
+	public Boolean getSatisfactoryInventoryCrawl() {
+		return satisfactoryInventoryCrawl;
+	}
 }

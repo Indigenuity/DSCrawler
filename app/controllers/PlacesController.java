@@ -37,6 +37,17 @@ public class PlacesController extends Controller {
 	
 	final static Logger.ALogger dsLogger = Logger.of("ds");
 
+	
+	@Transactional
+    public static Result parseAddresses() throws IOException {
+		List<Long> dealerIds = GeneralDAO.getAllIds(PlacesDealer.class);
+		Asyncleton.getInstance().runConsumerMaster(50, 
+				JpaFunctionalBuilder.wrapConsumerInFind(PlacesLogic::parseAddress, PlacesDealer.class), 
+				dealerIds.stream(), 
+				true);
+		return ok("Queued " + dealerIds.size() + " dealers to have addresses parsed.");
+	}
+	
 	@Transactional
     public static Result refreshZipcodeDatabase() throws IOException {
 		DataBuilder.refreshZipcodeDatabase();

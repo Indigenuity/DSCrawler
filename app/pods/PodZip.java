@@ -62,6 +62,43 @@ public class PodZip {
 	public void setPrimaryAreaCode(String primaryAreaCode) {
 		this.primaryAreaCode = primaryAreaCode;
 	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((franchisePod == null) ? 0 : franchisePod.hashCode());
+		result = prime * result + ((indyPod == null) ? 0 : indyPod.hashCode());
+		result = prime * result + ((primaryAreaCode == null) ? 0 : primaryAreaCode.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PodZip other = (PodZip) obj;
+		if (franchisePod == null) {
+			if (other.franchisePod != null)
+				return false;
+		} else if (!franchisePod.equals(other.franchisePod))
+			return false;
+		if (indyPod == null) {
+			if (other.indyPod != null)
+				return false;
+		} else if (!indyPod.equals(other.indyPod))
+			return false;
+		if (primaryAreaCode == null) {
+			if (other.primaryAreaCode != null)
+				return false;
+		} else if (!primaryAreaCode.equals(other.primaryAreaCode))
+			return false;
+		return true;
+	}
+	
+	
 	
 	
 

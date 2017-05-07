@@ -6,4 +6,14 @@
 <h4><a href="/sites/siteCrawl/@pageCrawl.getSiteCrawl().getSiteCrawlId()">SiteCrawl @pageCrawl.getSiteCrawl().getSiteCrawlId()</a> --
 		<a href="@pageCrawl.getSiteCrawl().getSeed()" target="_blank">@pageCrawl.getSiteCrawl().getSeed()</a> 
 
+	<div class="small-panel">
+		<h3>Children PageCrawls (@pageCrawl.getChildPages().size())</h3>
+		<ul class="url-list">
+			@for(pageCrawl <- pageCrawl.getChildPages()) {
+				<li>
+					<a href="/sites/pageCrawl/@pageCrawl.getPageCrawlId()">PageCrawl @pageCrawl.getPageCrawlId()</a> -- <a href="@pageCrawl.getUrl()" target="_blank">@pageCrawl.getUrl()</a>
+				</li>
+			}
+		</ul>
+	</div>
 }
