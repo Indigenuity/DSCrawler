@@ -1,27 +1,36 @@
 package crawling.discovery.entities;
 
 import crawling.discovery.execution.PlanId;
+import crawling.discovery.planning.PreResource;
 
 public abstract class FlushableResource extends Resource{
 	
-	protected Object key;
-	protected FlushState state;
+	protected FlushState state = FlushState.FLUSHED;
 	
 	
 	public FlushableResource(Object source, Object value, Resource parent, ResourceId resourceId, PlanId planId) {
-		super(source, value, parent, resourceId, planId);
+		super(source, parent, resourceId, planId);
+		this.setValue(value);
 	}
 	
-	public FlushableResource(Object source, Object value, Resource parent){
-		super(source, value, parent);
+	public FlushableResource(Object source, Resource parent, ResourceId resourceId, PlanId planId) {
+		super(source, parent, resourceId, planId);
 	}
-
-	public abstract Object produceValue(Object key);
+	
+	public FlushableResource(PreResource preResource, Resource parent, ResourceId resourceId, PlanId planId){
+		this(preResource.getSource(), parent, resourceId, planId);
+		this.fetchStatus = preResource.getFetchStatus();
+		this.fetchException = preResource.getFetchException();
+		this.discoveryStatus = preResource.getDiscoveryStatus();
+		this.discoveryException = preResource.getDiscoveryException();
+	}
+	
+	public abstract Object produceValue();
 	
 	@Override
 	public synchronized Object getValue(){
 		if(this.getState() == FlushState.FLUSHED){
-			this.setValue(produceValue(this.getKey()));
+			this.setValue(produceValue());
 		}
 		return this.value;
 	}
@@ -37,14 +46,6 @@ public abstract class FlushableResource extends Resource{
 		this.state = FlushState.FLUSHED;
 	}
 
-	public Object getKey() {
-		return key;
-	}
-
-	public void setKey(Object key) {
-		this.key = key;
-	}
-
 	public FlushState getState() {
 		return state;
 	}
@@ -52,7 +53,6 @@ public abstract class FlushableResource extends Resource{
 	public void setState(FlushState state) {
 		this.state = state;
 	}
-	
 	
 	public enum FlushState{
 		FILLED, FLUSHED;

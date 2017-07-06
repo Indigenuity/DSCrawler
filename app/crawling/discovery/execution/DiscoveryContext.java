@@ -3,6 +3,7 @@ package crawling.discovery.execution;
 import java.util.HashSet;
 import java.util.Set;
 
+import crawling.discovery.entities.Resource;
 import crawling.discovery.planning.DiscoveryPlan;
 import crawling.discovery.planning.DiscoveryTool;
 
@@ -10,49 +11,34 @@ public class DiscoveryContext extends Context{
 
 	protected final CrawlContext crawlContext;
 	protected final DiscoveryTool discoveryTool;
-	protected final PlanId defaultDestination;
-	protected final Set<Object> knownSources = new HashSet<Object>();
+	protected final PlanId destinationPlanId;
+	protected final DiscoveryPool discoveryPool;
 	
 	public DiscoveryContext(CrawlContext crawlContext, DiscoveryPlan discoveryPlan){
-		this.contextObjects.putAll(discoveryPlan.getInitialContextObjects());
-		this.rateLimiter = discoveryPlan.getRateLimiter();
+		super(discoveryPlan);
 		this.discoveryTool = discoveryPlan.getDiscoveryTool();
 		this.crawlContext = crawlContext;
-		this.defaultDestination = discoveryPlan.getDefaultDestination();
-		this.knownSources.addAll(discoveryPlan.getStartingSources());
-//		System.out.println("knownSources upon creation: " + knownSources);
+		this.destinationPlanId = discoveryPlan.getDestinationPlanId();
+		this.discoveryPool = crawlContext.getDiscoveryPool(discoveryPlan.getDiscoveryPoolPlan().getPlanId());
 	}
 
 	public CrawlContext getCrawlContext() {
 		return crawlContext;
 	}
 
-	public DiscoveryTool getDiscoveryTool() {
-		return discoveryTool;
-	}
-
-	public PlanId getDefaultDestination() {
-		return defaultDestination;
+	public PlanId getDestinationPlanId() {
+		return destinationPlanId;
 	}
 	
-	public boolean discoverSource(Object source){
-		if(source == null){
-			return false;
-		}
-		synchronized(knownSources){
-//			System.out.println("known sources : " + knownSources);
-			return knownSources.add(source);
-		}
+	public boolean preDiscover(Object source) {
+		return discover(source);
 	}
 	
+	public boolean discover(Object source) {
+		return discoveryPool.discoverSource(source);
+	}
 	
-	
-	public Object getContextObject(String key){
-		synchronized(contextObjects){
-			if(contextObjects.containsKey(key)){
-				return contextObjects.get(key);
-			}
-			return crawlContext.getContextObject(key);
-		}
+	public Set<Object> discoverSources(Resource parent) throws Exception{
+		return discoveryTool.discover(parent, this);
 	}
 }

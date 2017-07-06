@@ -1,5 +1,7 @@
 package utilities;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -27,11 +29,11 @@ import play.Logger;
 
 public class DSFormatter {
 
-	private final static String HAS_HTTP_REGEX= "(?i:http.*)";
+	final static String HAS_HTTP_REGEX= "(?i:http.*)";
 	private final static String OK_ENDINGS_REGEX = ".*(?i:index\\.htm|index\\.html|index\\.cfm|index\\.asp|index\\.php|index\\.shtml|default\\.htm|default\\.html|"
 			+ "default\\.asp|default\\.aspx|default\\.cfm|default\\.php|home/|Home\\.aspx|home\\.html)";
-	private final static String SLASHLESS_DOMAIN = "(?i:\\.com|\\.net|\\.biz|\\.us|\\.cc|\\.org|\\.info|\\.ca|\\.me|\\.car)";
-	private final static String SLASHED_DOMAIN = "(?i:\\.com/|\\.net/|\\.biz/|\\.us/|\\.cc/|\\.org/|\\.info/|\\.ca/|\\.me/|\\.car/)";
+	final static String SLASHLESS_DOMAIN = "(?i:\\.com|\\.net|\\.biz|\\.us|\\.cc|\\.org|\\.info|\\.ca|\\.me|\\.car)";
+	final static String SLASHED_DOMAIN = "(?i:\\.com/|\\.net/|\\.biz/|\\.us/|\\.cc/|\\.org/|\\.info/|\\.ca/|\\.me/|\\.car/)";
 	private final static String SLASHLESS_DOMAIN_ENDING = ".*" + SLASHLESS_DOMAIN + "$";
 	private final static String SLASHED_DOMAIN_ENDING = ".*" + SLASHED_DOMAIN + "$";
 	
@@ -115,6 +117,12 @@ public class DSFormatter {
 			.forEach((key) -> abbrToFull.put(fullToAbbr.get(key), key));
 	}
 	
+	public static String toString(Exception e){
+		StringWriter sw = new StringWriter();
+		e.printStackTrace(new PrintWriter(sw));
+		return e.getMessage() + " : " + sw.toString();
+	}
+	
 	public static boolean equals(String first, String second) {
 		if(first == null && second == null)
 			return true;
@@ -128,6 +136,9 @@ public class DSFormatter {
 			return null;
 		}
 		phone = phone.replaceAll("[^0-9]", "");
+		if(phone.length() == 11 && phone.startsWith("1")){
+			phone = phone.substring(1, phone.length());
+		}
 		return phone;
 	}
 	
@@ -172,7 +183,7 @@ public class DSFormatter {
 		if(state == null) {
 			return null;
 		}
-		state = state.toUpperCase();
+		state = state.toUpperCase().trim();
 		
 		String tempState = abbrToFull.get(state);
 		if(tempState != null){
@@ -244,7 +255,7 @@ public class DSFormatter {
 					Logger.error("Found surrogate character!");
 			}
 			if(original.length() > length){
-				String trunc = "TRUNCATED" + original.substring(0, length-9); 
+				String trunc = "~" + original.substring(0, length-1); 
 				Logger.info("Truncating String : " + trunc);
 				return trunc;
 			}
@@ -279,71 +290,9 @@ public class DSFormatter {
 		return false;
 	}
 	
-	public static String toHttp(String original) {
-		String destination;
-		if(!original.matches(HAS_HTTP_REGEX)){
-			destination = "http://" + original;
-		}
-		else {
-			destination = original;
-		}
-		return destination;
-	}
-	
-	public static String removeQueryString(String original) {
-		int queryPosition = original.indexOf('?');
-		if(queryPosition > 0){
-			return original.substring(0, queryPosition);
-		}
-		else
-			return original;
-	}
-	
-	public static String removeWww(String original) {
-		
-		String returned = original.toLowerCase();
-		returned = returned.replaceAll("www3.", "");
-		returned = returned.replaceAll("www.", "");
-		returned = returned.replaceAll("ww12.", "");
-		returned = returned.replaceAll("ww1.", "");
-		returned = returned.replaceAll("ww2.", "");
-		returned = returned.replaceAll("ww3.", "");
-		
-		return returned;
-	}
-	
-	public static String removeHttp(String original) {
-		
-		String returned = original.toLowerCase();
-		returned = returned.replaceAll("http://", "");
-		returned = returned.replaceAll("https://", "");
-		
-		return returned;
-	}
-	
-	public static String removeLanguage(String original) {
-		String returned = original.toLowerCase();
-		for(HomepagePath langPath : HomepagePath.langValues()){
-			returned = returned.replaceAll(langPath.definition + "$", "/");	//We only want to replace paths at the end of the string
-		}
-		for(ValidQueryMatch langQuery : ValidQueryMatch.langValues()){
-			returned = returned.replace("?" + langQuery.definition, "");			//Leave rest of query intact, excluding '?' character.  This may result in invalid URL.
-		}
-//		System.out.println("original :" + original);
-//		System.out.println("removed : " + returned);
-		return returned;
-	}
-	
-	public static String toCom(String original){
-		String returned = original.replaceAll(SLASHED_DOMAIN, ".com/");
-		returned = returned.replaceAll(SLASHLESS_DOMAIN, ".com");
-		
-		return returned;
-	}
-	
 	public static String regularize(String original) {
-		String changed = toHttp(original);
-		changed = removeQueryString(changed);
+		String changed = UrlUtils.toHttp(original);
+		changed = UrlUtils.removeQueryString(changed);
 		return changed;
 	}
 	
@@ -506,12 +455,12 @@ public class DSFormatter {
 	
 	public static String getDomain(String url) {
 		String domain;
-		url = toHttp(url);
+		url = UrlUtils.toHttp(url);
 		
 		try {
 			URL formal = new URL(url);
 			domain = formal.getHost();
-			domain = removeWww(domain);
+			domain = UrlUtils.removeWww(domain);
 		} catch (MalformedURLException e) {
 			domain = "ERROR";
 		}
@@ -535,7 +484,7 @@ public class DSFormatter {
 	}
 	
 	public static boolean isDefunctDomain(URL url) {
-		return StringMatchUtils.equalsAny(DefunctDomain.values(), removeWww(url.getHost()));
+		return StringMatchUtils.equalsAny(DefunctDomain.values(), UrlUtils.removeWww(url.getHost()));
 	}
 	
 	public static boolean isDefunctPath(URL url) {
@@ -553,11 +502,11 @@ public class DSFormatter {
 	}
 	
 	public static boolean isUncrawlableDomain(URL url) {
-		return StringMatchUtils.equalsAny(NoCrawlDomain.values(), removeWww(url.getHost()));
+		return StringMatchUtils.equalsAny(NoCrawlDomain.values(), UrlUtils.removeWww(url.getHost()));
 	}
 	
 	public static boolean isSharedDomain(URL url) {
-		return StringMatchUtils.equalsAny(SharedDomain.values(), removeWww(url.getHost()));
+		return StringMatchUtils.equalsAny(SharedDomain.values(), UrlUtils.removeWww(url.getHost()));
 	}
 	
 	public static boolean isBadQuery(URL url) {

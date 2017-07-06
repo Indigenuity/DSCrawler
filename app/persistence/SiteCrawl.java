@@ -49,18 +49,6 @@ import datadefinitions.newdefinitions.WPClue;
 //Lazy fetch all collections
 
 @Entity
-@NamedEntityGraph(name="siteCrawlFull", 
-	attributeNodes={
-		@NamedAttributeNode(value="pageCrawls", subgraph="pageCrawlFull"),
-		
-	}, 
-	subgraphs = {
-		@NamedSubgraph(name="pageCrawlFull", attributeNodes = {
-			@NamedAttributeNode("links"),
-		})
-}
-	
-)
 public class SiteCrawl {
 	
 	public enum FileStatus {
@@ -80,37 +68,12 @@ public class SiteCrawl {
 	/**************Crawl Basics and Config***********************************************/
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	private String seed;
-	@Column(nullable = true, columnDefinition="varchar(4000)")
-	private String resolvedSeed;
 	
 	private Date crawlDate = new Date();
 	private int crawlDepth = 0;
 	private Integer maxDepth = 1;
 	private Integer maxPages = 5000;
 	private boolean followNonUnique = true;
-	private boolean homepageCrawl = false;
-	
-	@Column(nullable = true, columnDefinition="varchar(4000)")
-	@ElementCollection(fetch=FetchType.LAZY)
-	private Set<String> uniqueCrawledPageUrls = new HashSet<String>();		//Involves chopping off query strings
-	@Column(columnDefinition="varchar(4000)")
-	@ElementCollection(fetch=FetchType.LAZY)
-	private Set<String> crawledUrls = new HashSet<String>();		//Includes failed urls
-	@Column(columnDefinition="varchar(4000)")
-	@ElementCollection(fetch=FetchType.LAZY)
-	private Set<String> crawledPaths = new HashSet<String>();
-	@Column(columnDefinition="varchar(4000)")
-	@ElementCollection(fetch=FetchType.LAZY)
-	private Set<String> unCrawledUrls = new HashSet<String>();		
-	@Column(columnDefinition="varchar(4000)")
-	@ElementCollection(fetch=FetchType.LAZY)
-	private Set<String> failedUrls = new HashSet<String>();
-	
-	@ElementCollection(fetch=FetchType.LAZY)
-	private Set<String> unCrawledInventoryUrls = new HashSet<String>();		
-	@Column(columnDefinition="varchar(4000)")
-	@ElementCollection(fetch=FetchType.LAZY)
-	private Set<String> failedInventoryUrls = new HashSet<String>();
 	
 	@Column(nullable = true, columnDefinition="varchar(1000)")
 	private String storageFolder;
@@ -118,9 +81,6 @@ public class SiteCrawl {
 	private String localFolderName;	//Guaranteed to be set in the constructor
 	
 	private boolean maxPagesReached = false;
-	private int numRepeatedUrls = 0;
-	private int numRetrievedFiles = 0;
-	private int numLargeFiles = 0;
 	private boolean smallCrawlApproved = false;
 	
 	/****************************************  Stateful metadata ***********************/
@@ -135,23 +95,14 @@ public class SiteCrawl {
 		inverseJoinColumns={@JoinColumn(name="pageCrawls_pageCrawlId")})
 	@LazyCollection(LazyCollectionOption.EXTRA)
 	private Set<PageCrawl> pageCrawls = new HashSet<PageCrawl>();
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinTable(name="sitecrawl_newInventorypage")
-	private PageCrawl newInventoryPage;
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinTable(name="sitecrawl_usedInventorypage")
-	private PageCrawl usedInventoryPage;
 	
 	@ManyToOne(fetch=FetchType.LAZY)
-//	@JoinTable(name="sitecrawl_newInventoryroot")
 	private PageCrawl newInventoryRoot;
 	@ManyToOne(fetch=FetchType.LAZY)
-//	@JoinTable(name="sitecrawl_usedInventoryroot")
 	private PageCrawl usedInventoryRoot;
 	
 	private Boolean inventoryCrawlSuccess = true;
 	@Formula("inventoryCrawlSuccess AND usedInventoryRoot_pageCrawlId is not null AND newInventoryRoot_pageCrawlId is not null")
-//	@Transient
 	private Boolean satisfactoryInventoryCrawl;
 	
 //	@OneToOne(mappedBy="siteCrawl")
@@ -159,16 +110,6 @@ public class SiteCrawl {
 	
 	
 	/******************************************  Calculated Attributes Collections ***********************************/
-	
-	@Column(nullable = true, columnDefinition="varchar(4000)")
-	@ElementCollection(fetch=FetchType.LAZY)
-	private Set<String> allLinks = new HashSet<String>();
-	
-	@Column(nullable = true, columnDefinition="varchar(4000)")
-	@ElementCollection(fetch=FetchType.LAZY)
-	private Set<String> intrasiteLinks = new HashSet<String>();
-	
-	
 	
 	@SuppressWarnings("unused")
 	private SiteCrawl () {}
@@ -230,17 +171,6 @@ public class SiteCrawl {
 		this.seed = seed;
 	}
 
-	public String getResolvedSeed() {
-		return resolvedSeed;
-	}
-
-	public void setResolvedSeed(String resolvedSeed) {
-		if(resolvedSeed == null || resolvedSeed.length() > 4000){
-			throw new IllegalArgumentException("Can't set URL with length > 4000 as resolved seed of SiteCrawl");
-		}
-		this.resolvedSeed = resolvedSeed;
-	}
-
 	public Date getCrawlDate() {
 		return crawlDate;
 	}
@@ -248,8 +178,6 @@ public class SiteCrawl {
 	public void setCrawlDate(Date crawlDate) {
 		this.crawlDate = crawlDate;
 	}
-
-	
 
 	public String getStorageFolder() {
 		return storageFolder;
@@ -267,44 +195,12 @@ public class SiteCrawl {
 		this.maxPagesReached = maxPagesReached;
 	}
 
-	public int getNumRetrievedFiles() {
-		return numRetrievedFiles;
-	}
-
-	public void setNumRetrievedFiles(int numRetrievedFiles) {
-		this.numRetrievedFiles = numRetrievedFiles;
-	}
-
-	public int getNumLargeFiles() {
-		return numLargeFiles;
-	}
-
-	public void setNumLargeFiles(int numLargeFiles) {
-		this.numLargeFiles = numLargeFiles;
-	}
-
-	public int getNumRepeatedUrls() {
-		return numRepeatedUrls;
-	}
-
-	public void setNumRepeatedUrls(int numRepeatedUrls) {
-		this.numRepeatedUrls = numRepeatedUrls;
-	}
-
 	public long getSiteCrawlId() {
 		return siteCrawlId;
 	}
 
 	public void setSiteCrawlId(long siteCrawlId) {
 		this.siteCrawlId = siteCrawlId;
-	}
-
-	public boolean isHomepageCrawl() {
-		return homepageCrawl;
-	}
-
-	public void setHomepageCrawl(boolean homepageCrawl) {
-		this.homepageCrawl = homepageCrawl;
 	}
 
 	public boolean isSmallCrawlApproved() {
@@ -321,140 +217,6 @@ public class SiteCrawl {
 
 	public void setFollowNonUnique(boolean followNonUnique) {
 		this.followNonUnique = followNonUnique;
-	}
-
-	public Set<String> getAllLinks() {
-		return allLinks;
-	}
-
-	public void setAllLinks(Set<String> allLinks) {
-		this.allLinks.clear();
-		for(String item : allLinks){
-			this.allLinks.add(DSFormatter.truncate(item, 4000));
-		}
-	}
-	
-	public boolean addLink(String link) {
-		return this.allLinks.add(DSFormatter.truncate(link, 4000));
-	}
-
-	public Set<String> getIntrasiteLinks() {
-		return intrasiteLinks;
-	}
-
-	public void setIntrasiteLinks(Set<String> intrasiteLinks) {
-		this.intrasiteLinks.clear();
-		for(String item : intrasiteLinks){
-			this.intrasiteLinks.add(DSFormatter.truncate(item, 4000));
-		}
-	}
-
-	public boolean addIntrasiteLink(String intrasiteLink) {
-		return this.intrasiteLinks.add(DSFormatter.truncate(intrasiteLink, 4000));
-	}
-
-	public Set<String> getUniqueCrawledPageUrls() {
-		return uniqueCrawledPageUrls;
-	}
-
-	public void setUniqueCrawledPageUrls(Set<String> uniqueCrawledPageUrls) {
-		this.uniqueCrawledPageUrls.clear();
-		for(String item : uniqueCrawledPageUrls){
-			this.uniqueCrawledPageUrls.add(DSFormatter.truncate(item, 4000));
-		}
-	}
-	
-	public boolean addUniqueCrawledPageUrl(String uniqueCrawledPageUrl) {
-		return this.uniqueCrawledPageUrls.add(DSFormatter.truncate(uniqueCrawledPageUrl, 4000));
-	}
-	
-	public Set<String> getCrawledUrls() {
-		return crawledUrls;
-	}
-
-	public void setCrawledUrls(Set<String> crawledUrls) {
-		this.crawledUrls.clear();
-		for(String url : crawledUrls){
-			this.crawledUrls.add(DSFormatter.truncate(url, 4000));
-		}
-	}
-	
-	public Set<String> getUnCrawledUrls() {
-		return unCrawledUrls;
-	}
-
-	public void setUnCrawledUrls(Set<String> unCrawledUrls) {
-		this.unCrawledUrls.clear();
-		for(String url : unCrawledUrls){
-			this.unCrawledUrls.add(DSFormatter.truncate(url, 4000));
-		}
-	}
-	
-	
-	public boolean addUncrawledInventoryUrl(String uncrawledInventoryUrl) {
-		return this.unCrawledInventoryUrls.add(DSFormatter.truncate(uncrawledInventoryUrl, 4000));
-	}
-	public Set<String> getUnCrawledInventoryUrls() {
-		return unCrawledInventoryUrls;
-	}
-
-	public void setUnCrawledInventoryUrls(Set<String> unCrawledInventoryUrls) {
-		this.unCrawledInventoryUrls.clear();
-		for(String url : unCrawledInventoryUrls){
-			this.unCrawledInventoryUrls.add(DSFormatter.truncate(url, 4000));
-		}
-	}
-	
-	public Set<String> getCrawledPaths() {
-		return crawledPaths;
-	}
-
-	public void setCrawledPaths(Set<String> crawledPaths) {
-		this.crawledPaths.clear();
-		for(String url : crawledPaths){
-			this.crawledPaths.add(DSFormatter.truncate(url, 4000));
-		}
-	}
-	
-	public boolean addCrawledPath(String crawledPath) {
-		return this.crawledPaths.add(DSFormatter.truncate(crawledPath, 4000));
-	}
-
-	public boolean addCrawledUrl(String crawledUrl) {
-		return this.crawledUrls.add(DSFormatter.truncate(crawledUrl, 4000));
-	}
-
-	public boolean addUncrawledUrl(String uncrawledUrl) {
-		return this.unCrawledUrls.add(DSFormatter.truncate(uncrawledUrl, 4000));
-	}
-
-	public void setFailedInventoryUrls(Set<String> failedInventoryUrls) {
-		this.failedInventoryUrls.clear();
-		for(String url : failedInventoryUrls){
-			this.failedInventoryUrls.add(DSFormatter.truncate(url, 4000));
-		}
-	}
-	public boolean addFailedInventoryUrl(String failedInventoryUrl) {
-		return this.failedInventoryUrls.add(DSFormatter.truncate(failedInventoryUrl, 4000));
-	}
-	
-	public Set<String> getFailedInventoryUrls() {
-		return failedInventoryUrls;
-	}
-	
-	public Set<String> getFailedUrls() {
-		return failedUrls;
-	}
-
-	public void setFailedUrls(Set<String> failedUrls) {
-		this.failedUrls.clear();
-		for(String url : failedUrls){
-			this.failedUrls.add(DSFormatter.truncate(url, 4000));
-		}
-	}
-	
-	public boolean addFailedUrl(String failedUrl) {
-		return this.failedUrls.add(DSFormatter.truncate(failedUrl, 4000));
 	}
 
 	public int getCrawlDepth() {
@@ -480,84 +242,45 @@ public class SiteCrawl {
 //		System.out.println("removed : " + pageCrawl.getUrl());
 	}
 	
-	public PageCrawl getNewInventoryPage() {
-		return newInventoryPage;
-	}
-
-	public void setNewInventoryPage(PageCrawl newInventoryPage) {
-		if(newInventoryPage != null)
-			pageCrawls.add(newInventoryPage);
-		this.newInventoryPage = newInventoryPage;
-	}
-
-	public PageCrawl getUsedInventoryPage() {
-		return usedInventoryPage;
-	}
-
-	public void setUsedInventoryPage(PageCrawl usedInventoryPage) {
-		if(usedInventoryPage != null)
-			pageCrawls.add(usedInventoryPage);
-		this.usedInventoryPage = usedInventoryPage;
-	}
-	
-
-	public FileStatus getFileStatus() {
+	public FileStatus getFileStatus() { 
 		return fileStatus;
 	}
-
 
 	public void setFileStatus(FileStatus fileStatus) {
 		this.fileStatus = fileStatus;
 	}
 
-
 	public void initPageData() {
 		pageCrawls.size();
 	}
 	
-	public void initSiteCrawlData() {
-		allLinks.size();
-		intrasiteLinks.size();
-		uniqueCrawledPageUrls.size();
-		crawledUrls.size();
-		failedUrls.size();
-	}
-	
 	public void initAll() {
 		initPageData();
-		initSiteCrawlData();
 	}
-
 
 	public PageCrawl getNewInventoryRoot() {
 		return newInventoryRoot;
 	}
 
-
 	public void setNewInventoryRoot(PageCrawl newInventoryRoot) {
 		this.newInventoryRoot = newInventoryRoot;
 	}
-
 
 	public PageCrawl getUsedInventoryRoot() {
 		return usedInventoryRoot;
 	}
 
-
 	public void setUsedInventoryRoot(PageCrawl usedInventoryRoot) {
 		this.usedInventoryRoot = usedInventoryRoot;
 	}
-
 
 	public Integer getMaxDepth() {
 		return maxDepth;
 	}
 
-
 	public void setMaxDepth(Integer maxDepth) {
 		this.maxDepth = maxDepth;
 	}
-
 
 	public Integer getMaxPages() {
 		return maxPages;
@@ -568,7 +291,6 @@ public class SiteCrawl {
 		this.maxPages = maxPages;
 	}
 
-
 	public Boolean getInventoryCrawlSuccess() {
 		return inventoryCrawlSuccess;
 	}
@@ -578,16 +300,13 @@ public class SiteCrawl {
 		this.inventoryCrawlSuccess = inventoryCrawlSuccess;
 	}
 
-
 	public String getLocalFolderName() {
 		return localFolderName;
 	}
 
-
 	public void setLocalFolderName(String localFolderName) {
 		this.localFolderName = localFolderName;
 	}
-
 
 	public Boolean getSatisfactoryInventoryCrawl() {
 		return satisfactoryInventoryCrawl;

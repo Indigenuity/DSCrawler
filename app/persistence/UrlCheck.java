@@ -28,7 +28,7 @@ public class UrlCheck {
 	private String errorMessage;
 	
 	private Date checkDate = new Date();
-	private int statusCode;
+	private int statusCode = 0;
 	private boolean noChange;
 
 	//Refers to errors related to program execution, not HTTP errors

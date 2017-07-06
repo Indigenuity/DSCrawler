@@ -24,9 +24,16 @@ import persistence.Site.SiteStatus;
 import persistence.UrlCheck;
 import play.db.jpa.JPA;
 import utilities.DSFormatter;
+import utilities.UrlUtils;
 
 public class SiteLogic {
 	
+	public static boolean isBlankSite(Site site){
+		if(site == null || StringUtils.isEmpty(site.getHomepage())){
+			return true;
+		}
+		return false;
+	}
 	
 	//***************** Detecting and generating redirects ************************//
 	
@@ -48,7 +55,7 @@ public class SiteLogic {
 		Site redirected = null;
 		Site currentSite = site;
 		int redirectCount = 0;
-		while((redirected = tryRedirects(currentSite, forceHttpCheck)) != null && redirectCount < 500) {
+		while((redirected = tryRedirect(currentSite, forceHttpCheck)) != null && redirectCount < 500) {
 			currentSite = redirected;
 //			System.out.println("AFter try redirect : " + redirected.getHomepage());
 			redirectCount++;
@@ -57,7 +64,7 @@ public class SiteLogic {
 	}
 	
 	//forceHttpCheck will make an http check for the Site even if it has a recent check
-	public static Site tryRedirects(Site site, boolean forceHttpCheck){
+	public static Site tryRedirect(Site site, boolean forceHttpCheck){
 //		System.out.println("trying redirects : " + site.getHomepage());
 		Site redirected = tryRedirectByStructure(site);
 		if(redirected != null){
@@ -111,16 +118,13 @@ public class SiteLogic {
 		UrlCheck urlCheck = UrlChecker.checkUrl(site.getHomepage());
 		JPA.em().persist(urlCheck);
 		site.setUrlCheck(urlCheck);
-		if(!urlCheck.isError() && !urlCheck.isStatusApproved()){
-			site.setHttpError(true);
-		} else if(!urlCheck.isError()) {
-			site.setHttpError(false);
-		}
 		return urlCheck;
 	}
 	
 	public static Site applyHttpCheck(Site site){
 		UrlCheck urlCheck = site.getUrlCheck();
+		site.setHttpError(urlCheck.isError());
+		site.setBadStatus(urlCheck.isStatusApproved());
 		if(urlCheck != null && urlCheck.isStatusApproved() && !urlCheck.isNoChange()){
 			return redirect(site, urlCheck.getResolvedSeed(), RedirectType.HTTP);
 		}
@@ -160,7 +164,7 @@ public class SiteLogic {
 			site.setBadUrlStructure(true);
 			return;
 		}
-		site.setDomain(DSFormatter.removeWww(url.getHost()));
+		site.setDomain(UrlUtils.removeWww(url.getHost()));
 		site.setBadUrlStructure(SiteLogic.isBadUrlStructure(site.getHomepage()));
 		site.setDefunctDomain(DSFormatter.isDefunctDomain(url));
 		site.setDefunctPath(DSFormatter.isDefunctPath(url));
@@ -267,63 +271,9 @@ public class SiteLogic {
 		return site;
 	}
 
-	public static Site acceptRedirect(Site site, String newHomepage) {
-		return SiteLogic.applyRedirect(site, newHomepage, true);
-	}
-	
-	public static Site acceptRedirect(Site site) {
-		return SiteLogic.applyRedirect(site, site.getUrlCheck().getResolvedSeed(), true);
-	}
-
-	public static Site reviewRedirect(Site site, String newHomepage) {
-		return SiteLogic.applyRedirect(site, newHomepage, false);
-	}
-
-	public static Site applyRedirect(Site site, String newHomepage, boolean approved){
-		Site newSite = SitesDAO.getFirst("homepage", newHomepage);
-		if(newSite == null){
-			newSite = new Site(newHomepage);
-			JPA.em().persist(newSite);
-			if(approved){
-				newSite.setSiteStatus(SiteStatus.APPROVED);
-			}
-		}
-		site.setSiteStatus(SiteStatus.REDIRECTS);
-		site.setForwardsTo(newSite);
-		return newSite;
-	}
-
-	//Returns the NEW site
-	public static Site manuallyRedirect(Site site, String newHomepage) {
-		Site newSite = SitesDAO.getOrNew(newHomepage);
-		site.setManualForwardsTo(newSite);
-		site.setSiteStatus(SiteStatus.MANUALLY_REDIRECTS);
-		return newSite;
-	}
-
-	public static void acceptUrlCheck(Site site, boolean sharedSite) {
-		UrlCheck urlCheck = site.getUrlCheck();
-		if(urlCheck == null){
-			throw new IllegalArgumentException("Can't accept UrlCheck of Site without UrlCheck : " + site.getSiteId());
-		}
-		
-		if(urlCheck.isNoChange()){
-			approve(site);
-			site.setSharedSite(sharedSite);
-		} else {
-			acceptRedirect(site, urlCheck.getResolvedSeed())
-				.setSharedSite(sharedSite);
-		}
-	}
-	
-	public static Site disapprove(Site site){
-		site.setSiteStatus(SiteStatus.DISAPPROVED);
-		return site;
-	}
-
 	public static String standardizeBaseUrl(String original) {
 		try {
-			original = DSFormatter.toHttp(original);
+			original = UrlUtils.toHttp(original);
 			URL url = new URL(original);
 			String rebuilt = url.toString();
 			if(StringUtils.isEmpty(url.getPath()) && StringUtils.isEmpty(url.getQuery())){

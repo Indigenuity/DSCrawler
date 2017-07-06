@@ -9,60 +9,62 @@ import com.google.common.util.concurrent.RateLimiter;
 
 import crawling.discovery.entities.Resource;
 import crawling.discovery.entities.ResourceId;
+import crawling.discovery.planning.PreResource;
 import crawling.discovery.planning.ResourceFetchTool;
 import crawling.discovery.planning.ResourcePlan;
 import crawling.discovery.planning.ResourcePreOrder;
+import newwork.WorkStatus;
 
 public class ResourceContext extends Context{
 	
 	protected final CrawlContext crawlContext;
 	protected final ResourceFetchTool fetchTool;
 	protected final int numWorkers;
-	protected final PlanId planId;
 	
 	
 	
-	protected final Set<ResourceWorkResult> results = new HashSet<ResourceWorkResult>();
 	protected final Set<PlanId> discoveryPlans = new HashSet<PlanId>();
-	protected final Set<Resource> rootResources = new HashSet<Resource>();
-	protected final Set<ResourcePreOrder> preOrders = new HashSet<ResourcePreOrder>();
-	protected final Set<Resource> resources = new HashSet<Resource>();
+	protected final Map<ResourceId, Resource> resources = new HashMap<ResourceId, Resource>();
 	
 	public ResourceContext(CrawlContext crawlContext, ResourcePlan resourcePlan){
-		this.contextObjects.putAll(resourcePlan.getInitialContextObjects());
-		this.rateLimiter = resourcePlan.getRateLimiter();
+		super(resourcePlan);
 		this.fetchTool = resourcePlan.getFetchTool();
 		this.crawlContext = crawlContext;
 		this.discoveryPlans.addAll(resourcePlan.getDiscoveryPlans());
 		this.numWorkers = resourcePlan.getNumWorkers();
-		this.planId = resourcePlan.getPlanId();
-		this.maxDepth = resourcePlan.getMaxDepth();
-		this.maxPages = resourcePlan.getMaxPages();
-		this.preOrders.addAll(resourcePlan.getPreOrders());
-		this.resources.addAll(resourcePlan.getResources());
 //		System.out.println("resource context preorders : " + preOrders.size());
 	}
 	
-	public ResourceId getNextResourceId(){
+	public Resource preGenerateResource(PreResource preResource, Resource parent) throws Exception{
+		Resource resource = fetchTool.generateResource(preResource, parent, this.getNextResourceId(), this);
+		this.addResource(resource);
+		if(resource.getFetchStatus() != WorkStatus.UNASSIGNED){
+			incrementNumResourcesCrawled();
+		}
+		return resource;
+	}
+	
+	public Resource generateResource(Object source, Resource parent) throws Exception {
+		Resource resource = fetchTool.generateResource(source, parent, this.getNextResourceId(), this);
+		this.addResource(resource);
+		return resource;
+	}
+	
+	public void addResource(Resource resource){
+		resources.put(resource.getResourceId(), resource);
+		crawlContext.addResource(resource);
+	}
+	
+	public Resource getResource(ResourceId resourceId) {
+		return resources.get(resourceId);
+	}
+	
+	public Set<Resource> getResources() {
+		return new HashSet<Resource>(resources.values());
+	}
+	
+	protected ResourceId getNextResourceId(){
 		return crawlContext.getNextResourceId();
-	}
-	
-	public Resource generateResource(Object source, Object value, Resource parent){
-		return new Resource(source, value, parent, getNextResourceId(), this.planId);
-	}
-	
-	public void storeWorkResult(ResourceWorkResult workResult){
-		this.results.add(workResult);
-		for(Resource resource : workResult.getResources()){
-			checkAndMarkRoot(resource);
-		}
-	}
-	
-	protected boolean checkAndMarkRoot(Resource resource){
-		if(resource.getParent() == null){
-			return rootResources.add(resource);
-		}
-		return false;
 	}
 	
 	@Override
@@ -72,30 +74,15 @@ public class ResourceContext extends Context{
 	}
 	
 	@Override
-	protected boolean approveWork(ResourceWorkOrder workOrder){
+	protected boolean approveWork(Resource resource){
 		synchronized(permitMutex){
 			//Must keep the short circuit or crawlcontext will record crawls as happening even if resourcecontext doesn't approve
-			return super.approveWork(workOrder) && crawlContext.approveWork(workOrder);
+			return super.approveWork(resource) && crawlContext.approveWork(resource);
 		}
 	}
-	
-	@Override
-	public Object getContextObject(String key){
-		synchronized(contextObjects){
-			if(contextObjects.containsKey(key)){
-				return contextObjects.get(key);
-			}
-			return crawlContext.getContextObject(key);
-		}
-	}
-	
 	
 	public CrawlContext getCrawlContext() {
 		return crawlContext;
-	}
-
-	public Set<ResourceWorkResult> getResults() {
-		return results;
 	}
 
 	public Set<PlanId> getDiscoveryPlans() {
@@ -122,12 +109,4 @@ public class ResourceContext extends Context{
 		return planId;
 	}
 
-	public Set<Resource> getRootResources() {
-		return rootResources;
-	}
-
-	public Set<ResourcePreOrder> getPreOrders() {
-		return new HashSet<ResourcePreOrder>(preOrders);
-	}
-	
 }

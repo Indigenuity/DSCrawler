@@ -1,32 +1,18 @@
 package crawling.discovery.execution;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import crawling.discovery.entities.Resource;
-import crawling.discovery.planning.DiscoveryPlan;
+import crawling.discovery.entities.ResourceId;
 import newwork.WorkOrder;
 
 public class ResourceWorkOrder extends WorkOrder{
 	
-	protected final Object source;
-	protected final Resource parent;
-	protected final PlanId planId;
+	protected final ResourceId resourceId;
 	
-	public ResourceWorkOrder(Object source, Resource parent, PlanId planId) {
+	public ResourceWorkOrder(ResourceId resourceId) {
 		super();
-		this.source = source;
-		this.parent = parent;
-		this.planId = planId;
+		this.resourceId = resourceId;
 	}
-	public Object getSource() {
-		return source;
+
+	public ResourceId getResourceId() {
+		return resourceId;
 	}
-	public Resource getParent() {
-		return parent;
-	}
-	public PlanId getPlanId() {
-		return planId;
-	}
-	
 }

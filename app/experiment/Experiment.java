@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -62,7 +64,6 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.google.common.io.Files;
 import com.google.common.util.concurrent.RateLimiter;
 
-import crawling.CrawlSession;
 import crawling.DealerCrawlController;
 import crawling.HarleyCrawlingson;
 import crawling.HttpFetcher;
@@ -75,7 +76,7 @@ import crawling.anansi.SiteCrawler;
 import crawling.discovery.async.TempCrawlingWorker;
 import crawling.discovery.entities.SourcePool;
 import crawling.discovery.execution.CrawlContext;
-import crawling.discovery.execution.Crawler;
+import crawling.discovery.execution.CrawlSupervisor;
 import crawling.discovery.execution.DiscoveryContext;
 import crawling.discovery.execution.ResourceContext;
 import crawling.discovery.execution.ResourceWorkResult;
@@ -87,7 +88,6 @@ import crawling.discovery.html.HttpResponseFile;
 import crawling.discovery.html.HttpToFilePlan;
 import crawling.discovery.html.HttpToFileTool;
 import crawling.discovery.html.InternalLinkDiscoveryTool;
-import crawling.discovery.local.RegularToInventoryDiscoveryTool;
 import crawling.discovery.local.PageCrawlDiscoveryPlan;
 import crawling.discovery.local.PageCrawlPlan;
 import crawling.discovery.local.PageCrawlTool;
@@ -98,6 +98,7 @@ import crawling.discovery.planning.DiscoveryPlan;
 import crawling.discovery.planning.ResourcePlan;
 import crawling.nydmv.NYDealer;
 import crawling.projects.BasicDealer;
+import crawling.projects.MotorradScraper;
 import dao.AnalysisDao;
 import dao.GeneralDAO;
 import dao.SalesforceDao;
@@ -112,6 +113,7 @@ import datatransfer.CSVImporter;
 import datatransfer.Cleaner;
 import datatransfer.SiteCrawlImporter;
 import datatransfer.reports.Report;
+import datatransfer.reports.ReportFactory;
 import datatransfer.reports.ReportRow;
 import akka.actor.ActorRef;
 import akka.actor.Props;
@@ -142,11 +144,13 @@ import play.Logger;
 import play.db.jpa.JPA;
 import pods.PodZip;
 import pods.PodsLoader;
+import salesforce.SalesforceLogic;
 import salesforce.persistence.DealershipType;
 import salesforce.persistence.SalesforceAccount;
 import scala.concurrent.Future;
 import sites.SiteLogic;
 import sites.UrlChecker;
+import sites.crawling.CrawlSession;
 import sites.crawling.SiteCrawlLogic;
 import urlcleanup.ListCheck;
 import urlcleanup.ListCheckExecutor;
@@ -156,31 +160,60 @@ import utilities.Tim;
 public class Experiment { 
 	
 	public static void runExperiment() throws Exception {
-//		SiteCrawl siteCrawl= JPA.em().find(SiteCrawl.class, 17102L);
+//		List<Long> siteIds = GeneralDAO.getKeyList(Site.class, "siteId", "fullyKosher", true);
+//		System.out.println("Fully Kosher Sites : " + siteIds.size());
+		
+//		Pattern p = Pattern.compile("(\\d)(.*)(\\d)");
+//		String input = "6 example input 4";
+//		Matcher m = p.matcher(input);
+//		if (m.find()) {
+//		    // replace first number with "number" and second number with the first
+////		   System.out.println("replaced : " + m.repla);  // number 46
+//		}
+		
+//		PageCrawl pageCrawl = JPA.em().find(PageCrawl.class, 378393L);
+//		System.out.println("Site : " + pageCrawl.getSiteCrawl().getSiteCrawlId());
+		crawlingStuff();
+//		analysisTesting();
+//		crawlTesting2();
+	}
+	
+	public static void analysisTesting() throws Exception {
+		SiteCrawl siteCrawl= JPA.em().find(SiteCrawl.class, 1L);
+		
+		SiteCrawlAnalysis analysis = AnalysisDao.getOrNew(siteCrawl);
+		analysis.getConfig().setDoVehicles(true);
+		SiteCrawlAnalyzer.runSiteCrawlAnalysis(analysis);
+	}
+	
+	public static void crawlTesting2() throws Exception {
+//		SiteCrawl siteCrawl= JPA.em().find(SiteCrawl.class, 1L);
 //		SiteCrawlPlan siteCrawlPlan = new SiteCrawlPlan(siteCrawl);
 //		System.out.println("uncrawled : " + siteCrawl.getUnCrawledUrls().size());
 //		System.out.println("failed: " + siteCrawl.getFailedUrls().size());
 //		siteCrawlPlan.setMaxPages(SiteCrawlPlan.DEFAULT_MAX_PAGES_TO_FETCH);
 		
-//		Site site = SitesDAO.getOrNewThreadsafe("https://www.thisisnotavalidsitedontmakeanaccountwiththisurl.com/");
-//		SiteCrawlPlan siteCrawlPlan = new SiteCrawlPlan(site);
-//		siteCrawlPlan.setMaxPages(1);
+		Site site = SitesDAO.getOrNewThreadsafe("http://www.tommievaughnford.com/");
+		SiteCrawlPlan siteCrawlPlan = new SiteCrawlPlan(site);
+		siteCrawlPlan.setMaxPages(5);
+//		siteCrawlPlan.setMaxDepth(CrawlPlan.DEFAULT_MAX_DEPTH_OF_CRAWLING);
+//		siteCrawlPlan.getRegularPlan().setMaxDepth(1);
 		
-//		Asyncleton.getInstance().getCrawlMaster().tell(siteCrawlPlan, ActorRef.noSender());
+		Asyncleton.getInstance().getCrawlMaster().tell(siteCrawlPlan, ActorRef.noSender());
 //		crawlingStuff();
 //		analyzingStuff();
 		
 		
 //		SiteCrawlLogic.ensureFreshInventorySiteCrawls(1, 0);
 		
-		PodsLoader.loadFromCsv();
+		
 	}
 	
 	public static void analyzingStuff() throws Exception {
 		String queryString = "select sc from SiteCrawl sc join sc.pageCrawls pc where pc.invType = :invType";
 		List<SiteCrawl> siteCrawls = JPA.em().createQuery(queryString, SiteCrawl.class).setParameter("invType", InvType.DEALER_COM)
-				.setMaxResults(1)
-				.setFirstResult(1)
+				.setMaxResults(2)
+				.setFirstResult(2)
 				.getResultList();
 		System.out.println("siteCrawls :" + siteCrawls.size());
 		for(SiteCrawl siteCrawl : siteCrawls){
@@ -191,15 +224,18 @@ public class Experiment {
 	}
 	
 	public static void crawlingStuff() throws Exception {
-		String queryString = "select s from SalesforceAccount sa join sa.site s where sa.dealershipType = :dealershipType";
+		String queryString = "select s from SalesforceAccount sa join sa.site s where sa.dealershipType = :dealershipType "
+				+ "and s.fullyApprovedUrl = true and (s.mostRecentCrawl is null or s.mostRecentCrawl < :staleDate)";
 		List<Site> sites = JPA.em().createQuery(queryString, Site.class)
-				.setFirstResult(111)
-				.setMaxResults(200)
+				.setFirstResult(0)
+				.setMaxResults(5000)
 				.setParameter("dealershipType", DealershipType.FRANCHISE)
+				.setParameter("staleDate", Global.getStaleDate())
 				.getResultList();
 		System.out.println("siteIds : " + sites.size());
 		
 		for(Site site : sites) {
+//			System.out.println("Site : " + site.getHomepage());
 			SiteCrawlPlan siteCrawlPlan = new SiteCrawlPlan(site);
 			Asyncleton.getInstance().getCrawlMaster().tell(siteCrawlPlan, ActorRef.noSender());
 		}

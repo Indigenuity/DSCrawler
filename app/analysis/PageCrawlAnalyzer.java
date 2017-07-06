@@ -26,6 +26,7 @@ import global.Global;
 import persistence.InventoryNumber;
 import persistence.Metatag;
 import persistence.PageCrawl;
+import sites.utilities.PageCrawlLogic;
 
 public class PageCrawlAnalyzer {
 	
@@ -33,38 +34,25 @@ public class PageCrawlAnalyzer {
 	public static final int TITLE_MIN_OPTIMAL_LENGTH = 50;
 	public static final int META_DESCRIPTION_MAX_OPTIMAL_LENGTH = 120;
 	
+	private final PageCrawl pageCrawl;
+	private final AnalysisConfig config;
+	private final SiteCrawlAnalysis siteAnalysis;
+	
 	private PageCrawlAnalysis pageAnalysis;
-	private AnalysisConfig config;
-	private SiteCrawlAnalysis siteAnalysis;
+	
 	private String text;
 	private Document doc;
 	List<String> cities;
 	
-	public PageCrawlAnalyzer(PageCrawlAnalysis pageAnalysis) {
-		this.pageAnalysis = pageAnalysis;
-		this.siteAnalysis = pageAnalysis.getSiteCrawlAnalysis();
+	public PageCrawlAnalyzer(PageCrawl pageCrawl, SiteCrawlAnalysis siteAnalysis) {
+		this.pageCrawl = pageCrawl;
+		this.siteAnalysis = siteAnalysis;
 		this.config = siteAnalysis.getConfig();
-	}
-	
-	public static String getText(PageCrawl pageCrawl){
-		String filename = pageCrawl.getFilename();
-		try(FileInputStream inputStream = new FileInputStream(filename)){
-			return IOUtils.toString(inputStream, "UTF-8");	
-		} catch(IOException e){
-			throw new RuntimeException(e);
-		}
 	}
 	
 	public synchronized String text()  {
 		if(text == null) {
-			try {
-				String filename = pageAnalysis.getPageCrawl().getFilename();
-				FileInputStream inputStream = new FileInputStream(filename);
-		        text = IOUtils.toString(inputStream, "UTF-8");
-		        inputStream.close();
-			} catch(Exception e){
-				throw new RuntimeException(e);
-			}
+			text = PageCrawlLogic.getText(pageAnalysis.getPageCrawl());
 		}
 		return text;
 	}
@@ -86,9 +74,11 @@ public class PageCrawlAnalyzer {
 	
 	
 	public PageCrawlAnalysis runAnalysis(){
-		
-		
-        runTextAnalysis();
+		if(!PageCrawlLogic.fileExists(pageCrawl)){
+			return null;
+		}
+		pageAnalysis = new PageCrawlAnalysis(pageCrawl);
+		runTextAnalysis();
 		if(config.needsDoc()){
 			runDocAnalysis();
 		}
@@ -166,6 +156,9 @@ public class PageCrawlAnalyzer {
 		if(config.getDoCustomDoc()){
 			customDoc();
 		}
+		if(config.getDoInventoryNumbers()){
+			inventoryCounts();
+		}
 		
 	}
 	
@@ -237,6 +230,14 @@ public class PageCrawlAnalyzer {
 			pageAnalysis.setVehicles(tool.getVehicles(doc()));
 		}
 	}
+	
+	public void inventoryCounts() {
+		InvType invType = pageAnalysis.getPageCrawl().getInvType();
+		if(invType != null){
+			InventoryTool tool = invType.getTool();
+			pageAnalysis.setInventoryCount(tool.getCount(doc()));
+		}
+	}
 
 	public void customDoc() {
 		
@@ -288,43 +289,6 @@ public class PageCrawlAnalyzer {
 	
 	
 	//***************  Legacy code ****************************
-	
-	
-	/************************  Legacy Text Analysis  **************************/
-	
-	public static void textAnalysis(PageCrawl pageCrawl, String text){
-		getInventoryNumbers(pageCrawl, text);
-	}	
-	
-	public static void getInventoryNumbers(PageCrawl pageCrawl, String text) {
-//		System.out.println("getting inventory numbers");
-		InventoryNumber invNumber = null;
-		for(InventoryType enumElement : InventoryType.values()){
-			Matcher matcher = enumElement.getPattern().matcher(text);
-	    	while (matcher.find()) {
-	    		if(invNumber != null){
-	    			throw new IllegalStateException("Found multiple inventory values for a single page with id : " + pageCrawl.getPageCrawlId());
-	    		}
-	    		if(pageCrawl.getInventoryNumber() != null){
-	    			invNumber = pageCrawl.getInventoryNumber();
-	    			
-	    		}else {
-	    			invNumber = new InventoryNumber();
-	    		}
-	    		invNumber.setInventoryType(enumElement);
-	    		invNumber.setCount(Integer.parseInt(matcher.group(1)));
-	    		pageCrawl.setInventoryNumber(invNumber);
-	    	}
-		}
-	}
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	
 	/************************  Legacy Doc Analysis *****************************/

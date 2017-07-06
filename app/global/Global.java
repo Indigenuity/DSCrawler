@@ -28,7 +28,7 @@ public class Global extends GlobalSettings {
 	private final static int LARGE_FILE_THRESHOLD = 500 * 1000;	//~ .5MB
 	
 	private static final String DEFAULT_MOBILE_USER_AGENT_STRING = "Mozilla/5.0 (iPhone; CPU iPhone OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A5376e Safari/8536.25";
-	private final static String DEFAULT_USER_AGENT_STRING = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36";
+	private final static String DEFAULT_USER_AGENT_STRING = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36";
 	
 	private final static String OLD_LOGS_FOLDER = "logs/old";
 	
@@ -42,7 +42,7 @@ public class Global extends GlobalSettings {
 	private ActorRef snifferMaster;
 	
 	private static boolean useProxy = true;
-	private static String proxyUrl = "35.160.145.33";
+	private static String proxyUrl = "52.88.21.40";
 	private static int proxyPort = 80;
 
 //	private static String proxyUrl = "97.77.104.22";

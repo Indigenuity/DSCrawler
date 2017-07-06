@@ -2,12 +2,12 @@ package salesforce.persistence;
 
 public enum SalesforceAccountType {
 
-	GROUP, DEALER, SITE, OEM, REGIONAL, UNKNOWN;
+	GROUP, DEALER, SITE, OEM, REGIONAL, DEALERSHIP, SEGMENT, UNKNOWN;
 	
 	public static SalesforceAccountType getBySalesforceValue(String salesforceValue) {
-		if("Franchise".equals(salesforceValue)){
+		if("Dealership".equals(salesforceValue)){
 			return DEALER;
-		} else if("Site".equals(salesforceValue)){
+		} else if("Segment".equals(salesforceValue)){
 			return SITE;
 		} else if("OEM".equals(salesforceValue)){
 				return OEM;

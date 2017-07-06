@@ -90,7 +90,7 @@ public class ReviewSubmit extends Controller {
     	Site site = JPA.em().find(Site.class, siteId);
     	System.out.println("Approving resolved: " + siteId);
     	
-    	SiteLogic.acceptUrlCheck(site, false);
+//    	SiteLogic.acceptUrlCheck(site, false);
     	
     	return ok();
     }
@@ -102,7 +102,7 @@ public class ReviewSubmit extends Controller {
     	Site site = JPA.em().find(Site.class, siteId);
     	System.out.println("Approving shared: " + siteId);
     	
-    	SiteLogic.acceptUrlCheck(site, true);
+//    	SiteLogic.acceptUrlCheck(site, true);
     	
     	return ok();
     }

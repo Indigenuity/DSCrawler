@@ -14,6 +14,7 @@ import org.jsoup.select.Elements;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
+import datadefinitions.inventory.implementations.DealerCom;
 import datadefinitions.newdefinitions.WebProvider;
 import sites.persistence.Vehicle;
 
@@ -82,6 +83,8 @@ public abstract class InventoryTool {
 	}
 	
 	public URI getNextPageLink(Document doc, URI currentUri){
+//		System.out.println("nextPageSelector : " + nextPageSelector);
+//		System.out.println("Document : " + doc);
 		Elements nextPageLinks = doc.select(nextPageSelector);
 //		System.out.println("nextPageLinks: " + nextPageLinks);
 		if(nextPageLinks.size() < 1){
@@ -118,8 +121,33 @@ public abstract class InventoryTool {
 	public WebElement getNextPageLink(WebDriver driver, URI currentUri){
 		throw new UnsupportedOperationException();
 	}
+	
 	public int getCount(WebDriver driver){
 		throw new UnsupportedOperationException();
+	}
+	
+	/****************** String parsing tools **********************/
+	
+	public double moneyString(String moneyString){
+		if(moneyString == null){
+			return 0.0;
+		}
+		moneyString = moneyString.replaceAll("[^\\d.]+", "");
+//		System.out.println("moneyString : " + moneyString);
+		Double money = Double.valueOf(moneyString);
+//		System.out.println("money : " + money);
+		return money;
+	}
+	
+	public double mileageString(String mileageString){
+		if(mileageString == null){
+			return 0.0;
+		}
+		mileageString = mileageString.replaceAll("[^\\d.]+", "");
+//		System.out.println("mileageString : " + mileageString);
+		Double mileage = Double.valueOf(mileageString);
+//		System.out.println("mileage : " + mileage);
+		return mileage;
 	}
 	
 	protected String getPathAndQuery(URI uri){
@@ -129,6 +157,8 @@ public abstract class InventoryTool {
 		}
 		return pathAndQuery;
 	}
+	
+	/******************** Matching Tools *********************/
 	
 	public boolean uriEquals(URI uri, String string){
 		return StringUtils.equals(uri.toString(), string);
@@ -174,26 +204,6 @@ public abstract class InventoryTool {
 		return getPathAndQuery(uri).contains(string);
 	}
 	
-	public double moneyString(String moneyString){
-		if(moneyString == null){
-			return 0.0;
-		}
-		moneyString = moneyString.replaceAll("[^\\d.]+", "");
-//		System.out.println("moneyString : " + moneyString);
-		Double money = Double.valueOf(moneyString);
-//		System.out.println("money : " + money);
-		return money;
-	}
 	
-	public double mileageString(String mileageString){
-		if(mileageString == null){
-			return 0.0;
-		}
-		mileageString = mileageString.replaceAll("[^\\d.]+", "");
-//		System.out.println("mileageString : " + mileageString);
-		Double mileage = Double.valueOf(mileageString);
-//		System.out.println("mileage : " + mileage);
-		return mileage;
-	}
 	
 }

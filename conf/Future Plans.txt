@@ -1,4 +1,22 @@
 Future things to do on Anansi crawler
 	Context checks number of resources gathered AND number of sources crawled to approve work
 	Change the incrementing for resources crawled to not require short circuit in approveWork
+	Update crawl permit acquisition to be asynchronous, making the time between fetches actually follow ratelimiter rules
+	Duplicate work check in ResourceSupervisor?
 	Change to FlushableResources
+	Reconsider location of resource generation
+	Don't swallow exception when flushing resources in resourceworker
+	Clean up contexts, supervisors, and workers
+	Handle Terminated messages in supervisors
+	Allow for removal of resources and make it threadsafe
+	Error handling in CrawlSupervisor
+	Fix crawl starting and stopping
+	Derived resource discovery -- generate finished resources with no need for fetching
+	Maybe rework error handling in LinkDiscoveryTool inheritance chain
+	Change HtmlUtils functionality to isHtmlResource instead of isCrawlableFileExtension
+	Consider making defaults for generating resources in ResourceFetchTool
+	Consider recording any content body in HttpToFileTool
+	Move all the generating in SiteCrawlPlan away from constructors and into generateContext
+	Make more elegant file storage of http responses
+	Fix persist settings on sitecrawl maxpages and maxdepth to go to specific resource plans
+	

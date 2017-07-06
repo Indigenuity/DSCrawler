@@ -4,7 +4,7 @@ public class WorkResult {
 
 	private final Long uuid;	//The UUID belongs to the work that was done
 	private Object result;
-	private WorkStatus workStatus = WorkStatus.NOT_STARTED;
+	private WorkStatus workStatus = WorkStatus.UNASSIGNED;
 	private String error;
 	private Exception exception;
 	

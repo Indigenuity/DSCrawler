@@ -5,16 +5,20 @@ import crawling.discovery.execution.SeedWorkOrder;
 import crawling.discovery.results.CrawlReport;
 
 public abstract class CrawlTool {
+	
+	public void preResourcePopulation(CrawlContext crawlContext){
+	}
 
 	public void preCrawl(CrawlContext crawlContext){
-		System.out.println("super precrawl");
 	}
 	
 	public void preProcessSeed(CrawlContext crawlContext, SeedWorkOrder seedWorkOrder){
+	}
+	
+	public void beforeFinish(CrawlContext crawlContext){
 		
 	}
 
 	public void postCrawl(CrawlContext crawlContext, CrawlReport crawlReport){
-		
 	}
 }

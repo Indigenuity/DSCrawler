@@ -55,6 +55,7 @@ public class CSVImporter {
 			for(String columnLabel : report.getColumnLabels()){
 				reportRow.putCell(columnLabel, record.get(columnLabel));
 			}
+			reportRow.putCell("rowNumber", i + "");
 			report.addReportRow(record.get(report.getKeyColumn()), reportRow);
 		}
 		

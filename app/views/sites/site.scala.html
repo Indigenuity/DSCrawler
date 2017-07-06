@@ -8,7 +8,6 @@
 		@if(site.getLatestCrawl() != null) {
 			<br>
 			<span class="recent-crawl-date">Recent crawl : @site.getLatestCrawl().getCrawlDate()</span>
-			<span class="recent-crawl-num-files">(@site.getLatestCrawl().getNumRetrievedFiles() Retrieved Files)</span>
 			<span class="recent-crawl-num-files"> -- @site.getLatestCrawl().getSeed()</span>
 			<p class="recent-redirect-resolve"> Last Redirect Resolve : @site.getRedirectResolveDate()</p>
 		}

@@ -6,31 +6,63 @@ import java.util.Map;
 import java.util.Set;
 
 import crawling.discovery.control.BasicIdGenerator;
+import crawling.discovery.control.CrawlUtil;
 import crawling.discovery.control.IdGenerator;
+import crawling.discovery.entities.FlushableResource;
+import crawling.discovery.entities.Resource;
 import crawling.discovery.execution.CrawlContext;
+import crawling.discovery.execution.DiscoveryContext;
 import crawling.discovery.execution.EmptyCrawlTool;
 import crawling.discovery.execution.PlanId;
+import crawling.discovery.execution.ResourceContext;
 
-public class CrawlPlan extends Plan{
+public class CrawlPlan extends ContextPlan{
 	
 	public final static int DEFAULT_MAX_DEPTH_OF_CRAWLING = Integer.MAX_VALUE;
 	public final static int DEFAULT_MAX_PAGES_TO_FETCH = Integer.MAX_VALUE;
 	
-	protected int maxDepth = DEFAULT_MAX_DEPTH_OF_CRAWLING;
-	protected int maxPages = DEFAULT_MAX_PAGES_TO_FETCH;
+	
 	protected CrawlTool crawlTool = new EmptyCrawlTool();
 	protected IdGenerator idGenerator = new BasicIdGenerator();
 	
 	protected final Set<ResourcePlan> resourcePlans = new HashSet<ResourcePlan>();
 	protected final Set<DiscoveryPlan> discoveryPlans = new HashSet<DiscoveryPlan>();
-	protected final Map<ResourcePlan, Set<Object>> seedSources = new HashMap<ResourcePlan, Set<Object>>();
+	protected final Set<PreResource> resources = new HashSet<PreResource>();
 	
 	
 	public CrawlPlan(){
-		
+		maxDepth = DEFAULT_MAX_DEPTH_OF_CRAWLING;
+		maxPages = DEFAULT_MAX_PAGES_TO_FETCH;
 	}
-	public synchronized CrawlContext generateContext(){
-		return new CrawlContext(this);
+	
+	public synchronized CrawlContext generateContext() throws Exception{
+		CrawlContext crawlContext = new CrawlContext(this);
+		return crawlContext;
+	}
+	
+	public synchronized void processPreResources(CrawlContext crawlContext) throws Exception{
+//		System.out.println("CrawlPlan processing PreResources");
+		for(PreResource root : getRootResources()){
+//			System.out.println("Root PreResource : " + root.getSource());
+			processPreResource(root, null, crawlContext);
+		}
+	}
+	
+	protected void processPreResource(PreResource preResource, Resource parent, CrawlContext crawlContext) throws Exception{
+		Resource resource = crawlContext.preGenerateResource(preResource, parent);
+		
+		for(PreResource child : preResource.getChildren()){
+			processPreResource(child, resource, crawlContext);
+		}
+		CrawlUtil.flush(resource);
+	}
+	
+	public Set<DiscoveryPoolPlan> getDiscoveryPoolPlans() {
+		Set<DiscoveryPoolPlan> poolPlans = new HashSet<DiscoveryPoolPlan>();
+		for(DiscoveryPlan discoveryPlan : discoveryPlans){
+			poolPlans.add(discoveryPlan.getDiscoveryPoolPlan());
+		}
+		return poolPlans;
 	}
 	
 	protected boolean isRegistered(ResourcePlan resourcePlan) {
@@ -51,20 +83,22 @@ public class CrawlPlan extends Plan{
 		return this;
 	}
 	
-	public CrawlPlan registerSeedSource(ResourcePlan resourcePlan, Object source){
-		if(!isRegistered(resourcePlan)){
-			throw new IllegalArgumentException("Cannot register a seed source with an unregistered ResourcePlan object");
-		}
-		if(!seedSources.containsKey(resourcePlan)){
-			seedSources.put(resourcePlan, new HashSet<Object>());
-		}
-		seedSources.get(resourcePlan).add(source);
-		return this;
+	public Set<PreResource> getResources() {
+		return resources;
 	}
 	
-	public CrawlPlan putContextObject(String key, Object value){
-		initialContextObjects.put(key, value);
-		return this;
+	public boolean addResource(PreResource resource){
+		return resources.add(resource);
+	}
+	
+	public Set<PreResource> getRootResources(){
+		Set<PreResource> roots = new HashSet<PreResource>();
+		for(PreResource resource : resources){
+			if(resource.getParent() == null){
+				roots.add(resource);
+			}
+		}
+		return roots;
 	}
 
 	public int getMaxDepth() {
@@ -89,10 +123,6 @@ public class CrawlPlan extends Plan{
 
 	public Set<DiscoveryPlan> getDiscoveryPlans() {
 		return discoveryPlans;
-	}
-
-	public Map<ResourcePlan, Set<Object>> getSeedSources() {
-		return seedSources;
 	}
 
 	public CrawlTool getCrawlTool() {

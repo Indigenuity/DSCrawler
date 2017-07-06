@@ -27,8 +27,8 @@ import utilities.DSFormatter;
 		@Index(name = "std_country_index",  columnList="stdCountry", unique = false),
 		@Index(name = "std_state_index",  columnList="stdState", unique = false),
 		@Index(name = "std_postal_index",  columnList="stdPostal", unique = false),
-        @Index(name = "salesforceId_index", columnList="salesforceId",     unique = false)})
-@Audited(withModifiedFlag=true)
+        @Index(name = "salesforceId_index", columnList="salesforceId", unique = false)})
+//@Audited(withModifiedFlag=true)
 public class SalesforceAccount implements SiteOwner{
 
 	
@@ -40,35 +40,43 @@ public class SalesforceAccount implements SiteOwner{
 	
 	private Boolean outdated = false;
 	private Date lastUpdated = new Date();
+	private Date lastModified = null;
+	private Date created = null; 
+	
 	
 	private String name;
+	@Column(columnDefinition = "varchar(100)")
+	private String alias;
 	private String salesforceId;
 	private String parentAccountName;
 	private String parentAccountSalesforceId;
-	@Column(columnDefinition = "varchar(4000)")
-	private String salesforceWebsite;
-	private Boolean franchise;
+	@Column(columnDefinition = "varchar(100)")
+	private String groupOrganization;
+	
+	@Column(columnDefinition = "varchar(500)")
+	private String brandAffiliation;
+	@Column(columnDefinition = "varchar(10)")
+	private String primaryArea;
+	@Column(columnDefinition = "varchar(10)")
+	private String capDbRating;
 
 	@Enumerated(EnumType.STRING)
 	private DealershipType dealershipType;
 	@Enumerated(EnumType.STRING)
 	private SalesforceAccountType accountType;
+	@Enumerated(EnumType.STRING)
+	@Column(columnDefinition = "varchar(20)")
+	private SalesforceCustomerType customerType;
 	
+	
+	@Column(columnDefinition = "varchar(4000)")
+	private String salesforceWebsite;
 	private String phone;
 	private String street;
 	private String city;
 	private String state;
 	private String zip;
 	private String country;
-	@Column(columnDefinition = "varchar(500)")
-	private String brandAffiliation;
-	private String customerStatus;
-	
-	//Denotes if there is a significant difference between the salesforceWebsite and the homepage of the assigned site.
-	private Boolean significantDifference = false;
-	
-	private Boolean siteMismatch = false;
-	
 	
 	private String stdStreet;
 	private String stdCity;
@@ -76,6 +84,62 @@ public class SalesforceAccount implements SiteOwner{
 	private String stdCountry;
 	private String stdPhone;
 	private String stdPostal;
+	
+	
+	//Denotes if there is a significant difference between the salesforceWebsite and the homepage of the assigned site.
+	private Boolean significantDifference = false;
+	private Boolean siteMismatch = false;
+	private Boolean franchise;
+	
+	
+	
+	
+	
+	/*********************** Product IDs *******************************/
+	@Column(columnDefinition = "varchar(10)")
+	private String eclNum;
+	@Column(columnDefinition = "varchar(10)")
+	private String aaxNum;
+	@Column(columnDefinition = "varchar(10)")
+	private String inventoryId;
+	@Column(columnDefinition = "varchar(10)")
+	private String invGroupId;
+	@Column(columnDefinition = "varchar(10)")
+	private String dealerTrackId;
+	@Column(columnDefinition = "varchar(10)")
+	private String aaxGroupId;
+	@Column(columnDefinition = "varchar(10)")
+	private String aaxCompanyId;
+	@Column(columnDefinition = "varchar(10)")
+	private String crmSiteId;
+	@Column(columnDefinition = "varchar(10)")
+	private String socketId;
+	@Column(columnDefinition = "varchar(10)")
+	private String fusionId;
+	@Column(columnDefinition = "varchar(10)")
+	private String portalPayId;
+	@Column(columnDefinition = "varchar(10)")
+	private String fexIntitutionalId;
+	@Column(columnDefinition = "varchar(20)")
+	private String legacyFexId;
+	@Column(columnDefinition = "varchar(20)")
+	private String legacyAutoStarId;
+	
+	/************************* MRR ************************************/
+	
+	private Float totalMrr;
+	private Float totalAtRiskMrr;
+	private Float crmMrr;
+	private Float crmAtRiskMrr;
+	private Float deskingMrr;
+	private Float deskingAtRiskMrr;
+	private Float inventoryMrr;
+	private Float inventoryAtRiskMrr;
+	private Float idmsMrr;
+	private Float revenueRadarMrr;
+	private Float revenueAtRiskRadarMrr;
+	private Float websiteDgmMrr;
+	private Float websiteAtRiskDgmMrr;
 	
 	
 	/************************ Relationships ***************************/
@@ -225,14 +289,6 @@ public class SalesforceAccount implements SiteOwner{
 		this.brandAffiliation = DSFormatter.truncate(brandAffiliation, 255);
 	}
 
-	public String getCustomerStatus() {
-		return customerStatus;
-	}
-
-	public void setCustomerStatus(String customerStatus) {
-		this.customerStatus = customerStatus;
-	}
-	
 	public String getFullLocation(){
 		return getStreet() + " " + getCity() + ", " + getState() + " " + getZip() + ", " + getCountry();
 	}
@@ -315,6 +371,278 @@ public class SalesforceAccount implements SiteOwner{
 
 	public void setSiteMismatch(Boolean siteMismatch) {
 		this.siteMismatch = siteMismatch;
+	}
+	
+	public String getPrimaryArea() {
+		return primaryArea;
+	}
+
+	public void setPrimaryArea(String primaryArea) {
+		this.primaryArea = DSFormatter.truncate(primaryArea, 10);
+	}
+
+	public String getEclNum() {
+		return eclNum;
+	}
+
+	public void setEclNum(String eclNum) {
+		this.eclNum = eclNum;
+	}
+
+	public String getAaxNum() {
+		return aaxNum;
+	}
+
+	public void setAaxNum(String aaxNum) {
+		this.aaxNum = aaxNum;
+	}
+
+	public String getInventoryId() {
+		return inventoryId;
+	}
+
+	public void setInventoryId(String inventoryId) {
+		this.inventoryId = inventoryId;
+	}
+
+	public String getInvGroupId() {
+		return invGroupId;
+	}
+
+	public void setInvGroupId(String invGroupId) {
+		this.invGroupId = invGroupId;
+	}
+
+	public String getDealerTrackId() {
+		return dealerTrackId;
+	}
+
+	public void setDealerTrackId(String dealerTrackId) {
+		this.dealerTrackId = dealerTrackId;
+	}
+
+	public String getAaxGroupId() {
+		return aaxGroupId;
+	}
+
+	public void setAaxGroupId(String aaxGroupId) {
+		this.aaxGroupId = aaxGroupId;
+	}
+
+	public String getAaxCompanyId() {
+		return aaxCompanyId;
+	}
+
+	public void setAaxCompanyId(String aaxCompanyId) {
+		this.aaxCompanyId = aaxCompanyId;
+	}
+
+	public String getCrmSiteId() {
+		return crmSiteId;
+	}
+
+	public void setCrmSiteId(String crmSiteId) {
+		this.crmSiteId = crmSiteId;
+	}
+
+	public String getSocketId() {
+		return socketId;
+	}
+
+	public void setSocketId(String socketId) {
+		this.socketId = socketId;
+	}
+
+	public String getFusionId() {
+		return fusionId;
+	}
+
+	public void setFusionId(String fusionId) {
+		this.fusionId = fusionId;
+	}
+
+	public String getPortalPayId() {
+		return portalPayId;
+	}
+
+	public void setPortalPayId(String portalPayId) {
+		this.portalPayId = portalPayId;
+	}
+
+	public String getFexIntitutionalId() {
+		return fexIntitutionalId;
+	}
+
+	public void setFexIntitutionalId(String fexIntitutionalId) {
+		this.fexIntitutionalId = DSFormatter.truncate(fexIntitutionalId, 10);
+	}
+
+	public String getLegacyFexId() {
+		return legacyFexId;
+	}
+
+	public void setLegacyFexId(String legacyFexId) {
+		this.legacyFexId = legacyFexId;
+	}
+
+	public String getLegacyAutoStarId() {
+		return legacyAutoStarId;
+	}
+
+	public void setLegacyAutoStarId(String legacyAutoStarId) {
+		this.legacyAutoStarId = legacyAutoStarId;
+	}
+
+	public String getCapDbRating() {
+		return capDbRating;
+	}
+
+	public void setCapDbRating(String capDbRating) {
+		this.capDbRating = capDbRating;
+	}
+
+	public Date getLastModified() {
+		return lastModified;
+	}
+
+	public void setLastModified(Date lastModified) {
+		this.lastModified = lastModified;
+	}
+
+	public Date getCreated() {
+		return created;
+	}
+
+	public void setCreated(Date created) {
+		this.created = created;
+	}
+
+	public String getAlias() {
+		return alias;
+	}
+
+	public void setAlias(String alias) {
+		this.alias = DSFormatter.truncate(alias, 100);
+	}
+
+	public SalesforceCustomerType getCustomerType() {
+		return customerType;
+	}
+
+	public void setCustomerType(SalesforceCustomerType customerType) {
+		this.customerType = customerType;
+	}
+
+	public Float getTotalMrr() {
+		return totalMrr;
+	}
+
+	public void setTotalMrr(Float totalMrr) {
+		this.totalMrr = totalMrr;
+	}
+
+	public Float getCrmMrr() {
+		return crmMrr;
+	}
+
+	public void setCrmMrr(Float crmMrr) {
+		this.crmMrr = crmMrr;
+	}
+
+	public Float getDeskingMrr() {
+		return deskingMrr;
+	}
+
+	public void setDeskingMrr(Float deskingMrr) {
+		this.deskingMrr = deskingMrr;
+	}
+
+	public Float getInventoryMrr() {
+		return inventoryMrr;
+	}
+
+	public void setInventoryMrr(Float inventoryMrr) {
+		this.inventoryMrr = inventoryMrr;
+	}
+
+	public Float getIdmsMrr() {
+		return idmsMrr;
+	}
+
+	public void setIdmsMrr(Float idmsMrr) {
+		this.idmsMrr = idmsMrr;
+	}
+
+	public Float getRevenueRadarMrr() {
+		return revenueRadarMrr;
+	}
+
+	public void setRevenueRadarMrr(Float revenueRadarMrr) {
+		this.revenueRadarMrr = revenueRadarMrr;
+	}
+
+	public Float getWebsiteDgmMrr() {
+		return websiteDgmMrr;
+	}
+
+	public void setWebsiteDgmMrr(Float websiteDgmMrr) {
+		this.websiteDgmMrr = websiteDgmMrr;
+	}
+
+	public Float getTotalAtRiskMrr() {
+		return totalAtRiskMrr;
+	}
+
+	public void setTotalAtRiskMrr(Float totalAtRiskMrr) {
+		this.totalAtRiskMrr = totalAtRiskMrr;
+	}
+
+	public Float getCrmAtRiskMrr() {
+		return crmAtRiskMrr;
+	}
+
+	public void setCrmAtRiskMrr(Float crmAtRiskMrr) {
+		this.crmAtRiskMrr = crmAtRiskMrr;
+	}
+
+	public Float getDeskingAtRiskMrr() {
+		return deskingAtRiskMrr;
+	}
+
+	public void setDeskingAtRiskMrr(Float deskingAtRiskMrr) {
+		this.deskingAtRiskMrr = deskingAtRiskMrr;
+	}
+
+	public Float getInventoryAtRiskMrr() {
+		return inventoryAtRiskMrr;
+	}
+
+	public void setInventoryAtRiskMrr(Float inventoryAtRiskMrr) {
+		this.inventoryAtRiskMrr = inventoryAtRiskMrr;
+	}
+
+	public Float getRevenueAtRiskRadarMrr() {
+		return revenueAtRiskRadarMrr;
+	}
+
+	public void setRevenueAtRiskRadarMrr(Float revenueAtRiskRadarMrr) {
+		this.revenueAtRiskRadarMrr = revenueAtRiskRadarMrr;
+	}
+
+	public Float getWebsiteAtRiskDgmMrr() {
+		return websiteAtRiskDgmMrr;
+	}
+
+	public void setWebsiteAtRiskDgmMrr(Float websiteAtRiskDgmMrr) {
+		this.websiteAtRiskDgmMrr = websiteAtRiskDgmMrr;
+	}
+
+	public String getGroupOrganization() {
+		return groupOrganization;
+	}
+
+	public void setGroupOrganization(String groupOrganization) {
+		this.groupOrganization = groupOrganization;
 	}
 
 	@Override

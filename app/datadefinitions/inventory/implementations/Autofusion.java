@@ -1,4 +1,4 @@
-package datadefinitions.inventory;
+package datadefinitions.inventory.implementations;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -11,6 +11,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import datadefinitions.inventory.InventoryTool;
 import sites.persistence.Vehicle;
 
 public class Autofusion extends InventoryTool {

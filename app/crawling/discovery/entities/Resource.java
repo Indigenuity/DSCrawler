@@ -1,31 +1,50 @@
 package crawling.discovery.entities;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import crawling.discovery.execution.PlanId;
+import crawling.discovery.planning.PreResource;
+import newwork.WorkStatus;
 
 
 public class Resource {
 	
-	protected Object source;
-	protected Object value;
-	protected Resource parent;
-	protected List<Resource> children;
-	protected ResourceId resourceId;
-	protected PlanId planId;
 	
+	protected Object value;
+	protected final Object source;
+	protected final Resource parent;
+	protected final Set<Resource> children = new HashSet<Resource>();
+	protected final ResourceId resourceId;
+	protected final PlanId planId;
+	
+	protected WorkStatus fetchStatus = WorkStatus.UNASSIGNED;
+	protected Exception fetchException = null;
+	protected WorkStatus discoveryStatus= WorkStatus.UNASSIGNED;
+	protected Exception discoveryException = null;
 	
 	public Resource(Object source, Object value, Resource parent, ResourceId resourceId, PlanId planId) {
-		this(source, value, parent);
-		this.planId = planId;
-		this.resourceId = resourceId;
-		
+		this(source, parent, resourceId, planId);
+		this.value = value;
 	}
 	
-	public Resource(Object source, Object value, Resource parent){
-		this.setValue(value);
+	public Resource(Object source, Resource parent, ResourceId resourceId, PlanId planId) {
 		this.source = source;
 		this.parent = parent;
+		if(parent != null){
+			this.parent.addChild(this);
+		}
+		this.resourceId = resourceId;
+		this.planId = planId;
+	}
+	
+	public Resource(PreResource preResource, Resource parent, ResourceId resourceId, PlanId planId) {
+		this(preResource.getSource(), preResource.getValue(), parent, resourceId, planId);
+		this.fetchStatus = preResource.getFetchStatus();
+		this.fetchException = preResource.getFetchException();
+		this.discoveryStatus = preResource.getDiscoveryStatus();
+		this.discoveryException = preResource.getDiscoveryException();
 	}
 	
 	public Resource getRoot() {
@@ -53,41 +72,54 @@ public class Resource {
 	public Resource getParent() {
 		return parent;
 	}
-	public void setParent(Resource parent) {
-		this.parent = parent;
+	public Set<Resource> getChildren() {
+		return new HashSet<Resource>(children);
 	}
-	public List<Resource> getChildren() {
-		return children;
+	protected boolean addChild(Resource child) {
+		return this.children.add(child);
 	}
-	public void addChild(Resource child) {
-		this.children.add(child);
-	}
+//	public boolean removeChild(Resource child) {
+//		return this.children.remove(child);
+//	}
 	public ResourceId getResourceId() {
 		return resourceId;
 	}
-
 	public Object getSource() {
 		return source;
 	}
-
-	public void setSource(Object source) {
-		this.source = source;
-	}
-
 	public PlanId getPlanId() {
 		return planId;
 	}
-
-	public void setPlanId(PlanId planId) {
-		this.planId = planId;
+	public WorkStatus getFetchStatus() {
+		return fetchStatus;
 	}
 
-	public void setResourceId(ResourceId resourceId) {
-		this.resourceId = resourceId;
+	public void setFetchStatus(WorkStatus fetchStatus) {
+		this.fetchStatus = fetchStatus;
 	}
 
-	public void setChildren(List<Resource> children) {
-		this.children = children;
+	public Exception getFetchException() {
+		return fetchException;
+	}
+
+	public void setFetchException(Exception fetchException) {
+		this.fetchException = fetchException;
+	}
+
+	public WorkStatus getDiscoveryStatus() {
+		return discoveryStatus;
+	}
+
+	public void setDiscoveryStatus(WorkStatus discoveryStatus) {
+		this.discoveryStatus = discoveryStatus;
+	}
+
+	public Exception getDiscoveryException() {
+		return discoveryException;
+	}
+
+	public void setDiscoveryException(Exception discoveryException) {
+		this.discoveryException = discoveryException;
 	}
 
 }

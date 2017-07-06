@@ -88,25 +88,25 @@ public class DataEditor extends Controller{
 		
 		SiteCrawl tempCrawl;
 		for(Site site : sites) {
-//			JPA.em().detach(site);
-			tempCrawl = null;
-			for(int i = 0; i < site.getCrawls().size(); i++) {
-				SiteCrawl siteCrawl = site.getCrawls().get(i);
-				if(siteCrawl.getNumRetrievedFiles() > 0){
-					if(tempCrawl != null && siteCrawl.getNumRetrievedFiles() > tempCrawl.getNumRetrievedFiles()){
-						tempCrawl = siteCrawl;
-					}
-					else if(tempCrawl == null) {
-						tempCrawl = siteCrawl;
-					}
-				}
-				else if(tempCrawl == null && i == site.getCrawls().size() - 1) {
-					tempCrawl = siteCrawl;
-				}
-			}
-			System.out.println("temp crawl : " + tempCrawl);
-			site.getCrawls().clear();
-			site.addCrawl(tempCrawl);
+////			JPA.em().detach(site);
+//			tempCrawl = null;
+//			for(int i = 0; i < site.getCrawls().size(); i++) {
+//				SiteCrawl siteCrawl = site.getCrawls().get(i);
+//				if(siteCrawl.getNumRetrievedFiles() > 0){
+//					if(tempCrawl != null && siteCrawl.getNumRetrievedFiles() > tempCrawl.getNumRetrievedFiles()){
+//						tempCrawl = siteCrawl;
+//					}
+//					else if(tempCrawl == null) {
+//						tempCrawl = siteCrawl;
+//					}
+//				}
+//				else if(tempCrawl == null && i == site.getCrawls().size() - 1) {
+//					tempCrawl = siteCrawl;
+//				}
+//			}
+//			System.out.println("temp crawl : " + tempCrawl);
+//			site.getCrawls().clear();
+//			site.addCrawl(tempCrawl);
 		}
 		
 		return ok();

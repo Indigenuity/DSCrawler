@@ -32,7 +32,7 @@ public class FB {
 			return NOT_A_PAGE;
 		}
 		
-		url = DSFormatter.removeQueryString(url);
+		url = UrlUtils.removeQueryString(url);
 		
 		
 		int lastIndex = url.lastIndexOf("/");

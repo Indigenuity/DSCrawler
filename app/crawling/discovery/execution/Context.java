@@ -1,41 +1,78 @@
 package crawling.discovery.execution;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.util.concurrent.RateLimiter;
 
 import crawling.discovery.entities.Resource;
+import crawling.discovery.planning.ContextPlan;
 
-public abstract class Context {
+public abstract class Context extends PlanImplementation {
 	
-	protected int maxDepth;
-	protected int maxPages;
-	protected int numResourcesCrawled = 0;
+	protected final int maxDepth;
+	protected final int maxPages;
 	
-	protected final Map<String, Object> contextObjects = new HashMap<String, Object>();
-	protected RateLimiter rateLimiter = null;
+	protected volatile int numResourcesCrawled = 0;
+	
+	protected final Map<String, Object> contextObjects = new ConcurrentHashMap<String, Object>();
+	protected final RateLimiter rateLimiter;
 	
 	protected final Object permitMutex = new Object();
 	
-	public Context() {}
-	public Context(Map<String, Object> contextObjects) {
-		this.contextObjects.putAll(contextObjects);
+	public Context(ContextPlan contextPlan) {
+		super(contextPlan);
+		this.contextObjects.putAll(contextPlan.getInitialContextObjects());
+		this.rateLimiter = contextPlan.getRateLimiter();
+		this.maxDepth = contextPlan.getMaxDepth();
+		this.maxPages = contextPlan.getMaxPages();
+	}
+
+	public boolean acquireWorkPermit(){
+		if(rateLimiter != null){
+			rateLimiter.acquire();
+		}
+		return true;
 	}
 	
-	public RateLimiter getRateLimiter() {
-		return rateLimiter;
-	}
-	public void setRateLimiter(RateLimiter rateLimiter) {
-		this.rateLimiter = rateLimiter;
+	protected boolean approveWork(Resource resource){
+		synchronized(permitMutex){
+			if(maxResourcesReached()){
+//				System.out.println("max pages reached");
+				return false;
+			}
+			if(!isDepthApproved(resource)){
+//				System.out.println("depth not approved : " + getDepth(workOrder) + " max : " + getMaxDepth() + this.getClass().getSimpleName());
+				return false;
+			}
+//			System.out.println("work approved : " + workOrder.getSource());
+			incrementNumResourcesCrawled();
+			return true;	
+		}
 	}
 	
-	public Object getContextObject(String key) {
-		return contextObjects.get(key);
+	protected int incrementNumResourcesCrawled(){
+		synchronized(permitMutex){
+			numResourcesCrawled++;
+			return numResourcesCrawled;
+		}
 	}
 	
-	public Object hasContextObject(String key) {
-		return contextObjects.containsKey(key);
+	public boolean isDepthApproved(Resource resource){
+		return resource.getDepth() <= getMaxDepth();
+	}
+	
+	public boolean maxResourcesReached(){
+		return numResourcesCrawled >= maxPages;
+	}
+	
+	public boolean isMaxDepth(Resource resource) {
+		if(resource == null){
+			return false;
+		}
+		return resource.getDepth() >= getMaxDepth();
 	}
 	
 	public boolean discoverContextObject(String key, Object value){
@@ -48,70 +85,32 @@ public abstract class Context {
 		}
 	}
 	
-	public Object putContextObject(String key, Object value){
-		synchronized(contextObjects){
-			return contextObjects.put(key, value);
-		}
+	public Object get(Object key){
+		return contextObjects.get(key);
 	}
 	
-	public boolean contextContains(String key){
-		synchronized(contextObjects){
-			return contextObjects.containsKey(key);
-		}
+	public boolean containsKey(Object key) {
+		return contextObjects.containsKey(key);
 	}
-	
-	public boolean acquireWorkPermit(){
-		if(rateLimiter != null){
-			rateLimiter.acquire();
-		}
-		return true;
+
+	public Object put(String key, Object value) {
+		return contextObjects.put(key, value);
 	}
-	
-	protected boolean approveWork(ResourceWorkOrder workOrder){
-		synchronized(permitMutex){
-			if(maxResourcesReached()){
-//				System.out.println("max pages reached");
-				return false;
-			}
-			if(!isDepthApproved(workOrder)){
-//				System.out.println("depth not approved : " + getDepth(workOrder) + " max : " + getMaxDepth() + this.getClass().getSimpleName());
-				return false;
-			}
-//			System.out.println("work approved : " + workOrder.getSource());
-			numResourcesCrawled++;
-			return true;	
-		}
+
+	public  Object putIfAbsent(String key, Object value) {
+		return contextObjects.putIfAbsent(key, value);
 	}
-	
-	public boolean isDepthApproved(ResourceWorkOrder workOrder){
-		return !isMaxDepth(workOrder.getParent());
-	}
-	
-	public boolean maxResourcesReached(){
-		return numResourcesCrawled >= maxPages;
-	}
-	
-	public boolean isMaxDepth(Resource parent) {
-		if(parent == null){
-			return false;
-		}
-		return parent.getDepth() >= getMaxDepth();
+
+	public boolean remove(Object key, Object value) {
+		return contextObjects.remove(key, value);
 	}
 	
 	public int getMaxDepth() {
 		return maxDepth;
 	}
 
-	public void setMaxDepth(int maxDepth) {
-		this.maxDepth = maxDepth;
-	}
-
 	public int getMaxPages() {
 		return maxPages;
-	}
-	
-	public void setMaxPages(int maxPages) {
-		this.maxPages = maxPages;
 	}
 	
 	public int getNumResourcesCrawled() {
@@ -120,6 +119,10 @@ public abstract class Context {
 
 	public void setNumResourcesCrawled(int numResourcesCrawled) {
 		this.numResourcesCrawled = numResourcesCrawled;
+	}
+
+	public Map<String, Object> getContextObjects() {
+		return new HashMap<String, Object>(contextObjects);
 	}
 	
 	

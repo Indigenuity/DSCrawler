@@ -13,5 +13,7 @@ public interface HtmlResource  {
 
 	public Document getDocument() throws Exception;
 	public URI getUri();
+	public URI getRedirectedUri();
+	public Integer getStatusCode();
 	
 }

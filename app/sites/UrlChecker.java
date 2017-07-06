@@ -13,6 +13,7 @@ import global.Global;
 import persistence.UrlCheck;
 import play.Logger;
 import utilities.DSFormatter;
+import utilities.UrlUtils;
 
 public class UrlChecker {
 
@@ -147,23 +148,23 @@ public class UrlChecker {
 			return false;
 		if(redirectUrl.equals(original))
 			return true;
-		String sansHttpRedirectUrl = DSFormatter.removeHttp(redirectUrl);
-		String sansHttpOriginal= DSFormatter.removeHttp(original);
+		String sansHttpRedirectUrl = UrlUtils.removeHttp(redirectUrl);
+		String sansHttpOriginal= UrlUtils.removeHttp(original);
 		if(sansHttpRedirectUrl.equals(sansHttpOriginal))
 			return true;
-		String sansWwwRedirectUrl = DSFormatter.removeWww(sansHttpRedirectUrl);
-		String sansWwwOriginal = DSFormatter.removeWww(sansHttpOriginal);
+		String sansWwwRedirectUrl = UrlUtils.removeWww(sansHttpRedirectUrl);
+		String sansWwwOriginal = UrlUtils.removeWww(sansHttpOriginal);
 		if(sansWwwRedirectUrl.equals(sansWwwOriginal))
 			return true;
 		
-		String comRedirectUrl = DSFormatter.toCom(sansWwwRedirectUrl);
-		String comOriginal = DSFormatter.toCom(sansWwwOriginal);
+		String comRedirectUrl = UrlUtils.toCom(sansWwwRedirectUrl);
+		String comOriginal = UrlUtils.toCom(sansWwwOriginal);
 		
 		if(comRedirectUrl.equals(comOriginal))
 			return true;
 		
-		String langRedirectUrl = DSFormatter.removeLanguage(comRedirectUrl);
-		String langOriginal = DSFormatter.removeLanguage(comOriginal);
+		String langRedirectUrl = UrlUtils.removeLanguage(comRedirectUrl);
+		String langOriginal = UrlUtils.removeLanguage(comOriginal);
 		if(langRedirectUrl.equals(langOriginal))
 			return true;
 		

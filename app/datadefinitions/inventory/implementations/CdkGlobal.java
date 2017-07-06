@@ -1,6 +1,7 @@
-package datadefinitions.inventory;
+package datadefinitions.inventory.implementations;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -9,6 +10,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import datadefinitions.inventory.InventoryTool;
 import datadefinitions.newdefinitions.WebProvider;
 import sites.persistence.Vehicle;
 
@@ -31,6 +33,13 @@ public class CdkGlobal extends InventoryTool{
 	@Override
 	public URI getNextPageLink(Document doc, URI currentUri) {
 		URI uri = super.getNextPageLink(doc, currentUri);
+		if(uri != null){
+			return fixTraditionalLink(currentUri, uri);
+		}
+		return scrapeAjaxNextPageButton(doc, currentUri);
+	}
+	
+	protected URI fixTraditionalLink(URI currentUri, URI uri){
 		try{
 			if(currentUri.toString().contains("search=new")){
 				return new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), uri.getPath(), "search=new&" + uri.getQuery(), uri.getFragment());
@@ -45,7 +54,19 @@ public class CdkGlobal extends InventoryTool{
 		}
 	}
 
-
+	protected URI scrapeAjaxNextPageButton(Document doc, URI currentUri){
+		Elements buttons = doc.select("button.loadMore");
+		if(buttons.size() < 1){
+			return null;
+		}
+		String path = buttons.get(0).attr("abs:data-link");
+		try {
+			URI uri = new URI(path);
+			return uri;
+		} catch (URISyntaxException e) {
+			return null;
+		}
+	}
 
 	@Override
 	public boolean isUsedPath(URI uri) {
@@ -53,7 +74,7 @@ public class CdkGlobal extends InventoryTool{
 		if(isUsed){
 			return true;
 		}
-		return StringUtils.equals(alternateUsedPathString, getPathAndQuery(uri));
+		return pathAndQueryContains(uri, alternateUsedPathString);
 	}
 	
 	

@@ -15,6 +15,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.formula.functions.T;
 
 import datadefinitions.newdefinitions.WPAttribution;
 import persistence.MobileCrawl;
@@ -36,6 +37,13 @@ public class SitesDAO {
 		Calendar calendar = Calendar.getInstance();
 		calendar.add(Calendar.MONTH, - 1);
 		STALE_DATE = calendar.getTime();
+	}
+	
+	public static Long getEndpointCount(String valueName, Object value){
+		return GeneralDAO.getCount(Site.class, new HashMap<String, Object>() {{
+			put("redirectsTo", null);
+			put(valueName, value);
+		}});
 	}
 	
 	public static List<Long> staleCrawls(){

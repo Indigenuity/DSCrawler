@@ -11,6 +11,7 @@ public class SiteOwnerLogic {
 			owner.setUnresolvedSite(null);
 			return;
 		}
+//		System.out.println("Assigning unresolved site for site : " + owner.getWebsiteString());
 		owner.setUnresolvedSite(SitesDAO.getOrNewThreadsafe(owner.getWebsiteString()));
 	}
 	

@@ -30,12 +30,22 @@ import play.db.jpa.JPA;
 import play.db.jpa.Transactional;
 import play.mvc.Controller;
 import play.mvc.Result;
+import reporting.StatsBuilder;
 import sites.SiteLogic;
 
 public class SitesController extends Controller {
 	
 	final static Logger.ALogger dsLogger = Logger.of("ds");
 
+	@Transactional 
+    public static Result sitesDashboard() {
+    	return ok(views.html.sites.sitesDashboard.render());
+    }
+	
+	@Transactional
+	public static Result sitesDashboardStats() {
+		return ok(views.html.viewstats.viewStats.render(StatsBuilder.sitesDashboard()));
+	}
 	
 	@Transactional
 	public static Result viewSiteCrawlAnalysis(long siteCrawlAnalysisId){
@@ -116,18 +126,18 @@ public class SitesController extends Controller {
 		String action = data.get("actionType");
 
 		if(action.equals("Approve Redirect")){
-			SiteLogic.acceptUrlCheck(site, false);
+//			SiteLogic.acceptUrlCheck(site, false);
 		} else if(action.equals("Approve Shared Site")) {
-			SiteLogic.acceptUrlCheck(site, true);
+//			SiteLogic.acceptUrlCheck(site, true);
 		} else if(action.equals("Mark Defunct")){
 			SiteLogic.markDefunct(site);
 		} else if(action.equals("Other Issue")){
 			SiteLogic.markError(site);
 		}  else if(action.equals("Disapprove")){
-			SiteLogic.disapprove(site);
+//			SiteLogic.disapprove(site);
 		} else if(action.equals("Redirect and Disapprove")){
-			Site endpoint = SiteLogic.manuallyRedirect(site, manualRedirect);
-			SiteLogic.disapprove(endpoint);
+//			Site endpoint = SiteLogic.manuallyRedirect(site, manualRedirect);
+//			SiteLogic.disapprove(endpoint);
 		} else if(action.equals("Inference Redirect")){
 			Site newSite = SitesDAO.getOrNewThreadsafe(manualRedirect);
 			SiteLogic.redirect(site, newSite, RedirectType.INFERENCE);

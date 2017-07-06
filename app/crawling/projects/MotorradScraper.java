@@ -37,7 +37,7 @@ import salesforce.persistence.SalesforceAccount;
 
 public class MotorradScraper {
 	private WebDriver driver;
-	private String seed = "http://www.bmwmotorcycles.com/us/en/individual/dlo/dlo.html";
+	private String seed = "http://www.bmwmotorcycles.com/us/en/individual/dlo/dlo-mcsla.html?country=US";
 	private static final Pattern DEALER_ID = Pattern.compile("([0-9]+)");
 	
 	private Set<String> dealerIds = new HashSet<String>();
@@ -60,61 +60,74 @@ public class MotorradScraper {
 	public void runCrawl() throws InterruptedException{ 
 		System.out.println("Getting motorrad dealers : " + seed);
 		driver.get(seed);
+		System.out.println("Got seed : " + seed);
+		driver.switchTo().frame("fad-iframe");
+		System.out.println("Selected iframe");
+		WebElement input = driver.findElement(By.cssSelector("#c2b_locator_town"));
+		System.out.println("input : " + input);
 		
-		search("alabama, usa");
 		
+//		search("alabama, usa");
+//		
 		for(UsState state : GeneralDAO.getAll(UsState.class)){
 			runState(state);
 		}
 	}
 	
+	
+	
 	public void runState(UsState state) throws InterruptedException{
-		System.out.println("Starting on state : " + state);
-		if(state.getProjectCode() != null && state.getProjectCode().equals("harleyed")){
-			System.out.println("State already harleyed.");
+		System.out.println("Starting on state : " + state.getStateName());
+		if(state.getProjectCode() != null && state.getProjectCode().equals("finished")){
+			System.out.println("State already bmwed.");
 			return;
 		}
+//		if(state.getStateName().equals("Alaska")){
+//			state.setProjectCode("bmwed");
+//			return;
+//		}
 		
-		String searchTerm = state.getStateName() + ", USA";
-		search(searchTerm);
-		do{
-			for(WebElement listing : driver.findElements(By.className("sn_dealer_list_item"))){
-				processListing(listing);
-			}
-		} while(followPagination());
-		state.setProjectCode("harleyed");
+		WebElement input = driver.findElement(By.cssSelector("#c2b_locator_town"));
+		
+		String searchTerm = state.getStateName();
+		input.click();
+		for(int i = 0; i < 20; i++){
+			input.sendKeys(Keys.BACK_SPACE);
+		}
+		input.sendKeys(searchTerm);
+		input.sendKeys(Keys.RETURN);
+		Thread.sleep(4000);
+		for(WebElement listing : driver.findElements(By.className("result"))){
+			processListing(listing);
+		}
+		state.setProjectCode("finished");
 		JPA.em().getTransaction().commit();
 		JPA.em().getTransaction().begin();
 	}
 	
 	private void processListing(WebElement listing) {
 		BasicDealer dealer = new BasicDealer();
-		dealer.setIdentifier(getDealerId(listing.findElement(By.cssSelector("h4 a")).getAttribute("onclick")));
 		
-		if(!dealerIds.add(dealer.getIdentifier())){
-			return;
-		}
+//		dealer.setIdentifier(getDealerId(listing.findElement(By.cssSelector("h4 a")).getAttribute("onclick")));
+//		
+//		if(!dealerIds.add(dealer.getIdentifier())){
+//			return;
+//		}
 		
-		dealer.setName(listing.findElement(By.tagName("h4")).getText());
+		dealer.setName(listing.findElement(By.cssSelector(".dealer-name")).getText());
 		dealer.setCustom1(listing.findElement(By.className("address")).getText());
 		
-		WebElement website = findOptional(listing, By.className("website"));
+		WebElement website = findOptional(listing, By.cssSelector(".link-homepage a"));
 		if(website != null){
 			dealer.setWebsite(website.getAttribute("href"));
 		}
 		
-		WebElement phone = findOptional(listing, By.className("phoneNumber"));
+		WebElement phone = findOptional(listing, By.className("tel"));
 		if(phone != null){
 			dealer.setPhone(phone.getText());
 		}
 		
-		String offerings = "";
-		for(WebElement offering : listing.findElements(By.cssSelector(".sn_title"))){
-			offerings += offering.getAttribute("textContent") + "\n";
-		}
-		dealer.setCustom2(offerings);
-		
-		dealer.setProjectIdentifier("Harley");
+		dealer.setProjectIdentifier("finished");
 		
 		System.out.println("dealer : " + dealer.getName());
 		System.out.println("address : " + dealer.getCustom1());

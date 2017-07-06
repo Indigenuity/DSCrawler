@@ -133,6 +133,8 @@ public class PageCrawlAnalysis {
 	protected int numImages = 0;
 	protected int numAltImages = 0;
 	
+	protected Integer inventoryCount;
+	
 	@ElementCollection(fetch=FetchType.LAZY)
 	@MapKeyEnumerated(EnumType.STRING)
 	@Fetch(FetchMode.SELECT)
@@ -142,6 +144,8 @@ public class PageCrawlAnalysis {
 	@Fetch(FetchMode.SELECT)
 	protected Map<OEM, Integer> oemMetaCounts = new HashMap<OEM, Integer>();	//Should have been <OEM, Boolean>, but too annoying to fix
 	
+	@ElementCollection(fetch=FetchType.LAZY)
+	protected Set<String> notes = new HashSet<String>();
 	
 
 	public PageCrawl getPageCrawl() {
@@ -417,7 +421,13 @@ public class PageCrawlAnalysis {
 	public void setNumAltImages(int numAltImages) {
 		this.numAltImages = numAltImages;
 	}
-	
-	
+
+	public Integer getInventoryCount() {
+		return inventoryCount;
+	}
+
+	public void setInventoryCount(Integer inventoryCount) {
+		this.inventoryCount = inventoryCount;
+	}
 	
 }

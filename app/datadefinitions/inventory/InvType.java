@@ -1,5 +1,9 @@
 package datadefinitions.inventory;
 
+import datadefinitions.inventory.implementations.Autofusion;
+import datadefinitions.inventory.implementations.CdkGlobal;
+import datadefinitions.inventory.implementations.DealerCom;
+
 public enum InvType {
 	
 	AUTOFUSION		(new Autofusion()),

@@ -1,36 +1,34 @@
 package crawling.discovery.planning;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import crawling.discovery.entities.Resource;
-import crawling.discovery.entities.SourceQualification;
-import crawling.discovery.entities.SourceQualification.QualificationStatus;
-import crawling.discovery.execution.DiscoveryContext;
+import crawling.discovery.entities.ResourceId;
+import crawling.discovery.execution.PlanId;
 import crawling.discovery.execution.ResourceContext;
-import crawling.discovery.execution.ResourceWorkOrder;
-import crawling.discovery.execution.ResourceWorkResult;
-import persistence.PageCrawl;
 
-public abstract class ResourceFetchTool {
+public interface ResourceFetchTool {
 
-	protected abstract Set<Object> fetchResources(ResourceWorkOrder workOrder, ResourceContext context) throws Exception;
+	public Object fetchValue(Resource resource, ResourceContext context) throws Exception;
 	
-	public Set<Resource> generateResources(ResourceWorkOrder workOrder, ResourceContext context) throws Exception {
-		Set<Object> values = fetchResources(workOrder, context);
-		Set<Resource> resources = new HashSet<Resource>();
-		for(Object value : values) {
-			Resource resource = context.generateResource(workOrder.getSource(), value, workOrder.getParent());
-			resources.add(resource);
-		}
-		return resources;
+	public Resource generateResource(Object source, Resource parent, ResourceId resourceId, ResourceContext context) throws Exception;
+	
+	public Resource generateResource(PreResource preResource, Resource parent, ResourceId resourceId , ResourceContext context) throws Exception;
+	
+	public default void preFetch(Resource resource, ResourceContext context) throws Exception{
+	}
+	public default void postFetch(Resource resource, ResourceContext context) throws Exception{
+	}
+	public default void onFetchError(Resource resource, ResourceContext context, Exception e){
+	}
+	public default void onDiscoveryError(Resource parent, ResourceContext context, Exception e){
+	}
+	public default void afterDiscovery(Resource parent, Set<Resource> children, ResourceContext context){
 	}
 	
-	public void preFetch(ResourceWorkOrder workOrder, ResourceContext context) throws Exception{
-	}
-	public void postFetch(ResourceWorkResult workResult, ResourceContext context) throws Exception{
-	}
-	public void postDiscovery(ResourceWorkResult workResult, ResourceContext context) throws Exception{
+	
+	public default void postDiscovery(Resource child, ResourceContext context) throws Exception{
 	}	
+	
 	
 }

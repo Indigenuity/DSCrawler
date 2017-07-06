@@ -12,6 +12,7 @@ import persistence.PageCrawl;
 import persistence.SiteCrawl;
 import play.Logger;
 import utilities.DSFormatter;
+import utilities.UrlUtils;
 
 import com.google.common.io.Files;
 
@@ -88,26 +89,26 @@ public class DealerCrawler extends WebCrawler {
 //				System.out.println("Not intrasite Url : " + href);
 				return false;
 			}
-			siteCrawl.addIntrasiteLink(href);
+//			siteCrawl.addIntrasiteLink(href);
 			
-			String noQuery = DSFormatter.removeQueryString(href);
-			if(!siteCrawl.addUniqueCrawledPageUrl(noQuery) && !siteCrawl.isFollowNonUnique()){
-//				System.out.println("Not following non unique page url : " + noQuery);
-				return false;
-			}
+			String noQuery = UrlUtils.removeQueryString(href);
+//			if(!siteCrawl.addUniqueCrawledPageUrl(noQuery) && !siteCrawl.isFollowNonUnique()){
+////				System.out.println("Not following non unique page url : " + noQuery);
+//				return false;
+//			}
 			
 			if(FILTERS.matcher(noQuery).matches()) {
 //				System.out.println("Wrong Content Type : " + href);
 				return false;
 			}
 			
-			if(!siteCrawl.addCrawledUrl(href)){
-				repeatUrls++;
-				if(repeatUrls % 1000 == 0){
-//					System.out.println("repeated Href : " + repeatUrls);
-				}
-				return false; 
-			}
+//			if(!siteCrawl.addCrawledUrl(href)){
+//				repeatUrls++;
+//				if(repeatUrls % 1000 == 0){
+////					System.out.println("repeated Href : " + repeatUrls);
+//				}
+//				return false; 
+//			}
 			
 		}
 		catch (Exception e) {
@@ -141,7 +142,7 @@ public class DealerCrawler extends WebCrawler {
 			}
 			String filename = storageFolder.getAbsolutePath() + "/" + safePath;
 			
-			pageCrawl.setUrl(urlString);
+			pageCrawl.setUrl(urlString); 
 			pageCrawl.setPath(path);
 			pageCrawl.setQuery(query);
 			pageCrawl.setStatusCode(page.getStatusCode());
@@ -167,7 +168,7 @@ public class DealerCrawler extends WebCrawler {
 		catch(Exception e) {
 			Logger.error("Error while trying to visit and store : " + page.getWebURL().getURL() + " " + e);
 //			System.out.println("Error while trying to visit and store : " + page.getWebURL().getURL() + " " + e);
-			siteCrawl.addFailedUrl(page.getWebURL().getURL());
+//			siteCrawl.addFailedUrl(page.getWebURL().getURL());
 			pageCrawl.setErrorMessage(e.getMessage());
 			failedUrls.add(page.getWebURL().getURL());
 		}

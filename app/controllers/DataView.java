@@ -29,11 +29,6 @@ public class DataView extends Controller {
 	}
 	
 	@Transactional
-	public static Result sitesDashboardStats() {
-		return ok(views.html.viewstats.viewStats.render(StatsBuilder.sitesDashboard()));
-	}
-	
-	@Transactional
 	public static Result salesforceDashboardStats() {
 		return ok(views.html.viewstats.viewStats.render(StatsBuilder.salesforceDashboard()));
 	}

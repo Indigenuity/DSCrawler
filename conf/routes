@@ -11,7 +11,6 @@ GET		/salesforceAccount				controllers.DataView.salesforceAccount(salesforceAcco
 GET 	/urlCleanupForm						controllers.Application.urlCleanupForm()
 POST	/urlCleanupStart					controllers.Application.urlCleanupStart()
 GET		/allSyncs							controllers.Application.allSyncs()
-GET		/sitesDashboard						controllers.Application.sitesDashboard()
 GET		/syncList							controllers.Application.syncList(syncType : String)
 GET		/generateSyncReport					controllers.Application.generateSyncReport(syncId : Long)
 POST	/runSalesforceSync					controllers.SalesforceController.runSalesforceSync()
@@ -28,7 +27,6 @@ GET		/assignChangedWebsites				controllers.Application.assignChangedWebsites(syn
 GET		/viewSync							controllers.Application.viewSync(syncId : Long)
 
 GET		/getLocalFiles					controllers.Application.getLocalFiles(folderName : String)
-GET		/sitesDashboardStats			controllers.DataView.sitesDashboardStats()
 GET		/salesforceDashboardStats		controllers.DataView.salesforceDashboardStats()
 
 GET		/analysis/dashboard				controllers.Analysis.dashboard()
@@ -67,7 +65,15 @@ GET		/places/refreshRedirectPaths			controllers.PlacesController.refreshRedirect
 GET		/places/classifyRecords					controllers.PlacesController.classifyRecords()
 GET		/places/parseAddresses					controllers.PlacesController.parseAddresses()
 
+GET		/bd/bdDashboard							controllers.BDController.bdDashboard()
+GET		/bd/parseAddresses						controllers.BDController.parseAddresses()
+GET		/bd/standardizeFields					controllers.BDController.standardizeFields()
+GET		/bd/assignSiteless						controllers.BDController.assignSiteless()
+GET		/bd/refreshRedirectPaths				controllers.BDController.refreshRedirectPaths()
+GET		/bd/salesforceMatching					controllers.BDController.salesforceMatching()
 
+GET		/sites/sitesDashboard					controllers.SitesController.sitesDashboard()
+GET		/sites/sitesDashboardStats				controllers.SitesController.sitesDashboardStats()
 GET		/sites/checkUnvalidated					controllers.SitesController.checkUnvalidated()
 GET		/sites/validateAll						controllers.SitesController.validateAll()
 GET		/sites/reviewSites						controllers.SitesController.reviewSites()

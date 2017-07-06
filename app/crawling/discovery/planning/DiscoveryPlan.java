@@ -1,6 +1,5 @@
 package crawling.discovery.planning;
 
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -8,16 +7,24 @@ import crawling.discovery.execution.CrawlContext;
 import crawling.discovery.execution.DiscoveryContext;
 import crawling.discovery.execution.PlanId;
 
-public class DiscoveryPlan extends Plan {
+public class DiscoveryPlan extends ContextPlan {
 
-	protected PlanId defaultDestination;
+	protected PlanId destinationPlanId;
 	protected DiscoveryTool discoveryTool;
+	protected DiscoveryPoolPlan discoveryPoolPlan = new DiscoveryPoolPlan();
 	
-	protected Set<Object> startingSources = new HashSet<Object>();
-	
-	public DiscoveryPlan(){
-	}
+	public DiscoveryPlan(){ }
 
+	public DiscoveryPlan(DiscoveryTool discoveryTool, DiscoveryPoolPlan discoveryPoolPlan) {
+		super();
+		this.discoveryTool = discoveryTool;
+		this.discoveryPoolPlan = discoveryPoolPlan;
+	}
+	
+	public synchronized DiscoveryContext generateContext(CrawlContext crawlContext){
+		return new DiscoveryContext(crawlContext, this);
+	}
+	
 	public DiscoveryTool getDiscoveryTool() {
 		return discoveryTool;
 	}
@@ -26,31 +33,21 @@ public class DiscoveryPlan extends Plan {
 		this.discoveryTool = discoveryTool;
 	}
 
-	public synchronized DiscoveryContext generateContext(CrawlContext crawlContext){
-		return new DiscoveryContext(crawlContext, this);
+	public PlanId getDestinationPlanId() {
+		return destinationPlanId;
 	}
 
-	public PlanId getDefaultDestination() {
-		return defaultDestination;
+	public void setDestinationPlanId(PlanId destinationPlanId) {
+		this.destinationPlanId = destinationPlanId;
 	}
 
-	public void setDefaultDestination(PlanId defaultDestination) {
-		this.defaultDestination = defaultDestination;
+	public DiscoveryPoolPlan getDiscoveryPoolPlan() {
+		return discoveryPoolPlan;
+	}
+
+	public void setDiscoveryPoolPlan(DiscoveryPoolPlan discoveryPoolPlan) {
+		this.discoveryPoolPlan = discoveryPoolPlan;
 	}
 	
-	public void setDefaultDestination(ResourcePlan defaultDestinationPlan) {
-		this.defaultDestination = defaultDestinationPlan.getPlanId();
-	}
-	public Object putContextObject(String key, Object value){
-		synchronized(initialContextObjects){
-			return initialContextObjects.put(key, value);
-		}
-	}
-
-	public Set<Object> getStartingSources() {
-		return startingSources;
-	}
-	public boolean addStartingSource(Object source){
-		return startingSources.add(source);
-	}
+	
 }

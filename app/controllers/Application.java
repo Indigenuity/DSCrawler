@@ -51,13 +51,6 @@ public class Application extends Controller {
     	return ok();
     }
     
-    @Transactional 
-    public static Result sitesDashboard() {
-    	return ok(views.html.sites.sitesDashboard.render());
-    }
-    
-  
-    
     @Transactional
     public static Result assignChangedWebsites(long syncId){
     	Sync sync = JPA.em().find(Sync.class, syncId);

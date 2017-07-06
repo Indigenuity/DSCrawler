@@ -109,8 +109,8 @@ public class SalesforceControl {
 	}
 
 	public static void manuallyRedirectAccount(SalesforceAccount account, String newHomepage){
-		account.setSite(SiteLogic.manuallyRedirect(account.getSite(), newHomepage));
-		account.setSite(SiteLogic.getRedirectEndpoint(account.getSite(), false));
+//		account.setSite(SiteLogic.manuallyRedirect(account.getSite(), newHomepage));
+//		account.setSite(SiteLogic.getRedirectEndpoint(account.getSite(), false));
 	}
 	
 	//Set an account to a new homepage and abandon the old one.

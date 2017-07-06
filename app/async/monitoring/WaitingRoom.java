@@ -2,14 +2,18 @@ package async.monitoring;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.UUID;
 
 import akka.actor.ActorRef;
+import newwork.WorkOrder;
 
 public class WaitingRoom {
 	
 	private final Map<Long, ActorRef> customers = Collections.synchronizedMap(new HashMap<Long, ActorRef>());
+	private final LinkedList<BackOrder> backOrders = new LinkedList<BackOrder>();
 	
 	private String name = "Default Waiting Room";
 	private Long uuid = UUID.randomUUID().getLeastSignificantBits();
@@ -19,6 +23,21 @@ public class WaitingRoom {
 	
 	public enum WaitingRoomStatus {
 		ACTIVE, PAUSED, FINISHED
+	}
+	
+	public class BackOrder {
+		final WorkOrder workOrder;
+		final ActorRef customer;
+		BackOrder(WorkOrder workOrder, ActorRef customer) {
+			this.workOrder = workOrder;
+			this.customer = customer;
+		}
+		public WorkOrder getWorkOrder() {
+			return workOrder;
+		}
+		public ActorRef getCustomer() {
+			return customer;
+		}
 	}
 	
 	public WaitingRoom() {
@@ -92,4 +111,22 @@ public class WaitingRoom {
 		this.name = name;
 	}
 	
+	public boolean storeBackOrder(WorkOrder workOrder, ActorRef customer){
+		BackOrder backOrder = new BackOrder(workOrder, customer);
+		synchronized(backOrders){
+			return backOrders.add(backOrder);
+		}
+	}
+	
+	public BackOrder retrieveBackOrder(){
+		synchronized(backOrders){
+			return backOrders.remove();
+		}
+	}
+	
+	public int backOrderCount(){
+		synchronized(backOrders){
+			return backOrders.size();
+		}
+	}
 }

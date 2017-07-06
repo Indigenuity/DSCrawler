@@ -34,7 +34,7 @@ public class ResourceSupervisor extends UntypedActor{
 		
 		List<Routee> routees = new ArrayList<Routee>();
 	    for (int i = 0; i < resourceContext.getNumWorkers(); i++) {
-	      ActorRef r = getContext().actorOf(Props.create(ResourceWorker.class, resourceContext.getFetchTool(), context).withDispatcher("akka.worker-dispatcher"));
+	      ActorRef r = getContext().actorOf(Props.create(ResourceWorker.class, context).withDispatcher("akka.worker-dispatcher"));
 	      getContext().watch(r);
 	      routees.add(new ActorRefRoutee(r));
 	    }
@@ -52,35 +52,18 @@ public class ResourceSupervisor extends UntypedActor{
 			processResourceWorkOrder((ResourceWorkOrder) message);
 		} else if(message instanceof ResourceWorkResult){
 			processResourceWorkResult((ResourceWorkResult) message);
+		} else {
+			System.out.println("Received unknown message in ResourceSupervisor : " + message);
 		}
 	}
 	
 	protected void processResourceWorkResult(ResourceWorkResult workResult) {
-		context.storeWorkResult(workResult);
 		ActorRef sender = waitingRoom.remove(workResult.getUuid());
 		if(workResult.getWorkStatus() == WorkStatus.COMPLETE){
 //			System.out.println("Work successful in supervisor (plan " + context.getPlanId() + "): " + workResult.getSource());
-			for(Resource resource : workResult.getResources()){
-//				System.out.println("depth : " + resource.getDepth());
-			}
-			
 		}
 		sender.tell(workResult, getSelf());
 	}
-	
-//	protected void processSuccess(ResourceWorkResult workResult){
-//		System.out.println("supervisor received successful result: " + workResult.getSource());
-//	}
-//	
-//	protected void processWorkFailure(ResourceWorkResult workResult){
-//		System.out.println("supervisor received failed source : " + workResult.getSource() + " : " + workResult.getException().getClass().getSimpleName());
-//		context.markFailed(workResult.getSource(), workResult.getException());
-//	}
-//	
-//	protected void processUncrawled(ResourceWorkResult workResult){
-//		System.out.println("Supervisor received uncrawled source : " + workResult.getSource());
-//		context.markUncrawled(workResult.getSource());
-//	}
 	
 	protected void processResourceWorkOrder(ResourceWorkOrder workOrder) {
 		assignWork(workOrder);

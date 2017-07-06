@@ -1,8 +1,11 @@
 package persistence;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,37 +29,39 @@ import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.jsoup.nodes.Document;
 
+import crawling.discovery.html.HtmlResource;
 import datadefinitions.inventory.InvType;
+import sites.utilities.PageCrawlLogic;
 import utilities.DSFormatter;
 
 
 // Eager fetch all collections.  Any time you're dealing with individual pages, assume you need data
 
 @Entity
-@NamedEntityGraph(name="pageCrawlFull", attributeNodes={ 
-		@NamedAttributeNode("links"),
-})
-public class PageCrawl {
+public class PageCrawl implements HtmlResource{
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long pageCrawlId;
 	
-	@ManyToOne
+	@ManyToOne()
 	@JoinTable(name="sitecrawl_pagecrawl",
 			joinColumns={@JoinColumn(name="pageCrawls_pageCrawlId")},
 			inverseJoinColumns={@JoinColumn(name="SiteCrawl_siteCrawlId")})
 	private SiteCrawl siteCrawl;
 	
-	@ManyToOne
+	@ManyToOne(fetch=FetchType.LAZY)
 	private PageCrawl parentPage;
 	
-	@OneToMany(mappedBy="parentPage")
+	@OneToMany(mappedBy="parentPage", fetch=FetchType.LAZY)
 	private Set<PageCrawl> childPages = new HashSet<PageCrawl>();
 	
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	private String url;
+	
+	private Date crawlDate = new Date();
 	
 	private Integer statusCode;
 	
@@ -86,29 +91,6 @@ public class PageCrawl {
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	private String errorMessage;
 	
-	@Column(nullable = true, columnDefinition="varchar(4000)")
-	@ElementCollection(fetch=FetchType.LAZY)
-	@Fetch(FetchMode.SELECT)
-	private Set<String> links = new HashSet<String>();
-	
-	@Column(columnDefinition="varchar(4000)")
-	@ElementCollection(fetch=FetchType.LAZY)
-	private Set<String> unCrawledUrls = new HashSet<String>();		
-	@Column(columnDefinition="varchar(4000)")
-	@ElementCollection(fetch=FetchType.LAZY)
-	private Set<String> failedUrls = new HashSet<String>();
-	
-	@ElementCollection(fetch=FetchType.LAZY)
-	private Set<String> unCrawledInventoryUrls = new HashSet<String>();		
-	@Column(columnDefinition="varchar(4000)")
-	@ElementCollection(fetch=FetchType.LAZY)
-	private Set<String> failedInventoryUrls = new HashSet<String>();
-	
-	
-	
-	@OneToOne(cascade=CascadeType.ALL, orphanRemoval=false)
-	private InventoryNumber inventoryNumber = new InventoryNumber();
-
 	public URI getUri(){
 		try {
 			return new URI(getUrl());
@@ -148,22 +130,6 @@ public class PageCrawl {
 		this.redirectedUrl = DSFormatter.truncate(redirectedUrl, 400);
 	}
 
-
-	public Set<String> getLinks() {
-		return links;
-	}
-
-	public void setLinks(Collection<String> links) {
-		this.links.clear();
-		for(String item : links){
-			this.links.add(DSFormatter.truncate(item, 4000));
-		}
-	}
-	
-	public boolean addLink(String link) {
-		return this.links.add(DSFormatter.truncate(link, 4000));
-	}
-	
 	public String getFilename() {
 		return filename;
 	}
@@ -207,14 +173,6 @@ public class PageCrawl {
 
 	public void setQuery(String query) {
 		this.query = DSFormatter.truncate(query);
-	}
-
-	public InventoryNumber getInventoryNumber() {
-		return inventoryNumber;
-	}
-
-	public void setInventoryNumber(InventoryNumber inventoryNumber) {
-		this.inventoryNumber = inventoryNumber;
 	}
 
 	public Integer getStatusCode() {
@@ -289,65 +247,31 @@ public class PageCrawl {
 	}
 
 	public void addChildPage(PageCrawl childPage) {
-		this.childPages.add(childPage);
+		this.childPages.add(childPage); 
 	}
 	
-	public Set<String> getUnCrawledUrls() {
-		return unCrawledUrls;
+	public Date getCrawlDate() {
+		return crawlDate;
 	}
 
-	public void setUnCrawledUrls(Set<String> unCrawledUrls) {
-		this.unCrawledUrls.clear();
-		for(String url : unCrawledUrls){
-			this.unCrawledUrls.add(DSFormatter.truncate(url, 4000));
-		}
-	}
-	
-	public boolean addUncrawledInventoryUrl(String uncrawledInventoryUrl) {
-		return this.unCrawledInventoryUrls.add(DSFormatter.truncate(uncrawledInventoryUrl, 4000));
-	}
-	public Set<String> getUnCrawledInventoryUrls() {
-		return unCrawledInventoryUrls;
+	public void setCrawlDate(Date crawlDate) { 
+		this.crawlDate = crawlDate;
 	}
 
-	public void setUnCrawledInventoryUrls(Set<String> unCrawledInventoryUrls) {
-		this.unCrawledInventoryUrls.clear();
-		for(String url : unCrawledInventoryUrls){
-			this.unCrawledInventoryUrls.add(DSFormatter.truncate(url, 4000));
+	@Override
+	public Document getDocument() throws Exception { 
+		return PageCrawlLogic.getDocument(this);
+	}
+	
+	@Override
+	public URI getRedirectedUri(){
+		if(getRedirectedUrl() == null){
+			return null;
+		}
+		try {
+			return new URI(getRedirectedUrl());
+		} catch (URISyntaxException e) {
+			throw new UnsupportedOperationException("Can't generate URI for bad redirect uri : " + getRedirectedUrl());
 		}
 	}
-	
-	public boolean addUncrawledUrl(String uncrawledUrl) {
-		return this.unCrawledUrls.add(DSFormatter.truncate(uncrawledUrl, 4000));
-	}
-
-	public void setFailedInventoryUrls(Set<String> failedInventoryUrls) {
-		this.failedInventoryUrls.clear();
-		for(String url : failedInventoryUrls){
-			this.failedInventoryUrls.add(DSFormatter.truncate(url, 4000));
-		}
-	}
-	public boolean addFailedInventoryUrl(String failedInventoryUrl) {
-		return this.failedInventoryUrls.add(DSFormatter.truncate(failedInventoryUrl, 4000));
-	}
-	
-	public Set<String> getFailedInventoryUrls() {
-		return failedInventoryUrls;
-	}
-	
-	public Set<String> getFailedUrls() {
-		return failedUrls;
-	}
-
-	public void setFailedUrls(Set<String> failedUrls) {
-		this.failedUrls.clear();
-		for(String url : failedUrls){
-			this.failedUrls.add(DSFormatter.truncate(url, 4000));
-		}
-	}
-	
-	public boolean addFailedUrl(String failedUrl) {
-		return this.failedUrls.add(DSFormatter.truncate(failedUrl, 4000));
-	}
-	
 }

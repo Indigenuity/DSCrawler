@@ -43,7 +43,6 @@ public class SalesforceSynchronizer extends KeyedSynchronizer<String, Salesforce
 		account.setParentAccountSalesforceId(reportRow.getCell("Parent Account ID"));
 		account.setParentAccountName(reportRow.getCell("Parent Account"));
 		account.setAccountType(SalesforceAccountType.getBySalesforceValue(reportRow.getCell("Account Level")));
-		account.setCustomerStatus(reportRow.getCell("Account Type"));
 		account.setBrandAffiliation(reportRow.getCell("Brand Affiliation"));
 		account.setCountry(reportRow.getCell("Dealership Country"));
 		account.setCity(reportRow.getCell("Dealership City"));

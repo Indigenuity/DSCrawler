@@ -13,10 +13,13 @@ import java.util.List;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
+import crawling.projects.BasicDealer;
 import datatransfer.reports.Report;
 import datatransfer.reports.ReportRow;
 import places.PlacesPage;
 import play.db.jpa.JPA;
+import salesforce.SalesforceLogic;
+import salesforce.persistence.SalesforceAccount;
 
 public class CSVGenerator {
 	
@@ -64,6 +67,33 @@ public class CSVGenerator {
 		fileOut.close();
 	}
 	
+	public static void generateBasicDealerExport() throws IOException {
+		String queryString = "select distinct bd from BasicDealer bd join bd.possibleMatches pm where bd.projectIdentifier = 'finished' and size(bd.possibleMatches) > 0";
+		List<BasicDealer> dealers = JPA.em().createQuery(queryString, BasicDealer.class).getResultList();
+		System.out.println("dealers : " + dealers.size());
+		Report report = new Report("dupes");
+		for(BasicDealer dealer : dealers){
+			ReportRow reportRow = new ReportRow();
+			reportRow.putCell("basicDealerId", dealer.getBasicDealerId() + "");
+			reportRow.putCell("Account Name", dealer.getName());
+			reportRow.putCell("Website", dealer.getSite().getHomepage());
+			reportRow.putCell("Dealership Street", dealer.getStdStreet());
+			reportRow.putCell("Dealership City", dealer.getCity());
+			reportRow.putCell("Dealership State/Province", dealer.getStdState());
+			reportRow.putCell("Dealership Zip/Postal Code", dealer.getStdPostal());
+			reportRow.putCell("Dealership Country", dealer.getStdCountry());
+			reportRow.putCell("Phone", dealer.getStdPhone());
+			
+			String salesforceLinks = "";
+			for(SalesforceAccount account : dealer.getPossibleMatches()){
+				salesforceLinks += SalesforceLogic.generateLink(account) + "\n";
+			}
+			reportRow.putCell("Salesforce Matches", salesforceLinks);
+			report.addReportRow(dealer.getBasicDealerId() + "", reportRow);
+		}
+		report.setName("dupes");
+		CSVGenerator.printReport(report);
+	}
 	
 
 	public static void generateInventoryCountReport() throws IOException {

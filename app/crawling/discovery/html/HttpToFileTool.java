@@ -3,79 +3,97 @@ package crawling.discovery.html;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 
-import crawling.HttpFetcher;
-import crawling.anansi.UriFetch;
 import crawling.discovery.entities.Resource;
 import crawling.discovery.entities.ResourceId;
 import crawling.discovery.execution.ResourceContext;
-import crawling.discovery.execution.ResourceWorkOrder;
-import crawling.discovery.execution.ResourceWorkResult;
+import crawling.discovery.local.PageCrawlResource;
+import crawling.discovery.planning.PreResource;
 import crawling.discovery.planning.ResourceFetchTool;
 import persistence.PageCrawl;
-import persistence.SiteCrawl;
-import play.Logger;
 import play.db.jpa.JPA;
+import utilities.DSFormatter;
 import utilities.HttpUtils;
 
-public class HttpToFileTool extends ResourceFetchTool{
+public class HttpToFileTool implements ResourceFetchTool{
 	
 	protected static int MAX_FILENAME_LENGTH = 259;		//For windows, it is 259 + a null character. Only 256 if you don't count drive names.
 
 	@Override
-	public Set<Object> fetchResources(ResourceWorkOrder workOrder, ResourceContext context) throws Exception {
-		System.out.println("fetching resource : " + workOrder.getSource());
+	public Object fetchValue(Resource resource, ResourceContext context) throws Exception {
+//		System.out.println("fetching from source in HttpToFileTool: " + resource.getSource());
 		
-		Set<Object> resources = new HashSet<Object>();
-		URI currentUri = (URI)workOrder.getSource();
-		ResourceId resourceId = context.getNextResourceId();
-		File storageFile = generateFile(resourceId, currentUri, context);
+		URI currentUri = (URI)resource.getSource();
+		ResourceId resourceId = resource.getResourceId();
+		File storageFile = findStorageFile(resourceId, currentUri, context);
+		//TODO better handle and log errors of httpClient not being initialized
+		CloseableHttpClient httpClient = (CloseableHttpClient) context.get("httpClient");
+		HttpResponseFile responseFile = fetchResponse(currentUri, storageFile, httpClient);
+		
+		
+		return responseFile;
+	}
+	
+	protected HttpResponseFile fetchResponse(URI currentUri, File storageFile, CloseableHttpClient httpClient) throws Exception{
 		HttpResponseFile responseFile = new HttpResponseFile(currentUri, storageFile);
-		
-		CloseableHttpClient httpClient = (CloseableHttpClient) context.getContextObject("httpClient");
-		HttpGet request = new HttpGet(currentUri);
+		HttpGet request = new HttpGet(responseFile.getUri());
 		try(CloseableHttpResponse response = httpClient.execute(request);){
 			responseFile.setHeaders(response.getAllHeaders());
 			responseFile.setLocale(response.getLocale());
 			responseFile.setStatusCode(response.getStatusLine().getStatusCode());
 			if(HttpUtils.isRedirect(response.getStatusLine().getStatusCode())){
-				setRedirectUri(currentUri, responseFile, response);
+				setRedirectUri(responseFile.getUri(), responseFile, response);
+			} else if(HttpUtils.isSuccessful(response.getStatusLine().getStatusCode())){
+				recordResponse(storageFile, response.getEntity().getContent());
 			} else {
-				IOUtils.copy(response.getEntity().getContent(), new FileOutputStream(storageFile));
 			}
-			resources.add(responseFile);
 		}
-		
-		return resources;
+		return responseFile;
+	}
+	
+	protected void recordResponse(File storageFile, InputStream content) throws IOException{
+		IOUtils.copy(content, new FileOutputStream(storageFile));
+	}
+	
+	@Override
+	public Resource generateResource(Object source, Resource parent, ResourceId resourceId, ResourceContext context) throws Exception{
+		return new Resource(source, parent, resourceId, context.getPlanId());
+	}
+	
+	@Override
+	public Resource generateResource(PreResource preResource, Resource parent, ResourceId resourceId , ResourceContext context) throws Exception{
+		return new Resource(preResource, parent, resourceId, context.getPlanId());
 	}
 	
 	protected void setRedirectUri(URI currentUri, HttpResponseFile responseFile, CloseableHttpResponse response){
+		String redirectUriString = null;
 		try {
-			String redirectUriString = response.getFirstHeader("Location").getValue();
+			redirectUriString = response.getFirstHeader("Location").getValue();
 			URI redirectedUri = new URI(redirectUriString);
 			if(!redirectedUri.isAbsolute()){
 				redirectedUri = currentUri.resolve(redirectedUri);	
 			}
 			responseFile.setRedirectedUri(redirectedUri);
-		} catch (URISyntaxException | NullPointerException e) {
-			throw new IllegalStateException("Received redirect without a valid Location");
+		} catch(URISyntaxException e) {
+			throw new IllegalStateException("Received redirect with invalid Location : " + redirectUriString);
+		} catch(NullPointerException e){
+			throw new IllegalStateException("Received redirect with no Location.");
 		}
 	}
 	
-	protected File generateFile(ResourceId resourceId, URI uri, ResourceContext context) throws IOException {
-		File crawlStorageFolder = (File) context.getContextObject("crawlStorageFolder");
+	protected File findStorageFile(ResourceId resourceId, URI uri, ResourceContext context) throws IOException {
+		File crawlStorageFolder = (File) context.getCrawlContext().get("crawlStorageFolder");
 		String resourceIdString = resourceId.toString();
 		if(crawlStorageFolder.getAbsolutePath().length() + resourceIdString.length() > MAX_FILENAME_LENGTH){		//Leave enough room for at least the resourceId as filename
 			throw new IOException("Cannot generate file when storage folder name is too long : " + crawlStorageFolder.getAbsolutePath());
@@ -83,8 +101,7 @@ public class HttpToFileTool extends ResourceFetchTool{
 		String filename = constructFilename(resourceIdString, uri);
 		filename = crawlStorageFolder.getAbsolutePath() + "/" + filename;
 		filename = truncate(filename, MAX_FILENAME_LENGTH);
-		File file = new File(filename);
-		return makeFile(crawlStorageFolder, file);
+		return new File(filename);
 	}
 	
 	protected String constructFilename(String resourceIdString, URI uri) throws UnsupportedEncodingException{
@@ -92,12 +109,12 @@ public class HttpToFileTool extends ResourceFetchTool{
 		String query = uri.getQuery();
 		String pathAndQuery = path;
 		if(query != null){
-			pathAndQuery = "?" + query;
+			pathAndQuery += "?" + query;
 		}
 		return URLEncoder.encode(resourceIdString + "-" + pathAndQuery, "UTF-8");
 	}
 	
-	protected File makeFile(File storageFolder, File file) throws IOException {
+	protected File makeFile(File file) throws IOException {
 		file.createNewFile();
 		return file;
 	}

@@ -75,7 +75,7 @@ public class HttpResponseFile implements HtmlResource{
 		this.headers = headers;
 	}
 
-	public int getStatusCode() {
+	public Integer getStatusCode() {
 		return statusCode;
 	}
 

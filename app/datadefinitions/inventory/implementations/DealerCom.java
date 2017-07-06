@@ -1,4 +1,4 @@
-package datadefinitions.inventory;
+package datadefinitions.inventory.implementations;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -11,6 +11,7 @@ import org.jsoup.select.Elements;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
+import datadefinitions.inventory.InventoryTool;
 import sites.persistence.Vehicle;
 
 public class DealerCom extends InventoryTool {
@@ -51,6 +52,9 @@ public class DealerCom extends InventoryTool {
 				vehicle.setVin(vinElement.text());
 				try{
 					Element valueSpan = listing.select("span.msrp span.value").first();
+					if(valueSpan == null){
+						valueSpan = listing.select("span.retailValue span.value").first();
+					}
 					if(valueSpan != null){
 						vehicle.setMsrp(moneyString(valueSpan.text()));
 					}
@@ -63,7 +67,7 @@ public class DealerCom extends InventoryTool {
 					vehicle.setOfferedPrice(moneyString(priceSpan.text()));
 				} catch(Exception e){
 					System.out.println("Error getting offered price of vehicle : " + vehicle.getVin());
-//					System.out.println("e : " + e.getMessage());
+					System.out.println("e : " + e.getMessage());
 				}
 				try{
 					Element link = listing.select("a.url").first();

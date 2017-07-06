@@ -76,12 +76,41 @@ public class Site {
 	
 	//*****Request results
 	private Boolean httpError = false;
+	private Boolean badStatus = false;
 	private Boolean defunctContent = false;
 	
 	
 	@NotAudited
-	@Formula("badUrlStructure = 1 OR (notStandardHomepagePath = 1 AND approvedHomepagePath = 0)")
+	@Formula("(badUrlStructure = 1 "
+			+ "OR (notStandardHomepagePath = 1 AND approvedHomepagePath = 0) "
+			+ "OR (notStandardQuery = 1 AND approvedQuery = 0)) "
+			+ "AND redirectsTo_siteId is null")
 	private Boolean needsReview;
+	
+	@NotAudited
+	@Formula("badUrlStructure = 0 AND defunctDomain = 0 AND defunctPath = 0 AND uncrawlableDomain = 0 AND uncrawlablePath = 0 AND isEmail = 0  "
+			+ "AND (approvedQuery = 1 OR notStandardQuery = 0)"
+			+ "AND (approvedHomepagePath = 1 OR notStandardHomepagePath = 0)")
+	private Boolean fullyApprovedUrl;
+	
+	@NotAudited
+	@Formula("httpError = 0 AND badStatus = 0 AND defunctContent = 0 ")
+	private Boolean fullyApprovedHttp;
+	
+	@NotAudited
+	@Formula("badUrlStructure = 0 AND defunctDomain = 0 AND defunctPath = 0 AND uncrawlableDomain = 0 AND uncrawlablePath = 0 AND isEmail = 0  "
+			+ "AND (approvedQuery = 1 OR notStandardQuery = 0)"
+			+ "AND (approvedHomepagePath = 1 OR notStandardHomepagePath = 0) "
+			+ "AND httpError = 0 AND badStatus = 0 AND defunctContent = 0 "
+			+ "AND redirectsTo_siteId is null")
+	private Boolean fullyKosher;
+	
+	@NotAudited
+	@Formula("badUrlStructure = 0 AND defunctDomain = 0 AND defunctPath = 0 AND uncrawlableDomain = 0 AND uncrawlablePath = 0 AND isEmail = 0  "
+			+ "AND (approvedQuery = 1 OR notStandardQuery = 0)"
+			+ "AND (approvedHomepagePath = 1 OR notStandardHomepagePath = 0) "
+			+ "AND httpError = 0 AND defunctContent = 0")
+	private Boolean deadend;
 	
 	
 	/**************************************  Relationships **********************************/
@@ -574,5 +603,25 @@ public class Site {
 	public void setApprovedQuery(Boolean approvedQuery) {
 		this.approvedQuery = approvedQuery;
 	}
+	public Boolean getBadStatus() {
+		return badStatus;
+	}
+	public void setBadStatus(Boolean badStatus) {
+		this.badStatus = badStatus;
+	}
+	public Boolean getFullyKosher() {
+		return fullyKosher;
+	}
+	public Boolean getDeadend() {
+		return deadend;
+	}
+	public Boolean getFullyApprovedUrl() {
+		return fullyApprovedUrl;
+	}
+	public Boolean getFullyApprovedHttp() {
+		return fullyApprovedHttp;
+	}
+	
+	
 	
 }

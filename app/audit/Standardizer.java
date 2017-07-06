@@ -40,12 +40,6 @@ public class Standardizer {
 		}
 	}
 	
-	public static void standardizeBasicDealers() {
-		for(BasicDealer dealer :GeneralDAO.getAll(BasicDealer.class)){
-			standardize(dealer);
-		}
-	}
-	
 	public static void standardizeSalesforceAccounts() {
 		Asyncleton.getInstance().runConsumerMaster(50, 
 				JpaFunctionalBuilder.wrapConsumerInFind(Standardizer::standardize, SalesforceAccount.class),

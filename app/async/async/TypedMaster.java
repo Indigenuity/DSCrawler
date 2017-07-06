@@ -41,6 +41,7 @@ public abstract class TypedMaster<T> extends UntypedActor {
 	      ActorRef r = getContext().actorOf(Props.create(getType()).withDispatcher("akka.worker-dispatcher"));
 	      getContext().watch(r);
 	      routees.add(new ActorRefRoutee(r));
+	      System.out.println("generated worker number : " + i);
 	    }
 	    router = new Router(new RoundRobinRoutingLogic(), routees); 
 	}

@@ -19,31 +19,12 @@ import persistence.SiteCrawl;
 import play.Logger;
 import play.db.jpa.JPA;
 import sites.SiteLogic;
+import sites.utilities.PageCrawlLogic;
 
 public class SiteCrawlLogic {
 	
 	
 
-	public static void removePageCrawl(PageCrawl pageCrawl){
-		SiteCrawl siteCrawl = pageCrawl.getSiteCrawl();
-		if(siteCrawl.getNewInventoryPage() == pageCrawl){
-			siteCrawl.setNewInventoryPage(null);
-		}
-		if(siteCrawl.getUsedInventoryPage() == pageCrawl){
-			siteCrawl.setUsedInventoryPage(null);
-		}
-		if(siteCrawl.getNewInventoryRoot() == pageCrawl){
-			siteCrawl.setNewInventoryRoot(null);
-		}
-		if(siteCrawl.getUsedInventoryRoot() == pageCrawl){
-			siteCrawl.setUsedInventoryRoot(null);
-		}
-		for(PageCrawl childPageCrawl : pageCrawl.getChildPages()){
-			childPageCrawl.setParentPage(null);
-		}
-		JPA.em().remove(pageCrawl);
-	}
-	
 	public static void replaceAsParent(PageCrawl oldParent, PageCrawl newParent){
 		System.out.println("oldParent's children : " + oldParent.getChildPages());
 		for(PageCrawl child : oldParent.getChildPages()){
@@ -58,7 +39,7 @@ public class SiteCrawlLogic {
 	public static void replaceAndRemove(PageCrawl oldParent, PageCrawl newParent){
 		System.out.println("removing oldparent : " + oldParent.getPageCrawlId() + " with new parent : " + newParent.getPageCrawlId());
 		replaceAsParent(oldParent, newParent);
-		removePageCrawl(oldParent);
+		PageCrawlLogic.removePageCrawl(oldParent);
 	}
 	
 	public static PageCrawl getPageCrawlByUrl(String url, SiteCrawl siteCrawl){

@@ -22,7 +22,6 @@ public class SalesforceSyncSession extends SingleSyncSession<String, ReportRow, 
 		salesforceAccount.setParentAccountSalesforceId(reportRow.getCell("Parent Account ID"));
 		salesforceAccount.setParentAccountName(reportRow.getCell("Parent Account"));
 		salesforceAccount.setAccountType(SalesforceAccountType.getBySalesforceValue(reportRow.getCell("Account Level")));
-		salesforceAccount.setCustomerStatus(reportRow.getCell("Account Type"));
 		salesforceAccount.setBrandAffiliation(reportRow.getCell("Brand Affiliation"));
 		salesforceAccount.setCountry(reportRow.getCell("Dealership Country"));
 		salesforceAccount.setCity(reportRow.getCell("Dealership City"));

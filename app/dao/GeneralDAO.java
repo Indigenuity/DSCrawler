@@ -201,7 +201,7 @@ public class GeneralDAO {
 	}
 	
 	
-	public static <T> Long getCount(Class<T> clazz, String valueName, Object value){
+	public static Long getCount(Class<?> clazz, String valueName, Object value){
 		Map<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put(valueName , value);
 		return getCount(clazz, parameters);

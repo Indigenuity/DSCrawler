@@ -104,14 +104,14 @@ public class DealerCrawlController extends CrawlController {
         System.out.println("Starting Blocking Crawl for URL: " + url);
         controller.start(DealerCrawler.class, DEFAULT_NUMBER_OF_CRAWLERS);
         
-        CrawlReport crawlReport = controller.getReport();
+        CrawlReport crawlReport = controller.getReport(); 
         
         
         siteCrawl.setStorageFolder(relativeStorageFolder);
         siteCrawl.setCrawlDate(new java.sql.Date(Calendar.getInstance().getTimeInMillis()));
 //        siteCrawl.setFailedUrls(crawlReport.failedUrls);
 //        siteCrawl.setCrawledUrls(crawlReport.visitedUrls);
-        siteCrawl.setNumRepeatedUrls(crawlReport.repeatUrls);
+//        siteCrawl.setNumRepeatedUrls(crawlReport.repeatUrls);
         siteCrawl.setCrawlDepth(config.getMaxDepthOfCrawling());
         return siteCrawl;
 	}

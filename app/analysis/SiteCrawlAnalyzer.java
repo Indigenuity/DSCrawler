@@ -32,7 +32,7 @@ import persistence.PageCrawl;
 import persistence.SiteCrawl;
 import persistence.Staff;
 import play.db.jpa.JPA;
-import utilities.DSFormatter;
+import utilities.UrlUtils;
 
 public class SiteCrawlAnalyzer {
 	
@@ -58,7 +58,7 @@ public class SiteCrawlAnalyzer {
 					JPA.em().persist(pageAnalysis);
 					analysis.addPageCrawlAnalysis(pageAnalysis);
 				} 
-				PageCrawlAnalyzer pageAnalyzer = new PageCrawlAnalyzer(pageAnalysis);
+				PageCrawlAnalyzer pageAnalyzer = new PageCrawlAnalyzer(pageCrawl, analysis);
 				pageAnalyzer.runAnalysis();
 			}
 		}
@@ -157,7 +157,7 @@ public class SiteCrawlAnalyzer {
 			
 			h1s.add(pageAnalysis.getH1Text());
 			titles.add(pageAnalysis.getTitleText());
-			urls.add(DSFormatter.removeQueryString(pageAnalysis.getPageCrawl().getUrl()));
+			urls.add(UrlUtils.removeQueryString(pageAnalysis.getPageCrawl().getUrl()));
 			metas.add(pageAnalysis.getMetaDescriptionText());
 		}
 		
@@ -448,8 +448,8 @@ public class SiteCrawlAnalyzer {
 		}
 		
 //		siteCrawl.setBrandMatchAverages(getBrandMatchAverages(siteCrawl));
-		siteCrawl.setNumRetrievedFiles(numFiles);
-		siteCrawl.setNumLargeFiles(numLargeFiles);
+//		siteCrawl.setNumRetrievedFiles(numFiles);
+//		siteCrawl.setNumLargeFiles(numLargeFiles);
 	}
 	
 	

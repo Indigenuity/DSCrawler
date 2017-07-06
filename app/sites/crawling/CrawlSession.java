@@ -1,4 +1,4 @@
-package crawling;
+package sites.crawling;
 
 import java.util.Date;
 import java.util.HashSet;

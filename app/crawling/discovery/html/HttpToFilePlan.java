@@ -51,15 +51,15 @@ public class HttpToFilePlan extends ResourcePlan{
 	}
 
 	public boolean matchesSeedHost(URI uri, CrawlContext crawlContext) {
-		return StringUtils.equals(uri.getHost(), (String) crawlContext.getContextObject("seedHost"));
+		return StringUtils.equals(uri.getHost(), (String) crawlContext.get("seedHost"));
 	}
 
 	@Override
-	public synchronized ResourceContext generateContext(CrawlContext crawlContext) {
+	public synchronized ResourceContext generateContext(CrawlContext crawlContext) throws Exception {
 		ResourceContext context = super.generateContext(crawlContext);
-		context.putContextObject("httpConfig", config);
+		context.put("httpConfig", config);
 //		System.out.println("config : " + config.getProxyAddress());
-		context.putContextObject("httpClient", config.buildHttpClient());
+		context.put("httpClient", config.buildHttpClient());
 		return context;
 	}
 	

@@ -9,7 +9,7 @@ import crawling.discovery.execution.CrawlContext;
 import crawling.discovery.execution.PlanId;
 import crawling.discovery.execution.ResourceContext;
 
-public abstract class ResourcePlan extends Plan { 
+public abstract class ResourcePlan extends ContextPlan { 
 	
 	public final static int DEFAULT_NUM_WORKERS = 5;
 	public final static int DEFAULT_MAX_DEPTH_OF_CRAWLING = Integer.MAX_VALUE;
@@ -20,8 +20,7 @@ public abstract class ResourcePlan extends Plan {
 	protected int numWorkers = DEFAULT_NUM_WORKERS;
 	
 	protected final Set<PlanId> discoveryPlans = new HashSet<PlanId>();
-	protected final Set<ResourcePreOrder> preOrders = new HashSet<ResourcePreOrder>();
-	protected final Set<Resource> resources = new HashSet<Resource>();
+	protected final Set<PreResource> resources = new HashSet<PreResource>();
 	
 	protected ResourceFetchTool fetchTool;
 	
@@ -32,12 +31,9 @@ public abstract class ResourcePlan extends Plan {
 	public ResourcePlan() {
 	}
 	
-	public synchronized ResourceContext generateContext(CrawlContext crawlContext){
-		return new ResourceContext(crawlContext, this);
-	}
-	
-	public void addPreOrder(ResourcePreOrder preOrder) {
-		this.preOrders.add(preOrder);
+	public synchronized ResourceContext generateContext(CrawlContext crawlContext) throws Exception{
+		ResourceContext context =  new ResourceContext(crawlContext, this);
+		return context;
 	}
 	
 	public int getNumWorkers() {
@@ -84,15 +80,11 @@ public abstract class ResourcePlan extends Plan {
 		this.maxPages = maxPages;
 	}
 
-	public Set<ResourcePreOrder> getPreOrders() {
-		return preOrders;
-	}
-
-	public boolean addResource(Resource resource){
+	public boolean addResource(PreResource resource){
 		return this.resources.add(resource);
 	}
 	
-	public Set<Resource> getResources() {
+	public Set<PreResource> getResources() {
 		return resources;
 	}
 	

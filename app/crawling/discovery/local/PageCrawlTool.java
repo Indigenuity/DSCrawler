@@ -1,23 +1,30 @@
 package crawling.discovery.local;
 
 import java.net.URI;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.jsoup.nodes.Document;
 
 import crawling.discovery.entities.Resource;
+import crawling.discovery.entities.ResourceId;
 import crawling.discovery.execution.CrawlContext;
 import crawling.discovery.execution.ResourceContext;
 import crawling.discovery.execution.ResourceWorkOrder;
 import crawling.discovery.html.HttpResponseFile;
 import crawling.discovery.html.HttpToFileTool;
+import crawling.discovery.planning.PreResource;
 import datadefinitions.inventory.InvType;
 import datadefinitions.inventory.InvUtils;
+import newwork.WorkStatus;
 import persistence.PageCrawl;
 import persistence.SiteCrawl;
 import play.db.jpa.JPA;
 import sites.crawling.SiteCrawlLogic;
+import sites.utilities.PageCrawlLogic;
+import utilities.DSFormatter;
+import utilities.HttpUtils;
 
 public class PageCrawlTool extends HttpToFileTool{
 
@@ -27,49 +34,35 @@ public class PageCrawlTool extends HttpToFileTool{
 	}
 	
 	@Override
-	public Set<Object> fetchResources(ResourceWorkOrder workOrder, ResourceContext context) throws Exception { 
-		Set<Object> responseFiles = super.fetchResources(workOrder, context);
-		Set<Object> pageCrawls = new HashSet<Object>();
-		for(Object responseFile : responseFiles){
-			JPA.withTransaction(() -> {
-				PageCrawl pageCrawl =generatePageCrawl((HttpResponseFile)responseFile, context);
-				assignParentRelationships(pageCrawl, workOrder.getParent());
-				assignSiteCrawlRelationships(pageCrawl, context);
-				pageCrawls.add(pageCrawl);
-			});
-				
-		}
-		return pageCrawls;
+	public void postFetch(Resource resource, ResourceContext context) throws Exception {
 	}
 	
-	protected boolean isInventoryContext(ResourceContext context){
-		return context.getPlanId().equals(context.getCrawlContext().getContextObject("inventoryPlanId"));
+	public void assignParent(Resource parent, Set<Object> sources){
+		if(parent != null){
+			PageCrawl parentCrawl = (PageCrawl)parent.getValue();
+		}
 	}
 	
-	protected PageCrawl generatePageCrawl(HttpResponseFile responseFile, ResourceContext context) throws Throwable{
-		PageCrawl pageCrawl = toPageCrawl(responseFile);
-		JPA.em().persist(pageCrawl);
-		return pageCrawl;
-	}
-	
-	protected void assignSiteCrawlRelationships(PageCrawl pageCrawl, ResourceContext context){
-		SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, context.getCrawlContext().getContextObject("siteCrawlId"));
-		PageCrawl oldPageCrawl = SiteCrawlLogic.getPageCrawlByUrl(pageCrawl.getUrl(), siteCrawl);
-		if(oldPageCrawl != null){
-			SiteCrawlLogic.replaceAndRemove(oldPageCrawl, pageCrawl);
-		}
-		siteCrawl.addPageCrawl(pageCrawl);
-//		pageCrawl.setSiteCrawl(siteCrawl);
-		if(pageCrawl.getNewRoot() && siteCrawl.getNewInventoryRoot() == null){
-			siteCrawl.setNewInventoryRoot(pageCrawl);
-		}
-		if(pageCrawl.getUsedRoot() && siteCrawl.getUsedInventoryRoot() == null){
-			siteCrawl.setUsedInventoryRoot(pageCrawl);
-		}
+	@Override
+	public Resource generateResource(Object source, Resource parent, ResourceId resourceId, ResourceContext context) throws Exception{
+		PageCrawl[] pageCrawls = new PageCrawl[1];
+		JPA.withTransaction(() -> {
+//			PageCrawl pageCrawl = generatePageCrawl((URI)source, context);
+//			JPA.em().persist(pageCrawl);
+//			assignSiteCrawlRelationships(pageCrawl, context);
+//			assignParentRelationships(pageCrawl, parent);
+//			pageCrawls[0] = pageCrawl;
+		});
 		
-		if(isInventoryContext(context)){
-			pageCrawl.setPagedInventory(true);
-		}
+		PageCrawlResource resource = new PageCrawlResource(source, pageCrawls[0], parent, resourceId, context.getPlanId());
+		return resource;
+	}
+	
+	protected PageCrawl generatePageCrawl(URI uri) throws Throwable{
+		PageCrawl pageCrawl = new PageCrawl();
+		pageCrawl.setUrl(uri.toString());
+		pageCrawl.setPagedInventory(this.pagedInventory);
+		return pageCrawl;
 	}
 	
 	protected void assignParentRelationships(PageCrawl pageCrawl, Resource parent){
@@ -80,39 +73,115 @@ public class PageCrawlTool extends HttpToFileTool{
 		}
 	}
 	
-	protected PageCrawl toPageCrawl(HttpResponseFile responseFile) throws Exception{
-		PageCrawl pageCrawl = new PageCrawl();
-		pageCrawl.setPagedInventory(this.pagedInventory);
-		
-		copyGeneralData(responseFile, pageCrawl);
-		copyInventoryData(responseFile, pageCrawl);
-		
-		return pageCrawl;
+	@Override
+	public Resource generateResource(PreResource preResource, Resource parent, ResourceId resourceId , ResourceContext context) throws Exception{
+		if(preResource.getValue() == null){
+			return generateResource(preResource.getSource(), parent, resourceId, context);	//Uncrawled source
+		}
+		PageCrawlResource pageCrawlResource = new PageCrawlResource(preResource,
+				parent,
+				resourceId,
+				context.getPlanId());
+		JPA.withTransaction(() -> {
+			generateInventoryData(pageCrawlResource);
+		});
+		return pageCrawlResource;
 	}
 	
-	protected void copyGeneralData(HttpResponseFile responseFile, PageCrawl pageCrawl){
+	@Override
+	public Object fetchValue(Resource resource, ResourceContext context) throws Exception { 
+		HttpResponseFile responseFile = (HttpResponseFile)super.fetchValue(resource, context);
+		PageCrawlResource pageCrawlResource = (PageCrawlResource)resource;
+		PageCrawl[] pageCrawls = new PageCrawl[1];
+		
+		
+		JPA.withTransaction(() -> {
+			pageCrawls[0] = pageCrawlResource.getPageCrawl();
+			PageCrawlLogic.clearResults(pageCrawls[0]);
+			recordResults(responseFile, pageCrawls[0]);
+			generateInventoryData(pageCrawlResource);
+			pageCrawls[0] = JPA.em().merge(pageCrawls[0]);
+		});
+		
+		return pageCrawls[0];
+	}
+	
+	protected void recordResults(HttpResponseFile responseFile, PageCrawl pageCrawl){
 		pageCrawl.setStatusCode(responseFile.getStatusCode());
-		pageCrawl.setUrl(responseFile.getUri().toString());
 		pageCrawl.setFilename(responseFile.getFile().getAbsolutePath());
 		if(responseFile.getRedirectedUri() != null){
 			pageCrawl.setRedirectedUrl(responseFile.getRedirectedUri().toString());
 		}
-		
+		pageCrawl.setCrawlDate(new Date());
 	}
 	
-	protected void copyInventoryData(HttpResponseFile responseFile, PageCrawl pageCrawl) throws Exception{
-		Document doc = responseFile.getDocument();
-		URI currentUri = responseFile.getUri();
-		doc.setBaseUri(currentUri.toString());
-		InvType invType = InvUtils.getInvType(doc, responseFile.getUri());
+	protected void generateInventoryData(PageCrawlResource pageCrawlResource) throws Exception{
+		PageCrawl pageCrawl = pageCrawlResource.getPageCrawl();
+		if(!PageCrawlLogic.fileExists(pageCrawl)){
+			return;
+		}
+		Document doc = PageCrawlLogic.getDocument(pageCrawl);
+		URI currentUri = pageCrawl.getUri();
+		
+		InvType invType = InvUtils.getInvType(doc, currentUri);
 		if(invType != null){
 //			System.out.println("detected invtype : " + invType);
-			pageCrawl.setNewPath(invType.getTool().isNewPath(responseFile.getUri()));
-			pageCrawl.setNewRoot(invType.getTool().isNewRoot(responseFile.getUri()));
-			pageCrawl.setUsedPath(invType.getTool().isUsedPath(responseFile.getUri()));
-			pageCrawl.setUsedRoot(invType.getTool().isUsedRoot(responseFile.getUri()));
+			pageCrawl.setNewPath(invType.getTool().isNewPath(currentUri));
+			pageCrawl.setNewRoot(invType.getTool().isNewRoot(currentUri));
+			pageCrawl.setUsedPath(invType.getTool().isUsedPath(currentUri));
+			pageCrawl.setUsedRoot(invType.getTool().isUsedRoot(currentUri));
 			pageCrawl.setInvType(invType);
 		}
+		assignSiteCrawlInventoryRelationships(pageCrawl);
+	}
+	
+	protected void assignSiteCrawlInventoryRelationships(PageCrawl pageCrawl){
+		SiteCrawl siteCrawl = pageCrawl.getSiteCrawl();
+		if(pageCrawl.getNewRoot() && siteCrawl.getNewInventoryRoot() == null){
+			siteCrawl.setNewInventoryRoot(pageCrawl);
+		}
+		if(pageCrawl.getUsedRoot() && siteCrawl.getUsedInventoryRoot() == null){
+			siteCrawl.setUsedInventoryRoot(pageCrawl);
+		}
+	}
+	
+	@Override
+	public void afterDiscovery(Resource parent, Set<Resource> children, ResourceContext context){
+		JPA.withTransaction(() -> {
+			Object siteCrawlId = context.getCrawlContext().get("siteCrawlId");
+			SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, siteCrawlId);
+			for(Resource child : children){
+				siteCrawl.addPageCrawl((PageCrawl)child.getValue());
+				
+			}
+			
+		});
+	}
+	
+	@Override
+	public void onFetchError(Resource resource, ResourceContext context, Exception e){
+		PageCrawlResource pageCrawlResource = (PageCrawlResource)resource;
+		
+		JPA.withTransaction(() -> {
+			PageCrawl pageCrawl = pageCrawlResource.getPageCrawl();
+//			PageCrawlLogic.clearResults(pageCrawl);
+			pageCrawl.setStatusCode(null);
+			pageCrawl.setErrorMessage(DSFormatter.toString(resource.getFetchException()));
+			JPA.em().merge(pageCrawl);
+		});
+	}
+	
+	@Override
+	public void onDiscoveryError(Resource parent, ResourceContext context, Exception e){
+		PageCrawlResource pageCrawlResource = (PageCrawlResource)parent;
+		
+		JPA.withTransaction(() -> {
+			PageCrawl pageCrawl = pageCrawlResource.getPageCrawl();
+//			PageCrawlLogic.clearResults(pageCrawl);
+			pageCrawl.setStatusCode(null);
+			pageCrawl.setErrorMessage(DSFormatter.toString(parent.getDiscoveryException()));
+			JPA.em().merge(pageCrawl);
+		});
 	}
 
 }

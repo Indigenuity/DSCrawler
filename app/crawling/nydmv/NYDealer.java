@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import places.PlacesDealer;
 import salesforce.persistence.SalesforceAccount;
@@ -30,6 +31,7 @@ public class NYDealer {
 	private String standardStreet;
 	
 	@ManyToOne(fetch=FetchType.LAZY)
+	@NotAudited
 	private SalesforceAccount sfAccount;
 	
 	@ManyToOne(fetch=FetchType.LAZY)

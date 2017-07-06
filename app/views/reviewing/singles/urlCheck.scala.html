@@ -1,4 +1,4 @@
-@import _root_.utilities.DSFormatter
+@import _root_.utilities.UrlUtils
 @(urlCheck : _root_.persistence.UrlCheck)
 
 <div class="review-urlcheck">
@@ -7,7 +7,7 @@
 	<table class="attributes">
 		<tr>
 			<td>Seed</td>
-			<td><a href="@DSFormatter.toHttp(urlCheck.getSeed())" target="_blank">@urlCheck.getSeed()</a></td>
+			<td><a href="@UrlUtils.toHttp(urlCheck.getSeed())" target="_blank">@urlCheck.getSeed()</a></td>
 		</tr>
 		<tr>
 			<td>Resolved Seed</td>

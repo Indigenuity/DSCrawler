@@ -9,10 +9,6 @@
 	<div class="panel-item">
 		<table class="sitecrawl-properties">
 			<tr>
-				<td>Resolved Seed</td>
-				<td>@siteCrawl.getResolvedSeed()</td>
-			</tr>
-			<tr>
 				<td>Crawl Date</td>
 				<td>@siteCrawl.getCrawlDate()</td>
 			</tr>
@@ -48,14 +44,6 @@
 				<td>Max Pages Reached</td>
 				<td>@siteCrawl.isMaxPagesReached()</td>
 			</tr>
-			<tr>
-				<td>Retrieved Files</td>
-				<td>@siteCrawl.getNumRetrievedFiles()</td>
-			</tr>
-			<tr>
-				<td>Large Files</td>
-				<td>@siteCrawl.getNumLargeFiles()</td>
-			</tr>
 		</table>
 	</div>
 	<div class="accordion pagecrawls panel-item">
@@ -69,27 +57,21 @@
 		</ul>
 	</div>
 	<div class="accordion failed-urls panel-item">
-		<h3>Failed Urls (@siteCrawl.getFailedUrls().size())</h3>
+		<h3>Failed Urls </h3>
 		<ul class="url-list">
-			@for(url <- siteCrawl.getFailedUrls()) {
-				<li>@url</li>
-			}
+			
 		</ul>
 	</div>
 	<div class="accordion uncrawled-urls panel-item">
-		<h3>Uncrawled Urls (@siteCrawl.getUnCrawledUrls().size())</h3>
+		<h3>Uncrawled Urls ()</h3>
 		<ul class="url-list">
-			@for(url <- siteCrawl.getUnCrawledUrls()) {
-				<li>@url</li>
-			}
+			
 		</ul>
 	</div>
 	<div class="accordion uncrawled-urls panel-item">
-		<h3>Uncrawled Inventory Urls (@siteCrawl.getUnCrawledInventoryUrls().size())</h3>
+		<h3>Uncrawled Inventory Urls ()</h3>
 		<ul class="url-list">
-			@for(url <- siteCrawl.getUnCrawledInventoryUrls()) {
-				<li>@url</li>
-			}
+			
 		</ul>
 	</div>
 

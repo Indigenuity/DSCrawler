@@ -55,7 +55,7 @@ public class SiteCrawlAnalysis {
 	// *********** Basics and Configuration
 	
 	@OneToOne
-	SiteCrawl siteCrawl;
+	SiteCrawl siteCrawl; 
 	
 	@OneToMany(mappedBy="siteCrawlAnalysis", cascade=CascadeType.ALL, fetch=FetchType.EAGER, orphanRemoval=true)
 	private Set<PageCrawlAnalysis> pageAnalyses = new HashSet<PageCrawlAnalysis>();
