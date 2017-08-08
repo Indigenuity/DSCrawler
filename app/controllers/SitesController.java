@@ -359,6 +359,21 @@ public class SitesController extends Controller {
 	}
 	
 	@Transactional
+	public static Result aggregationAnalysis(long siteSetId) {
+		SiteSet siteSet = JPA.em().find(SiteSet.class, siteSetId);
+		Set<Long> siteIds = new HashSet<Long>();
+		siteIds.addAll(SiteSetDao.sitesWithFreshCrawls(siteSet.getSiteSetId()));
+		Asyncleton.getInstance().runConsumerMaster(5, 
+				JpaFunctionalBuilder.wrapConsumerInFind((site) ->{
+					SiteCrawl siteCrawl = site.getLastCrawl();
+					AnalysisControl.runAggregationAnalysis(siteCrawl);	
+				}, Site.class), 
+				siteIds.stream(), 
+				true);
+		return ok("Queued up " + siteIds.size() + " sites for aggregation analysis");
+	}
+	
+	@Transactional
 	public static Result ensureFreshInventoryAnalysis(long siteSetId) {
 		SiteSet siteSet = JPA.em().find(SiteSet.class, siteSetId);
 		Set<Long> siteIds = new HashSet<Long>();
@@ -392,7 +407,9 @@ public class SitesController extends Controller {
 	
 	@Transactional
 	public static Result generateDealerFireReport(long siteSetId) throws Exception {
-		Report report = ReportGenerator.generateDealerFireReport(siteSetId);
+		Logger.info("Fetching siteIds to generate DealerFire report for SiteSet " + siteSetId + "...");
+		List<Long> siteIds = SiteSetDao.sitesWithGoodCrawls(siteSetId);
+		Report report = ReportGenerator.generateDealerFireReport(siteIds);
 		File csvReport = CSVGenerator.printReport(report);
 		return ok("DealerFire report generated for SiteSet " + siteSetId + " at file location " + csvReport.getAbsolutePath());
 	}

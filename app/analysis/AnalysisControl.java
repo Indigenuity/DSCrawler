@@ -12,30 +12,30 @@ import play.db.jpa.JPA;
 
 public class AnalysisControl {
 	
-	public static void runFullAnalysis(SiteCrawl siteCrawl){
+	public static SiteCrawlAnalysis runFullAnalysis(SiteCrawl siteCrawl){
 		AnalysisConfig config = new AnalysisConfig();
 		config.setDoAll();
-		runAnalysis(siteCrawl, config);
+		return runAnalysis(siteCrawl, config);
 	}
 	
-	public static void runInventoryAnalysis(SiteCrawl siteCrawl){
+	public static SiteCrawlAnalysis runInventoryAnalysis(SiteCrawl siteCrawl){
 		AnalysisConfig config = new AnalysisConfig();
 		config.setDoVehicles(true);
 		config.setDoInventoryNumbers(true);
 		config.setDoPrices(true);
-		runAnalysis(siteCrawl, config);
+		return runAnalysis(siteCrawl, config);
 	}
 	
-	public static void runAggregationAnalysis(SiteCrawl siteCrawl){
+	public static SiteCrawlAnalysis runAggregationAnalysis(SiteCrawl siteCrawl){
 		AnalysisConfig config = new AnalysisConfig();
-		runAnalysis(siteCrawl, config);
+		return runAnalysis(siteCrawl, config);
 	}
 	
-	public static void runAnalysis(SiteCrawl siteCrawl, AnalysisConfig config){
+	public static SiteCrawlAnalysis runAnalysis(SiteCrawl siteCrawl, AnalysisConfig config){
 		SiteCrawlAnalysis analysis = AnalysisDao.getOrNew(siteCrawl);
 		analysis.setConfig(config);
 		SiteCrawlAnalyzer analyzer = new SiteCrawlAnalyzer(analysis);
-		analyzer.runAnalysis();
+		return analyzer.runAnalysis();
 	}
 	
 }

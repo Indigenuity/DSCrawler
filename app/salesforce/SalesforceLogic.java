@@ -43,13 +43,6 @@ public class SalesforceLogic {
 				.collect(Collectors.toList()));
 	}
 	
-	public static void resetSites(List<Long> accountIds){
-		Asyncleton.getInstance().runConsumerMaster(5, 
-				JpaFunctionalBuilder.wrapConsumerInFind(SalesforceLogic::resetSite, SalesforceAccount.class), 
-				accountIds.stream(), 
-				true);
-	}
-	
 	public static void forwardSitesList(List<SalesforceAccount> accounts) {
 		forwardSites(accounts.stream()
 				.map((account)->account.getSalesforceAccountId())
@@ -92,6 +85,7 @@ public class SalesforceLogic {
 	public static void updateFromReport(SalesforceAccount account, ReportRow reportRow){
 		try{
 			updateFields(account, reportRow);
+			resetSite(account);
 		} catch(Exception e) {
 			Logger.error("Exception while updating fields on row " + reportRow.getCell("rowNumber") + " : " + DSFormatter.toString(e));
 			System.out.println("Exception while updating fields on row " + reportRow.getCell("rowNumber") + " : " + DSFormatter.toString(e));

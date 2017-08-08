@@ -87,9 +87,10 @@ public class SiteLogic {
 	
 	//forceHttpCheck will make an http check for the Site even if it has a recent check
 	public static Site tryRedirect(Site site, boolean forceHttpCheck){
-//		System.out.println("trying redirects : " + site.getHomepage());
+		System.out.println("trying redirects : " + site.getHomepage());
 		Site redirected = tryRedirectByStructure(site);
 		if(redirected != null){
+			System.out.println("found structural redirect : " + redirected.getHomepage());
 			return redirected; 
 		}
 		return tryRedirectByHttp(site, forceHttpCheck);
@@ -147,15 +148,18 @@ public class SiteLogic {
 		UrlCheck urlCheck = site.getUrlCheck();
 		site.setHttpError(urlCheck.isError());
 		site.setBadStatus(!urlCheck.isStatusApproved());
-		if(urlCheck != null && urlCheck.isStatusApproved() && !urlCheck.isNoChange()){
+		if(!urlCheck.isError() && !urlCheck.isNoChange()){
+			System.out.println("going to redirect based on http");
 			return redirect(site, urlCheck.getResolvedSeed(), RedirectType.HTTP);
+		}
+		if(!urlCheck.isError() && urlCheck.isNoChange()){
+			clearRedirects(site);
 		}
 		return null;
 	}
 	
 	public static Site redirect(Site origin, Site destination, RedirectType redirectType) {
 		if(origin.getSiteId() == destination.getSiteId()){
-			System.out.println("redirect type : " + redirectType);
 			throw new IllegalStateException("Cannot redirect site to itself: " + origin.getSiteId() + " (" + redirectType + ")");
 		}
 		origin.setRedirectsTo(destination);
@@ -164,10 +168,16 @@ public class SiteLogic {
 	}
 	
 	public static Site redirect(Site origin, String destinationString, RedirectType redirectType) {
+//		System.out.println("redirecting from " + origin + " to " + destinationString);
 		if(homepageEquals(origin.getRedirectsTo(), destinationString)){		//Save a DB call (in getOrNewThreadsafe) if we can.  
 			return redirect(origin, origin.getRedirectsTo(), redirectType);
 		}
 		return redirect(origin, SitesDAO.getOrNewThreadsafe(destinationString), redirectType);
+	}
+	
+	public static void clearRedirects(Site site){
+		site.setRedirectReason(null);
+		site.setRedirectsTo(null);
 	}
 	
 	public static boolean homepageEquals(Site site, String url){

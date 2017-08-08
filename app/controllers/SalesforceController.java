@@ -65,8 +65,11 @@ public class SalesforceController extends Controller {
 
 	@Transactional
     public static Result resetSites(){
-    	List<Long> accountIds = GeneralDAO.getFieldList(Long.class, SalesforceAccount.class, "salesforceAccountId");
-    	SalesforceLogic.resetSites(accountIds);
+    	List<Long> accountIds = GeneralDAO.getAllIds(SalesforceAccount.class);
+    	Asyncleton.getInstance().runConsumerMaster(50, 
+				JpaFunctionalBuilder.wrapConsumerInFind(SalesforceLogic::resetSite, SalesforceAccount.class), 
+				accountIds.stream(), 
+				true);
     	return ok("Queued " + accountIds.size() + " accounts to have Site objects reset");
     }
     
@@ -85,14 +88,6 @@ public class SalesforceController extends Controller {
 				accountIds.stream(), 
 				true);
     	return ok("Queued " + accountIds.size() + " accounts to be assigned the most redirected Site objects");
-    }
-    
-    @Transactional
-    public static Result assignSiteless(){
-    	String queryString = "select sa.salesforceAccountId from SalesforceAccount sa where sa.site is null";
-    	List<Long> accountIds = JPA.em().createQuery(queryString, Long.class).getResultList();
-    	SalesforceLogic.resetSites(accountIds);
-    	return ok("Queued " + accountIds.size() + " accounts to be assigned Site objects");
     }
     
     @Transactional

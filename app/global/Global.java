@@ -51,7 +51,7 @@ public class Global extends GlobalSettings {
 	private static final Date STALE_DATE;
 	static {
 		Calendar calendar = Calendar.getInstance();
-		calendar.add(Calendar.MONTH, - 1);
+		calendar.add(Calendar.MONTH, - 2);
 		STALE_DATE = calendar.getTime();
 	}
 	

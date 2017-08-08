@@ -56,8 +56,8 @@ public class ReportGenerator {
 		Future<Object> future = Asyncleton.getInstance().runResultAccumulator(
 				reportRowFunction, 
 				accumulator, 
-				accountIds.stream().limit(1000), 
-				5, 
+				accountIds.stream(), 
+				10, 
 				true);
 		return (Report)Await.result(future, FiniteDuration.create(1, TimeUnit.DAYS));
 	}
@@ -88,12 +88,8 @@ public class ReportGenerator {
 	
 	/*********************************  DealerFire Reporting *********************************************/
 	
-	public static Report generateDealerFireReport(Long siteSetId) throws Exception{
-		System.out.println("Generating DealerFire Report for SiteSet " + siteSetId);
-		System.out.println("Fetching siteIds...");
-		List<Long> siteIds = SiteSetDao.sitesWithGoodCrawls(siteSetId);
-		System.out.println("Generating report with " + siteIds.size() + " sites");
-		
+	public static Report generateDealerFireReport(List<Long> siteIds) throws Exception{
+		System.out.println("Generating DealerFire Report for " + siteIds.size() + " sites");
 		
 		Function<Long, List<ReportRow>> reportRowFunction = (siteId) -> {
 			Site site = JPA.em().find(Site.class, siteId);
@@ -112,7 +108,7 @@ public class ReportGenerator {
 		Future<Object> future = Asyncleton.getInstance().runResultAccumulator(
 				reportRowFunction, 
 				accumulator, 
-				siteIds.stream().limit(10), 
+				siteIds.stream(), 
 				5, 
 				true);
 		return (Report)Await.result(future, FiniteDuration.create(1, TimeUnit.DAYS));

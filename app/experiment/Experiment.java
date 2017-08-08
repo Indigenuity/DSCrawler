@@ -103,6 +103,7 @@ import crawling.projects.BasicDealer;
 import crawling.projects.MotorradScraper;
 import dao.GeneralDAO;
 import dao.SalesforceDao;
+import dao.SiteOwnerLogic;
 import dao.SitesDAO;
 import datadefinitions.GeneralMatch;
 import datadefinitions.inventory.InvType;
@@ -169,7 +170,11 @@ import utilities.Tim;
 public class Experiment { 
 	
 	public static void runExperiment() throws Exception {
-//		SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, 17978L); 
+//		SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, 472L);
+//		
+//		SiteCrawlAnalysis analysis = AnalysisControl.runAggregationAnalysis(siteCrawl);
+//		
+//		System.out.println("h1 content score : " + analysis.getH1ContentScore());
 //		
 //		SiteCrawlLogic.queueRecrawl(siteCrawl);
 		
@@ -177,9 +182,19 @@ public class Experiment {
 //		Report report = ReportGenerator.generateWebsiteReport();
 //		CSVGenerator.printReport(report);
 		
-		Site site = JPA.em().find(Site.class, 7L);
-		System.out.println("urlcheck id : " + site.getUrlCheck().getUrlCheckId());
-		System.out.println("status code : " + site.getUrlCheck().getStatusCode());
+//		Site site = JPA.em().find(Site.class, 7L);
+//		System.out.println("urlcheck id : " + site.getUrlCheck().getUrlCheckId());
+//		System.out.println("status code : " + site.getUrlCheck().getStatusCode());
+		
+		SalesforceAccount account = JPA.em().find(SalesforceAccount.class, 1856l);
+		System.out.println("site : " + account.getSite().getHomepage());
+		System.out.println("unresolvedsite: " + account.getUnresolvedSite().getHomepage());
+//		SiteOwnerLogic.refreshRedirectPath(account);
+//		System.out.println("site : " + account.getSite().getHomepage());
+//		System.out.println("unresolvedsite: " + account.getUnresolvedSite().getHomepage());
+//		
+//		System.out.println("urlcheck status : " + account.getSite().getUrlCheck().getStatusCode());
+//		System.out.println("site redirects to : " + account.getSite().getRedirectsTo());
 	}
 	
 	

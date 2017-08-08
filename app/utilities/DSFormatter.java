@@ -256,7 +256,7 @@ public class DSFormatter {
 			}
 			if(original.length() > length){
 				String trunc = "~" + original.substring(0, length-1); 
-				Logger.info("Truncating String : " + trunc);
+				Logger.debug("Truncating String : " + trunc);
 				return trunc;
 			}
 		}
