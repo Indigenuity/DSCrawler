@@ -32,7 +32,6 @@ import crawling.discovery.execution.SeedWorkOrder;
 import crawling.discovery.html.HttpConfig;
 import crawling.discovery.html.HttpToFilePlan;
 import crawling.discovery.local.SiteCrawlPlan;
-import crawling.discovery.local.PageCrawlTool;
 import crawling.discovery.local.SiteCrawlTool;
 import crawling.discovery.planning.CrawlPlan;
 import crawling.discovery.planning.DiscoveryPlan;

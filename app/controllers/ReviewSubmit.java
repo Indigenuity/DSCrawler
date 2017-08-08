@@ -12,7 +12,7 @@ import play.db.jpa.Transactional;
 import play.mvc.Controller;
 import play.mvc.Result;
 import salesforce.persistence.SalesforceAccount;
-import sites.SiteLogic;
+import sites.utilities.SiteLogic;
 import views.html.index;
 
 public class ReviewSubmit extends Controller {

@@ -12,6 +12,7 @@ import crawling.discovery.entities.Resource;
 public interface HtmlResource  {
 
 	public Document getDocument() throws Exception;
+	public boolean docExists();
 	public URI getUri();
 	public URI getRedirectedUri();
 	public Integer getStatusCode();

@@ -9,8 +9,8 @@ import persistence.Site;
 import persistence.Site.SiteStatus;
 import persistence.UrlCheck;
 import play.db.jpa.JPA;
-import sites.SiteLogic;
 import sites.UrlChecker;
+import sites.utilities.SiteLogic;
 
 public class SiteCheckWorker extends UntypedActor {
 

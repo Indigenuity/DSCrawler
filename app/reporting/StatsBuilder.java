@@ -58,7 +58,7 @@ public class StatsBuilder {
 		stats.put("Dealers", GeneralDAO.getCount(SalesforceAccount.class,  "accountType", SalesforceAccountType.DEALER));
 		
 		stats.put("Siteless Accounts", GeneralDAO.getCount(SalesforceAccount.class, "site", null));
-		stats.put("Significant Differences", GeneralDAO.getCount(SalesforceAccount.class, "significantDifference", true));
+//		stats.put("Significant Differences", GeneralDAO.getCount(SalesforceAccount.class, "significantDifference", true));
 		return stats;
 	}
 	

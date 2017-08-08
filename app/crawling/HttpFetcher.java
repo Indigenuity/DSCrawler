@@ -48,8 +48,7 @@ public class HttpFetcher {
 
 	public static PageCrawl getPageCrawl(URL url, File storageFolder) throws IOException{
 		String urlString = url.toString();
-		PageCrawl pageCrawl = new PageCrawl();
-		pageCrawl.setUrl(urlString);
+		PageCrawl pageCrawl = new PageCrawl(urlString);
 		try{
 			HttpURLConnection con;
 			StringBuilder result = new StringBuilder();

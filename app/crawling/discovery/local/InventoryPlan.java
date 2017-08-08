@@ -10,8 +10,8 @@ public class InventoryPlan extends HttpToFilePlan {
 	
 	public InventoryPlan(HttpConfig config) {
 		super(config);
-		this.setFetchTool(new DSToFileTool(true));
+		this.setResourceTool(new DSToFileTool(true));
 		this.setMaxDepth(INVENTORY_DEFAULT_MAX_DEPTH_OF_CRAWLING);
-		this.setMaxPages(INVENTORY_DEFAULT_MAX_PAGES_TO_FETCH);
+		this.setMaxFetches(INVENTORY_DEFAULT_MAX_PAGES_TO_FETCH);
 	}
 }

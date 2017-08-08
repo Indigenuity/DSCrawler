@@ -86,6 +86,7 @@ public class SiteCrawl {
 	/****************************************  Stateful metadata ***********************/
 	
 	protected FileStatus fileStatus = FileStatus.PRIMARY;
+	protected Boolean hasErrors = false;
 	
 	
 	/********************************************* Relationships *********************************/
@@ -93,7 +94,7 @@ public class SiteCrawl {
 	@JoinTable(name="sitecrawl_pagecrawl",
 		joinColumns={@JoinColumn(name="SiteCrawl_siteCrawlId")},
 		inverseJoinColumns={@JoinColumn(name="pageCrawls_pageCrawlId")})
-	@LazyCollection(LazyCollectionOption.EXTRA)
+//	@LazyCollection(LazyCollectionOption.EXTRA)
 	private Set<PageCrawl> pageCrawls = new HashSet<PageCrawl>();
 	
 	@ManyToOne(fetch=FetchType.LAZY)
@@ -311,4 +312,14 @@ public class SiteCrawl {
 	public Boolean getSatisfactoryInventoryCrawl() {
 		return satisfactoryInventoryCrawl;
 	}
+
+	public Boolean getHasErrors() {
+		return hasErrors;
+	}
+
+	public void setHasErrors(Boolean hasErrors) {
+		this.hasErrors = hasErrors;
+	}
+	
+	
 }

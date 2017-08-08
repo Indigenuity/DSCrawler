@@ -1,7 +1,8 @@
-package sites;
+package sites.utilities;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -19,11 +20,14 @@ import datadefinitions.StringMatchUtils;
 import datadefinitions.newdefinitions.AutoRemoveQuery;
 import global.Global;
 import persistence.Site;
+import persistence.SiteCrawl;
 import persistence.Site.RedirectType;
 import persistence.Site.SiteStatus;
 import persistence.UrlCheck;
 import play.db.jpa.JPA;
+import sites.UrlChecker;
 import utilities.DSFormatter;
+import utilities.HttpUtils;
 import utilities.UrlUtils;
 
 public class SiteLogic {
@@ -31,6 +35,24 @@ public class SiteLogic {
 	public static boolean isBlankSite(Site site){
 		if(site == null || StringUtils.isEmpty(site.getHomepage())){
 			return true;
+		}
+		return false;
+	}
+	
+	public static boolean redirectPathIsTrivial(Site site){
+		return redirectIsTrivial(site) && redirectPathIsTrivial(site.getRedirectsTo());
+	}
+	
+	public static boolean redirectIsTrivial(Site site){
+		if(site == null || site.getRedirectsTo() == null){
+			return true;
+		}
+		
+		if(site.getRedirectReason() == RedirectType.STANDARDIZATION || site.getRedirectReason() == RedirectType.QUERY_PARING){
+			return true;
+		}
+		if(site.getRedirectReason() == RedirectType.HTTP){
+			return UrlUtils.isGenericRedirect(site.getRedirectsTo().getHomepage(), site.getHomepage());
 		}
 		return false;
 	}
@@ -124,7 +146,7 @@ public class SiteLogic {
 	public static Site applyHttpCheck(Site site){
 		UrlCheck urlCheck = site.getUrlCheck();
 		site.setHttpError(urlCheck.isError());
-		site.setBadStatus(urlCheck.isStatusApproved());
+		site.setBadStatus(!urlCheck.isStatusApproved());
 		if(urlCheck != null && urlCheck.isStatusApproved() && !urlCheck.isNoChange()){
 			return redirect(site, urlCheck.getResolvedSeed(), RedirectType.HTTP);
 		}
@@ -175,24 +197,6 @@ public class SiteLogic {
 	
 	//****************** Mass tasks *********************************//
 	
-	public static void validateSitesById(List<Long> siteIds) {
-		Asyncleton.getInstance().runConsumerMaster(25, 
-				JpaFunctionalBuilder.wrapConsumerInFind(SiteLogic::validateSite, Site.class),
-				siteIds.stream(), 
-				true);
-	}
-	
-	public static void validateSites(List<Site> sites) {
-		validateSitesById(sites.stream()
-				.map((site) -> site.getSiteId())
-				.collect(Collectors.toList()));
-	}
-	
-	
-	
-	
-	
-	
 	
 	
 	
@@ -203,21 +207,12 @@ public class SiteLogic {
 		return false;
 	}
 
-	public static UrlCheck validateSite(Site site) {
-		System.out.println("checking site : " + site.getHomepage());
-		UrlCheck urlCheck = UrlChecker.checkUrl(site.getHomepage());
-		JPA.em().persist(urlCheck);
-		site.setUrlCheck(urlCheck);
-		SiteLogic.applyHttpCheck(site);
-		return urlCheck;
-	}
-	
 	public static void attemptParePath(Site site) {
 		System.out.println("attempting path pare : " + site.getHomepage());
 		String newHomepage = DSFormatter.parePath(site.getHomepage());
 		UrlCheck urlCheck = UrlChecker.checkUrl(newHomepage);
 		System.out.println("Resolved seed of attempt : " + urlCheck.getResolvedSeed());
-		if(urlCheck.isStatusApproved() && !urlCheck.isError() && !StringUtils.equals(site.getHomepage(), urlCheck.getResolvedSeed())){
+		if(HttpUtils.isSuccessful(urlCheck.getStatusCode()) && !urlCheck.isError() && !StringUtils.equals(site.getHomepage(), urlCheck.getResolvedSeed())){
 			Site newSite = SitesDAO.getOrNew(urlCheck.getResolvedSeed());
 			redirect(site, newSite, RedirectType.PATH_PARING);
 		} else {
@@ -236,41 +231,6 @@ public class SiteLogic {
 		redirect(site, newSite, RedirectType.PATH_PARING);
 	}
 	
-	
-	
-	public static void unapproveSite(Site site) {
-		site.setUnapproved(true);
-	}
-
-	
-	
-	public static Site approvePath(Site site) {
-		site.setApprovedHomepagePath(true);
-		return site;
-	}
-
-	public static Site markError(Site site) {
-		site.setSiteStatus(SiteStatus.OTHER_ISSUE);
-		return site;
-	}
-
-	public static Site markDefunct(Site site) {
-		site.setSiteStatus(SiteStatus.DEFUNCT);
-		return site;
-	}
-
-	public static Site approve(Site site) {
-		site.setSiteStatus(SiteStatus.APPROVED);
-		site.setForwardsTo(null);
-		site.setManualForwardsTo(null);
-		return site;
-	}
-
-	public static Site review(Site site) {
-		site.setSiteStatus(SiteStatus.NEEDS_REVIEW);
-		return site;
-	}
-
 	public static String standardizeBaseUrl(String original) {
 		try {
 			original = UrlUtils.toHttp(original);
@@ -319,6 +279,17 @@ public class SiteLogic {
 			return true;
 		}
 		return false;
+	}
+	
+
+	public void refreshLastCrawl(Site site){
+		Date maxDate = null;
+		for(SiteCrawl siteCrawl : site.getCrawls()){
+			if(maxDate == null || siteCrawl.getCrawlDate().compareTo(maxDate) > 0){
+				maxDate = siteCrawl.getCrawlDate();
+				site.setLastCrawl(siteCrawl);
+			}
+		}
 	}
 	
 }

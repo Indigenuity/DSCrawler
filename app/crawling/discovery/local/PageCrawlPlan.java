@@ -10,8 +10,8 @@ public class PageCrawlPlan extends HttpToFilePlan {
 	
 	public PageCrawlPlan(HttpConfig config) {
 		super(config);
-		this.setFetchTool(new DSToFileTool(false));
+		this.setResourceTool(new DSToFileTool(false));
 		this.setMaxDepth(PAGE_CRAWL_DEFAULT_MAX_DEPTH_OF_CRAWLING);
-		this.setMaxPages(PAGE_CRAWL_DEFAULT_MAX_PAGES_TO_FETCH);
+		this.setMaxFetches(PAGE_CRAWL_DEFAULT_MAX_PAGES_TO_FETCH);
 	}
 }

@@ -4,7 +4,7 @@ import crawling.discovery.entities.Resource;
 import crawling.discovery.entities.ResourceId;
 import crawling.discovery.execution.ResourceContext;
 
-public interface DerivedResourceTool extends ResourceFetchTool {
+public interface DerivedResourceTool extends FetchTool {
 
 	public Resource generateResource(Object source, Object value, Resource parent, ResourceId resourceId, ResourceContext context) throws Exception;
 	

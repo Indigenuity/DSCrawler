@@ -18,6 +18,32 @@ import salesforce.persistence.SalesforceAccount;
 
 public class SalesforceDao {
 	
+	//Returns all resolved sites for SalesforceAccounts.  These are not necessarily what Salesforce currently indicates in the website field
+	public static List<Site> getUniqueSites(){
+		String queryString = "select distinct(s) from SalesforceAccount sa join sa.site s";
+		List<Site> sites = JPA.em().createQuery(queryString, Site.class).getResultList();
+		return sites;
+	}
+	
+	public static List<Long> getCurrentAccountIds(){
+		String queryString = "select sa.siteId from SalesforceAccount sa where sa.lastUpdated > :salesforceLastUpdated";
+		List<Long> siteIds = JPA.em().createQuery(queryString, Long.class)
+				.setParameter("salesforceLastUpdated", Global.getSalesforceLastUpdated()).getResultList();
+		return siteIds;
+	}
+	
+	public static List<Long> findAccountsWithNonEmptySites() {
+		String queryString = "select sa.salesforceAccountId from SalesforceAccount sa join sa.site s where s.homepage != ''";
+		List<Long> accountIds = JPA.em().createQuery(queryString, Long.class).getResultList();
+		return accountIds;
+	}
+	
+	public static List<Long> findAccountsWithSiteDifferences() {
+		String queryString = "select sa.salesforceAccountId from SalesforceAccount sa join sa.site s where s.homepage != ''";
+		List<Long> accountIds = JPA.em().createQuery(queryString, Long.class).getResultList();
+		return accountIds;
+	}
+	
 	public static SalesforceAccount getFirstFresh(String valueName, Object value){
 		Map<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put(valueName , value);

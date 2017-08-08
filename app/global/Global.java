@@ -42,7 +42,7 @@ public class Global extends GlobalSettings {
 	private ActorRef snifferMaster;
 	
 	private static boolean useProxy = true;
-	private static String proxyUrl = "52.88.21.40";
+	private static String proxyUrl = "52.38.91.30";
 	private static int proxyPort = 80;
 
 //	private static String proxyUrl = "97.77.104.22";
@@ -53,6 +53,13 @@ public class Global extends GlobalSettings {
 		Calendar calendar = Calendar.getInstance();
 		calendar.add(Calendar.MONTH, - 1);
 		STALE_DATE = calendar.getTime();
+	}
+	
+	private static final Date SALESFORCE_LAST_UPDATED;
+	static {
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(2017, 7, 5);
+		SALESFORCE_LAST_UPDATED = calendar.getTime();
 	}
 	
 	private static GeoApiContext placesContext = new GeoApiContext().setApiKey("AIzaSyD3GEnaHTMZPNdfd1kdWtu61rxkaBEghsw");
@@ -205,6 +212,10 @@ public class Global extends GlobalSettings {
 
 	public static String getWebsiteListInputFolder() {
 		return WEBSITE_LIST_INPUT_FOLDER;
+	}
+	
+	public static Date getSalesforceLastUpdated() {
+		return SALESFORCE_LAST_UPDATED;
 	}
 
 

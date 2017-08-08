@@ -18,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.formula.functions.T;
 
 import datadefinitions.newdefinitions.WPAttribution;
+import global.Global;
 import persistence.MobileCrawl;
 import persistence.Site;
 import persistence.SiteCrawl;
@@ -32,13 +33,6 @@ public class SitesDAO {
 	
 	private static final Object newSiteMutex = new Object();
 	
-	public static final Date STALE_DATE;
-	static {
-		Calendar calendar = Calendar.getInstance();
-		calendar.add(Calendar.MONTH, - 1);
-		STALE_DATE = calendar.getTime();
-	}
-	
 	public static Long getEndpointCount(String valueName, Object value){
 		return GeneralDAO.getCount(Site.class, new HashMap<String, Object>() {{
 			put("redirectsTo", null);
@@ -49,7 +43,7 @@ public class SitesDAO {
 	public static List<Long> staleCrawls(){
 		String queryString = "select distinct s.siteId from Site s left join s.mostRecentCrawl sc where (s.mostRecentCrawl is null or sc.crawlDate > :staleDate) and s.siteStatus = :siteStatus";
 		List<Long> siteIds = JPA.em().createQuery(queryString, Long.class)
-				.setParameter("staleDate",  STALE_DATE, TemporalType.DATE)
+				.setParameter("staleDate",  Global.getStaleDate(), TemporalType.DATE)
 				.setParameter("siteStatus", SiteStatus.APPROVED)
 				.getResultList();
 		return siteIds;
@@ -58,7 +52,7 @@ public class SitesDAO {
 	public static List<Long> staleUrlChecks(){
 		String queryString = "select distinct s.siteId from Site s left join s.urlCheck uc where (s.urlCheck is null or uc.checkDate > :staleDate)";
 		List<Long> siteIds = JPA.em().createQuery(queryString, Long.class)
-				.setParameter("staleDate",  STALE_DATE, TemporalType.DATE)
+				.setParameter("staleDate",  Global.getStaleDate(), TemporalType.DATE)
 				.getResultList();
 		return siteIds;
 	}
@@ -66,6 +60,7 @@ public class SitesDAO {
 	public static List<String> findCities(Long siteId){
 		String queryString = "select sa.city from SalesforceAccount sa join sa.site s where s.siteId = :siteId";
 		List<String> cities= JPA.em().createQuery(queryString, String.class).setParameter("siteId", siteId).getResultList();
+		cities.remove(null);
 		return cities;
 	}
 	
@@ -156,12 +151,12 @@ public class SitesDAO {
 	
 	
 	public static Long getOldHomepagesCount(long crawlSetId){ 
-		System.out.println("stale date : " + STALE_DATE);
+		System.out.println("stale date : " + Global.getStaleDate());
 		String query = "select count(s) from CrawlSet cs join cs.sites s" +  
 				" where (s.redirectResolveDate not between :staleDate and current_date or s.redirectResolveDate = null) and cs.crawlSetId = :crawlSetId";
 		TypedQuery<Long> q = JPA.em().createQuery(query, Long.class);
 		q.setParameter("crawlSetId", crawlSetId);
-		q.setParameter("staleDate", STALE_DATE, TemporalType.DATE);
+		q.setParameter("staleDate", Global.getStaleDate(), TemporalType.DATE);
 		
 		return q.getSingleResult();
 	}

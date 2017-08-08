@@ -1,29 +1,34 @@
-package dao;
+package analysis;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import analysis.SiteCrawlAnalysis;
 import datadefinitions.GeneralMatch;
 import datadefinitions.newdefinitions.LinkTextMatch;
+import global.Global;
 import persistence.SiteCrawl;
 import play.db.jpa.JPA;
 
 public class AnalysisDao {
+	
+	private static final Object newAnalysisMutex = new Object();
 
+	//Must synchronize for multiple threads trying to create the SiteCrawlAnalysis object.  We still don't want multiple
+	//threads accessing the same analysis, but we can at least stop multiple analyses from being created
 	public static SiteCrawlAnalysis getOrNew(SiteCrawl siteCrawl) {
-		String queryString = "from SiteCrawlAnalysis sca where sca.siteCrawl = :siteCrawl";
-		List<SiteCrawlAnalysis> existing = JPA.em().createQuery(queryString, SiteCrawlAnalysis.class)
-				.setParameter("siteCrawl", siteCrawl).getResultList();
-		
-		if(existing.size() > 0){
-			return existing.get(0);
+		synchronized(newAnalysisMutex){
+			String queryString = "from SiteCrawlAnalysis sca where sca.siteCrawl = :siteCrawl";
+			List<SiteCrawlAnalysis> existing = JPA.em().createQuery(queryString, SiteCrawlAnalysis.class)
+					.setParameter("siteCrawl", siteCrawl).getResultList();
+			
+			if(existing.size() > 0){
+				return existing.get(0);
+			}
+			
+			SiteCrawlAnalysis newGuy = new SiteCrawlAnalysis(siteCrawl);
+			return JPA.em().merge(newGuy);
 		}
-		
-		SiteCrawlAnalysis newGuy = new SiteCrawlAnalysis(siteCrawl);
-		JPA.em().persist(newGuy);
-		return newGuy;
 	}
 	
 	public static SiteCrawlAnalysis get(SiteCrawl siteCrawl) {
@@ -35,6 +40,33 @@ public class AnalysisDao {
 			return existing.get(0);
 		}
 		return null;
+	}
+	
+	public static SiteCrawlAnalysis get(Long siteCrawlId) {
+		String queryString = "select sca from SiteCrawlAnalysis sca join sca.siteCrawl sc where sc.siteCrawlId = :siteCrawlId";
+		List<SiteCrawlAnalysis> existing = JPA.em().createQuery(queryString, SiteCrawlAnalysis.class)
+				.setParameter("siteCrawlId", siteCrawlId).getResultList();
+		
+		if(existing.size() > 0){
+			return existing.get(0);
+		}
+		return null;
+	}
+	
+	public static boolean hasFreshAnalysis(Long siteCrawlId){
+		String queryString = "select sca.siteCrawlAnalysisId from SiteCrawlAnalysis sca join sca.siteCrawl sc where sc.siteCrawlId = :siteCrawlId and sca.analysisDate > :staleDate";
+		List<Long> ids = JPA.em().createQuery(queryString, Long.class)
+				.setParameter("siteCrawlId", siteCrawlId)
+				.setParameter("staleDate", Global.getStaleDate()).getResultList();
+		return ids.size() > 0;
+	}
+	
+	public static boolean hasFreshInventoryAnalysis(Long siteCrawlId){
+		String queryString = "select sca.siteCrawlAnalysisId from SiteCrawlAnalysis sca join sca.siteCrawl sc where sc.siteCrawlId = :siteCrawlId and sca.analysisDate > :staleDate and size(sca.vehicles) > 0";
+		List<Long> ids = JPA.em().createQuery(queryString, Long.class)
+				.setParameter("siteCrawlId", siteCrawlId)
+				.setParameter("staleDate", Global.getStaleDate()).getResultList();
+		return ids.size() > 0;
 	}
 	
 	public static Long getCombinedCreditAppLinkMatches() {

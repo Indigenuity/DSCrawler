@@ -16,6 +16,7 @@ import async.monitoring.Lobby;
 import async.monitoring.WaitingRoom;
 import async.monitoring.WaitingRoom.WaitingRoomStatus;
 import newwork.MasterWorkOrder;
+import newwork.TerminateWhenFinished;
 import newwork.WorkOrder;
 import newwork.WorkResult;
 import newwork.WorkStatus;
@@ -26,10 +27,11 @@ import play.Logger;
 public class MonotypeMaster extends UntypedActor {
 	 
 
-	private final int numWorkers;
-	private Router router;
-	private Class<?> clazz;
-	private WaitingRoom waitingRoom;
+	protected final int numWorkers;
+	protected Router router;
+	protected Class<?> clazz;
+	protected WaitingRoom waitingRoom;
+	protected ActorRef notifyWhenFinished = null;
 	
 	public MonotypeMaster(int numWorkers, Class<?> clazz) {
 		this.clazz = clazz;
@@ -70,7 +72,9 @@ public class MonotypeMaster extends UntypedActor {
 //		System.out.println("processing work order : " + workOrder.getUuid());
 		if(workOrder instanceof MasterWorkOrder){
 			doWork((MasterWorkOrder) workOrder);
-		}else {
+		} else if(workOrder instanceof TerminateWhenFinished){
+			this.notifyWhenFinished = getSender();
+		} else {
 			assignWork(workOrder, getSender());
 		}
 	}
@@ -100,8 +104,8 @@ public class MonotypeMaster extends UntypedActor {
 		}else {
 			customer.tell(workResult, getSelf());
 		}
-		if(waitingRoom.size() == 0) {
-//			doShutdown();
+		if(waitingRoom.size() == 0 && this.notifyWhenFinished != null) {
+			doShutdown();
 		}
 	}
 	

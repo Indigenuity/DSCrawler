@@ -20,9 +20,9 @@ GET		/salesforce/resetSites				controllers.SalesforceController.resetSites()
 GET		/salesforce/forwardSites			controllers.SalesforceController.forwardSites()
 POST	/salesforce/siteMismatchSubmit		controllers.SalesforceController.siteMismatchSubmit()
 GET		/salesforce/siteMismatchForms		controllers.SalesforceController.siteMismatchForms(siteId : Long)
-GET		/salesforce/crawlUsFranchise		controllers.SalesforceController.crawlUsFranchise()
 GET		/salesforce/standardizeAccounts		controllers.SalesforceController.standardizeAccounts()
 GET		/salesforce/refreshRedirectPaths	controllers.SalesforceController.refreshRedirectPaths()
+GET		/salesforce/generateSiteSet			controllers.SalesforceController.generateSiteSet()
 GET		/assignChangedWebsites				controllers.Application.assignChangedWebsites(syncId : Long)
 GET		/viewSync							controllers.Application.viewSync(syncId : Long)
 
@@ -74,20 +74,16 @@ GET		/bd/salesforceMatching					controllers.BDController.salesforceMatching()
 
 GET		/sites/sitesDashboard					controllers.SitesController.sitesDashboard()
 GET		/sites/sitesDashboardStats				controllers.SitesController.sitesDashboardStats()
-GET		/sites/checkUnvalidated					controllers.SitesController.checkUnvalidated()
-GET		/sites/validateAll						controllers.SitesController.validateAll()
 GET		/sites/reviewSites						controllers.SitesController.reviewSites()
 GET		/sites/reviewNotStandardPaths			controllers.SitesController.reviewNotStandardPaths()
 GET		/sites/reviewNotStandardQueries			controllers.SitesController.reviewNotStandardQueries()
-POST	/sites/validationSubmit					controllers.SitesController.validationSubmit()
 POST	/sites/siteReviewSubmit					controllers.SitesController.siteReviewSubmit()
-GET		/sites/validateUrls						controllers.SitesController.validateUrls()
-GET		/sites/checkUrls						controllers.SitesController.checkUrls()
 GET		/sites/logicalRedirects					controllers.SitesController.logicalRedirects()
 GET		/sites/httpRedirects					controllers.SitesController.httpRedirects()
 GET		/sites/noInventoryCrawls				controllers.SitesController.noInventoryCrawls()
 GET		/sites/reAnalyzeSites					controllers.SitesController.reAnalyzeSites()
-GET		/sites/recentSiteCrawls					controllers.SitesController.recentSiteCrawls()		
+GET		/sites/recentSiteCrawls					controllers.SitesController.recentSiteCrawls()
+GET		/sites/siteCrawlList/:siteId			controllers.SitesController.siteCrawlList(siteId : Long)		
 
 GET 	/sites/site/:siteId						controllers.SitesController.viewSite(siteId : Long)
 GET 	/sites/siteCrawl/:siteCrawlId			controllers.SitesController.viewSiteCrawl(siteCrawlId : Long)
@@ -96,9 +92,24 @@ GET 	/sites/pageCrawl/:pageCrawlId			controllers.SitesController.viewPageCrawl(p
 GET		/sites/analysis/siteCrawlAnalysis/:siteCrawlAnalysisId		controllers.SitesController.viewSiteCrawlAnalysis(siteCrawlAnalysisId : Long)
 GET		/sites/analysis/pageCrawlAnalysis/:pageCrawlAnalysisId		controllers.SitesController.viewPageCrawlAnalysis(pageCrawlAnalysisId : Long)
 
+GET		/sites/siteSets/siteSetList								controllers.SitesController.siteSetList()
+GET		/sites/siteSets/viewSiteSet/:siteSetId					controllers.SitesController.viewSiteSet(siteSetId : Long)
+GET		/sites/siteSets/siteSetDashboardStats/:siteSetId		controllers.SitesController.siteSetDashboardStats(siteSetId : Long)
+GET		/sites/siteSets/ensureFreshCrawl/:siteSetId				controllers.SitesController.ensureFreshCrawl(siteSetId : Long)
+GET		/sites/siteSets/ensureFreshInventoryCrawl/:siteSetId	controllers.SitesController.ensureFreshInventoryCrawl(siteSetId : Long)
+GET		/sites/siteSets/ensureNoErrorCrawl/:siteSetId			controllers.SitesController.ensureNoErrorCrawl(siteSetId : Long)
+GET		/sites/siteSets/ensureGoodCrawl/:siteSetId				controllers.SitesController.ensureGoodCrawl(siteSetId : Long)
+GET		/sites/siteSets/ensureFreshAnalysis/:siteSetId			controllers.SitesController.ensureFreshAnalysis(siteSetId : Long)
+GET		/sites/siteSets/runAnalysis/:siteSetId					controllers.SitesController.runAnalysis(siteSetId : Long)
+GET		/sites/siteSets/ensureFreshInventoryAnalysis/:siteSetId	controllers.SitesController.ensureFreshInventoryAnalysis(siteSetId : Long)
+GET		/sites/siteSets/runInventoryAnalysis/:siteSetId			controllers.SitesController.runInventoryAnalysis(siteSetId : Long)
+GET		/sites/siteSets/generateDealerFireReport/:siteSetId		controllers.SitesController.generateDealerFireReport(siteSetId : Long)
+
+
+
 
 GET		/crawling/crawlingDashboard				controllers.CrawlingController.dashboard()
-
+GET		/crawling/updateErrorStatus				controllers.CrawlingController.updateErrorStatus()
 
 
 GET		/groupSites						controllers.Application.groupSites(numToProcess : Integer ?= 20, offset : Integer ?= 0)

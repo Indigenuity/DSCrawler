@@ -19,6 +19,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
@@ -26,7 +27,9 @@ import javax.persistence.NamedAttributeNode;
 import javax.persistence.NamedEntityGraph;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.jsoup.nodes.Document;
@@ -40,6 +43,7 @@ import utilities.DSFormatter;
 // Eager fetch all collections.  Any time you're dealing with individual pages, assume you need data
 
 @Entity
+@Table(indexes = {@Index(name = "status_index", columnList="statusCode", unique = false)})
 public class PageCrawl implements HtmlResource{
 	
 	@Id
@@ -63,7 +67,7 @@ public class PageCrawl implements HtmlResource{
 	
 	private Date crawlDate = new Date();
 	
-	private Integer statusCode;
+	private Integer statusCode = 0;
 	
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	private String path;
@@ -80,6 +84,8 @@ public class PageCrawl implements HtmlResource{
 	private Boolean newRoot = false;
 	private Boolean usedPath = false;
 	private Boolean usedRoot = false;
+	private Boolean generalPath = false;
+	private Boolean generalRoot = false;
 	private Boolean pagedInventory = false;
 	
 	@Enumerated(EnumType.STRING)
@@ -90,6 +96,14 @@ public class PageCrawl implements HtmlResource{
 	
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	private String errorMessage;
+	
+	public PageCrawl() {}
+	public PageCrawl(String url){
+		if(StringUtils.isEmpty(url)){
+			throw new IllegalArgumentException("Can't create PageCrawl with null or empty url");
+		}
+		this.setUrl(url);
+	}
 	
 	public URI getUri(){
 		try {
@@ -257,7 +271,21 @@ public class PageCrawl implements HtmlResource{
 	public void setCrawlDate(Date crawlDate) { 
 		this.crawlDate = crawlDate;
 	}
+	
+	
 
+	public Boolean getGeneralPath() {
+		return generalPath;
+	}
+	public void setGeneralPath(Boolean generalPath) {
+		this.generalPath = generalPath;
+	}
+	public Boolean getGeneralRoot() {
+		return generalRoot;
+	}
+	public void setGeneralRoot(Boolean generalRoot) {
+		this.generalRoot = generalRoot;
+	}
 	@Override
 	public Document getDocument() throws Exception { 
 		return PageCrawlLogic.getDocument(this);
@@ -273,5 +301,9 @@ public class PageCrawl implements HtmlResource{
 		} catch (URISyntaxException e) {
 			throw new UnsupportedOperationException("Can't generate URI for bad redirect uri : " + getRedirectedUrl());
 		}
+	}
+	@Override
+	public boolean docExists() {
+		return PageCrawlLogic.fileExists(this);
 	}
 }

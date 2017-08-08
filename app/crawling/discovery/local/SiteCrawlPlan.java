@@ -6,11 +6,14 @@ import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.common.util.concurrent.RateLimiter;
 
 import crawling.discovery.entities.Resource;
 import crawling.discovery.execution.DiscoveryPool;
 import crawling.discovery.html.HttpConfig;
+import crawling.discovery.html.HttpResponseFile;
 import crawling.discovery.planning.CrawlPlan;
 import crawling.discovery.planning.DiscoveryPlan;
 import crawling.discovery.planning.DiscoveryPoolPlan;
@@ -46,7 +49,7 @@ public class SiteCrawlPlan extends CrawlPlan {
 		initInventoryPlan();
 		initDiscoveryPlans();
 		setMaxDepth(Math.max(DEFAULT_REGULAR_DEPTH, DEFAULT_INVENTORY_DEPTH));
-		setMaxPages(DEFAULT_MAX_PAGES);
+		setMaxFetches(DEFAULT_MAX_PAGES);
 	}
 	
 	public SiteCrawlPlan(Site site) {
@@ -61,6 +64,12 @@ public class SiteCrawlPlan extends CrawlPlan {
 		this();
 		setName("SiteCrawl for Site " + siteCrawl.getSite().getSiteId() + " : " + siteCrawl.getSite().getHomepage());
 		putContextObject("siteCrawlId", siteCrawl.getSiteCrawlId());
+		if(siteCrawl.getNewInventoryRoot() != null){
+			putContextObject("newRootPageCrawlId", siteCrawl.getNewInventoryRoot().getPageCrawlId());
+		}
+		if(siteCrawl.getUsedInventoryRoot() != null){
+			putContextObject("usedRootPageCrawlId", siteCrawl.getUsedInventoryRoot().getPageCrawlId());
+		}
 		generateResources(siteCrawl);
 		readSettings(siteCrawl);
 	}
@@ -72,17 +81,7 @@ public class SiteCrawlPlan extends CrawlPlan {
 	
 	protected void readSettings(SiteCrawl siteCrawl){
 		this.setMaxDepth(siteCrawl.getMaxDepth());
-		this.setMaxPages(siteCrawl.getMaxPages());
-	}
-	
-	protected void fillInventoryContext(SiteCrawl siteCrawl) {
-		if(siteCrawl.getNewInventoryRoot() != null){
-			putContextObject("newRoot", siteCrawl.getNewInventoryRoot().getPageCrawlId());
-		}
-		if(siteCrawl.getUsedInventoryRoot() != null){
-			putContextObject("usedRoot", siteCrawl.getUsedInventoryRoot().getPageCrawlId());
-		}
-		
+		this.setMaxFetches(siteCrawl.getMaxPages());
 	}
 	
 	protected void generateResources(SiteCrawl siteCrawl){
@@ -111,26 +110,24 @@ public class SiteCrawlPlan extends CrawlPlan {
 			discoveryPlan = regularDiscoveryPlan;
 		}
 		
-		DSResponseFile responseFile = toResponseFile(pageCrawl);
-		PreResource resource = new PreResource(responseFile.getUri(), responseFile, parent, resourcePlan.getPlanId(), discoveryPlan.getPlanId());
+		HttpResponseFile responseFile = toResponseFile(pageCrawl);
+		PageCrawlPreResource resource = new PageCrawlPreResource(pageCrawl, responseFile, parent, resourcePlan.getPlanId(), discoveryPlan.getPlanId());
 		setStatus(pageCrawl, resource);
 		generateChildResources(pageCrawl, resource);
 		addResource(resource);
 	}
 	
-	protected DSResponseFile toResponseFile(PageCrawl pageCrawl){
-		DSResponseFile responseFile = new DSResponseFile(pageCrawl.getUri(), new File(pageCrawl.getFilename()));
-		responseFile.setInventory(pageCrawl.getPagedInventory());
-		responseFile.setUsedRoot(pageCrawl.getUsedRoot());
-		responseFile.setNewRoot(pageCrawl.getNewRoot());
-		responseFile.setInvType(pageCrawl.getInvType());
+	protected HttpResponseFile toResponseFile(PageCrawl pageCrawl){
+		if(StringUtils.isEmpty(pageCrawl.getFilename())){
+			return null;
+		}
+		HttpResponseFile responseFile = new HttpResponseFile(pageCrawl.getUri(), new File(pageCrawl.getFilename()));
 		responseFile.setStatusCode(pageCrawl.getStatusCode());
 		responseFile.setRedirectedUri(pageCrawl.getRedirectedUri());
-		
 		return responseFile;
 	}
 	
-	protected void setStatus(PageCrawl pageCrawl, PreResource resource){
+	protected void setStatus(PageCrawl pageCrawl, PageCrawlPreResource resource){
 		if(PageCrawlLogic.isFailedCrawl(pageCrawl) || PageCrawlLogic.isUncrawled(pageCrawl)){
 //			System.out.println("Assigning as failed or uncrawled : " + pageCrawl.getUrl());
 			resource.setFetchStatus(WorkStatus.UNASSIGNED);
@@ -180,18 +177,15 @@ public class SiteCrawlPlan extends CrawlPlan {
 	}
 	
 	protected void initDiscoveryPlans() {
-		regularDiscoveryPlan = new PageCrawlDiscoveryPlan();
-		regularDiscoveryPlan.setDestinationPlanId(regularPlan.getPlanId());
+		regularDiscoveryPlan = new DiscoveryPlan(regularPlan.getPlanId());
+		regularDiscoveryPlan.setPrimaryDestinationResourcePlanId(regularPlan.getPlanId());
+		regularDiscoveryPlan.putContextObject("inventoryPlanId", inventoryPlan.getPlanId());
 		registerDiscoveryPlan(regularDiscoveryPlan);
 		
-		inventoryDiscoveryPlan = new InventoryDiscoveryPlan();
-		inventoryDiscoveryPlan.setDestinationPlanId(inventoryPlan.getPlanId());
+		inventoryDiscoveryPlan = new DiscoveryPlan(regularPlan.getPlanId());
+		inventoryDiscoveryPlan.setPrimaryDestinationResourcePlanId(regularPlan.getPlanId());
+		inventoryDiscoveryPlan.putContextObject("inventoryPlanId", inventoryPlan.getPlanId());
 		registerDiscoveryPlan(inventoryDiscoveryPlan);
-		
-		regularPlan.registerDiscoveryPlan(regularDiscoveryPlan);
-		regularPlan.registerDiscoveryPlan(inventoryDiscoveryPlan);
-		
-		inventoryPlan.registerDiscoveryPlan(inventoryDiscoveryPlan);
 	}
 
 	

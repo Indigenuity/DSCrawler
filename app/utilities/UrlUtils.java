@@ -66,5 +66,41 @@ public class UrlUtils {
 		}
 		return destination;
 	}
+	
+	//Checks for http(s) additions/changes, www redirects, top-level (.com, .net) redirects, and language path and query string changes
+	public static boolean isGenericRedirect(String redirectUrl, String original) {
+		
+		if(redirectUrl == null || original == null)
+			return false;
+		if(redirectUrl.equals(original))
+			return true;
+		String sansHttpRedirectUrl = removeHttp(redirectUrl);
+		String sansHttpOriginal= removeHttp(original);
+		if(sansHttpRedirectUrl.equals(sansHttpOriginal))
+			return true;
+		String sansWwwRedirectUrl = removeWww(sansHttpRedirectUrl);
+		String sansWwwOriginal = removeWww(sansHttpOriginal);
+		if(sansWwwRedirectUrl.equals(sansWwwOriginal))
+			return true;
+		
+		String comRedirectUrl = toCom(sansWwwRedirectUrl);
+		String comOriginal = toCom(sansWwwOriginal);
+		
+		if(comRedirectUrl.equals(comOriginal))
+			return true;
+		
+		String langRedirectUrl = removeLanguage(comRedirectUrl);
+		String langOriginal = removeLanguage(comOriginal);
+		if(langRedirectUrl.equals(langOriginal))
+			return true;
+		
+		String noTrailingSlashRedirectUrl = langRedirectUrl.replaceAll("/$", "");
+		String noTrailingSlashOriginalUrl = langOriginal.replaceAll("/$", "");
+		if(noTrailingSlashRedirectUrl.equals(noTrailingSlashOriginalUrl))
+			return true;
+		
+		
+		return false;
+	}
 
 }

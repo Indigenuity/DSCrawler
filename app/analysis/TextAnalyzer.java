@@ -30,10 +30,25 @@ import utilities.DSFormatter;
 public class TextAnalyzer {
 	
 	public static Set<String> getVins(String text){
-		return getMatches(text, StringExtraction.VIN.getPattern());
+		return getPatternMatches(text, StringExtraction.VIN.getPattern());
 	}
 	
-	public static boolean containsCity(String text, List<String> customCities){
+	//Currently is only accurate on non-French sites in US and Canada, because some people are heathens and use commas instead of decimal points
+	public static List<Double> getMoneyValues(String text){
+		List<Double> moneyValues = new ArrayList<Double>();
+		if(StringUtils.isEmpty(text)){
+			return moneyValues;
+		}
+		Matcher matcher = StringExtraction.MONEY_STRING.getPattern().matcher(text);
+		while(matcher.find()){
+			String moneyString = matcher.group(1);
+			moneyString = moneyString.replaceAll(",", "");
+			moneyValues.add(Double.parseDouble(moneyString));
+		}
+		return moneyValues;
+	}
+	
+	public static boolean containsCity(String text, Collection<String> customCities){
 		if(text == null){
 			return false;
 		}
@@ -65,34 +80,28 @@ public class TextAnalyzer {
 	}
 
 	public static Set<GeneralMatch> getGeneralMatches(String text) {
-		Set<GeneralMatch> matches = new HashSet<GeneralMatch>();
-		for(GeneralMatch gm : GeneralMatch.values()){
-			if(text.contains(gm.getDefinition()) && !matches.contains(gm.getDefinition())){
-				matches.add(gm);
-			}
-		}
-		return matches;
+		return getStringMatches(text, GeneralMatch.values());
 	}
 	
 	public static Set<TestMatch> getCurrentTestMatches(String text) {
-		return getMatches(text, TestMatch.getCurrentMatches());
+		return getStringMatches(text, TestMatch.getCurrentMatches());
 	}
 	
-	public  static <T extends StringMatch> Set<T>  getMatches(String text, Collection<T> searchSet){
+	public  static <T extends StringMatch> Set<T>  getStringMatches(String text, Collection<T> searchSet){
 		Set<T> matches = new HashSet<T>();
 		for(T match : searchSet){
-			if(text.contains(match.getDefinition()) && !matches.contains(match.getDefinition())){
+			if(StringUtils.contains(text, match.getDefinition())){
 				matches.add(match);
 			}
 		}
 		return matches;
 	}
 	
-	public  static <T extends StringMatch> Set<T>  getMatches(String text, T[] searchSet){
-		return getMatches(text, new HashSet<T>(Arrays.asList(searchSet)));
+	public  static <T extends StringMatch> Set<T>  getStringMatches(String text, T[] searchSet){
+		return getStringMatches(text, new HashSet<T>(Arrays.asList(searchSet)));
 	}
 	
-	public static Set<String> getMatches(String text, Pattern pattern){
+	public static Set<String> getPatternMatches(String text, Pattern pattern){
 		Set<String> matches = new HashSet<String>();
 		Matcher matcher = pattern.matcher(text);
 		while(matcher.find()){

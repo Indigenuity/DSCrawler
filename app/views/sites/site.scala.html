@@ -1,16 +1,23 @@
 @(site : _root_.persistence.Site)
 
-<div class="site-display">
-	<div>
-		<span><span class="big">Site @site.getSiteId(): </span><a  class="site-homepage" href="@site.getHomepage()" target="_blank">@site.getHomepage()</a></span>
-		<br>
-		<span class="site-numCrawls">@site.getCrawls().size() crawls  </span>
-		@if(site.getLatestCrawl() != null) {
-			<br>
-			<span class="recent-crawl-date">Recent crawl : @site.getLatestCrawl().getCrawlDate()</span>
-			<span class="recent-crawl-num-files"> -- @site.getLatestCrawl().getSeed()</span>
-			<p class="recent-redirect-resolve"> Last Redirect Resolve : @site.getRedirectResolveDate()</p>
-		}
-	</div>
+@main("View Site") {
+
+	<h2>Site @site.getSiteId(): </span><a  class="site-homepage" href="@site.getHomepage()" target="_blank">@site.getHomepage()</a></h3>
+	<br>
+	<span class="site-numCrawls">@site.getCrawls().size() crawls  </span>
 	
-</div>
+	
+	@if(site.getLastCrawl() != null) {
+		<h3>Last Crawl :</h3>
+		<a href="/sites/siteCrawl/@site.getLastCrawl().getSiteCrawlId()">SiteCrawl @site.getLastCrawl().getSiteCrawlId()</a> --
+		<a href="@site.getLastCrawl().getSeed()" target="_blank">@site.getLastCrawl().getSeed()</a> 
+	}
+		
+	
+	<div class="small-panel" id="site-crawls-list-panel"></div>
+	<script>
+		$(document).ready(function(){
+			$("#site-crawls-list-panel").load("/sites/siteCrawlList/@site.getSiteId()");
+		})
+	</script>
+}

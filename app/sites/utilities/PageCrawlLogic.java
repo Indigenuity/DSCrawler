@@ -21,11 +21,7 @@ public class PageCrawlLogic {
 		pageCrawl.setCrawlDate(null);
 		pageCrawl.setStatusCode(null);
 		pageCrawl.setLargeFile(false);
-		pageCrawl.setNewPath(false);
-		pageCrawl.setNewRoot(false);
-		pageCrawl.setUsedPath(false);
 		pageCrawl.setUsedRoot(false);
-		pageCrawl.setInvType(null);
 		pageCrawl.setErrorMessage(null);
 		pageCrawl.setRedirectedUrl(null);
 		
@@ -76,7 +72,7 @@ public class PageCrawlLogic {
 	}
 	
 	public static boolean isUncrawled(PageCrawl pageCrawl){
-		if(pageCrawl.getCrawlDate() == null || pageCrawl.getStatusCode() == null){
+		if(pageCrawl.getCrawlDate() == null || pageCrawl.getStatusCode() == null || pageCrawl.getStatusCode() == 0){
 			return true;
 		}
 		return false;
@@ -84,10 +80,18 @@ public class PageCrawlLogic {
 	
 	public static boolean isFailedCrawl(PageCrawl pageCrawl){
 		Integer statusCode = pageCrawl.getStatusCode();
-		if(isSuccessfulStatusCode(statusCode) || isRedirectStatusCode(statusCode)){
+		if(!StringUtils.isEmpty(pageCrawl.getErrorMessage())){
+			return true;
+		}
+		
+		if(isUncrawled(pageCrawl) || isSuccessfulStatusCode(statusCode) || isRedirectStatusCode(statusCode)){
 			return false;
 		}
 		return true;
+	}
+	
+	public static boolean isInventoryPage(PageCrawl pageCrawl) {
+		return pageCrawl.getPagedInventory() || pageCrawl.getNewRoot() || pageCrawl.getUsedRoot();
 	}
 	
 	public static boolean isSuccessfulStatusCode(Integer statusCode){

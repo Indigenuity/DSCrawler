@@ -1,5 +1,6 @@
 package analysis;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -34,6 +35,7 @@ import persistence.ExtractedUrl;
 import persistence.Metatag;
 import persistence.PageCrawl;
 import sites.persistence.Vehicle;
+import utilities.DSFormatter;
 
 @Entity
 public class PageCrawlAnalysis {
@@ -55,53 +57,55 @@ public class PageCrawlAnalysis {
 	@ManyToOne
 	private PageCrawl pageCrawl;
 	
+	private boolean goodCrawl = false;
 	
-	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, orphanRemoval=true)
+	
+	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER, orphanRemoval=true)
 	protected Set<Vehicle> vehicles = new HashSet<Vehicle>();
 	
-	@ElementCollection(fetch=FetchType.LAZY)
+	@ElementCollection(fetch=FetchType.EAGER)
 	protected Set<String> vins = new HashSet<String>();
 	
 	//**************  Extracted Elements
 	@Column(nullable = true, columnDefinition="varchar(4000)")
-	@ElementCollection(fetch=FetchType.LAZY)
+	@ElementCollection(fetch=FetchType.EAGER)
 	@Fetch(FetchMode.SELECT)
 	private Set<String> allLinks = new HashSet<String>();
 	
 	@Column(nullable = true, columnDefinition="varchar(4000)")
-	@ElementCollection(fetch=FetchType.LAZY)
+	@ElementCollection(fetch=FetchType.EAGER)
 	@Fetch(FetchMode.SELECT)
 	private Set<String> intrasiteLinks = new HashSet<String>();
 
-	@ManyToMany(cascade=CascadeType.ALL,fetch=FetchType.LAZY)
+	@ManyToMany(cascade=CascadeType.ALL,fetch=FetchType.EAGER)
 	@Fetch(FetchMode.SELECT)
 	private Set<Metatag> metatags = new HashSet<Metatag>();
 	
 	
 	
 	//****************  Extracted Strings
-	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, orphanRemoval=true)
+	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER, orphanRemoval=true)
 	protected Set<ExtractedUrl> extractedUrls = new HashSet<ExtractedUrl>();
 	
-	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, orphanRemoval=true)
+	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER, orphanRemoval=true)
 	protected Set<ExtractedString> extractedStrings = new HashSet<ExtractedString>();
 	
 	
 	//*************** Matches
 	@Enumerated(EnumType.STRING)
-	@ElementCollection(fetch=FetchType.LAZY)
+	@ElementCollection(fetch=FetchType.EAGER)
 	protected Set<GeneralMatch> generalMatches = new HashSet<GeneralMatch>();
 
 	@Enumerated(EnumType.STRING)
-	@ElementCollection(fetch=FetchType.LAZY)
+	@ElementCollection(fetch=FetchType.EAGER)
 	protected Set<LinkTextMatch> linkTextMatches = new HashSet<LinkTextMatch>();
 	
 	@Enumerated(EnumType.STRING)
-	@ElementCollection(fetch=FetchType.LAZY)
+	@ElementCollection(fetch=FetchType.EAGER)
 	protected Set<TestMatch> testMatches = new HashSet<TestMatch>();
 	
 	@Enumerated(EnumType.STRING)
-	@ElementCollection(fetch=FetchType.LAZY)
+	@ElementCollection(fetch=FetchType.EAGER)
 	protected Set<WPAttribution> wpAttributions = new HashSet<WPAttribution>();
 	
 	//*************** CapDB Flags and scores
@@ -133,18 +137,21 @@ public class PageCrawlAnalysis {
 	protected int numImages = 0;
 	protected int numAltImages = 0;
 	
-	protected Integer inventoryCount;
+	protected int inventoryCount = 0;
+	protected double averagePrice = 0;
+	protected double highestPrice = 0;
+	protected int numPrices = 0;
 	
-	@ElementCollection(fetch=FetchType.LAZY)
+	@ElementCollection(fetch=FetchType.EAGER)
 	@MapKeyEnumerated(EnumType.STRING)
 	@Fetch(FetchMode.SELECT)
 	protected Map<OEM, Integer> oemCounts = new HashMap<OEM, Integer>();
-	@ElementCollection(fetch=FetchType.LAZY)
+	@ElementCollection(fetch=FetchType.EAGER)
 	@MapKeyEnumerated(EnumType.STRING)
 	@Fetch(FetchMode.SELECT)
 	protected Map<OEM, Integer> oemMetaCounts = new HashMap<OEM, Integer>();	//Should have been <OEM, Boolean>, but too annoying to fix
 	
-	@ElementCollection(fetch=FetchType.LAZY)
+	@ElementCollection(fetch=FetchType.EAGER)
 	protected Set<String> notes = new HashSet<String>();
 	
 
@@ -154,6 +161,16 @@ public class PageCrawlAnalysis {
 
 	public void setPageCrawl(PageCrawl pageCrawl) {
 		this.pageCrawl = pageCrawl;
+	}
+	
+	
+
+	public Boolean getGoodCrawl() {
+		return goodCrawl;
+	}
+
+	public void setGoodCrawl(Boolean goodCrawl) {
+		this.goodCrawl = goodCrawl;
 	}
 
 	public Set<GeneralMatch> getGeneralMatches() {
@@ -393,7 +410,7 @@ public class PageCrawlAnalysis {
 	}
 
 	public void setMetaDescriptionText(String metaDescriptionText) {
-		this.metaDescriptionText = metaDescriptionText;
+		this.metaDescriptionText = DSFormatter.truncate(metaDescriptionText, 255);
 	}
 
 	public Set<Vehicle> getVehicles() {
@@ -404,6 +421,19 @@ public class PageCrawlAnalysis {
 		this.vehicles.clear();
 		this.vehicles.addAll(vehicles);
 	}
+	
+	public void addOrUpdateVehicle(Vehicle vehicle){
+		if(vehicle == null){
+			return;
+		}
+		if(!vehicles.add(vehicle)){
+			for(Vehicle currentVehicle : vehicles){
+				if(currentVehicle.equals(vehicle)){
+					currentVehicle.updateFromOther(vehicle);
+				}
+			}
+		}
+	}
 
 	public Set<String> getVins() {
 		return vins;
@@ -412,6 +442,14 @@ public class PageCrawlAnalysis {
 	public void setVins(Set<String> vins) {
 		this.vins.clear();
 		this.vins = vins;
+	}
+	
+	public boolean addVin(String vin){
+		return this.vins.add(vin);
+	}
+	
+	public boolean addVins(Collection<String> vins){
+		return this.vins.addAll(vins);
 	}
 
 	public void setNumImages(int numImages) {
@@ -428,6 +466,30 @@ public class PageCrawlAnalysis {
 
 	public void setInventoryCount(Integer inventoryCount) {
 		this.inventoryCount = inventoryCount;
+	}
+
+	public double getAveragePrice() {
+		return averagePrice;
+	}
+
+	public void setAveragePrice(double averagePrice) {
+		this.averagePrice = averagePrice;
+	}
+
+	public double getHighestPrice() {
+		return highestPrice;
+	}
+
+	public void setHighestPrice(double highestPrice) {
+		this.highestPrice = highestPrice;
+	}
+
+	public int getNumPrices() {
+		return numPrices;
+	}
+
+	public void setNumPrices(int numPrices) {
+		this.numPrices = numPrices;
 	}
 	
 }

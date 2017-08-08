@@ -149,7 +149,7 @@ public class CrawlSupervisor extends UntypedActor {
 	
 	protected void assignWork(ResourceWorkOrder workOrder){
 		Resource resource = crawlContext.getResource(workOrder.getResourceId());
-		ActorRef supervisor = supervisors.get(resource.getPlanId());
+		ActorRef supervisor = supervisors.get(crawlContext.getResourcePlanId(resource.getResourceId()));
 		//System.out.println("Assigning work to context : " + resource.getPlanId());
 		supervisor.tell(workOrder, getSelf());
 		waitingRoom.add(workOrder.getUuid(), ActorRef.noSender());
@@ -174,7 +174,6 @@ public class CrawlSupervisor extends UntypedActor {
 		CrawlReport report = new CrawlReport(crawlContext);
 		crawlTool.postCrawl(crawlContext, report);
 		customer.tell(new WorkResult(workOrderUuid), getSelf());
-		context().stop(getSelf());
 	}
 	
 	protected void endInShame() {

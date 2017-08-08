@@ -26,6 +26,7 @@ import global.Global;
 import persistence.InventoryNumber;
 import persistence.Metatag;
 import persistence.PageCrawl;
+import sites.persistence.Vehicle;
 import sites.utilities.PageCrawlLogic;
 
 public class PageCrawlAnalyzer {
@@ -38,14 +39,27 @@ public class PageCrawlAnalyzer {
 	private final AnalysisConfig config;
 	private final SiteCrawlAnalysis siteAnalysis;
 	
-	private PageCrawlAnalysis pageAnalysis;
+	private final PageCrawlAnalysis pageAnalysis;
 	
 	private String text;
 	private Document doc;
 	List<String> cities;
 	
-	public PageCrawlAnalyzer(PageCrawl pageCrawl, SiteCrawlAnalysis siteAnalysis) {
+	
+	//**** Benchmarking
+	long start = 0;
+	long last = 0;
+	
+	public PageCrawlAnalyzer(PageCrawl pageCrawl, AnalysisConfig config) {
 		this.pageCrawl = pageCrawl;
+		this.pageAnalysis = new PageCrawlAnalysis(pageCrawl);
+		this.config = config;
+		this.siteAnalysis = null;
+	}
+	
+	public PageCrawlAnalyzer(PageCrawlAnalysis pageAnalysis, SiteCrawlAnalysis siteAnalysis){
+		this.pageAnalysis = pageAnalysis;
+		this.pageCrawl = pageAnalysis.getPageCrawl();
 		this.siteAnalysis = siteAnalysis;
 		this.config = siteAnalysis.getConfig();
 	}
@@ -65,25 +79,33 @@ public class PageCrawlAnalyzer {
 		return doc;
 	}
 	
-	public synchronized List<String> cities() {
-		if(cities == null) {
-			cities = SitesDAO.findCities(siteAnalysis.getSiteCrawl().getSite().getSiteId());
-		}
-		return cities;
-	}
-	
-	
 	public PageCrawlAnalysis runAnalysis(){
+		start = System.currentTimeMillis();
 		if(!PageCrawlLogic.fileExists(pageCrawl)){
 			return null;
 		}
-		pageAnalysis = new PageCrawlAnalysis(pageCrawl);
+		runBasicAnalysis();
+		last = System.currentTimeMillis();
+		text();
+//		System.out.println("text() elapsed : " + (System.currentTimeMillis() - last));
+		last = System.currentTimeMillis();
+		doc();
+//		System.out.println("doc() elapsed : " + (System.currentTimeMillis() - last));
+		last = System.currentTimeMillis();
 		runTextAnalysis();
+//		System.out.println("text analysis elapsed : " + (System.currentTimeMillis() - last));
+		last = System.currentTimeMillis();
 		if(config.needsDoc()){
 			runDocAnalysis();
 		}
+//		System.out.println("doc analysis elapsed : " + (System.currentTimeMillis() - last));
+		last = System.currentTimeMillis();
 		runMetaAnalysis();
 		return pageAnalysis;
+	}
+	
+	public void runBasicAnalysis(){
+		pageAnalysis.setGoodCrawl(!PageCrawlLogic.isFailedCrawl(pageCrawl));
 	}
 	
 	
@@ -94,31 +116,56 @@ public class PageCrawlAnalyzer {
 			pageAnalysis.getGeneralMatches().addAll(TextAnalyzer.getGeneralMatches(text()));
 		} 
 		if(config.getDoWpAttributionMatches()){
-			pageAnalysis.getWpAttributions().addAll(TextAnalyzer.getMatches(text(), WPAttribution.values()));
-		} 
+			pageAnalysis.getWpAttributions().addAll(TextAnalyzer.getStringMatches(text(), WPAttribution.values()));
+		}
 		if(config.getDoTestMatches()){
-			pageAnalysis.getTestMatches().addAll(TextAnalyzer.getMatches(text(), TestMatch.getCurrentMatches()));
-		} 
+			pageAnalysis.getTestMatches().addAll(TextAnalyzer.getCurrentTestMatches(text));
+		}
 		if(config.getDoBrandMatches()){
 			oemCount();
 		}
 		if(config.getDoVehicles()){
 			vins();
 		}
+		if(config.getDoPrices()){
+			rawPrices();
+		}
 		if(config.getDoCustomText()){
 			customText();
 		}
+		
 	}
 	
 	public void oemCount() {
 		for(OEM oem : OEM.values()){
-			Integer count = TextAnalyzer.countOccurrences(text(), oem.getPattern());
+			Integer count = StringUtils.countMatches(text(), oem.getDefinition());
 			pageAnalysis.getOemCounts().put(oem, count);
 		}
 	}
 	
 	public void vins(){
-		pageAnalysis.setVins(TextAnalyzer.getVins(text()));
+		Set<String> vins = TextAnalyzer.getVins(text());
+		pageAnalysis.addVins(vins);
+	}
+	
+	//Get price data from raw string values.  May be overridden later in the analysis if an invtype is detected
+	public void rawPrices() {
+		List<Double> moneyValues = TextAnalyzer.getMoneyValues(text());
+		Double highest = 0.0;
+		Double total = 0.0;
+		for(Double value : moneyValues){
+			if(value > highest){
+				highest = value;
+			}
+			total += value;
+		}
+		if(moneyValues.size() > 0){
+			pageAnalysis.setAveragePrice(total/moneyValues.size());
+		} else {
+			pageAnalysis.setAveragePrice(0);
+		}
+		pageAnalysis.setNumPrices(moneyValues.size());
+		pageAnalysis.setHighestPrice(highest);
 	}
 	
 	public void customText() {
@@ -153,12 +200,13 @@ public class PageCrawlAnalyzer {
 		if(config.getDoVehicles()){
 			vehicles();
 		}
-		if(config.getDoCustomDoc()){
-			customDoc();
-		}
 		if(config.getDoInventoryNumbers()){
 			inventoryCounts();
 		}
+		if(config.getDoCustomDoc()){
+			customDoc();
+		}
+		
 		
 	}
 	
@@ -171,7 +219,7 @@ public class PageCrawlAnalyzer {
 		if(length >= TITLE_MIN_OPTIMAL_LENGTH && length <= TITLE_MAX_OPTIMAL_LENGTH) {
 			pageAnalysis.setTitleGoodLength(true);
 		}
-		pageAnalysis.setTitleContainsCity(TextAnalyzer.containsCity(title.text(), cities()));
+		pageAnalysis.setTitleContainsCity(TextAnalyzer.containsCity(title.text(), siteAnalysis.getCities()));
 		pageAnalysis.setTitleContainsState(TextAnalyzer.matchesPattern(StringExtraction.STATE_ABBR.getPattern(), title.text()));
 		pageAnalysis.setTitleContainsMake(TextAnalyzer.matchesPattern(StringExtraction.MAKE.getPattern(), title.text()));
 	}
@@ -181,7 +229,7 @@ public class PageCrawlAnalyzer {
 		if(h1 == null){ return; }
 		pageAnalysis.setH1Text(h1.text());
 		pageAnalysis.setHasH1(true);
-		pageAnalysis.setH1ContainsCity(TextAnalyzer.containsCity(h1.text(), cities()));
+		pageAnalysis.setH1ContainsCity(TextAnalyzer.containsCity(h1.text(), siteAnalysis.getCities()));
 		pageAnalysis.setH1ContainsState(TextAnalyzer.matchesPattern(StringExtraction.STATE_ABBR.getPattern(), h1.text()));
 		pageAnalysis.setH1ContainsMake(TextAnalyzer.matchesPattern(StringExtraction.MAKE.getPattern(), h1.text()));
 	}
@@ -195,7 +243,7 @@ public class PageCrawlAnalyzer {
 		if(length <= META_DESCRIPTION_MAX_OPTIMAL_LENGTH ) {
 			pageAnalysis.setMetaDescriptionGoodLength(true);
 		}
-		pageAnalysis.setMetaDescriptionContainsCity(TextAnalyzer.containsCity(metaDescription.outerHtml(), cities()));
+		pageAnalysis.setMetaDescriptionContainsCity(TextAnalyzer.containsCity(metaDescription.outerHtml(), siteAnalysis.getCities()));
 		pageAnalysis.setMetaDescriptionContainsState(TextAnalyzer.matchesPattern(StringExtraction.STATE_ABBR.getPattern(), metaDescription.outerHtml()));
 		pageAnalysis.setMetaDescriptionContainsMake(TextAnalyzer.matchesPattern(StringExtraction.MAKE.getPattern(), metaDescription.outerHtml()));
 	}
@@ -227,7 +275,12 @@ public class PageCrawlAnalyzer {
 		InvType invType = pageAnalysis.getPageCrawl().getInvType();
 		if(invType != null){
 			InventoryTool tool = invType.getTool();
-			pageAnalysis.setVehicles(tool.getVehicles(doc()));
+			Set<Vehicle> vehicles = tool.getVehicles(doc());
+//			System.out.println("got vehicles for pageCrawl " + pageCrawl.getPageCrawlId() + " : " + vehicles.size());
+			for(Vehicle vehicle : vehicles){
+				pageAnalysis.addOrUpdateVehicle(vehicle);
+			}
+//			pageAnalysis.setVehicles(vehicles);
 		}
 	}
 	
@@ -250,13 +303,43 @@ public class PageCrawlAnalyzer {
 		if(config.getDoUrlScoring()){
 			urlScoring();
 		}
+		if(config.getDoPrices()){
+			invPrices();
+		}
 	}
 	
 	public void urlScoring() {
 		String url = pageAnalysis.getPageCrawl().getUrl();
-		pageAnalysis.setUrlContainsCity(TextAnalyzer.containsCity(url, cities()));
+		pageAnalysis.setUrlContainsCity(TextAnalyzer.containsCity(url, siteAnalysis.getCities()));
 		pageAnalysis.setUrlContainsState(TextAnalyzer.matchesPattern(StringExtraction.STATE_ABBR.getPattern(), url));
 		pageAnalysis.setUrlContainsMake(TextAnalyzer.matchesPattern(StringExtraction.MAKE.getPattern(), url));
+	}
+	
+	//Overrides prices gotten through raw dollar amount strings, and instead uses price data from parsed vehicles, if present
+	public void invPrices() {
+		if(pageCrawl.getInvType() == null || pageAnalysis.getVehicles().size() < 1){
+			return;
+		}
+		double highest = 0.0;
+		double total = 0.0;
+		for(Vehicle vehicle : pageAnalysis.getVehicles()){
+			double value = vehicle.getOfferedPrice();
+			if(!(value > 0)){
+				value = vehicle.getMsrp();
+			}
+			if(value > highest){
+				highest = value;
+			}
+			total += value;
+		}
+		if(pageAnalysis.getVehicles().size() > 0){
+			pageAnalysis.setAveragePrice(total/pageAnalysis.getVehicles().size());
+		} else {
+			pageAnalysis.setAveragePrice(0);
+		}
+		pageAnalysis.setNumPrices(pageAnalysis.getVehicles().size());
+		pageAnalysis.setHighestPrice(highest);
+		
 	}
 	
 	//********************* Helpers *********************

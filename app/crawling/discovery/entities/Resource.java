@@ -17,30 +17,28 @@ public class Resource {
 	protected final Resource parent;
 	protected final Set<Resource> children = new HashSet<Resource>();
 	protected final ResourceId resourceId;
-	protected final PlanId planId;
 	
 	protected WorkStatus fetchStatus = WorkStatus.UNASSIGNED;
 	protected Exception fetchException = null;
 	protected WorkStatus discoveryStatus= WorkStatus.UNASSIGNED;
 	protected Exception discoveryException = null;
 	
-	public Resource(Object source, Object value, Resource parent, ResourceId resourceId, PlanId planId) {
-		this(source, parent, resourceId, planId);
+	public Resource(Object source, Object value, Resource parent, ResourceId resourceId) {
+		this(source, parent, resourceId);
 		this.value = value;
 	}
 	
-	public Resource(Object source, Resource parent, ResourceId resourceId, PlanId planId) {
+	public Resource(Object source, Resource parent, ResourceId resourceId) {
 		this.source = source;
 		this.parent = parent;
 		if(parent != null){
 			this.parent.addChild(this);
 		}
 		this.resourceId = resourceId;
-		this.planId = planId;
 	}
 	
-	public Resource(PreResource preResource, Resource parent, ResourceId resourceId, PlanId planId) {
-		this(preResource.getSource(), preResource.getValue(), parent, resourceId, planId);
+	public Resource(PreResource preResource, Resource parent, ResourceId resourceId) {
+		this(preResource.getSource(), preResource.getValue(), parent, resourceId);
 		this.fetchStatus = preResource.getFetchStatus();
 		this.fetchException = preResource.getFetchException();
 		this.discoveryStatus = preResource.getDiscoveryStatus();
@@ -86,9 +84,6 @@ public class Resource {
 	}
 	public Object getSource() {
 		return source;
-	}
-	public PlanId getPlanId() {
-		return planId;
 	}
 	public WorkStatus getFetchStatus() {
 		return fetchStatus;

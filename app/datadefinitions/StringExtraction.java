@@ -18,6 +18,8 @@ public enum StringExtraction implements StringMatch{
 	US_ADDRESS				("Matches city names with no commas", "(?i)([^,]+), ([^,]+), ([a-zA-Z]+) ([^,]+)", ""),
 	HOST					("Matches domains, not full URLs", "[-A-Za-z0-9]+(\\.[-A-Za-z0-9-]+)*(\\.[A-Za-z]{2,4})(:[0-9]+)*", ""),
 	VIN						("North American vin numbers", "\\b([A-Za-z0-9]{3})([A-Za-z0-9]{5})([A-Za-z0-9]{1})([A-Za-z0-9]{1})([A-Za-z0-9]{1})([A-Za-z0-9]{1}[0-9]{5})\\b", ""),
+	MONEY_STRING			("Money strings of at least 4 digits to only get values at or above $1000", 	"\\$(([0-9,]{4,})(\\.[0-9]{2})?)", "Don't use this for money on French sites, since they use commas instead of decimal points"),
+	
 	
 	;
 	

@@ -1,6 +1,8 @@
 package controllers;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -14,7 +16,9 @@ import dao.GeneralDAO;
 import dao.SalesforceDao;
 import dao.SiteOwnerLogic;
 import dao.SitesDAO;
+import datatransfer.CSVGenerator;
 import datatransfer.CSVImporter;
+import datatransfer.ReportGenerator;
 import datatransfer.reports.Report;
 import datatransfer.reports.ReportRow;
 import persistence.Site;
@@ -29,6 +33,7 @@ import play.mvc.Result;
 import salesforce.SalesforceLogic;
 import salesforce.persistence.SalesforceAccount;
 import sites.crawling.SiteCrawlLogic;
+import sites.persistence.SiteSet;
 
 public class SalesforceController extends Controller {
 	
@@ -50,13 +55,6 @@ public class SalesforceController extends Controller {
 		
 		List<SalesforceAccount> accounts = SalesforceDao.findBySite(JPA.em().find(Site.class, siteId));
 		return ok(views.html.salesforce.siteMismatchForms.render(accounts));
-	}
-	
-	@Transactional
-	public static Result crawlUsFranchise(){
-		List<Long> siteIds= SalesforceDao.getUsFranchiseSites();
-		SiteCrawlLogic.crawlStaleSites(siteIds);
-		return ok("Queued " + siteIds.size() + " sites for crawling.  Only stales sites will be crawled");
 	}
 	
 	@Transactional
@@ -96,11 +94,14 @@ public class SalesforceController extends Controller {
     	SalesforceLogic.resetSites(accountIds);
     	return ok("Queued " + accountIds.size() + " accounts to be assigned Site objects");
     }
+    
     @Transactional
-    public static Result salesforceWebsiteReport() throws IOException {
-    	SalesforceControl.printSignificantDifferenceReport();
-    	return ok();
+    public static Result salesforceWebsiteReport() throws Exception {
+		Report report = ReportGenerator.generateWebsiteReport();
+		File csvReport = CSVGenerator.printReport(report);
+		return ok("Website report generated at file location " + csvReport.getAbsolutePath());
     }
+    
     @Transactional
     public static Result runSalesforceSync() throws IOException {
     	DynamicForm data = Form.form().bindFromRequest();
@@ -146,4 +147,15 @@ public class SalesforceController extends Controller {
 		
 		return ok("Synced with salesforce accounts from file : " + inputFilename);
     }
+    
+    @Transactional
+    public static Result generateSiteSet(){
+    	SiteSet siteSet = new SiteSet("Unique sites in Salesforce " + new Date());
+    	siteSet = JPA.em().merge(siteSet);
+    	List<Site> sites = SalesforceDao.getUniqueSites();
+    	siteSet.addSites(sites);
+    	
+    	return redirect("/sites/siteSets/viewSiteSet/" + siteSet.getSiteSetId());
+    }
+    
 }

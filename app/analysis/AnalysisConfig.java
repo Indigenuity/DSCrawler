@@ -21,6 +21,8 @@ public class AnalysisConfig {
 	@Enumerated(EnumType.STRING)
 	AnalysisMode analysisMode = AnalysisMode.PAGED;
 	
+	protected boolean excludePageAnalysisIfPresent = false; 
+	
 	//************ Matching
 	protected Boolean doBrandMatches = false;
 	protected Boolean doMetaBrandMatches = false;
@@ -32,12 +34,12 @@ public class AnalysisConfig {
 	protected Boolean doLinkTextMatches = false;
 	protected Boolean doTestMatches = false;
 	
-	
 	//*********** Inventory
 	protected Boolean doNewInventoryPage = false;
 	protected Boolean doUsedInventoryPage = false;
 	protected Boolean doInventoryNumbers = false;
 	protected Boolean doVehicles = false;
+	protected Boolean doPrices = false;
 	
 	//************ Extraction
 	protected Boolean extractUrls = false;
@@ -54,8 +56,6 @@ public class AnalysisConfig {
 	//************ Custom
 	protected Boolean doCustomText = false;
 	protected Boolean doCustomDoc = false;
-	
-	
 	
 	//************ Conditional Aggregates
 	public Boolean needsDoc(){
@@ -74,10 +74,10 @@ public class AnalysisConfig {
 		this.doBrandMatches = true;
 		this.doMetaBrandMatches = true;
 		this.doGeneralMatches = true;
-		this.doSchedulerMatches= true;
+		this.doSchedulerMatches = true;
 		this.doWpClues = true;
 		this.doWebProviderMatches = true;
-		this.doWpAttributionMatches= true;
+		this.doWpAttributionMatches = true;
 		this.doLinkTextMatches = true;
 		this.doTestMatches = true;
 		
@@ -87,6 +87,7 @@ public class AnalysisConfig {
 		this.doUsedInventoryPage = true;
 		this.doInventoryNumbers = true;
 		this.doVehicles = true;
+		this.doPrices = true;
 		
 		//************ Extraction
 		this.extractUrls = true;
@@ -105,91 +106,61 @@ public class AnalysisConfig {
 		return doBrandMatches;
 	}
 
-
-
 	public void setDoBrandMatches(Boolean doBrandMatches) {
 		this.doBrandMatches = doBrandMatches;
 	}
-
-
 
 	public Boolean getDoMetaBrandMatches() {
 		return doMetaBrandMatches;
 	}
 
-
-
 	public void setDoMetaBrandMatches(Boolean doMetaBrandMatches) {
 		this.doMetaBrandMatches = doMetaBrandMatches;
 	}
-
-
 
 	public Boolean getDoGeneralMatches() {
 		return doGeneralMatches;
 	}
 
-
-
 	public void setDoGeneralMatches(Boolean doGeneralMatches) {
 		this.doGeneralMatches = doGeneralMatches;
 	}
-
-
 
 	public Boolean getDoSchedulerMatches() {
 		return doSchedulerMatches;
 	}
 
-
-
 	public void setDoSchedulerMatches(Boolean doSchedulerMatches) {
 		this.doSchedulerMatches = doSchedulerMatches;
 	}
-
-
 
 	public Boolean getDoWpClues() {
 		return doWpClues;
 	}
 
-
-
 	public void setDoWpClues(Boolean doWpClues) {
 		this.doWpClues = doWpClues;
 	}
-
-
 
 	public Boolean getDoWebProviderMatches() {
 		return doWebProviderMatches;
 	}
 
-
-
 	public void setDoWebProviderMatches(Boolean doWebProviderMatches) {
 		this.doWebProviderMatches = doWebProviderMatches;
 	}
-
-
 
 	public Boolean getDoWpAttributionMatches() {
 		return doWpAttributionMatches;
 	}
 
-
-
 	public void setDoWpAttributionMatches(Boolean doWpAttributionMatches) {
 		this.doWpAttributionMatches = doWpAttributionMatches;
 	}
 
-
-
 	public Boolean getDoLinkTextMatches() {
 		return doLinkTextMatches;
 	}
-
-
 
 	public void setDoLinkTextMatches(Boolean doLinkTextMatches) {
 		this.doLinkTextMatches = doLinkTextMatches;
@@ -256,104 +227,90 @@ public class AnalysisConfig {
 		return doTestMatches;
 	}
 
-
-
 	public void setDoTestMatches(Boolean doTestMatches) {
 		this.doTestMatches = doTestMatches;
 	}
-
-
 
 	public Boolean getDoCustomText() {
 		return doCustomText;
 	}
 
-
-
 	public void setDoCustomText(Boolean doCustomText) {
 		this.doCustomText = doCustomText;
 	}
-
-
 
 	public Boolean getDoCustomDoc() {
 		return doCustomDoc;
 	}
 
-
-
 	public void setDoCustomDoc(Boolean doCustomDoc) {
 		this.doCustomDoc = doCustomDoc;
 	}
-
-
 
 	public Boolean getDoTitleTagScoring() {
 		return doTitleTagScoring;
 	}
 
-
-
 	public void setDoTitleTagScoring(Boolean doTitleTagScoring) {
 		this.doTitleTagScoring = doTitleTagScoring;
 	}
-
-
 
 	public Boolean getDoUrlScoring() {
 		return doUrlScoring;
 	}
 
-
-
 	public void setDoUrlScoring(Boolean doUrlScoring) {
 		this.doUrlScoring = doUrlScoring;
 	}
-
-
 
 	public Boolean getDoAltImageTagScore() {
 		return doAltImageTagScore;
 	}
 
-
-
 	public void setDoAltImageTagScore(Boolean doAltImageTagScore) {
 		this.doAltImageTagScore = doAltImageTagScore;
 	}
-
-
 
 	public Boolean getDoH1Score() {
 		return doH1Score;
 	}
 
-
-
 	public void setDoH1Score(Boolean doH1Score) {
 		this.doH1Score = doH1Score;
 	}
-
-
 
 	public Boolean getDoMetaDescriptionScore() {
 		return doMetaDescriptionScore;
 	}
 
-
-
 	public void setDoMetaDescriptionScore(Boolean doMetaDescriptionScore) {
 		this.doMetaDescriptionScore = doMetaDescriptionScore;
 	}
-
 
 	public Boolean getDoVehicles() {
 		return doVehicles;
 	}
 
-
 	public void setDoVehicles(Boolean doVehicles) {
 		this.doVehicles = doVehicles;
+	}
+
+	public Boolean getDoPrices() {
+		return doPrices;
+	}
+
+	public void setDoPrices(Boolean doPrices) {
+		this.doPrices = doPrices;
+	}
+
+
+	public boolean isExcludePageAnalysisIfPresent() {
+		return excludePageAnalysisIfPresent;
+	}
+
+
+	public void setExcludePageAnalysisIfPresent(boolean excludePageAnalysisIfPresent) {
+		this.excludePageAnalysisIfPresent = excludePageAnalysisIfPresent;
 	}
 	
 	

@@ -25,9 +25,11 @@ import utilities.DSFormatter;
 public class DataEditor extends Controller{
 	
 	
+	
+	//TODO DELETE THIS
 	@Transactional
 	public static Result markSignificantDifferences() {
-		SalesforceControl.markSignificantDifferences();
+//		SalesforceControl.markSignificantDifferences();
 		return ok("Salesforce Accounts marked with significant differences successfully");
 	}
 	

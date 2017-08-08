@@ -1,5 +1,6 @@
 package analysis;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,6 +31,7 @@ import datadefinitions.OEM;
 import datadefinitions.newdefinitions.LinkTextMatch;
 import datadefinitions.newdefinitions.TestMatch;
 import datadefinitions.newdefinitions.WPAttribution;
+import datadefinitions.newdefinitions.WebProvider;
 import persistence.ExtractedString;
 import persistence.ExtractedUrl;
 import persistence.InventoryNumber;
@@ -65,47 +67,60 @@ public class SiteCrawlAnalysis {
 	
 	protected Date analysisDate;
 	
-	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, orphanRemoval=true)
+	protected int numCrawls = 0;
+	protected int numGoodCrawls = 0;
+	protected int numGoodPercentage = 0;
+	protected String invTypes;
+	
+	protected Boolean oemMandated = false;
+	
+	@Enumerated(EnumType.STRING)
+	protected WebProvider primaryWebProvider;
+	
+	@ElementCollection
+	protected Set<String> cities = new HashSet<String>();
+	
+	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER)
 	protected Set<Vehicle> vehicles = new HashSet<Vehicle>();
 	
-	@ElementCollection(fetch=FetchType.LAZY)
+	@ElementCollection(fetch=FetchType.EAGER)
 	protected Set<String> vins = new HashSet<String>();
 	
 	//*************** Matching
 	@Enumerated(EnumType.STRING)
-	@ElementCollection(fetch=FetchType.LAZY)
+	@ElementCollection(fetch=FetchType.EAGER)
 	protected Set<GeneralMatch> generalMatches = new HashSet<GeneralMatch>();
 	
 	@Enumerated(EnumType.STRING)
-	@ElementCollection(fetch=FetchType.LAZY)
+	@ElementCollection(fetch=FetchType.EAGER)
 	protected Set<LinkTextMatch> linkTextMatches = new HashSet<LinkTextMatch>();
 	
 	@Enumerated(EnumType.STRING)
-	@ElementCollection(fetch=FetchType.LAZY)
+	@ElementCollection(fetch=FetchType.EAGER)
 	protected Set<TestMatch> testMatches = new HashSet<TestMatch>();
 	
 	@Enumerated(EnumType.STRING)
-	@ElementCollection(fetch=FetchType.LAZY)
+	@ElementCollection(fetch=FetchType.EAGER)
 	protected Set<WPAttribution> wpAttributions = new HashSet<WPAttribution>();
 	
-//	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, orphanRemoval=true)
+//	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER, orphanRemoval=true)
 //	private Set<InventoryNumber> inventoryNumbers = new HashSet<InventoryNumber>();
 	
 	
 
 	
-//	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, orphanRemoval=true)
+//	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER, orphanRemoval=true)
 //	protected Set<ExtractedUrl> extractedUrls = new HashSet<ExtractedUrl>();
 //	
-//	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, orphanRemoval=true)
+//	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER, orphanRemoval=true)
 //	protected Set<ExtractedString> extractedStrings = new HashSet<ExtractedString>();
 //	
 //	@Column(nullable = true, columnDefinition="varchar(4000)")
-//	@ElementCollection(fetch=FetchType.LAZY)
+//	@ElementCollection(fetch=FetchType.EAGER)
 //	private Set<String> allLinks = new HashSet<String>();
 //	
 //	@Column(nullable = true, columnDefinition="varchar(4000)")
-//	@ElementCollection(fetch=FetchType.LAZY)
+//	@ElementCollection(fetch=FetchType.EAGER)
 //	private Set<String> intrasiteLinks = new HashSet<String>();
 	
 	
@@ -137,6 +152,19 @@ public class SiteCrawlAnalysis {
 	protected int totalImages = 0;
 	protected int totalAltImages = 0;
 	
+	//************************ Inventory  
+	
+	protected int usedRootInventoryCount = 0;
+	protected int newRootInventoryCount = 0;
+	protected int combinedRootInventoryCount = 0;
+	protected int highestInventoryCount = 0;
+	protected int numVehicles = 0;
+	protected int numVins = 0;
+	protected double highestPrice = 0;
+	protected double averageHighestPrice = 0;
+	protected double averagePrice = 0;
+	protected double numPrices = 0;
+	
 	
 	//***************  Scores
 	protected int urlUniqueScore = 0;
@@ -156,11 +184,11 @@ public class SiteCrawlAnalysis {
 	protected int metaDescriptionLengthScore = 0;
 	protected int metaDescriptionContentScore = 0;
 	
-	@ElementCollection(fetch=FetchType.LAZY)
+	@ElementCollection(fetch=FetchType.EAGER)
 	@MapKeyEnumerated(EnumType.STRING)
 	@Fetch(FetchMode.SELECT)
 	protected Map<OEM, Integer> oemCounts = new HashMap<OEM, Integer>();
-	@ElementCollection(fetch=FetchType.LAZY)
+	@ElementCollection(fetch=FetchType.EAGER)
 	@MapKeyEnumerated(EnumType.STRING)
 	@Fetch(FetchMode.SELECT)
 	protected Map<OEM, Integer> oemMetaCounts = new HashMap<OEM, Integer>();
@@ -198,6 +226,10 @@ public class SiteCrawlAnalysis {
 
 	public void setPageAnalyses(Set<PageCrawlAnalysis> pageAnalyses) {
 		this.pageAnalyses = pageAnalyses;
+	}
+	
+	public boolean removePageAnalysis(PageCrawlAnalysis pageAnalysis) {
+		return this.pageAnalyses.remove(pageAnalysis);
 	}
 
 	public Set<GeneralMatch> getGeneralMatches() {
@@ -574,5 +606,150 @@ public class SiteCrawlAnalysis {
 	public void addVins(Set<String> vins) {
 		this.vins.addAll(vins);
 	}
+
+	public int getNumGoodCrawls() {
+		return numGoodCrawls;
+	}
+
+	public void setNumGoodCrawls(int numGoodCrawls) {
+		this.numGoodCrawls = numGoodCrawls;
+	}
+
+	public int getNumGoodPercentage() {
+		return numGoodPercentage;
+	}
+
+	public void setNumGoodPercentage(int numGoodPercentage) {
+		this.numGoodPercentage = numGoodPercentage;
+	}
+
+	public int getNumCrawls() {
+		return numCrawls;
+	}
+
+	public void setNumCrawls(int numCrawls) {
+		this.numCrawls = numCrawls;
+	}
+
+	public int getUsedRootInventoryCount() {
+		return usedRootInventoryCount;
+	}
+
+	public void setUsedRootInventoryCount(int usedRootInventoryCount) {
+		this.usedRootInventoryCount = usedRootInventoryCount;
+	}
+
+	public int getNewRootInventoryCount() {
+		return newRootInventoryCount;
+	}
+
+	public void setNewRootInventoryCount(int newRootInventoryCount) {
+		this.newRootInventoryCount = newRootInventoryCount;
+	}
+
+	public int getCombinedRootInventoryCount() {
+		return combinedRootInventoryCount;
+	}
+
+	public void setCombinedRootInventoryCount(int combinedRootInventoryCount) {
+		this.combinedRootInventoryCount = combinedRootInventoryCount;
+	}
+
+	public int getHighestInventoryCount() {
+		return highestInventoryCount;
+	}
+
+	public void setHighestInventoryCount(int highestInventoryCount) {
+		this.highestInventoryCount = highestInventoryCount;
+	}
+
+	public int getNumVins() {
+		return numVins;
+	}
+
+	public void setNumVins(int numVins) {
+		this.numVins = numVins;
+	}
+
+	public int getNumVehicles() {
+		return numVehicles;
+	}
+
+	public void setNumVehicles(int numVehicles) {
+		this.numVehicles = numVehicles;
+	}
+
+	public String getInvTypes() {
+		return invTypes;
+	}
+
+	public void setInvTypes(String invTypes) {
+		this.invTypes = invTypes;
+	}
+
+	public double getHighestPrice() {
+		return highestPrice;
+	}
+
+	public void setHighestPrice(double highestPrice) {
+		this.highestPrice = highestPrice;
+	}
+
+	public double getAverageHighestPrice() {
+		return averageHighestPrice;
+	}
+
+	public void setAverageHighestPrice(double averageHighestPrice) {
+		this.averageHighestPrice = averageHighestPrice;
+	}
+
+	public double getAveragePrice() {
+		return averagePrice;
+	}
+
+	public void setAveragePrice(double averagePrice) {
+		this.averagePrice = averagePrice;
+	}
+
+	public double getNumPrices() {
+		return numPrices;
+	}
+
+	public void setNumPrices(double numPrices) {
+		this.numPrices = numPrices;
+	}
+
+	public Set<String> getCities() {
+		return cities;
+	}
+	
+	
+
+	public WebProvider getPrimaryWebProvider() {
+		return primaryWebProvider;
+	}
+
+	public void setPrimaryWebProvider(WebProvider primaryWebProvider) {
+		this.primaryWebProvider = primaryWebProvider;
+	}
+
+	public void setCities(Set<String> cities) {
+		this.cities.clear();
+		this.cities.addAll(cities);
+	}
+	
+	public boolean addCities(Collection<String> cities) {
+		return this.cities.addAll(cities);
+	}
+
+	public Boolean getOemMandated() {
+		return oemMandated;
+	}
+
+	public void setOemMandated(Boolean oemMandated) {
+		this.oemMandated = oemMandated;
+	}
+	
+	
 	
 }

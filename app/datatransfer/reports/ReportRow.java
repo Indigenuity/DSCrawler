@@ -2,6 +2,7 @@ package datatransfer.reports;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -40,8 +41,14 @@ public class ReportRow {
 		return cells.get(key);
 	}
 	
-	public String putCell(String key, String value) {
-		return cells.put(key, DSFormatter.truncate(value, 4000));
+	public String putCell(String key, Object value) {
+		return cells.put(key, DSFormatter.truncate(value + "", 4000));
+	}
+	
+	public void putCells(Map<String, ?> cells){
+		for(Entry<String, ?> entry : cells.entrySet()){
+			putCell(entry.getKey(), entry.getValue());
+		}
 	}
 
 }

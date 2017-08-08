@@ -17,21 +17,23 @@ import org.apache.http.impl.client.CloseableHttpClient;
 
 import crawling.discovery.entities.Resource;
 import crawling.discovery.entities.ResourceId;
+import crawling.discovery.execution.CrawlContext;
 import crawling.discovery.execution.ResourceContext;
 import crawling.discovery.local.PageCrawlResource;
 import crawling.discovery.planning.PreResource;
-import crawling.discovery.planning.ResourceFetchTool;
+import crawling.discovery.planning.ResourceTool;
+import crawling.discovery.planning.FetchTool;
 import persistence.PageCrawl;
 import play.db.jpa.JPA;
 import utilities.DSFormatter;
 import utilities.HttpUtils;
 
-public class HttpToFileTool implements ResourceFetchTool{
+public class HttpToFileTool implements ResourceTool{
 	
 	protected static int MAX_FILENAME_LENGTH = 259;		//For windows, it is 259 + a null character. Only 256 if you don't count drive names.
 
 	@Override
-	public Object fetchValue(Resource resource, ResourceContext context) throws Exception {
+	public Object fetchValue(Resource resource, CrawlContext context) throws Exception {
 //		System.out.println("fetching from source in HttpToFileTool: " + resource.getSource());
 		
 		URI currentUri = (URI)resource.getSource();
@@ -40,7 +42,6 @@ public class HttpToFileTool implements ResourceFetchTool{
 		//TODO better handle and log errors of httpClient not being initialized
 		CloseableHttpClient httpClient = (CloseableHttpClient) context.get("httpClient");
 		HttpResponseFile responseFile = fetchResponse(currentUri, storageFile, httpClient);
-		
 		
 		return responseFile;
 	}
@@ -67,13 +68,13 @@ public class HttpToFileTool implements ResourceFetchTool{
 	}
 	
 	@Override
-	public Resource generateResource(Object source, Resource parent, ResourceId resourceId, ResourceContext context) throws Exception{
-		return new Resource(source, parent, resourceId, context.getPlanId());
+	public Resource generateResource(Object source, Resource parent, ResourceId resourceId, CrawlContext context) throws Exception{
+		return new Resource(source, parent, resourceId);
 	}
 	
 	@Override
-	public Resource generateResource(PreResource preResource, Resource parent, ResourceId resourceId , ResourceContext context) throws Exception{
-		return new Resource(preResource, parent, resourceId, context.getPlanId());
+	public Resource generateResource(PreResource preResource, Resource parent, ResourceId resourceId , CrawlContext context) throws Exception{
+		return new Resource(preResource, parent, resourceId);
 	}
 	
 	protected void setRedirectUri(URI currentUri, HttpResponseFile responseFile, CloseableHttpResponse response){
@@ -92,8 +93,8 @@ public class HttpToFileTool implements ResourceFetchTool{
 		}
 	}
 	
-	protected File findStorageFile(ResourceId resourceId, URI uri, ResourceContext context) throws IOException {
-		File crawlStorageFolder = (File) context.getCrawlContext().get("crawlStorageFolder");
+	protected File findStorageFile(ResourceId resourceId, URI uri, CrawlContext context) throws IOException {
+		File crawlStorageFolder = (File) context.get("crawlStorageFolder");
 		String resourceIdString = resourceId.toString();
 		if(crawlStorageFolder.getAbsolutePath().length() + resourceIdString.length() > MAX_FILENAME_LENGTH){		//Leave enough room for at least the resourceId as filename
 			throw new IOException("Cannot generate file when storage folder name is too long : " + crawlStorageFolder.getAbsolutePath());

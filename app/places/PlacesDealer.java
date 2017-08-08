@@ -100,6 +100,8 @@ public class PlacesDealer implements SiteOwner {
 	
 	private String salesforceMatchString;
 	
+	private Boolean trivialDifference = false;
+	
 	
 	public void setId(long id) {
 		this.placesDealerId = id;
@@ -405,6 +407,14 @@ public class PlacesDealer implements SiteOwner {
 	}
 	public void setRecordType(RecordType recordType) {
 		this.recordType = recordType;
+	}
+	@Override
+	public Boolean isTrivialDifference() {
+		return this.trivialDifference;
+	}
+	@Override
+	public void setTrivialDifference(boolean trivialDifference) {
+		this.trivialDifference = trivialDifference;
 	}
 	
 }

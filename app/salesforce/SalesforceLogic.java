@@ -28,7 +28,7 @@ import salesforce.persistence.DealershipType;
 import salesforce.persistence.SalesforceAccount;
 import salesforce.persistence.SalesforceAccountType;
 import salesforce.persistence.SalesforceCustomerType;
-import sites.SiteLogic;
+import sites.utilities.SiteLogic;
 import utilities.DSFormatter;
 
 public class SalesforceLogic {

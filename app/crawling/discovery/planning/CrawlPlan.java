@@ -16,11 +16,7 @@ import crawling.discovery.execution.EmptyCrawlTool;
 import crawling.discovery.execution.PlanId;
 import crawling.discovery.execution.ResourceContext;
 
-public class CrawlPlan extends ContextPlan{
-	
-	public final static int DEFAULT_MAX_DEPTH_OF_CRAWLING = Integer.MAX_VALUE;
-	public final static int DEFAULT_MAX_PAGES_TO_FETCH = Integer.MAX_VALUE;
-	
+public class CrawlPlan extends ContextWithResourcesPlan{
 	
 	protected CrawlTool crawlTool = new EmptyCrawlTool();
 	protected IdGenerator idGenerator = new BasicIdGenerator();
@@ -31,8 +27,6 @@ public class CrawlPlan extends ContextPlan{
 	
 	
 	public CrawlPlan(){
-		maxDepth = DEFAULT_MAX_DEPTH_OF_CRAWLING;
-		maxPages = DEFAULT_MAX_PAGES_TO_FETCH;
 	}
 	
 	public synchronized CrawlContext generateContext() throws Exception{
@@ -99,22 +93,6 @@ public class CrawlPlan extends ContextPlan{
 			}
 		}
 		return roots;
-	}
-
-	public int getMaxDepth() {
-		return maxDepth;
-	}
-
-	public void setMaxDepth(int maxDepth) {
-		this.maxDepth = maxDepth;
-	}
-
-	public int getMaxPages() {
-		return maxPages;
-	}
-
-	public void setMaxPages(int maxPages) {
-		this.maxPages = maxPages;
 	}
 
 	public Set<ResourcePlan> getResourcePlans() {

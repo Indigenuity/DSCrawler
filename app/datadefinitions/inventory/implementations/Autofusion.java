@@ -18,73 +18,86 @@ public class Autofusion extends InventoryTool {
 	
 	// example https://www.sterlingmccalltoyota.com/search/New+Toyota+tm?page=229
 	
-	public final static Pattern PAGE_NUM_REGEX = Pattern.compile("page=([0-9]+)");
+	
 
-	@Override
-	protected void declareValues() {
-		newPathString = "/search/New+t";
-		usedPathString = "/search/Used+t";
 //		paginationLinkString = ".*/VehicleSearchResults\\?limit=[0-9]+&offset=([0-9]+)";
-		countRegexString = "Viewing matches [0-9]+ - [0-9]+ of ([0-9]+)";
 //		nextPageSelector = "a[data-action=next]";
-		
-	}
-
+	
+	protected static final String NEW_PATH = "/search/New+t";
+	protected static final String USED_PATH = "/search/Used+t";
+	
+	
+	protected static final Pattern COUNT_PATTERN = Pattern.compile("Viewing matches [0-9]+ - [0-9]+ of ([0-9]+)");
+	protected static final String NEXT_PAGE_SELECTOR = "a[data-action=next]";
+	
+	public final static Pattern PAGE_NUM_PATTERN = Pattern.compile("page=([0-9]+)");
+	
 	@Override
-	public boolean isNewPath(URI uri) {
+	public boolean isNewPath(URI uri){
+		return pathAndQueryContains(uri, NEW_PATH);
+	}
+	@Override
+	public boolean isNewRoot(URI uri){
+		return pathAndQueryEquals(uri, NEW_PATH);
+	}
+	@Override
+	public boolean isUsedPath(URI uri){
+		return pathAndQueryContains(uri, USED_PATH); 
+	}
+	@Override
+	public boolean isUsedRoot(URI uri){
+		return pathAndQueryEquals(uri, USED_PATH);
+	}
+	@Override
+	public boolean isGeneralPath(URI uri) {
+		return false;
+	}
+	@Override
+	public boolean isGeneralRoot(URI uri) {
+		return false;
+	}
+	
+	@Override
+	public boolean isNewPath(Document doc, URI uri) {
 		// TODO Auto-generated method stub
-		return super.isNewPath(uri);
+		return false;
 	}
 
 	@Override
-	public boolean isUsedPath(URI uri) {
+	public boolean isNewRoot(Document doc, URI uri) {
 		// TODO Auto-generated method stub
-		return super.isUsedPath(uri);
+		return false;
 	}
 
 	@Override
-	public Set<Vehicle> getVehicles(Document doc) {
-		Set<Vehicle> vehicles = new HashSet<Vehicle>();
-		Elements listings = doc.select("div.af-vehicle-result");
-		for(Element listing : listings){
-			try{
-				Vehicle vehicle = new Vehicle();
-				Element vinDd = listing.select("meta[itemprop=vehicleIdentificationNumber]").first();
-				vehicle.setVin(vinDd.attr("content"));
-				try{
-					Element valueSpan = listing.select("td.af-price-value").first();
-					vehicle.setMsrp(moneyString(valueSpan.text()));
-				} catch(Exception e){
-					System.out.println("Error getting value for vehicle : " + vehicle.getVin());
-				}
-				try{
-					Element offeredSpan = listing.select("td.af-final-price-value").first();
-					vehicle.setOfferedPrice(moneyString(offeredSpan.text()));
-				} catch(Exception e){
-					System.out.println("Error getting price for vehicle : " + vehicle.getVin());
-				}
-				try{
-					Element link = listing.select("a.af-clickable-div-a").first();
-					vehicle.setUrl(link.absUrl("href"));
-				} catch(Exception e){
-					System.out.println("Error getting url for vehicle : " + vehicle.getVin());
-				}
-				
-				try{
-					Element odomMeta = listing.select("meta[itemprop=mileageFromOdometer]").first();
-					vehicle.setMileage(Double.valueOf(odomMeta.attr("content")));
-				} catch(Exception e){
-					System.out.println("Error getting mileage for vehicle : " + vehicle.getVin());
-				}
-				
-				vehicles.add(vehicle);
-			} catch(Exception e){
-				continue;
-			}
-		}
-		return vehicles;
+	public boolean isUsedPath(Document doc, URI uri) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
+	@Override
+	public boolean isUsedRoot(Document doc, URI uri) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isGeneralPath(Document doc, URI uri) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isGeneralRoot(Document doc, URI uri) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	@Override
+	public int getCount(Document doc) {
+		return findNumberMatch(doc.toString(), COUNT_PATTERN, 1);
+	}
+	
 	//Checks for presence of next button, then generates next page link.  Links on site are all javascript-generated
 	@Override
 	public URI getNextPageLink(Document doc, URI currentUri) {
@@ -93,7 +106,7 @@ public class Autofusion extends InventoryTool {
 			return null;
 		}
 		String uriString = currentUri.toString();
-		Matcher matcher = PAGE_NUM_REGEX.matcher(uriString);
+		Matcher matcher = PAGE_NUM_PATTERN.matcher(uriString);
 		if(matcher.find()){
 			int pageNum = Integer.valueOf(matcher.group(1));
 			pageNum++;
@@ -108,7 +121,52 @@ public class Autofusion extends InventoryTool {
 		}
 	}
 	
+	@Override
+	public Set<URI> getPaginationLinks(Document doc, URI currentUri) {
+		throw new UnsupportedOperationException();
+	}
 	
-	
+	@Override
+	public Set<Vehicle> getVehicles(Document doc) {
+		Set<Vehicle> vehicles = new HashSet<Vehicle>();
+		Elements listings = doc.select("div.af-vehicle-result");
+		for(Element listing : listings){
+			try{
+				Vehicle vehicle = new Vehicle();
+				Element vinDd = listing.select("meta[itemprop=vehicleIdentificationNumber]").first();
+				vehicle.setVin(vinDd.attr("content"));
+				try{
+					Element valueSpan = listing.select("td.af-price-value").first();
+					vehicle.setMsrp(doubleString(valueSpan.text()));
+				} catch(Exception e){
+//					System.out.println("Error getting value for vehicle : " + vehicle.getVin());
+				}
+				try{
+					Element offeredSpan = listing.select("td.af-final-price-value").first();
+					vehicle.setOfferedPrice(doubleString(offeredSpan.text()));
+				} catch(Exception e){
+//					System.out.println("Error getting price for vehicle : " + vehicle.getVin());
+				}
+				try{
+					Element link = listing.select("a.af-clickable-div-a").first();
+					vehicle.setUrl(link.absUrl("href"));
+				} catch(Exception e){
+//					System.out.println("Error getting url for vehicle : " + vehicle.getVin());
+				}
+				
+				try{
+					Element odomMeta = listing.select("meta[itemprop=mileageFromOdometer]").first();
+					vehicle.setMileage(Double.valueOf(odomMeta.attr("content")));
+				} catch(Exception e){
+//					System.out.println("Error getting mileage for vehicle : " + vehicle.getVin());
+				}
+				
+				vehicles.add(vehicle);
+			} catch(Exception e){
+				continue;
+			}
+		}
+		return vehicles;
+	}
 
 }

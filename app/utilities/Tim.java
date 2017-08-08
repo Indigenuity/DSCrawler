@@ -16,9 +16,13 @@ public class Tim {
 	}
 	
 	public static void intermediate() {
+		intermediate("");
+	}
+	
+	public static void intermediate(String message) {
 		long now = System.currentTimeMillis();
 		long difference = now - last;
-		System.out.println("intermediate time : " + difference);
+		System.out.println("intermediate time : " + difference + " (" + message + ")");
 		times.add(difference);
 		last = now;
 	}

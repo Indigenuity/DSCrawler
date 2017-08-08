@@ -130,7 +130,7 @@ public enum GeneralMatch implements StringMatch{
      AKAMAI									("Akamai", "akamai.com", ""),
      YOAST									("Yoast", "yoast", "WordPress SEO plugin"),	
      LOT_LINX								("Lot Linx", "lotlinx.com", ""),
-     
+     QUIK_VIDEO								("Quik Video", "qkvideo", "Tool for sending videos to service clients"),
      MOTOFUZE								("Moto Fuze", "fzlnk.com", ""),	
      CLICKY									("Clicky", "getclicky.com", ""),	//Analytics tool
      GUBA_GOO_TRACKING						("Guba Goo Tracking", "gubagootracking.com", ""),

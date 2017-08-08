@@ -1,8 +1,12 @@
 package controllers;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.TemporalType;
@@ -11,12 +15,17 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
+import analysis.AnalysisControl;
+import analysis.AnalysisDao;
 import analysis.PageCrawlAnalysis;
 import analysis.SiteCrawlAnalysis;
 import async.async.Asyncleton;
 import async.functionalwork.JpaFunctionalBuilder;
 import dao.GeneralDAO;
 import dao.SitesDAO;
+import datatransfer.CSVGenerator;
+import datatransfer.ReportGenerator;
+import datatransfer.reports.Report;
 import global.Global;
 import persistence.PageCrawl;
 import persistence.Site;
@@ -31,7 +40,11 @@ import play.db.jpa.Transactional;
 import play.mvc.Controller;
 import play.mvc.Result;
 import reporting.StatsBuilder;
-import sites.SiteLogic;
+import sites.crawling.SiteCrawlLogic;
+import sites.persistence.SiteSet;
+import sites.utilities.SiteLogic;
+import sites.utilities.SiteSetDao;
+import sites.utilities.SiteSetLogic;
 
 public class SitesController extends Controller {
 	
@@ -59,6 +72,13 @@ public class SitesController extends Controller {
 	@Transactional
 	public static Result recentSiteCrawls(){
 		String queryString = "from SiteCrawl sc order by sc.crawlDate desc";
+		List<SiteCrawl> siteCrawls = JPA.em().createQuery(queryString, SiteCrawl.class).setMaxResults(10).getResultList();
+		return ok(views.html.sites.snippets.recentSiteCrawls.render(siteCrawls));
+	}
+	
+	@Transactional
+	public static Result siteCrawlList(Long siteId){
+		String queryString = "select sc from Site s join s.crawls sc";
 		List<SiteCrawl> siteCrawls = JPA.em().createQuery(queryString, SiteCrawl.class).setMaxResults(10).getResultList();
 		return ok(views.html.sites.snippets.recentSiteCrawls.render(siteCrawls));
 	}
@@ -94,7 +114,9 @@ public class SitesController extends Controller {
 	public static Result reAnalyzeSites(){
 		List<Long> siteIds = GeneralDAO.getAllIds(Site.class);
 		Asyncleton.getInstance().runConsumerMaster(50, 
-				JpaFunctionalBuilder.wrapConsumerInFind((site) -> {site.setHomepage(site.getHomepage());}, Site.class), 
+				JpaFunctionalBuilder.wrapConsumerInFind((site) -> {
+					SiteLogic.analyzeUrlStructure(site);
+				}, Site.class), 
 				siteIds.stream(), 
 				true);
 		return ok("Queued " + siteIds.size() + " for re-analysis");
@@ -130,9 +152,9 @@ public class SitesController extends Controller {
 		} else if(action.equals("Approve Shared Site")) {
 //			SiteLogic.acceptUrlCheck(site, true);
 		} else if(action.equals("Mark Defunct")){
-			SiteLogic.markDefunct(site);
+//			SiteLogic.markDefunct(site);
 		} else if(action.equals("Other Issue")){
-			SiteLogic.markError(site);
+//			SiteLogic.markError(site);
 		}  else if(action.equals("Disapprove")){
 //			SiteLogic.disapprove(site);
 		} else if(action.equals("Redirect and Disapprove")){
@@ -146,9 +168,9 @@ public class SitesController extends Controller {
 		} else if(action.equals("Attempt Path Paring")){
 			SiteLogic.attemptParePath(site);
 		} else if(action.equals("Approve Path")){
-			SiteLogic.approvePath(site);
+//			SiteLogic.approvePath(site);
 		} else if(action.equals("Unapprove Site")){
-			SiteLogic.unapproveSite(site);
+//			SiteLogic.unapproveSite(site);
 		} else {
 			System.out.println("oops.  Action not understood");
 		}
@@ -187,51 +209,9 @@ public class SitesController extends Controller {
 		return ok(views.html.sites.reviewSites.render(sites));
 	}
 	
-	@Transactional
-	public static Result checkUnvalidated() {
-		System.out.println("Validating sites");
-		List<Site> sites = GeneralDAO.getList(Site.class, "siteStatus", SiteStatus.UNVALIDATED);
-		SiteLogic.validateSites(sites);
-    	return ok("Queued URL checks for " + sites.size() + " sites");
-	}
-	
-	@Transactional
-	public static Result validateAll() {
-		Multimap<String, Object> parameters = HashMultimap.create();
-		parameters.put("siteStatus", SiteStatus.UNVALIDATED);
-		parameters.put("siteStatus", SiteStatus.NEEDS_REVIEW);
-		parameters.put("siteStatus", SiteStatus.DEFUNCT);
-		parameters.put("siteStatus", SiteStatus.APPROVED);
-		parameters.put("siteStatus", SiteStatus.SUSPECTED_DUPLICATE);
-		parameters.put("siteStatus", SiteStatus.OTHER_ISSUE);
-		List<Long> siteIds = GeneralDAO.getKeyListOr(Site.class, "siteId", parameters);
-		SiteLogic.validateSitesById(siteIds);
-    	return ok("Queued URL checks for " + siteIds.size() + " siteIds");
-	}
-	
-	@Transactional
-	public static Result validationSubmit() {
-		DynamicForm data = Form.form().bindFromRequest();
-		String[] siteStatusStrings =  request().body().asFormUrlEncoded().get("siteStatuses[]");
+//		DynamicForm data = Form.form().bindFromRequest();
+//		String[] siteStatusStrings =  request().body().asFormUrlEncoded().get("siteStatuses[]");
 		
-		Multimap<String, Object> parameters = HashMultimap.create();
-		for(String siteStatusString : siteStatusStrings){
-			parameters.put("siteStatus", SiteStatus.valueOf(siteStatusString));
-		}
-		List<Long> siteIds = GeneralDAO.getKeyListOr(Site.class, "siteId", parameters);
-		SiteLogic.validateSitesById(siteIds);
-		return ok("Queued URL checks for " + siteIds.size() + " sites");
-	}
-	
-	@Transactional
-	public static Result validateUrls() {
-		List<Long> siteIds = GeneralDAO.getAllIds(Site.class);
-		Asyncleton.getInstance().runConsumerMaster(50, 
-				JpaFunctionalBuilder.wrapConsumerInFind(SiteLogic::analyzeUrlStructure, Site.class), 
-				siteIds.stream(), 
-				true);
-		return ok("Queued URL validation for " + siteIds.size() + " sites");
-	}
 	
 	@Transactional
 	public static Result logicalRedirects() {
@@ -264,14 +244,164 @@ public class SitesController extends Controller {
 		return ok("Queued URL validation for " + siteIds.size() + " sites");
 	}
 	
+	/************************************ Site Sets *****************************************************/
+	
 	@Transactional
-	public static Result checkUrls() {
-		List<Long> siteIds = SitesDAO.staleUrlChecks();
-//		List<Long> siteIds = GeneralDAO.getAllIds(Site.class);
+	public static Result siteSetList(){
+		List<SiteSet> siteSets = GeneralDAO.getAll(SiteSet.class);
+		return ok(views.html.sites.sitesets.siteSetList.render(siteSets));
+	}
+	
+	@Transactional
+	public static Result viewSiteSet(long siteSetId){
+		SiteSet siteSet =JPA.em().find(SiteSet.class, siteSetId); 
+		return ok(views.html.sites.sitesets.siteSet.render(siteSet));
+	}
+	
+	@Transactional
+	public static Result siteSetDashboardStats(long siteSetId) {
+		return ok(views.html.viewstats.viewStats.render(SiteSetLogic.getDashboard(siteSetId)));
+	}
+	
+	
+	@Transactional
+	public static Result ensureFreshCrawl(long siteSetId) {
+		SiteSet siteSet = JPA.em().find(SiteSet.class, siteSetId);
+		Set<Long> siteIds = new HashSet<Long>();
+		siteIds.addAll(SiteSetDao.sitesWithStaleCrawls(siteSet.getSiteSetId()));
 		Asyncleton.getInstance().runConsumerMaster(50, 
-				JpaFunctionalBuilder.wrapConsumerInFind(SiteLogic::performHttpCheck, Site.class), 
+				JpaFunctionalBuilder.wrapConsumerInFind((site) ->{
+					SiteCrawlLogic.ensureCrawl(site, true, true, true);
+				}, Site.class), 
+				siteIds.stream().limit(10000), 
+				true);
+		return ok("Queued up " + siteIds.size() + " sites for ensuring a fresh crawl");
+	}
+	
+	@Transactional
+	public static Result ensureFreshInventoryCrawl(long siteSetId) {
+		SiteSet siteSet = JPA.em().find(SiteSet.class, siteSetId);
+		Set<Long> siteIds = new HashSet<Long>();
+		siteIds.addAll(SiteSetDao.sitesWithStaleCrawls(siteSet.getSiteSetId()));
+		siteIds.addAll(SiteSetDao.sitesWithBadInventoryCrawls(siteSet.getSiteSetId()));
+		Asyncleton.getInstance().runConsumerMaster(50, 
+				JpaFunctionalBuilder.wrapConsumerInFind((site) ->{
+					SiteCrawlLogic.ensureCrawl(site, true, true, true);
+				}, Site.class), 
+				siteIds.stream().limit(5000), 
+				true);
+		return ok("Queued up " + siteIds.size() + " sites for ensuring a fresh inventory crawl");
+	}
+	
+	@Transactional
+	public static Result ensureNoErrorCrawl(long siteSetId) {
+		SiteSet siteSet = JPA.em().find(SiteSet.class, siteSetId);
+		Set<Long> siteIds = new HashSet<Long>();
+		siteIds.addAll(SiteSetDao.sitesWithStaleCrawls(siteSet.getSiteSetId()));
+		siteIds.addAll(SiteSetDao.sitesWithErrorCrawls(siteSet.getSiteSetId()));
+		siteIds.addAll(SiteSetDao.sitesWithSmallCrawls(siteSet.getSiteSetId()));
+		Asyncleton.getInstance().runConsumerMaster(50, 
+				JpaFunctionalBuilder.wrapConsumerInFind((site) ->{
+					SiteCrawlLogic.ensureCrawl(site, true, true, true);
+				}, Site.class), 
+				siteIds.stream().limit(5000), 
+				true);
+		return ok("Queued up " + siteIds.size() + " sites for ensuring a no error crawl");
+	}
+	
+	@Transactional
+	public static Result ensureGoodCrawl(long siteSetId) {
+		SiteSet siteSet = JPA.em().find(SiteSet.class, siteSetId);
+		Set<Long> siteIds = new HashSet<Long>();
+		siteIds.addAll(SiteSetDao.sitesWithStaleCrawls(siteSet.getSiteSetId()));
+		siteIds.addAll(SiteSetDao.sitesWithErrorCrawls(siteSet.getSiteSetId()));
+		siteIds.addAll(SiteSetDao.sitesWithSmallCrawls(siteSet.getSiteSetId()));
+		siteIds.addAll(SiteSetDao.sitesWithBadInventoryCrawls(siteSet.getSiteSetId()));
+		Asyncleton.getInstance().runConsumerMaster(50, 
+				JpaFunctionalBuilder.wrapConsumerInFind((site) ->{
+					SiteCrawlLogic.ensureCrawl(site, true, true, true);
+				}, Site.class), 
+				siteIds.stream().limit(5000), 
+				true);
+		return ok("Queued up " + siteIds.size() + " sites for ensuring a good crawl");
+	}
+	
+	@Transactional
+	public static Result ensureFreshAnalysis(long siteSetId) {
+		SiteSet siteSet = JPA.em().find(SiteSet.class, siteSetId);
+		Set<Long> siteIds = new HashSet<Long>();
+		siteIds.addAll(SiteSetDao.sitesWithFreshCrawls(siteSet.getSiteSetId()));
+		Asyncleton.getInstance().runConsumerMaster(5, 
+				JpaFunctionalBuilder.wrapConsumerInFind((site) ->{
+					SiteCrawl siteCrawl = site.getLastCrawl();
+					if(!AnalysisDao.hasFreshAnalysis(siteCrawl.getSiteCrawlId())){
+						AnalysisControl.runFullAnalysis(siteCrawl);	
+					}
+				}, Site.class), 
+				siteIds.stream().limit(50), 
+				true);
+		return ok("Queued up " + siteIds.size() + " sites for ensuring a fresh analysis");
+	}
+	
+	@Transactional
+	public static Result runAnalysis(long siteSetId) {
+		SiteSet siteSet = JPA.em().find(SiteSet.class, siteSetId);
+		Set<Long> siteIds = new HashSet<Long>();
+		siteIds.addAll(SiteSetDao.sitesWithFreshCrawls(siteSet.getSiteSetId()));
+		Asyncleton.getInstance().runConsumerMaster(5, 
+				JpaFunctionalBuilder.wrapConsumerInFind((site) ->{
+					SiteCrawl siteCrawl = site.getLastCrawl();
+					AnalysisControl.runFullAnalysis(siteCrawl);	
+				}, Site.class), 
 				siteIds.stream(), 
 				true);
-		return ok("Queued URL checking for " + siteIds.size() + " sites");
+		return ok("Queued up " + siteIds.size() + " sites for full analysis");
 	}
+	
+	@Transactional
+	public static Result ensureFreshInventoryAnalysis(long siteSetId) {
+		SiteSet siteSet = JPA.em().find(SiteSet.class, siteSetId);
+		Set<Long> siteIds = new HashSet<Long>();
+		siteIds.addAll(SiteSetDao.sitesWithFreshCrawls(siteSet.getSiteSetId()));
+		Asyncleton.getInstance().runConsumerMaster(5, 
+				JpaFunctionalBuilder.wrapConsumerInFind((site) ->{
+					SiteCrawl siteCrawl = site.getLastCrawl();
+					if(!AnalysisDao.hasFreshAnalysis(siteCrawl.getSiteCrawlId())){
+						AnalysisControl.runInventoryAnalysis(siteCrawl);	
+					}
+				}, Site.class), 
+				siteIds.stream().limit(1), 
+				true);
+		return ok("Queued up " + siteIds.size() + " sites for ensuring a fresh analysis");
+	}
+	
+	@Transactional
+	public static Result runInventoryAnalysis(long siteSetId) {
+		SiteSet siteSet = JPA.em().find(SiteSet.class, siteSetId);
+		Set<Long> siteIds = new HashSet<Long>();
+		siteIds.addAll(SiteSetDao.sitesWithFreshCrawls(siteSet.getSiteSetId()));
+		Asyncleton.getInstance().runConsumerMaster(5, 
+				JpaFunctionalBuilder.wrapConsumerInFind((site) ->{
+					SiteCrawl siteCrawl = site.getLastCrawl();
+					AnalysisControl.runInventoryAnalysis(siteCrawl);	
+				}, Site.class), 
+				siteIds.stream(), 
+				true);
+		return ok("Queued up " + siteIds.size() + " sites for ensuring a fresh analysis");
+	}
+	
+	@Transactional
+	public static Result generateDealerFireReport(long siteSetId) throws Exception {
+		Report report = ReportGenerator.generateDealerFireReport(siteSetId);
+		File csvReport = CSVGenerator.printReport(report);
+		return ok("DealerFire report generated for SiteSet " + siteSetId + " at file location " + csvReport.getAbsolutePath());
+	}
+	
+	
+	//refresh last crawl
+	//ensure has fresh crawl
+	//ensure has fresh inventory crawl
+	//ensure has inventory analysis
+	//ensure has full analysis
+	
 }

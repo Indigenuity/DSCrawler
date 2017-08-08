@@ -12,14 +12,26 @@
 		<a class="small-button" href="/sites/reviewNotStandardPaths">Review Not Standard Paths</a>
 		<a class="small-button" href="/sites/reviewNotStandardQueries">Review Not Standard Queries</a>
 		<a class="small-button" href="/sites/noInventoryCrawls">No Inventory Crawls</a>
-		<a class="in-page-link small-button" href="/sites/checkUnvalidated">Check Unvalidated</a>
-		<a class="in-page-link small-button" href="/sites/validateAll">Re-validate All</a>
-		<a class="in-page-link small-button" href="/sites/validateUrls">Validate URLs</a>
-		<a class="in-page-link small-button" href="/sites/checkUrls">Check URLs</a>
 		<a class="in-page-link small-button" href="/sites/logicalRedirects">Logical Redirects</a>
 		<a class="in-page-link small-button" href="/sites/httpRedirects">Http Redirects</a>
 		<a class="in-page-link small-button" href="/sites/reAnalyzeSites">Re-Analyze Sites</a>
 		
+		
+	</div>
+	
+	<div class="small-panel" id="recent-site-sets-panel"></div>
+	
+	
+	<div class="small-panel">
+		<form class="mini-link-form" data-link="/sites/analysis/siteCrawlAnalysis/">
+			<label for="siteCrawlAnalysisId">SiteCrawl Analysis Id</label>
+			<input name="siteCrawlAnalysisId" type="text" class="mini-link-append"/>
+			<button type="submit">View</button>
+		</form>
+		
+	</div>
+	
+	<div class="small-panel" id="recent-site-crawls-panel">
 		
 	</div>
 	
@@ -39,22 +51,10 @@
 		</form>
 	</div>
 	
-	<div class="small-panel">
-		<form class="mini-link-form" data-link="/sites/analysis/siteCrawlAnalysis/">
-			<label for="siteCrawlAnalysisId">SiteCrawl Analysis Id</label>
-			<input name="siteCrawlAnalysisId" type="text" class="mini-link-append"/>
-			<button type="submit">View</button>
-		</form>
-		
-	</div>
-	
-	<div class="small-panel" id="recent-site-crawls-panel">
-		
-	</div>
-	
 	<script>
 		$(document).ready(function(){
 			$("#recent-site-crawls-panel").load("/sites/recentSiteCrawls");
+			$("#recent-site-sets-panel").load("/sites/siteSets/siteSetList");
 		})
 	</script>
 }

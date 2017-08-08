@@ -38,7 +38,7 @@ public class ResourceReport {
 //			} 
 //		}
 		
-		this.numResourcesCrawled = context.getNumResourcesCrawled();
+		this.numResourcesCrawled = context.getNumResourcesFetched();
 //		this.rootResources.addAll(context.getRootResources());
 		this.resources.addAll(context.getResources());
 		this.planId = context.getPlanId();

@@ -21,8 +21,9 @@ import persistence.Site;
 import persistence.Site.SiteStatus;
 import play.db.jpa.JPA;
 import salesforce.persistence.SalesforceAccount;
-import sites.SiteLogic;
 import sites.UrlChecker;
+import sites.utilities.SiteLogic;
+import utilities.UrlUtils;
 
 public class SalesforceControl {
 	
@@ -84,7 +85,7 @@ public class SalesforceControl {
 			System.out.println("created site");
 			System.out.println("new site : " + newSite.getHomepage());
     		System.out.println("old Site : " + oldSite.getHomepage());
-			if(oldSite != null && UrlChecker.isGenericRedirect(newSite.getHomepage(), oldSite.getHomepage())){
+			if(oldSite != null && UrlUtils.isGenericRedirect(newSite.getHomepage(), oldSite.getHomepage())){
 				System.out.println("was generic redirect");
 				oldSite.setSiteStatus(SiteStatus.REDIRECTS);
     			oldSite.setForwardsTo(newSite);
@@ -121,49 +122,49 @@ public class SalesforceControl {
 	
 	
 	
-	public static void markSignificantDifferences() {
-		List<SalesforceAccount> accounts = JPA.em().createQuery("from SalesforceAccount sa", SalesforceAccount.class).getResultList();
-		System.out.println("Marking significant differences in " + accounts.size() + " accounts");
-		AtomicInteger count = new AtomicInteger();
-		accounts.stream().forEach( (account) -> {
-			if(account.getSite() == null){
-				return;
-			}
-			if(UrlChecker.isGenericRedirect(account.getSite().getHomepage(), account.getSalesforceWebsite())){
-				account.setSignificantDifference(true);
-			} else {
-				account.setSignificantDifference(false);
-			}
-			if(count.getAndIncrement() % 500 == 0){
-				System.out.println("Accounts Processed : " + count);
-			}
-		});
-	}
+//	public static void markSignificantDifferences() {
+//		List<SalesforceAccount> accounts = JPA.em().createQuery("from SalesforceAccount sa", SalesforceAccount.class).getResultList();
+//		System.out.println("Marking significant differences in " + accounts.size() + " accounts");
+//		AtomicInteger count = new AtomicInteger();
+//		accounts.stream().forEach( (account) -> {
+//			if(account.getSite() == null){
+//				return;
+//			}
+//			if(UrlUtils.isGenericRedirect(account.getSite().getHomepage(), account.getSalesforceWebsite())){
+//				account.setTrivialDifference(false);
+//			} else {
+//				account.setTrivialDifference(true);
+//			}
+//			if(count.getAndIncrement() % 500 == 0){
+//				System.out.println("Accounts Processed : " + count);
+//			}
+//		});
+//	}
 
-	public static void printSignificantDifferenceReport() throws IOException {
-		List<SalesforceAccount> accounts = JPA.em()
-				.createQuery("from SalesforceAccount sa", SalesforceAccount.class)
-				.getResultList();
-		Map<String, ReportRow> reportRows = accounts.stream().map( (account) -> {
-			ReportRow reportRow = ReportFactory.fromObject(account);
-			if(account.getSite() != null){
-				reportRow.putCell("Crawler Website", account.getSite().getHomepage());
-				reportRow.putCell("Crawler Domain", account.getSite().getDomain());
-				reportRow.putCell("Crawler Site Status", account.getSite().getSiteStatus() + "");
-				reportRow.putCell("Crawler Site Id", account.getSite().getSiteId() + "");
-			}
-			reportRow.putCell("Status", getRecommendation(account));
-			reportRow.putCell("Account Type", account.getAccountType() + "");
-			return reportRow;
-		})
-		.collect(Collectors.toMap( (reportRow) -> reportRow.getCell("salesforceId"), (reportRow) -> reportRow));
-		
-		Report report = new Report();
-		report.setName("Salesforce Website Report");
-		report.setReportRows(reportRows);
-		
-		CSVGenerator.printReport(report);
-	}
+//	public static void printSignificantDifferenceReport() throws IOException {
+//		List<SalesforceAccount> accounts = JPA.em()
+//				.createQuery("from SalesforceAccount sa", SalesforceAccount.class)
+//				.getResultList();
+//		Map<String, ReportRow> reportRows = accounts.stream().map( (account) -> {
+//			ReportRow reportRow = ReportFactory.fromObject(account);
+//			if(account.getSite() != null){
+//				reportRow.putCell("Crawler Website", account.getSite().getHomepage());
+//				reportRow.putCell("Crawler Domain", account.getSite().getDomain());
+//				reportRow.putCell("Crawler Site Status", account.getSite().getSiteStatus() + "");
+//				reportRow.putCell("Crawler Site Id", account.getSite().getSiteId() + "");
+//			}
+//			reportRow.putCell("Status", getRecommendation(account));
+//			reportRow.putCell("Account Type", account.getAccountType() + "");
+//			return reportRow;
+//		})
+//		.collect(Collectors.toMap( (reportRow) -> reportRow.getCell("salesforceId"), (reportRow) -> reportRow));
+//		
+//		Report report = new Report();
+//		report.setName("Salesforce Website Report");
+//		report.setReportRows(reportRows);
+//		
+//		CSVGenerator.printReport(report);
+//	}
 	
 	public static String getRecommendation(SalesforceAccount account) {
 		Site site = account.getSite();
@@ -196,7 +197,7 @@ public class SalesforceControl {
 			if(site.getHomepage().equals(account.getSalesforceWebsite())){
 				return "No Change";
 			}
-			if(UrlChecker.isGenericRedirect(site.getHomepage(), account.getSalesforceWebsite())){
+			if(UrlUtils.isGenericRedirect(site.getHomepage(), account.getSalesforceWebsite())){
 				return "Accept Generic Redirect";
 			}
 			return "Accept Significant Change";

@@ -1,0 +1,9 @@
+@(siteSets : java.util.List[_root_.sites.persistence.SiteSet])
+<h3> Recent SiteSets</h3>
+<ul>
+@for(siteSet <- siteSets){
+	<li>
+		<a href="/sites/siteSets/viewSiteSet/@siteSet.getSiteSetId()">SiteSet @siteSet.getSiteSetId -- @siteSet.getDescription()</a> --
+	</li>
+}
+</ul>

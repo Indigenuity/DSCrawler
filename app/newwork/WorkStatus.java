@@ -1,5 +1,9 @@
 package newwork;
 
 public enum WorkStatus {
-	UNASSIGNED, ASSIGNED, STARTED, COMPLETE, PRECOMPLETED,  ABORTED, ERROR;
+	UNASSIGNED, ASSIGNED, STARTED, PRECOMPLETED, COMPLETE,  ABORTED, ERROR;
+	
+	public boolean isWorkPending(){
+		return this.ordinal() <= STARTED.ordinal();
+	}
 }

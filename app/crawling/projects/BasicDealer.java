@@ -85,6 +85,7 @@ public class BasicDealer implements SiteOwner {
 	private String custom6;
 	
 	private Boolean outdated = false;
+	private Boolean trivialDifference = false;
 	
 	
 	public String getName() {
@@ -484,7 +485,13 @@ public class BasicDealer implements SiteOwner {
 	public void addPossibleMatches(Collection<SalesforceAccount> possibleMatches) {
 		this.possibleMatches.addAll(possibleMatches);
 	}
-	
-	
+	@Override
+	public Boolean isTrivialDifference() {
+		return trivialDifference;
+	}
+	@Override
+	public void setTrivialDifference(boolean trivialDifference) {
+		this.trivialDifference = trivialDifference;
+	}
 	
 }

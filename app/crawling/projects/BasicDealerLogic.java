@@ -13,7 +13,7 @@ import dao.SalesforceDao;
 import places.PlacesDealer;
 import play.db.jpa.JPA;
 import salesforce.persistence.SalesforceAccount;
-import sites.SiteLogic;
+import sites.utilities.SiteLogic;
 
 public class BasicDealerLogic {
 	

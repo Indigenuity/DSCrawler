@@ -2,11 +2,14 @@ package crawling.discovery.local;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.lang3.StringUtils;
 
 import crawling.discovery.entities.FlushableResource;
 import crawling.discovery.entities.Resource;
@@ -14,6 +17,7 @@ import crawling.discovery.entities.ResourceId;
 import crawling.discovery.execution.CrawlContext;
 import crawling.discovery.execution.PlanId;
 import crawling.discovery.execution.ResourceWorkResult;
+import crawling.discovery.html.HttpResponseFile;
 import crawling.discovery.planning.CrawlTool;
 import crawling.discovery.results.CrawlReport;
 import crawling.discovery.results.ResourceReport;
@@ -22,7 +26,10 @@ import newwork.WorkStatus;
 import persistence.PageCrawl;
 import persistence.Site;
 import persistence.SiteCrawl;
+import play.Logger;
 import play.db.jpa.JPA;
+import sites.crawling.SiteCrawlLogic;
+import sites.utilities.PageCrawlLogic;
 import utilities.DSFormatter;
 
 public class SiteCrawlTool extends CrawlTool {
@@ -38,6 +45,7 @@ public class SiteCrawlTool extends CrawlTool {
 			} else {
 				siteCrawl = JPA.em().find(SiteCrawl.class, siteCrawlId);
 			}
+			siteCrawl.getSite().setLastCrawl(siteCrawl);
 			persistSettings(crawlContext, siteCrawl);
 			crawlContext.put("crawlStorageFolder", generateStorageFolder(siteCrawl));
 		});
@@ -45,8 +53,16 @@ public class SiteCrawlTool extends CrawlTool {
 
 	@Override
 	public void preCrawl(CrawlContext crawlContext) {
-		
-		
+		Object newRootPageCrawlId = crawlContext.get("newRootPageCrawlId");
+		Object usedRootPageCrawlId = crawlContext.get("usedRootPageCrawlId");
+		for(Resource resource : crawlContext.getResources()){
+			if(((PageCrawlResource)resource).getPageCrawlId().equals(newRootPageCrawlId)){
+				crawlContext.put("newRootResourceId", resource.getResourceId());
+			}
+			if(((PageCrawlResource)resource).getPageCrawlId().equals(usedRootPageCrawlId)){
+				crawlContext.put("usedRootResourceId", resource.getResourceId());
+			}
+		}
 	}
 	
 	protected SiteCrawl generateSiteCrawl(CrawlContext crawlContext){
@@ -56,13 +72,13 @@ public class SiteCrawlTool extends CrawlTool {
 		}
 		Site site = JPA.em().find(Site.class, siteId);
 		SiteCrawl siteCrawl = new SiteCrawl(site);
-		JPA.em().persist(siteCrawl);
+		siteCrawl = JPA.em().merge(siteCrawl);
 		return siteCrawl;
 	}
 	
 	protected void persistSettings(CrawlContext crawlContext, SiteCrawl siteCrawl){
 		siteCrawl.setMaxDepth(crawlContext.getMaxDepth());
-		siteCrawl.setMaxPages(crawlContext.getMaxPages());
+		siteCrawl.setMaxPages(crawlContext.getMaxFetches());
 //		siteCrawl.setStorageFolder(crawlContext.getContextObject("crawlStorageFolder").toString());
 	}
 	
@@ -105,12 +121,12 @@ public class SiteCrawlTool extends CrawlTool {
 				}
 			}
 			for(Resource resource : roots){
-				toPageCrawls(resource, null, siteCrawl);
+				toPageCrawls((PageCrawlResource)resource, null, siteCrawl);
 			}
 			
 			System.out.println("Finished SiteCrawl " + siteCrawl.getSiteCrawlId() + " : " + siteCrawl.getSeed() + " ...with " + siteCrawl.getPageCrawls().size() + " PageCrawls");
 //			System.out.println("after crawl pagecrawls : " + siteCrawl.getPageCrawls().size());
-			siteCrawl.setMaxPagesReached(crawlReport.isMaxPagesReached());
+			siteCrawl.setMaxPagesReached(crawlReport.isMaxResourcesFetched());
 			siteCrawl.setInventoryCrawlSuccess(true);		//Reset to default value, which is true
 			
 			for(ResourceReport resourceReport : crawlReport.getResourceReports().values()){
@@ -121,70 +137,116 @@ public class SiteCrawlTool extends CrawlTool {
 //					processRegularResults(results);
 				}
 			}
+			
+			siteCrawl.setCrawlDate(new Date());
+			SiteCrawlLogic.updateErrorStatus(siteCrawl);
 		});
 	}
 	
-	protected void toPageCrawls(Resource resource, PageCrawl parent, SiteCrawl siteCrawl){
-		DSResponseFile responseFile = (DSResponseFile) resource.getValue();
-		PageCrawl pageCrawl;
-		if(responseFile == null || responseFile.getPageCrawlId() == null){
-			pageCrawl = new PageCrawl();
-			pageCrawl = JPA.em().merge(pageCrawl);
-			siteCrawl.addPageCrawl(pageCrawl);
-		}else {
-			pageCrawl = findOriginal(responseFile, siteCrawl);
+	protected void toPageCrawls(PageCrawlResource resource, PageCrawl parent, SiteCrawl siteCrawl){
+		
+		PageCrawl pageCrawl = getPageCrawlFromResource(resource, parent, siteCrawl);
+		if(pageCrawl == null){
+			String idString = parent == null ? "null" : (parent.getPageCrawlId() + parent.getUrl());
+			Logger.warn("After crawl received resource that can't be parsed to pageCrawl.  This probably means a null URI made it through discovery.  Parent PageCrawl : " + idString);
+			return;
 		}
 		
-		if(responseFile!= null){
-			transferData(responseFile, pageCrawl);
-			if(responseFile.isDiscoveredNewRoot()){
-				siteCrawl.setNewInventoryRoot(pageCrawl);
-			}
-			if(responseFile.isDiscoveredUsedRoot()){
-				siteCrawl.setUsedInventoryRoot(pageCrawl);
-			}
+		if(resource.getFetchStatus() == WorkStatus.ERROR || resource.getDiscoveryStatus() == WorkStatus.ERROR){
+			pageCrawl = processErrorResult(resource, pageCrawl, siteCrawl);
+		} else if(resource.getFetchStatus() == WorkStatus.ABORTED){
+			pageCrawl = processAbortedFetch(pageCrawl, siteCrawl);
+		} else if(resource.getFetchStatus() == WorkStatus.COMPLETE){
+			pageCrawl = processCompletedFetch(resource, pageCrawl);
+		} else if(resource.getFetchStatus() != WorkStatus.PRECOMPLETED){
+			pageCrawl.setErrorMessage("Unknown fetch status after crawl : " + resource.getFetchStatus());
+		} 
+		
+		if((resource.getFetchStatus() == WorkStatus.COMPLETE 
+				|| resource.getFetchStatus() == WorkStatus.PRECOMPLETED)
+				&& (resource.getDiscoveryStatus() != WorkStatus.COMPLETE 
+				&& resource.getDiscoveryStatus() != WorkStatus.PRECOMPLETED)){
+			pageCrawl.setErrorMessage("Unknown discovery status after crawl : " + resource.getDiscoveryStatus());
 		}
 		
+		for(Resource child : resource.getChildren()){
+			toPageCrawls((PageCrawlResource)child, pageCrawl, siteCrawl);
+		}
+	}	
+	
+	protected PageCrawl processCompletedFetch(PageCrawlResource resource, PageCrawl pageCrawl){
+		pageCrawl.setErrorMessage(null);
+		return transferData(resource, pageCrawl);
+	}
+	
+	protected PageCrawl processAbortedFetch(PageCrawl pageCrawl, SiteCrawl siteCrawl){
+		PageCrawlLogic.clearResults(pageCrawl);
+		return pageCrawl;
+	}
+	
+	protected PageCrawl processErrorResult(PageCrawlResource resource, PageCrawl pageCrawl, SiteCrawl siteCrawl){
+		pageCrawl.setStatusCode(0);
 		if(resource.getFetchException()!= null){
 			pageCrawl.setErrorMessage(DSFormatter.toString(resource.getFetchException()));
 		} else if(resource.getDiscoveryException()!= null){
 			pageCrawl.setErrorMessage(DSFormatter.toString(resource.getDiscoveryException()));
+			pageCrawl = transferData(resource, pageCrawl);	//If the error was just in discovery, we still want the data from a fetch
+		} else {
+			pageCrawl.setErrorMessage("Unknown error.  Resource was set to WorkStatus.ERROR with no exceptions saved.");
 		}
-		
-		pageCrawl.setParentPage(parent);
-		
-		for(Resource child : resource.getChildren()){
-			toPageCrawls(child, pageCrawl, siteCrawl);
-		}
-	}	
+		return pageCrawl;
+	}
 	
-	protected PageCrawl findOriginal(DSResponseFile responseFile, SiteCrawl siteCrawl){
-		System.out.println("Finding original for responseFile : " + responseFile);
-		System.out.println("response id :  " + responseFile.getPageCrawlId());
-		if(responseFile.getPageCrawlId() == null){
+	protected PageCrawl getPageCrawlFromResource(PageCrawlResource resource, PageCrawl parent, SiteCrawl siteCrawl){
+		PageCrawl pageCrawl = findOriginal(resource, siteCrawl);
+		 
+		if(pageCrawl == null){
+			if(resource.getSource() == null || StringUtils.isEmpty(resource.getSource().toString())){
+				Logger.warn("Found null URI when converting crawl resources to pagecrawls.  Not creating PageCrawl.");
+				return null;
+			}
+			pageCrawl = new PageCrawl(resource.getSource().toString());
+			pageCrawl.setParentPage(parent);
+			pageCrawl = JPA.em().merge(pageCrawl);
+			siteCrawl.addPageCrawl(pageCrawl);
+		}
+		return pageCrawl;
+	}
+	
+	protected PageCrawl findOriginal(PageCrawlResource resource, SiteCrawl siteCrawl){
+//		System.out.println("Finding original for responseFile : " + responseFile);
+//		System.out.println("response id :  " + responseFile.getPageCrawlId());
+		if(resource.getPageCrawlId() == null){
 			return null;
 		}
 		for(PageCrawl pageCrawl : siteCrawl.getPageCrawls()){
-			if(responseFile.getPageCrawlId() == pageCrawl.getPageCrawlId()){
+			if(pageCrawl.getPageCrawlId() == resource.getPageCrawlId()){
 				return pageCrawl;
 			}
 		}
 		return null;
 	}
 	
-	protected void transferData(DSResponseFile responseFile, PageCrawl pageCrawl){
-		pageCrawl.setUrl(responseFile.getUri().toString());
-		pageCrawl.setFilename(responseFile.getFile().getAbsolutePath());
-		pageCrawl.setPagedInventory(responseFile.isInventory());
-		pageCrawl.setUsedRoot(responseFile.isUsedRoot());
-		pageCrawl.setNewRoot(responseFile.isNewRoot());
-		pageCrawl.setInvType(responseFile.getInvType());
-		pageCrawl.setStatusCode(responseFile.getStatusCode());
-		if(responseFile.getRedirectedUri() == null){
-			pageCrawl.setRedirectedUrl(null);
-		}else {
-			pageCrawl.setRedirectedUrl(responseFile.getRedirectedUri().toString());
+	protected PageCrawl transferData(PageCrawlResource resource, PageCrawl pageCrawl){
+		HttpResponseFile responseFile = resource.getResponseFile();
+		if(responseFile != null){
+			pageCrawl.setUrl(responseFile.getUri().toString());
+			pageCrawl.setFilename(responseFile.getFile().getAbsolutePath());
+			pageCrawl.setStatusCode(responseFile.getStatusCode());
+			if(responseFile.getRedirectedUri() == null){
+				pageCrawl.setRedirectedUrl(null);
+			}else {
+				pageCrawl.setRedirectedUrl(responseFile.getRedirectedUri().toString());
+			}
 		}
+		
+		pageCrawl.setPagedInventory(resource.isInventory());
+		pageCrawl.setUsedRoot(resource.isUsedRoot());
+		pageCrawl.setNewRoot(resource.isNewRoot());
+		pageCrawl.setGeneralRoot(resource.isGeneralRoot());
+		pageCrawl.setInvType(resource.getInvType());
+		
+		return pageCrawl;
 	}
 		
 	

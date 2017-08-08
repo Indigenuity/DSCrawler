@@ -65,15 +65,15 @@ public enum TestMatch implements StringMatch{
 	private static final Set<TestMatch> previousMatches = new HashSet<TestMatch>();
 	static {
 		//*************  potential Canada web providers
-		currentMatches.add(CONVERTUS);
-		currentMatches.add(STRATHCOM);
-		currentMatches.add(TRADER);
+//		currentMatches.add(CONVERTUS);
+//		currentMatches.add(STRATHCOM);
+//		currentMatches.add(TRADER);
 	}
 	 
 	 
 	public static Set<TestMatch> getCurrentMatches() {
-//		return Collections.unmodifiableSet(currentMatches);
-		return new HashSet<TestMatch>(Arrays.asList(TestMatch.values()));
+		return new HashSet<TestMatch>(currentMatches);
+//		return new HashSet<TestMatch>(Arrays.asList(TestMatch.values()));
 	}
 
 	public static Set<TestMatch> getPreviousMatches() {

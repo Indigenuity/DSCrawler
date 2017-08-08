@@ -2,9 +2,9 @@ package analysis.work;
 
 import akka.actor.UntypedActor;
 import analysis.AnalysisConfig;
+import analysis.AnalysisDao;
 import analysis.SiteCrawlAnalysis;
 import analysis.SiteCrawlAnalyzer;
-import dao.AnalysisDao;
 import persistence.SiteCrawl;
 import play.db.jpa.JPA;
 
@@ -24,7 +24,7 @@ public class AnalysisWorker extends UntypedActor {
 				
 				SiteCrawlAnalysis analysis = AnalysisDao.getOrNew(siteCrawl);
 				analysis.setConfig(config);
-				SiteCrawlAnalyzer.runSiteCrawlAnalysis(analysis);
+//				SiteCrawlAnalyzer.runSiteCrawlAnalysis(analysis);
 				JPA.em().getTransaction().commit();
 				JPA.em().getTransaction().begin();
 				JPA.em().clear();

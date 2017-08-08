@@ -8,18 +8,20 @@ import java.util.Set;
 
 import akka.actor.UntypedActor;
 import crawling.discovery.control.CrawlUtil;
+import crawling.discovery.entities.DiscoveredSource;
 import crawling.discovery.entities.FlushableResource;
 import crawling.discovery.entities.Resource;
 import crawling.discovery.entities.ResourceId;
 import crawling.discovery.planning.DiscoveryPlan;
-import crawling.discovery.planning.ResourceFetchTool;
+import crawling.discovery.planning.FetchTool;
 import crawling.discovery.planning.ResourcePlan;
+import crawling.discovery.planning.ResourceTool;
 import newwork.WorkStatus;
 
 public class ResourceWorker extends UntypedActor {
 	
-	protected final ResourceFetchTool fetchTool;
-	protected final ResourceContext context;
+	protected final ResourceTool resourceTool;
+	protected final ResourceContext resourceContext;
 	protected final CrawlContext crawlContext;
 	protected final Set<DiscoveryContext> discoveryContexts = new HashSet<DiscoveryContext>();
 	
@@ -31,12 +33,12 @@ public class ResourceWorker extends UntypedActor {
 	
 	/***************** End Stateful Fields ****************/
 	
-	public ResourceWorker(ResourceContext context){
-		this.context = context;
-		this.fetchTool = context.getFetchTool();
-		this.crawlContext = context.getCrawlContext();
-		for(PlanId planId : context.getDiscoveryPlans()){
-			discoveryContexts.add(crawlContext.getDiscoveryContext(planId));
+	public ResourceWorker(ResourceContext resourceContext){
+		this.resourceContext = resourceContext;
+		this.resourceTool = resourceContext.getResourceTool();
+		this.crawlContext = resourceContext.getCrawlContext();
+		for(DiscoveryContext discoveryContext : this.crawlContext.getDiscoveryContexts(resourceContext.getPlanId())){
+			discoveryContexts.add(discoveryContext);
 		}
 	}
 	
@@ -63,12 +65,6 @@ public class ResourceWorker extends UntypedActor {
 		finish();
 	}
 	
-	protected void getWorkApproval() {
-		if(!context.approveWork(resource) || !context.acquireWorkPermit()){
-			throw new NoCrawlPermitException();
-		}
-	}
-
 	protected void doFetchWork() throws Exception{
 		try{
 			preFetch();
@@ -81,12 +77,10 @@ public class ResourceWorker extends UntypedActor {
 		} catch(Exception e) {
 			resource.setFetchException(e);
 			resource.setFetchStatus(WorkStatus.ERROR);
-			fetchTool.onFetchError(resource, context, e);
+			resourceTool.onFetchError(resource, crawlContext, e);
 			throw e;
 		}
 	}
-	
-	
 	
 	protected void doDiscoveryWork() throws Exception{
 		try{
@@ -99,24 +93,30 @@ public class ResourceWorker extends UntypedActor {
 		} catch(Exception e){
 			resource.setDiscoveryException(e);
 			resource.setDiscoveryStatus(WorkStatus.ERROR);
-			fetchTool.onDiscoveryError(resource, context, e);
+			resourceTool.onDiscoveryError(resource, crawlContext, e);
 			throw e;
+		}
+	}
+	
+	protected void getFetchApproval() {
+		if(!crawlContext.approveFetch(resource)){
+			throw new NoCrawlPermitException();
 		}
 	}
 	
 	protected void preFetch() throws Exception{
 		resource.setFetchStatus(WorkStatus.STARTED);
-		fetchTool.preFetch(resource, context);
-		getWorkApproval();
+		resourceTool.beforeFetch(resource, crawlContext);
+		getFetchApproval();
 	}
 	
 	protected void fetch() throws Exception{
-		Object value = fetchTool.fetchValue(resource, context);
-		resource.setValue(value);
+		Object value = resourceTool.fetchValue(resource, crawlContext);
+		resourceTool.assignValue(resource, value, crawlContext);
 	}
 	
 	protected void postFetch() throws Exception {
-		fetchTool.postFetch(resource, context);
+		resourceTool.afterFetch(resource, crawlContext);
 		resource.setFetchStatus(WorkStatus.COMPLETE);
 	}
 	
@@ -124,22 +124,22 @@ public class ResourceWorker extends UntypedActor {
 		if(!CrawlUtil.readyForDiscovery(resource)){
 			throw new NotReadyForDiscoveryException();
 		}
+		resourceTool.beforeDiscovery(resource, crawlContext);
 		resource.setDiscoveryStatus(WorkStatus.STARTED);
 	}
 	
 	protected void discovery() throws Exception {
 		for(DiscoveryContext discoveryContext : discoveryContexts){
-			ResourceContext resourceContext = crawlContext.getResourceContext(discoveryContext.getDestinationPlanId());
-			for(Object source : discoveryContext.discoverSources(resource)) {
-//				System.out.println("Discovered from resource : " + resource.getResourceId() + " source : " + source);
-				Resource child = resourceContext.generateResource(source, resource);
+			for(DiscoveredSource source : discoveryContext.discoverSources(resource)){
+				Resource child = crawlContext.generateResource(source, resource);
+				resourceTool.onDiscovery(child, crawlContext);
 				CrawlUtil.flush(child);
 			}
 		}
 	}
 	
 	protected void postDiscovery() throws Exception {
-		fetchTool.postDiscovery(resource, context);
+		resourceTool.afterDiscovery(resource, crawlContext);
 		resource.setDiscoveryStatus(WorkStatus.COMPLETE);
 	}
 	
@@ -166,7 +166,7 @@ public class ResourceWorker extends UntypedActor {
 	
 	protected void establishState(ResourceWorkOrder workOrder){
 		clearState();
-		this.resource = context.getResource(workOrder.getResourceId());
+		this.resource = crawlContext.getResource(workOrder.getResourceId());
 		this.workOrder = workOrder;
 		this.workResult = new ResourceWorkResult(workOrder);
 		this.workResult.setWorkStatus(WorkStatus.STARTED);

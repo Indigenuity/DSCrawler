@@ -19,10 +19,10 @@ public class HtmlUtils {
 	}
 	
 	public static boolean isCrawlableFileExtension(URI uri) {
-		if(uri == null || StringUtils.isEmpty(uri.toString())){
+		if(uri == null || StringUtils.isEmpty(uri.toString()) || StringUtils.isEmpty(uri.getPath())){
 			return false;
 		}
-		return !NO_CRAWL_FILE_EXTENSIONS.matcher(uri.getHost()).matches();
+		return !NO_CRAWL_FILE_EXTENSIONS.matcher(uri.getPath()).matches();
 	}
 	
 	public static boolean isRedirectStatus(int statusCode){

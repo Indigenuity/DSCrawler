@@ -20,104 +20,49 @@ import sites.persistence.Vehicle;
 
 public abstract class InventoryTool {
 
-	protected String newPathString = "#NeverMatch#";
-	protected String usedPathString = "#NeverMatch#";
-	protected String paginationLinkString = "#NeverMatch#";
-	protected String countRegexString = "#NeverMatch#";
-	
-	protected String nextPageSelector = "#NeverMatch#";
 	
 	protected boolean requiresAjax;
 	protected WebProvider probableWp;
 
-	protected Pattern newPath;
-	protected Pattern usedPath;
-	protected Pattern paginationLink;
-	protected Pattern countRegex;
-	
 	private static Set<InventoryTool> registeredTypes = new HashSet<InventoryTool>();
 	static{
 		registeredTypes.add(new DealerCom());
-	}
-	 
-	public InventoryTool(){
-		declareValues();
-		compilePatterns();
 	}
 	
 	public static Set<InventoryTool> getInvTypes(){
 		return registeredTypes;
 	}
+	 
 	
-	protected abstract void declareValues();
-	
+	public abstract boolean isNewPath(Document doc, URI uri);
+	public abstract boolean isNewRoot(Document doc, URI uri);
+	public abstract boolean isUsedPath(Document doc, URI uri);
+	public abstract boolean isUsedRoot(Document doc, URI uri);
+	public abstract boolean isGeneralPath(Document doc, URI uri);
+	public abstract boolean isGeneralRoot(Document doc, URI uri);
+	public abstract boolean isNewPath(URI uri);
+	public abstract boolean isNewRoot(URI uri);
+	public abstract boolean isUsedPath(URI uri);
+	public abstract boolean isUsedRoot(URI uri);
+	public abstract boolean isGeneralPath(URI uri);
+	public abstract boolean isGeneralRoot(URI uri);
+	public abstract int getCount(Document doc);
+	public abstract URI getNextPageLink(Document doc, URI currentUri);
+	public abstract Set<URI> getPaginationLinks(Document doc, URI currentUri);
 	public abstract Set<Vehicle> getVehicles(Document doc);
 	
-	protected void compilePatterns(){
-		newPath = Pattern.compile(newPathString);
-		usedPath = Pattern.compile(usedPathString);
-		paginationLink = Pattern.compile(paginationLinkString);
-		countRegex = Pattern.compile(countRegexString);
+	public boolean isOfThisType(Document doc, URI uri){
+		return isNewPath(doc, uri) || isUsedPath(doc, uri) || isGeneralPath(doc, uri);
 	}
 	
-	public boolean matchesType(Document doc, URI uri){
-		return isNewPath(uri) || isUsedPath(uri);
+	public boolean isOfThisType(URI uri){
+		return isNewPath(uri) || isUsedPath(uri) || isGeneralPath(uri);
 	}
 	
-	public boolean isNewRoot(URI uri){
-		return pathAndQueryEquals(uri, newPathString);
-	}
-	public boolean isUsedRoot(URI uri){
-		return pathAndQueryEquals(uri, usedPathString);
-	}
-	public boolean isNewPath(URI uri){
-//		System.out.println("pathAndQuery : " + getPathAndQuery(uri));
-//		System.out.println("contains : " + pathAndQueryContains(uri, newPathString));
-		return pathAndQueryContains(uri, newPathString);
-	}
-	public boolean isUsedPath(URI uri){
-		return pathAndQueryContains(uri, usedPathString);
-	}
-	public boolean isPaginationLink(URI uri){
-		return pathAndQueryMatches(uri, paginationLink);
-	}
 	
-	public URI getNextPageLink(Document doc, URI currentUri){
-//		System.out.println("nextPageSelector : " + nextPageSelector);
-//		System.out.println("Document : " + doc);
-		Elements nextPageLinks = doc.select(nextPageSelector);
-//		System.out.println("nextPageLinks: " + nextPageLinks);
-		if(nextPageLinks.size() < 1){
-			return null;
-		}
-		try {
-			URI uri = new URI(nextPageLinks.get(0).attr("abs:href"));
-			return uri;
-		} catch (URISyntaxException e) {
-			return null;
-		}
-	}
-	
-	public Set<URI> getPaginationLinks(Document doc){
-		Set<URI> uris = new HashSet<URI>();
-		for(Element element : doc.select("a[href]")){
-			try {
-				URI uri = new URI(element.absUrl("href"));
-				if(isPaginationLink(uri)){
-					uris.add(uri);
-				}
-			} catch (URISyntaxException e) {}
-		}
-		return uris;
-	}
-	public int getCount(Document doc){
-		Matcher matcher = countRegex.matcher(doc.text());
-		if(matcher.find()){
-			return Integer.valueOf(matcher.group(1));
-		}
-		return 0;
-	}
-	
+	/************  For inventory systems that require a crawl within the browser.
+	 * This happens when they load their content dynamically with JavaScript, or if they somehow detect a non-browser and block the response.   
+	 *
 	public WebElement getNextPageLink(WebDriver driver, URI currentUri){
 		throw new UnsupportedOperationException();
 	}
@@ -125,32 +70,48 @@ public abstract class InventoryTool {
 	public int getCount(WebDriver driver){
 		throw new UnsupportedOperationException();
 	}
+	*/
+	
+	/***************** Document tools *************************/
+	
+	public static URI getFirstAbsHref(String selector, Document doc){
+		Elements elements = doc.select(selector);
+		if(elements.size() < 1){
+			return null;
+		}
+		try {
+			URI uri = new URI(elements.get(0).attr("abs:href"));
+			return uri;
+		} catch (URISyntaxException e) {
+			return null;
+		}
+	}
+	
+	public static Set<URI> getAllAHrefsContaining(Pattern pattern, Document doc){
+		Set<URI> uris = new HashSet<URI>();
+		for(Element element : doc.select("a[href]")){
+			try {
+				String uriString = element.absUrl("href"); 
+				if(textContains(uriString, pattern)){
+					uris.add(new URI(uriString));
+				}
+			} catch (URISyntaxException e) {}
+		}
+		return uris;
+	}
 	
 	/****************** String parsing tools **********************/
 	
-	public double moneyString(String moneyString){
-		if(moneyString == null){
+	public static double doubleString(String doubleString){
+		if(doubleString == null){
 			return 0.0;
 		}
-		moneyString = moneyString.replaceAll("[^\\d.]+", "");
-//		System.out.println("moneyString : " + moneyString);
-		Double money = Double.valueOf(moneyString);
-//		System.out.println("money : " + money);
+		doubleString = doubleString.replaceAll("[^\\d.]+", "");
+		Double money = Double.valueOf(doubleString);
 		return money;
 	}
 	
-	public double mileageString(String mileageString){
-		if(mileageString == null){
-			return 0.0;
-		}
-		mileageString = mileageString.replaceAll("[^\\d.]+", "");
-//		System.out.println("mileageString : " + mileageString);
-		Double mileage = Double.valueOf(mileageString);
-//		System.out.println("mileage : " + mileage);
-		return mileage;
-	}
-	
-	protected String getPathAndQuery(URI uri){
+	protected static String getPathAndQuery(URI uri){
 		String pathAndQuery = uri.getPath();
 		if(uri.getQuery() != null){
 			pathAndQuery += "?" + uri.getQuery();
@@ -160,47 +121,52 @@ public abstract class InventoryTool {
 	
 	/******************** Matching Tools *********************/
 	
-	public boolean uriEquals(URI uri, String string){
+	public static int findNumberMatch(String text, Pattern pattern, int group){
+		Matcher matcher = pattern.matcher(text);
+		if(matcher.find()){
+//			System.out.println("found");
+			return Integer.valueOf(matcher.group(group));
+		}
+		return 0;
+	}
+	
+	public static boolean textContains(String text, Pattern pattern){
+		return pattern.matcher(text).find();
+	}
+	
+	public static boolean uriEquals(URI uri, String string){
 		return StringUtils.equals(uri.toString(), string);
 	}
 	
-	public boolean pathAndQueryEquals(URI uri, String string){
+	public static boolean pathAndQueryEquals(URI uri, String string){
 		return StringUtils.equals(getPathAndQuery(uri), string);
 	}
 	
-	public boolean uriMatches(URI uri, Pattern pattern){
+	public static boolean uriMatches(URI uri, Pattern pattern){
 		Matcher matcher = pattern.matcher(uri.toString());
 		return matcher.matches();
 	}
 	
-	public boolean pathAndQueryMatches(URI uri, Pattern pattern){
+	public static boolean pathAndQueryMatches(URI uri, Pattern pattern){
 		Matcher matcher = pattern.matcher(getPathAndQuery(uri));
 		return matcher.matches();
 	}
 	
-	public boolean uriMatches(URI uri, String regex){
-		return uriMatches(uri, Pattern.compile(regex));
-	}
-	
-	public boolean pathAndQueryMatches(URI uri, String regex){
-		return pathAndQueryMatches(uri, Pattern.compile(regex));
-	}
-	
-	public boolean uriContains(URI uri, Pattern pattern){
+	public static boolean uriContains(URI uri, Pattern pattern){
 		Matcher matcher = pattern.matcher(uri.toString());
 		return matcher.find();
 	}
 	
-	public boolean pathAndQueryContains(URI uri, Pattern pattern){
+	public static boolean pathAndQueryContains(URI uri, Pattern pattern){
 		Matcher matcher = pattern.matcher(getPathAndQuery(uri));
 		return matcher.find();
 	}
 	
-	public boolean uriContains(URI uri, String string){
+	public static boolean uriContains(URI uri, String string){
 		return uri.toString().contains(string);
 	}
 	
-	public boolean pathAndQueryContains(URI uri, String string){
+	public static boolean pathAndQueryContains(URI uri, String string){
 		return getPathAndQuery(uri).contains(string);
 	}
 	

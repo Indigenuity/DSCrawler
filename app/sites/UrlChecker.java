@@ -141,39 +141,5 @@ public class UrlChecker {
 		return con.getURL().toString().replace(":80", "");
 	}
 	
-	//Checks for http(s) additions/changes, www redirects, top-level (.com, .net) redirects, and language path and query string changes
-	public static boolean isGenericRedirect(String redirectUrl, String original) {
-		
-		if(redirectUrl == null || original == null)
-			return false;
-		if(redirectUrl.equals(original))
-			return true;
-		String sansHttpRedirectUrl = UrlUtils.removeHttp(redirectUrl);
-		String sansHttpOriginal= UrlUtils.removeHttp(original);
-		if(sansHttpRedirectUrl.equals(sansHttpOriginal))
-			return true;
-		String sansWwwRedirectUrl = UrlUtils.removeWww(sansHttpRedirectUrl);
-		String sansWwwOriginal = UrlUtils.removeWww(sansHttpOriginal);
-		if(sansWwwRedirectUrl.equals(sansWwwOriginal))
-			return true;
-		
-		String comRedirectUrl = UrlUtils.toCom(sansWwwRedirectUrl);
-		String comOriginal = UrlUtils.toCom(sansWwwOriginal);
-		
-		if(comRedirectUrl.equals(comOriginal))
-			return true;
-		
-		String langRedirectUrl = UrlUtils.removeLanguage(comRedirectUrl);
-		String langOriginal = UrlUtils.removeLanguage(comOriginal);
-		if(langRedirectUrl.equals(langOriginal))
-			return true;
-		
-		String noTrailingSlashRedirectUrl = langRedirectUrl.replaceAll("/$", "");
-		String noTrailingSlashOriginalUrl = langOriginal.replaceAll("/$", "");
-		if(noTrailingSlashRedirectUrl.equals(noTrailingSlashOriginalUrl))
-			return true;
-		
-		
-		return false;
-	}
+
 }

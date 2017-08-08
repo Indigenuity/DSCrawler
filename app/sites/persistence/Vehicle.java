@@ -24,6 +24,14 @@ public class Vehicle {
 	@Column(nullable = true, columnDefinition="varchar(4000)")
 	private String url;
 	
+	public void updateFromOther(Vehicle vehicle){
+		this.vin = vehicle.getVin();
+		this.msrp = vehicle.getMsrp();
+		this.offeredPrice = vehicle.getOfferedPrice();
+		this.mileage = vehicle.getMileage();
+		this.url = vehicle.getUrl();
+	}
+	
 	public long getVehicleId() {
 		return vehicleId;
 	}

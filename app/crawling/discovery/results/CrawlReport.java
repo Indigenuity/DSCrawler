@@ -16,7 +16,7 @@ public class CrawlReport {
 	private final Map<PlanId, ResourceReport> resourceReports = new HashMap<PlanId, ResourceReport>();
 	protected final Map<String, Object> contextObjects = new ConcurrentHashMap<String, Object>();
 	
-	private boolean maxPagesReached = false;
+	private boolean maxResourcesFetched = false;
 	
 	public CrawlReport(CrawlContext context) {
 		for(ResourceContext resourceContext : context.getResourceContexts()){
@@ -24,7 +24,7 @@ public class CrawlReport {
 			resourceReports.put(resourceContext.getPlanId(), resourceReport);
 		}
 		contextObjects.putAll(context.getContextObjects());
-		maxPagesReached = context.maxResourcesReached();
+		maxResourcesFetched = context.maxResourcesFetched();
 //		System.out.println("maxPagesReached : " + maxPagesReached);
 //		System.out.println("num resources crawled : " + context.getNumResourcesCrawled());
 	}
@@ -33,12 +33,12 @@ public class CrawlReport {
 		return resourceReports;
 	}
 
-	public boolean isMaxPagesReached() {
-		return maxPagesReached;
+	public boolean isMaxResourcesFetched() {
+		return maxResourcesFetched;
 	}
 
-	public void setMaxPagesReached(boolean maxPagesReached) {
-		this.maxPagesReached = maxPagesReached;
+	public void setMaxResourcesFetched(boolean maxResourcesFetched) {
+		this.maxResourcesFetched = maxResourcesFetched;
 	}
 	
 	public Set<Resource> getAllResources(){

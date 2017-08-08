@@ -124,11 +124,12 @@ public class DealerCrawler extends WebCrawler {
 	
 	@Override
 	public void visit (Page page) {
-		PageCrawl pageCrawl = new PageCrawl();
-		siteCrawl.addPageCrawl(pageCrawl);
 		
+		PageCrawl pageCrawl = null;
 		try {
 			String urlString = page.getWebURL().getURL();
+			pageCrawl = new PageCrawl(urlString);
+			siteCrawl.addPageCrawl(pageCrawl);
 			URL url = new URL(urlString);
 			
 			String path = url.getPath();

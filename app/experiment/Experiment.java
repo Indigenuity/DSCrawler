@@ -1,6 +1,7 @@
 package experiment;
 
 import global.Global;
+import global.Log;
 import net.sf.sprockets.google.Place;
 import net.sf.sprockets.google.Places;
 import net.sf.sprockets.google.Places.Params;
@@ -31,6 +32,8 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -90,7 +93,6 @@ import crawling.discovery.html.HttpToFileTool;
 import crawling.discovery.html.InternalLinkDiscoveryTool;
 import crawling.discovery.local.PageCrawlDiscoveryPlan;
 import crawling.discovery.local.PageCrawlPlan;
-import crawling.discovery.local.PageCrawlTool;
 import crawling.discovery.local.SiteCrawlPlan;
 import crawling.discovery.local.SiteCrawlTool;
 import crawling.discovery.planning.CrawlPlan;
@@ -99,7 +101,6 @@ import crawling.discovery.planning.ResourcePlan;
 import crawling.nydmv.NYDealer;
 import crawling.projects.BasicDealer;
 import crawling.projects.MotorradScraper;
-import dao.AnalysisDao;
 import dao.GeneralDAO;
 import dao.SalesforceDao;
 import dao.SitesDAO;
@@ -111,6 +112,7 @@ import datatransfer.Amalgamater;
 import datatransfer.CSVGenerator;
 import datatransfer.CSVImporter;
 import datatransfer.Cleaner;
+import datatransfer.ReportGenerator;
 import datatransfer.SiteCrawlImporter;
 import datatransfer.reports.Report;
 import datatransfer.reports.ReportFactory;
@@ -119,12 +121,15 @@ import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.pattern.Patterns;
 import analysis.AnalysisConfig;
+import analysis.AnalysisDao;
 import analysis.AnalysisSet;
 import analysis.SiteCrawlAnalysis;
 import analysis.SiteCrawlAnalyzer;
 import analysis.TextAnalyzer;
 import analysis.AnalysisConfig.AnalysisMode;
+import analysis.AnalysisControl;
 import async.async.Asyncleton;
+import async.async.MaxWorkerConfig;
 import async.functionalwork.FunctionWorkOrder;
 import async.functionalwork.FunctionalWorker;
 import async.functionalwork.JpaFunctionalBuilder;
@@ -148,10 +153,14 @@ import salesforce.SalesforceLogic;
 import salesforce.persistence.DealershipType;
 import salesforce.persistence.SalesforceAccount;
 import scala.concurrent.Future;
-import sites.SiteLogic;
 import sites.UrlChecker;
 import sites.crawling.CrawlSession;
 import sites.crawling.SiteCrawlLogic;
+import sites.persistence.SiteSet;
+import sites.persistence.Vehicle;
+import sites.utilities.PageCrawlLogic;
+import sites.utilities.SiteLogic;
+import sites.utilities.SiteSetDao;
 import urlcleanup.ListCheck;
 import urlcleanup.ListCheckExecutor;
 import utilities.DSFormatter;
@@ -160,30 +169,179 @@ import utilities.Tim;
 public class Experiment { 
 	
 	public static void runExperiment() throws Exception {
-//		List<Long> siteIds = GeneralDAO.getKeyList(Site.class, "siteId", "fullyKosher", true);
-//		System.out.println("Fully Kosher Sites : " + siteIds.size());
+//		SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, 17978L); 
+//		
+//		SiteCrawlLogic.queueRecrawl(siteCrawl);
 		
-//		Pattern p = Pattern.compile("(\\d)(.*)(\\d)");
-//		String input = "6 example input 4";
-//		Matcher m = p.matcher(input);
-//		if (m.find()) {
-//		    // replace first number with "number" and second number with the first
-////		   System.out.println("replaced : " + m.repla);  // number 46
+		  
+//		Report report = ReportGenerator.generateWebsiteReport();
+//		CSVGenerator.printReport(report);
+		
+		Site site = JPA.em().find(Site.class, 7L);
+		System.out.println("urlcheck id : " + site.getUrlCheck().getUrlCheckId());
+		System.out.println("status code : " + site.getUrlCheck().getStatusCode());
+	}
+	
+	
+	
+	public static void benchmarkingAnalysis() throws Exception {
+//		String queryString = "select sc2 from SiteCrawl sc2 where size(sc2.pageCrawls) = (select max(size(sc.pageCrawls)) from SiteCrawl sc where sc.siteCrawlId = sc.siteCrawlId)";
+//		List<SiteCrawl> siteCrawls = JPA.em().createQuery(queryString, SiteCrawl.class).getResultList();
+//		System.out.println("siteCrawls size : " + siteCrawls.size());
+//		System.out.println("First : " + siteCrawls.get(0).getSiteCrawlId() + " : " + siteCrawls.get(0).getSeed());
+//		SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, 7309L);
+		
+//		Site site = JPA.em().find(Site.class, 4L);
+//		
+//		SiteCrawlLogic.queueNewCrawl(site);
+		Long siteSetId = 3l;
+//		SiteSet siteSet = JPA.em().find(SiteSet.class, siteSetId);
+//		List<Long> siteIds = SiteSetDao.sitesWithFreshCrawls(siteSetId);
+		List<Long> siteCrawlIds = SiteSetDao.freshSiteCrawls(siteSetId);
+		long start = System.currentTimeMillis();
+		long now = start;
+		long lastTime = now;
+		long elapsed = 0;
+		int count = 0;
+		
+//		for(Long siteId : siteIds){
+//		for(Long siteCrawlId : siteCrawlIds){
+//			Site site = JPA.em().find(Site.class, siteId);
+//			SiteCrawl siteCrawl = site.getLastCrawl();
+			long siteCrawlId = 422L;
+			SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, siteCrawlId);
+//			SiteCrawlAnalysis analysis = AnalysisDao.getOrNew(siteCrawl);
+			AnalysisConfig config = new AnalysisConfig();
+			config.setDoAll();
+			config.setExcludePageAnalysisIfPresent(true);
+			AnalysisControl.runAnalysis(siteCrawl, config);
+			
+			count++;
+			now = System.currentTimeMillis();
+			elapsed = (now - lastTime);
+//			System.out.println("Count " + count + " took " + elapsed + " for site " + siteId + " (" + site.getHomepage() + ")");
+			System.out.println("Count " + count + " took " + elapsed + " for site " + siteCrawlId + " (" + siteCrawlId + ")");
+			
+//			if(count > 0){
+//				break;
+//			}
+//			lastTime = now;
+//		}
+		lastTime = System.currentTimeMillis();
+		elapsed = lastTime - start;
+		System.out.println("Total elapsed before commit : " + elapsed);
+		JPA.em().getTransaction().commit();
+		JPA.em().getTransaction().begin();
+		System.out.println("Total elapsed after commit : " + (System.currentTimeMillis() - lastTime));
+//			AnalysisControl.runFullAnalysis(siteCrawl);	
+		
+	}
+	
+	public static void executorTesting() {
+		
+//		ExecutorService exy = Executors.newFixedThreadPool(5);
+//		
+//		for(int i = 0; i < 500; i++){
+//			exy.submit(()-> {
+//				String threadName = Thread.currentThread().getName();
+//				System.out.println("Hellow from this thread : " + threadName);
+//				try {
+//					Thread.sleep(200);
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//			});
+//		}
+
+		
+	}
+	
+	public static void timeTesting() {
+		long start = System.currentTimeMillis();
+		long time = System.currentTimeMillis() - start;
+		if(time > 1000){
+			System.out.println("duration of context generation: " + time);
+		} 
+	}
+	
+	public static void testCrawl(){
+		List<Long> siteIds = SiteSetDao.sitesWithStaleCrawls(3L);
+		
+		Site site = JPA.em().find(Site.class, siteIds.get(0));
+		System.out.println("site " + site.getSiteId() + " : " + site.getHomepage());
+		System.out.println("crawls : " + site.getCrawls().size());
+		SiteCrawlLogic.ensureCrawl(site, false, false, false);
+		
+		site = JPA.em().find(Site.class, siteIds.get(1));
+		System.out.println("site " + site.getSiteId() + " : " + site.getHomepage());
+		System.out.println("crawls : " + site.getCrawls().size());
+		SiteCrawlLogic.ensureCrawl(site, false, false, false);
+		
+		site = JPA.em().find(Site.class, siteIds.get(2));
+		System.out.println("site " + site.getSiteId() + " : " + site.getHomepage());
+		System.out.println("crawls : " + site.getCrawls().size());
+		SiteCrawlLogic.ensureCrawl(site, false, false, false);
+		
+		site = JPA.em().find(Site.class, siteIds.get(3));
+		System.out.println("site " + site.getSiteId() + " : " + site.getHomepage());
+		System.out.println("crawls : " + site.getCrawls().size());
+		SiteCrawlLogic.ensureCrawl(site, false, false, false);
+		
+		site = JPA.em().find(Site.class, siteIds.get(4));
+		System.out.println("site " + site.getSiteId() + " : " + site.getHomepage());
+		System.out.println("crawls : " + site.getCrawls().size());
+		SiteCrawlLogic.ensureCrawl(site, false, false, false);
+	}
+	
+	public static void testRecrawl(){
+		
+		List<Long> siteIds = SiteSetDao.sitesWithErrorCrawls(3L);
+//		Site site = JPA.em().find(Site.class, siteIds.get(0));
+		
+		Asyncleton.getInstance().runConsumerMaster(50, 
+				JpaFunctionalBuilder.wrapConsumerInFind((site) ->{
+					SiteCrawlLogic.ensureCrawl(site, true, true, true);
+				}, Site.class), 
+				siteIds.stream().limit(25), 
+				true);
+		
+//		MaxWorkerConfig config = new MaxWorkerConfig(15);
+//		Asyncleton.getInstance().sendMaxWorkerConfig(CrawlSupervisor.class, config);
+//		Site site = JPA.em().find(Site.class, 7003L);
+		
+//		SiteCrawl siteCrawl = site.getLastCrawl();
+		
+//		SiteCrawl siteCrawl = JPA.em().find(SiteCrawl.class, 4L);
+//		
+//		System.out.println("SiteCrawl " + siteCrawl.getSiteCrawlId() + " : " + siteCrawl.getSeed());
+//		for(PageCrawl pageCrawl : siteCrawl.getPageCrawls()){
+//			System.out.println("PageCrawl " + pageCrawl.getPageCrawlId() + "(" + PageCrawlLogic.isFailedCrawl(pageCrawl) + ") : " + pageCrawl.getUrl());
+//		}
+//		SiteCrawlLogic.updateErrorStatus(siteCrawl);
+//		
+//		for(PageCrawl pageCrawl : siteCrawl.getPageCrawls()){
+//			System.out.println("PageCrawl " + pageCrawl.getPageCrawlId() + "(" + PageCrawlLogic.isFailedCrawl(pageCrawl) + ") : " + pageCrawl.getUrl());
 //		}
 		
-//		PageCrawl pageCrawl = JPA.em().find(PageCrawl.class, 378393L);
-//		System.out.println("Site : " + pageCrawl.getSiteCrawl().getSiteCrawlId());
-		crawlingStuff();
-//		analysisTesting();
-//		crawlTesting2();
+//		SiteCrawlLogic.queueRecrawl(siteCrawl);
+	}
+	
+	public static void checkInventoryCount(){
+		PageCrawl pageCrawl = JPA.em().find(PageCrawl.class, 10081L);
+		System.out.println("pageCrawl : " + pageCrawl.getUrl());
+		System.out.println("invType : " + pageCrawl.getInvType());
+		Document doc = PageCrawlLogic.getDocument(pageCrawl);
+		int count = pageCrawl.getInvType().getTool().getCount(doc);
+		System.out.println("count : " + count);
 	}
 	
 	public static void analysisTesting() throws Exception {
-		SiteCrawl siteCrawl= JPA.em().find(SiteCrawl.class, 1L);
+		SiteCrawl siteCrawl= JPA.em().find(SiteCrawl.class, 15L);
 		
 		SiteCrawlAnalysis analysis = AnalysisDao.getOrNew(siteCrawl);
-		analysis.getConfig().setDoVehicles(true);
-		SiteCrawlAnalyzer.runSiteCrawlAnalysis(analysis);
+		analysis.getConfig().setDoAll();
+//		SiteCrawlAnalyzer.runSiteCrawlAnalysis(analysis);
 	}
 	
 	public static void crawlTesting2() throws Exception {
@@ -195,11 +353,11 @@ public class Experiment {
 		
 		Site site = SitesDAO.getOrNewThreadsafe("http://www.tommievaughnford.com/");
 		SiteCrawlPlan siteCrawlPlan = new SiteCrawlPlan(site);
-		siteCrawlPlan.setMaxPages(5);
+		siteCrawlPlan.setMaxFetches(5);
 //		siteCrawlPlan.setMaxDepth(CrawlPlan.DEFAULT_MAX_DEPTH_OF_CRAWLING);
 //		siteCrawlPlan.getRegularPlan().setMaxDepth(1);
 		
-		Asyncleton.getInstance().getCrawlMaster().tell(siteCrawlPlan, ActorRef.noSender());
+		Asyncleton.getInstance().queueOneShotMessage(CrawlSupervisor.class, siteCrawlPlan);
 //		crawlingStuff();
 //		analyzingStuff();
 		
@@ -219,7 +377,7 @@ public class Experiment {
 		for(SiteCrawl siteCrawl : siteCrawls){
 			SiteCrawlAnalysis analysis = AnalysisDao.getOrNew(siteCrawl);
 			analysis.getConfig().setDoVehicles(true);
-			SiteCrawlAnalyzer.runSiteCrawlAnalysis(analysis);
+//			SiteCrawlAnalyzer.runSiteCrawlAnalysis(analysis);
 		}
 	}
 	
@@ -228,7 +386,7 @@ public class Experiment {
 				+ "and s.fullyApprovedUrl = true and (s.mostRecentCrawl is null or s.mostRecentCrawl < :staleDate)";
 		List<Site> sites = JPA.em().createQuery(queryString, Site.class)
 				.setFirstResult(0)
-				.setMaxResults(5000)
+				.setMaxResults(1000)
 				.setParameter("dealershipType", DealershipType.FRANCHISE)
 				.setParameter("staleDate", Global.getStaleDate())
 				.getResultList();
@@ -237,7 +395,7 @@ public class Experiment {
 		for(Site site : sites) {
 //			System.out.println("Site : " + site.getHomepage());
 			SiteCrawlPlan siteCrawlPlan = new SiteCrawlPlan(site);
-			Asyncleton.getInstance().getCrawlMaster().tell(siteCrawlPlan, ActorRef.noSender());
+			Asyncleton.getInstance().queueOneShotMessage(CrawlSupervisor.class, siteCrawlPlan);
 		}
 		
 //		ActorRef master = Asyncleton.getInstance().runConsumerMaster(50, 
@@ -253,6 +411,20 @@ public class Experiment {
 //		System.out.println("redirected : " + redirected.getHomepage());
 		
 		singlePlace();
+	}
+	
+	public static void testInvTool(SiteCrawl siteCrawl){
+		SiteCrawlAnalysis analysis = AnalysisDao.getOrNew(siteCrawl);
+		analysis.getConfig().setDoVehicles(true);
+		analysis.getConfig().setDoInventoryNumbers(true);
+//		SiteCrawlAnalyzer.runSiteCrawlAnalysis(analysis);
+		
+		for(Vehicle vehicle : analysis.getVehicles()){
+//			System.out.println("vehicle vin : " + vehicle.getVin());
+//			System.out.println("msrp : " + vehicle.getMsrp());
+			System.out.println("mileage : " + vehicle.getMileage());
+//			System.out.println("offered price: " + vehicle.getOfferedPrice());
+		}
 	}
 	
 	public static void singlePlace() throws IOException {
@@ -287,33 +459,6 @@ public class Experiment {
 		
 	}
 	
-	public static void crawlTesting() throws Exception {
-//		String queryString = "select pd.placesDealerId from PlacesDealer pd join pd.site s where pd.salesforceMatchString is null and s";
-		ActorRef crawlMaster = Asyncleton.getInstance().getCrawlMaster();
-		String queryString = "select s.siteId from SalesforceAccount sa join sa.site s where sa.dealershipType = :dealershipType";
-		List<Long> keyList = JPA.em().createQuery(queryString, Long.class).setParameter("dealershipType", DealershipType.FRANCHISE).setMaxResults(500).setFirstResult(2).getResultList();
-		System.out.println("found : " + keyList.size());
-		
-		for(Long key : keyList) {
-			SiteCrawlOrder workOrder = new SiteCrawlOrder(key);
-			crawlMaster.tell(workOrder, ActorRef.noSender());
-		}
-		
-//		Site site = SitesDAO.getOrNewThreadsafe("http://www.gregbell.com/VehicleSearchResults?search=used");
-//		SiteCrawlOrder workOrder = new SiteCrawlOrder(site.getSiteId());
-//		crawlMaster.tell(workOrder, ActorRef.noSender());
-		
-//		URI uri = new URI("http://www.gregbell.com/");
-//		crawlUri(uri);
-	}
-	
-
-	
-	public static void crawlUri(Site site) {
-		SiteCrawlPlan crawlPlan = new SiteCrawlPlan(site);
-		Asyncleton.getInstance().getCrawlMaster().tell(crawlPlan, ActorRef.noSender());
-	}
-	
 	public static void checkInvType() throws URISyntaxException{
 		URI uri = new URI("http://www.donmcgilltoyota.com/");
 //		Document doc = Jsoup.parse(uri.toURL(), 5000);
@@ -323,10 +468,6 @@ public class Experiment {
 //				System.out.println("Found match");
 //			}
 //		}
-	}
-	
-	public static void processObject(Object bob) {
-		System.out.println("bob : " + bob);
 	}
 	
 	public static void harleyCrawling() throws Exception {
@@ -1505,6 +1646,20 @@ public class Experiment {
 		System.out.println("level4 : " + level4);
 		System.out.println("level5 : " + level5);
 		System.out.println("unknown : " + unknown);
+	}
+	
+	public static void testLogging(){
+		Logger.debug("Logger debug");
+		Logger.info("Logger info");
+		Logger.warn("Logger warn");
+		Logger.error("Logger error");
+		Logger.trace("Logger trace");
+		
+//		Log.debug("Log debug");
+//		Log.info("Log info");
+//		Log.warn("Log warn");
+//		Log.error("Log error");
+//		Log.trace("Log trace");
 	}
 	
 }

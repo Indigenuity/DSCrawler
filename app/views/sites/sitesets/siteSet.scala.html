@@ -1,0 +1,20 @@
+@(siteSet : _root_.sites.persistence.SiteSet)
+
+@main("Site Set") {
+
+	<h2>Site Set @siteSet.getSiteSetId(): </span><a  class="site-set-description" href="@siteSet.getDescription()" target="_blank">@siteSet.getDescription()</a></h2>
+	
+	<div class="small-panel load-dashboard loading" data-dashboard-href="/sites/siteSets/siteSetDashboardStats/@siteSet.getSiteSetId()"></div>
+	
+	<a class="large-button in-page-link" href="/sites/siteSets/ensureFreshCrawl/@siteSet.getSiteSetId()">Ensure Fresh Crawls</a>
+	<a class="large-button in-page-link" href="/sites/siteSets/ensureFreshInventoryCrawl/@siteSet.getSiteSetId()">Ensure Fresh Inventory Crawls</a>
+	<a class="large-button in-page-link" href="/sites/siteSets/ensureNoErrorCrawl/@siteSet.getSiteSetId()">Ensure No Error Crawls</a>
+	<a class="large-button in-page-link" href="/sites/siteSets/ensureGoodCrawl/@siteSet.getSiteSetId()">Ensure Good Crawls</a>
+	<a class="large-button in-page-link" href="/sites/siteSets/ensureFreshAnalysis/@siteSet.getSiteSetId()">Ensure Fresh Analysis</a>
+	<a class="large-button in-page-link" href="/sites/siteSets/runAnalysis/@siteSet.getSiteSetId()">Run Analysis</a>
+	<a class="large-button in-page-link" href="/sites/siteSets/ensureFreshInventoryAnalysis/@siteSet.getSiteSetId()">Ensure Fresh Inventory Analysis</a>
+	<a class="large-button in-page-link" href="/sites/siteSets/runInventoryAnalysis/@siteSet.getSiteSetId()">Run Inventory Analysis</a>
+	
+	<a class="large-button in-page-link" href="/sites/siteSets/generateDealerFireReport/@siteSet.getSiteSetId()">Generate DealerFire Report</a>
+	
+}

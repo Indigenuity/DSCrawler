@@ -8,53 +8,64 @@ import java.util.Set;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
+import crawling.discovery.entities.DiscoveredSource;
 import crawling.discovery.entities.Resource;
 import crawling.discovery.execution.DiscoveryContext;
+import crawling.discovery.execution.PlanId;
 import crawling.discovery.planning.DiscoveryTool;
 import utilities.HttpUtils;
 
 public class LinkDiscoveryTool implements DiscoveryTool {
 
 	@Override
-	public Set<Object> discover(Resource parent, DiscoveryContext context) throws Exception {
-		HtmlResource htmlResource = (HtmlResource) parent.getValue();
-		
-		//Single discovery from redirects
-		//No sense in digging through an empty resource for more links
-		Set<URI> links = new HashSet<URI>();
-		if(HttpUtils.isRedirect(htmlResource.getStatusCode())){	
-			links.addAll(generateFromRedirect(htmlResource));
-		} else if(HttpUtils.isSuccessful(htmlResource.getStatusCode())) {
-			links.addAll(generateFromHtml(htmlResource));
-		} else {
+	public Set<DiscoveredSource> discover(Resource parent, DiscoveryContext context) throws Exception {
+		PlanId resourcePlanId = context.getPrimaryDestinationResourcePlanId();
+		if(resourcePlanId == null){
+			throw new IllegalArgumentException("Cannot discover links for DiscoveryContext without primaryDestinationResourcePlanId set");
 		}
-		return discoverLinks(links, context);
-	}
-	
-	protected Set<Object> discoverLinks(Set<URI> links, DiscoveryContext context) throws Exception {
-		Set<Object> discoveredLinks = new HashSet<Object>();
+		if(parent.getValue() == null || !(parent.getValue() instanceof HtmlResource)){
+			return new HashSet<DiscoveredSource>();
+		}
+		Set<URI> links = findLinks((HtmlResource)parent.getValue());
+		Set<DiscoveredSource> sources = new HashSet<DiscoveredSource>();
 		for(URI link : links){
-			if(context.discover(link)){
-				discoveredLinks.add(link);
-			}
+			sources.add(new DiscoveredSource(link, resourcePlanId));
 		}
-		return discoveredLinks;
+		return sources;
 	}
 	
-	protected Set<URI> generateFromRedirect(HtmlResource htmlResource) {
-//		System.out.println("LinkDiscoverytool generating from redirect");
+	protected Set<URI> findLinks(HtmlResource htmlResource) throws Exception{
+		if(HttpUtils.isError(htmlResource.getStatusCode())){
+			return findLinksFromError(htmlResource);
+		}
+		if(HttpUtils.isRedirect(htmlResource.getStatusCode())){
+			return findLinksFromRedirect(htmlResource);
+		}
+		return findLinksFromSuccess(htmlResource);
+	}
+	
+	protected Set<URI> findLinksFromError(HtmlResource htmlResource){
+		return new HashSet<URI>();
+	}
+	
+	protected Set<URI> findLinksFromRedirect(HtmlResource htmlResource) {
 		Set<URI> links = new HashSet<URI>();
 		links.add(htmlResource.getRedirectedUri());
 		return links;
 	}
 	
-	protected Set<URI> generateFromHtml(HtmlResource htmlResource) throws Exception{
-//		System.out.println("LinkDiscoverytool generating from html");
-		Document doc = htmlResource.getDocument();
+	protected Set<URI> findLinksFromSuccess(HtmlResource htmlResource) throws Exception{
+		if(htmlResource.docExists()){
+			return findLinksFromHtml(htmlResource.getDocument());
+		}
+		return new HashSet<URI>();
+	}
+	
+	protected Set<URI> findLinksFromHtml(Document doc) throws Exception{
 		Set<URI> links = new HashSet<URI>();
 		for(Element element : doc.select("a[href]")){
 			try {
-				URI link = toUri(element);
+				URI link = toUri(element.absUrl("href"));
 				if(HtmlUtils.isCrawlableFileExtension(link)){
 					links.add(link);
 				}
@@ -63,9 +74,8 @@ public class LinkDiscoveryTool implements DiscoveryTool {
 		return links;
 	}
 
-	protected URI toUri(Element linkElement) throws URISyntaxException{
-		String href = linkElement.absUrl("href");
-		if(href == null || href.equals("")){
+	protected URI toUri(String href) throws URISyntaxException{
+		if(href == null || href.trim().equals("")){
 			throw new URISyntaxException(href, "Empty href");
 		}
 		URI uri = new URI(href);

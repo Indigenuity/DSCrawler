@@ -19,4 +19,10 @@ Future things to do on Anansi crawler
 	Move all the generating in SiteCrawlPlan away from constructors and into generateContext
 	Make more elegant file storage of http responses
 	Fix persist settings on sitecrawl maxpages and maxdepth to go to specific resource plans
+	Develop better way to prioritize discovery
+	Find better mutexes for adding/removing/changing resources in CrawlContext and ResourceContext
+	Ensure uniqueness of sources within ResourceContext
+		Probably means moving DiscoveryPools to ResourceContext
+	Maybe remove some methods from ContextWithResources so CrawlContext doesn't throw UnsupportedOperationException
+	Change mapping of resourceplans to discoveryplans
 	

@@ -57,7 +57,7 @@ public class Report {
 	public ReportRow addReportRow(String key, ReportRow reportRow) {
 		return this.reportRows.put(key, reportRow);
 	}
-
+	
 	public Report setReportRows(Map<String, ReportRow> reportRows) {
 		this.reportRows.clear();
 		this.reportRows.putAll(reportRows);

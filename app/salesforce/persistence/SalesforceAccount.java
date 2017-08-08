@@ -87,7 +87,7 @@ public class SalesforceAccount implements SiteOwner{
 	
 	
 	//Denotes if there is a significant difference between the salesforceWebsite and the homepage of the assigned site.
-	private Boolean significantDifference = false;
+	private Boolean trivialDifference = false;
 	private Boolean siteMismatch = false;
 	private Boolean franchise;
 	
@@ -291,14 +291,6 @@ public class SalesforceAccount implements SiteOwner{
 
 	public String getFullLocation(){
 		return getStreet() + " " + getCity() + ", " + getState() + " " + getZip() + ", " + getCountry();
-	}
-
-	public Boolean getSignificantDifference() {
-		return significantDifference;
-	}
-
-	public void setSignificantDifference(Boolean significantDifference) {
-		this.significantDifference = significantDifference;
 	}
 
 	public DealershipType getDealershipType() {
@@ -678,5 +670,14 @@ public class SalesforceAccount implements SiteOwner{
 	public void setLastUpdated(Date lastUpdated) {
 		this.lastUpdated = lastUpdated;
 	}
-	
+
+	@Override
+	public Boolean isTrivialDifference() {
+		return trivialDifference;
+	}
+
+	@Override
+	public void setTrivialDifference(boolean trivialDifference) {
+		this.trivialDifference = trivialDifference;
+	}
 }

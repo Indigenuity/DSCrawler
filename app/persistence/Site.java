@@ -37,7 +37,7 @@ import org.hibernate.envers.NotAudited;
 
 import datadefinitions.WebProvider;
 import places.PlacesPage;
-import sites.SiteLogic;
+import sites.utilities.SiteLogic;
 import utilities.DSFormatter;
 
 @Entity
@@ -126,6 +126,11 @@ public class Site {
 			joinColumns={@JoinColumn(name="Site_siteId")},
 		    inverseJoinColumns={@JoinColumn(name="crawls_siteCrawlId")})
 	private List<SiteCrawl> crawls = new ArrayList<SiteCrawl>();
+	
+//	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne
+	@NotAudited
+	private SiteCrawl lastCrawl;
 	
 	@OneToMany(fetch=FetchType.LAZY)
 	@NotAudited
@@ -621,7 +626,10 @@ public class Site {
 	public Boolean getFullyApprovedHttp() {
 		return fullyApprovedHttp;
 	}
-	
-	
-	
+	public SiteCrawl getLastCrawl() {
+		return lastCrawl;
+	}
+	public void setLastCrawl(SiteCrawl lastCrawl) {
+		this.lastCrawl = lastCrawl;
+	}
 }

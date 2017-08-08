@@ -1,6 +1,8 @@
 package datatransfer;
 
 import global.Global;
+import persistence.Site;
+import persistence.SiteCrawl;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -13,17 +15,22 @@ import java.util.List;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
+import analysis.AnalysisDao;
+import analysis.SiteCrawlAnalysis;
 import crawling.projects.BasicDealer;
+import dao.SalesforceDao;
 import datatransfer.reports.Report;
 import datatransfer.reports.ReportRow;
 import places.PlacesPage;
 import play.db.jpa.JPA;
 import salesforce.SalesforceLogic;
 import salesforce.persistence.SalesforceAccount;
+import sites.persistence.SiteSet;
+import sites.utilities.SiteSetDao;
 
 public class CSVGenerator {
 	
-	public static void printReport(Report report) throws IOException {
+	public static File printReport(Report report) throws IOException {
 		System.out.println("printing report : " + report.getName());
 		report.acquireColumnNamesFromRows();
 		List<String[]> rows = new ArrayList<String[]>();
@@ -49,9 +56,10 @@ public class CSVGenerator {
 		printer.printRecords(rows);
 		printer.close();
 		fileOut.close();
+		return target;
 	}
 	
-	public static void writeReport(CSVReport report) throws IOException{
+	public static File writeReport(CSVReport report) throws IOException{
 		System.out.println("Writing to file ");
 		
 		String targetFilename = Global.getReportsStorageFolder() + "/" + report.getName();
@@ -65,7 +73,10 @@ public class CSVGenerator {
 		printer.printRecords(report.getRows());
 		printer.close();
 		fileOut.close();
+		return target;
 	}
+	
+	
 	
 	public static void generateBasicDealerExport() throws IOException {
 		String queryString = "select distinct bd from BasicDealer bd join bd.possibleMatches pm where bd.projectIdentifier = 'finished' and size(bd.possibleMatches) > 0";
@@ -95,52 +106,42 @@ public class CSVGenerator {
 		CSVGenerator.printReport(report);
 	}
 	
-
 	public static void generateInventoryCountReport() throws IOException {
-//		List<String[]> CSVRows = new ArrayList<String[]>();
-//		List<String> values = new ArrayList<String>();
-//		values.add("Salesforce Unique ID");
-//		values.add("Account Name");
-//		values.add("Task status");
-//		values.add("Current SalesForce Primary Website URL:");
-//		values.add("Resolved URL");
-//		values.add("Web Provider");
-//		values.add("Inventory Type");
-//		values.add("Web Provider Attributions");
-//		values.add("New Inventory URL");
-////		values.add("New Inventory Filename");
-////		values.add("PageCrawlId");
-//		values.add("New Inventory Count");
-//		values.add("Used Inventory URL");
-////		values.add("Used Inventory Filename");
-//		values.add("Used Inventory Count");
-//		values.add("Largest Inventory Count");
-//		values.add("Brand Affiliation Averages");
-//		CSVRows.add((String[])values.toArray(new String[values.size()]));
-//		
-//		TaskSet taskSet = JPA.em().find(TaskSet.class, 1L);
-//		int count = 0;
-//		for(Task supertask : taskSet.getTasks()){
-//			if(supertask.getWorkStatus() != WorkStatus.WORK_COMPLETED){
-//				continue;
-//			}
-//			String sfIdString = supertask.getContextItem("sfEntryId");
-//			String siteCrawlIdString = supertask.getContextItem("siteCrawlId");
-//			
-//			SFEntry sf = JPA.em().find(SFEntry.class, Long.parseLong(sfIdString));
-//			SiteCrawl siteCrawl = null;
-//			if(siteCrawlIdString != null && !siteCrawlIdString.equals("")){
-//				siteCrawl = JPA.em().find(SiteCrawl.class, Long.parseLong(siteCrawlIdString));
-//			}
-//			
+		
+		
+		List<String[]> CSVRows = new ArrayList<String[]>();
+		List<String> values = new ArrayList<String>();
+		values.add("Salesforce Unique ID");
+		values.add("Account Name");
+		values.add("Website");
+		values.add("Inventory Type");
+		values.add("Web Provider Attributions");
+		values.add("New Inventory URL");
+//		values.add("New Inventory Filename");
+//		values.add("PageCrawlId");
+		values.add("New Inventory Count");
+		values.add("Used Inventory URL");
+//		values.add("Used Inventory Filename");
+		values.add("Used Inventory Count");
+		values.add("Largest Inventory Count");
+		values.add("Brand Affiliation Averages");
+		CSVRows.add((String[])values.toArray(new String[values.size()]));
+		
+		List<Long> accountIds = SalesforceDao.getCurrentAccountIds();
+		
+		int count = 0;
+		for(Long accountId : accountIds){
+			SalesforceAccount sf = JPA.em().find(SalesforceAccount.class, accountId);
+			Site site = sf.getSite();
+			SiteCrawl siteCrawl = site.getLastCrawl();
+			
 //			values = new ArrayList<String>();
-//			values.add(sf.getAccountId());
+//			values.add(sf.getSalesforceId());
 //			values.add(sf.getName());
-//			values.add(supertask.getWorkStatus() + "");
-//			values.add(sf.getWebsite());
+//			values.add(site.getHomepage());
 //			if(siteCrawl != null){
 //				values.add(siteCrawl.getSeed());
-//				values.add(siteCrawl.getWebProvider() + "");
+//				values.add)
 //				values.add(siteCrawl.getInventoryType() + "");
 //				String wp = "";
 //				String delim = "";
@@ -204,20 +205,20 @@ public class CSVGenerator {
 //				values.add("");
 //			}
 //			
-//			CSVRows.add((String[])values.toArray(new String[values.size()]));
-//			if(++count % 500 == 0) {
-//				System.out.println("count : " + count);
-//			}
-//		}
-//		System.out.println("Writing to file ");
-//		
-//		String targetFilename = Global.getReportsStorageFolder() + "/invreport" + System.currentTimeMillis() + ".csv";  
-//		File target = new File(targetFilename);
-//		FileWriter fileOut = new FileWriter(target);
-//		CSVPrinter printer = new CSVPrinter(fileOut, CSVFormat.EXCEL);
-//		printer.printRecords(CSVRows);
-//		printer.close();
-//		fileOut.close();
+			CSVRows.add((String[])values.toArray(new String[values.size()]));
+			if(++count % 500 == 0) {
+				System.out.println("count : " + count);
+			}
+		}
+		System.out.println("Writing to file ");
+		
+		String targetFilename = Global.getReportsStorageFolder() + "/invreport" + System.currentTimeMillis() + ".csv";  
+		File target = new File(targetFilename);
+		FileWriter fileOut = new FileWriter(target);
+		CSVPrinter printer = new CSVPrinter(fileOut, CSVFormat.EXCEL);
+		printer.printRecords(CSVRows);
+		printer.close();
+		fileOut.close();
 		
 	}
 	

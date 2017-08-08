@@ -8,13 +8,13 @@ public abstract class FlushableResource extends Resource{
 	protected FlushState state = FlushState.FLUSHED;
 	
 	
-	public FlushableResource(Object source, Object value, Resource parent, ResourceId resourceId, PlanId planId) {
-		super(source, parent, resourceId, planId);
+	public FlushableResource(Object source, Object value, Resource parent, ResourceId resourceId) {
+		super(source, parent, resourceId);
 		this.setValue(value);
 	}
 	
 	public FlushableResource(Object source, Resource parent, ResourceId resourceId, PlanId planId) {
-		super(source, parent, resourceId, planId);
+		super(source, parent, resourceId);
 	}
 	
 	public FlushableResource(PreResource preResource, Resource parent, ResourceId resourceId, PlanId planId){

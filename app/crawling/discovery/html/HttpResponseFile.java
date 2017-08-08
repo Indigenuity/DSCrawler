@@ -43,6 +43,12 @@ public class HttpResponseFile implements HtmlResource{
 		return doc;
 	}
 	
+	@Override
+	public boolean docExists() {
+		return file != null && file.exists();
+	}
+	
+	
 	public URI getUri() {
 		return uri;
 	}
@@ -90,6 +96,5 @@ public class HttpResponseFile implements HtmlResource{
 	public void setRedirectedUri(URI redirectedUri) {
 		this.redirectedUri = redirectedUri;
 	}
-	
-	
+
 }

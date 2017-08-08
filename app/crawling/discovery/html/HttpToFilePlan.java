@@ -23,8 +23,9 @@ import crawling.discovery.execution.ResourceContext;
 import crawling.discovery.execution.ResourceSupervisor;
 import crawling.discovery.execution.ResourceWorkOrder;
 import crawling.discovery.execution.ResourceWorkResult;
-import crawling.discovery.planning.ResourceFetchTool;
+import crawling.discovery.planning.FetchTool;
 import crawling.discovery.planning.ResourcePlan;
+import crawling.discovery.planning.ResourceTool;
 import global.Global;
 
 public class HttpToFilePlan extends ResourcePlan{
@@ -34,20 +35,20 @@ public class HttpToFilePlan extends ResourcePlan{
 	public HttpToFilePlan(HttpConfig config) {
 		super();
 		this.config = config;
-		this.setFetchTool(new HttpToFileTool());
+		this.setResourceTool(new HttpToFileTool());
 	}
 	
 	@Override
-	public HttpToFileTool getFetchTool() {
-		return (HttpToFileTool)super.getFetchTool();
+	public HttpToFileTool getResourceTool() {
+		return (HttpToFileTool)super.getResourceTool();
 	}
 
 	@Override
-	public void setFetchTool(ResourceFetchTool fetchTool) {
-		if(!(fetchTool instanceof HttpToFileTool)){
-			throw new IllegalArgumentException("Cannot create HttpResponseFilePlan with a fetch tool that doesn't extends HttpToFileTool");
+	public void setResourceTool(ResourceTool resourceTool) {
+		if(!(resourceTool instanceof HttpToFileTool)){
+			throw new IllegalArgumentException("Cannot create HttpResponseFilePlan with a resource tool that doesn't extend HttpToFileTool");
 		}
-		super.setFetchTool(fetchTool);
+		super.setResourceTool(resourceTool);
 	}
 
 	public boolean matchesSeedHost(URI uri, CrawlContext crawlContext) {
