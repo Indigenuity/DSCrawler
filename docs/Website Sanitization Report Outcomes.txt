@@ -1,0 +1,59 @@
+Website Report Outcomes
+	
+		
+	Accept Generic Update
+		These websites also checked out as valid websites, but (1)the format was changed for consistency OR (2)a visit to the site resulted in an inconsequential redirect.
+		Recommend: Update salesforce with this data.  
+		Usable? : Yes.  I can crawl these sites, even before we update salesforce.
+			Examples
+			(1) e.g. www.charlottecountyFord.com -> http://www.charlottecountyFord.com
+			(2) e.g. http://www.valleyfieldnissan.com/ -> http://valleyfieldnissan.com/
+			
+	Accept Significant Update
+		These website addresses (1)had something wrong with the URL and I was able to fix it, OR (2)had unnecessary parts of the URL or the URL was for a page other than the homepage, OR (3)a visit to the site resulted in a significant change in the URL
+		Recommend: Websites with significant changes should be checked again by me or someone else.  A change like this could mean that a dealer went through change in ownership or name.  
+		Usable? : Yes.  I can crawl these sites, even before we update salesforce.  The crawls will based on the changed URL.
+			Examples
+			(1) http://www.shopautobahnLand Rover.com -> http://www.shopautobahnLandRover.com (removed a space)
+			(2) http://www.wigderchevrolet.com/ServiceApptForm -> http://www.wigderchevrolet.com/
+			(2) http://www.feldmanhyundai.net/?cs:e=hma -> http://www.feldmanhyundai.com/
+			(3) http://www.harperf-minc.com/ -> http://www.bobharperford.com/
+		
+	Approve Shared
+		These websites have the same domain as at least one other site, but they are legitimate websites.  This could be (1)an autogroup or other franchise which maintains a single website with pages for each location OR (2)an OEM website.  This category is mostly for me to mark sites for the crawler to not get stuck.
+		Recommend: Briefly review these again.  This can be done by me or someone else.  A Google search for the dealer may reveal a better website.
+		Usable? : Sort of.  I can crawl the sites but since the site "homepage" isn't a domain root, crawling more than one level would be tricky.
+			Examples
+			(1) http://www.parkplace.com/jaguar/plano/
+			(2) https://www.smart.com/ca/dealers/saguenay/fr/index.html
+
+	Defunct
+		These website addresses have something significantly wrong with them.  They either (1)have an incorrectly filled out website field, OR (2)a visit to the site returned an error, OR (3)a visit to the site redirected to a page indicating the site is gone or the domain is for sale
+		Recommend: These should all be reviewed individually to see if the dealer is still in business and if so what their website is.  Some dealers don't redirect their old URLs to their new sites.  For example, http://www.allensamuelschevroletcorpus.com/ is listed in salesforce for autonation north corpus christi, but that URL is bad.  When I Googled the dealership I found the correct website, http://www.autonationchevroletnorthcorpuschristi.com/ .  Another possibility for the crawler finding an error in visiting a site is that the site is protected in some way against crawlers or the DealerSocket IP address from when we did the original CapDB project.  Sites with a '403' status code (which means forbidden) should be checked from a computer in a different location than Draper.  
+		Usable? : No.  I can't crawl these sites.  
+			Examples
+			(1) NONE
+			(2) http://www.organsnissanhalifax.com/ -> yields a status 500 error
+			(3) http://www.audi.ca/agincourt -> http://www.audi.ca/ca/web/en/tools/navigation/error/404.html
+			(4) http://www.drivedetroittaylor.com/ -> http://www.drivedetroittaylor.com/UnusedDomains.htm
+	
+	No Action 
+		The websites for these accounts checked out as valid websites, no need to change them
+		Recommend: Pat ourselves on the back for having some clean data
+		Usable? : Yes. I can crawl these sites.
+		
+	Other Issue Requires Attention
+		For these accounts, (1)the website field is filled in weird, OR (2)it looked to me like there was something up with the URL but I'm not sure what, OR (3)the website field was used as a group label for some reason, OR (4) the crawler program had some unknown error that I have to work out.
+		Recommend: Review these after the other sites, since I need to figure out a lot of these myself
+		Usable? : No. I can't crawl these sites.
+			Examples
+			(1) "Registered, but did not attend April Auto Remarketing Webinar" is in the website field
+			(2) http://www.boucher.com/custom/Boucher%20Imports (unclear initially whether this should be marked as a shared domain)
+			(3) "Mossy Group" is in the website field
+			(4) https://www.jaguarlandroverwinnipeg.ca/ -> certificate error
+		
+	No Website
+		These salesforce accounts had nothing in the website field
+		
+		
+	

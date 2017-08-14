@@ -1,0 +1,10 @@
+Trivial Difference,Salesforce Unique ID,defunctDomain,Account Name,Current Salesforce Website,defunctContent,Site is kosher,defunctPath,uncrawlablePath,Website (Primary) URL,Http status code,uncrawlableDomain,badUrlStructure
+true,001j000000NmelsAAB,false,Mustang Country,www.mustangcountrychevy.com,false,true,false,false,http://www.mustangcountrychevy.com/,200,false,false
+true,001j000000aEo3qAAC,false,Stevens Creek Volkswagen,stevenscreekvw.com,false,true,false,false,http://www.stevenscreekvw.com/,200,false,false
+true,001j000000NmWpTAAV,false,Kinderhook Toyota,www.kinderhooktoyota.com,false,false,false,false,http://www.kinderhooktoyota.com/,200,false,false
+true,001j000000NmXUzAAN,false,Lester Raines Mazda,www.mazdalesterraines.com,false,false,false,false,http://www.mazdalesterraines.com/,0,false,false
+true,001j000000Nme0CAAR,false,Tommie Vaughn Ford,www.tommievaughn.com,false,true,false,false,http://www.tommievaughnford.com/,200,false,false
+true,001j000000aEaNRAA0,false,Tommie Vaughn Ford,http://www.tommievaughnford.com/,false,true,false,false,http://www.tommievaughnford.com/,200,false,false
+true,001j000000NmdcaAAB,false,Infiniti of Ann Arbor,www.infinitiofannarbor.com,false,true,false,false,http://www.infinitiofannarbor.com/,200,false,false
+true,001j000000NmPJTAA3,false,Southern Chevrolet Cadillac Inc,www.southernchevrolet.com,false,true,false,false,http://www.southernchevrolet.com/,200,false,false
+true,001j000000NmgpZAAR,false,York's Ford,www.yorkfordsales.com,false,true,false,false,http://www.yorkfordsales.com/,200,false,false

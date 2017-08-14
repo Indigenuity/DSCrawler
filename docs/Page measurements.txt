@@ -1,0 +1,49 @@
+All solutions
+
+body height : 1719
+body width : 964
+css body width: 964px
+css body height: 1719px
+window height : 978
+window width : 945
+scrollwidth : 980
+offsetwidth : 980
+clientwidth : 980
+offsetLeft : 0
+offsetParent : null
+clientLeft : 0
+scrollLeft : 0
+scrollLeftMax : null
+scrollHeight : 1743
+ 
+body height : 1719
+body width : 964
+css body width: 964px
+css body height: 1719px
+window height : 320
+window width : 480
+scrollwidth : 980
+offsetwidth : 980
+clientwidth : 980
+offsetLeft : 0
+offsetParent : null
+clientLeft : 0
+scrollLeft : 0
+scrollLeftMax : null
+scrollHeight : 1743
+ 
+body height : 1719
+body width : 964
+css body width: 964px
+css body height: 1719px
+window height : 1100
+window width : 1480
+scrollwidth : 980
+offsetwidth : 980
+clientwidth : 980
+offsetLeft : 0
+offsetParent : null
+clientLeft : 0
+scrollLeft : 0
+scrollLeftMax : null
+scrollHeight : 1743

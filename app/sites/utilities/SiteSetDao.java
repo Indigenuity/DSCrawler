@@ -113,22 +113,24 @@ public class SiteSetDao {
 	
 	public static List<Long> sitesWithBadInventoryCrawls(Long siteSetId){
 		String queryString = "select distinct s.siteId from SiteSet ss join ss.sites s join s.lastCrawl sc where ss.siteSetId = :siteSetId and sc.crawlDate > :staleDate "
-				+ " and sc.inventoryCrawlSuccess = false";
+				+ " and (sc.inventoryCrawlSuccess = false or size(sc.pageCrawls) < :smallCrawlThreshold)";
 		List<Long> siteIds = JPA.em().createQuery(queryString, Long.class)
 				.setParameter("siteSetId", siteSetId)
 				.setParameter("staleDate",  Global.getStaleDate(), TemporalType.DATE)
+				.setParameter("smallCrawlThreshold", SiteCrawlLogic.SMALL_CRAWL_THRESHOLD)
 				.getResultList();
 		return siteIds;
 	}
 	
 	public static List<Long> sitesWithGoodInventoryCrawls(Long siteSetId){
 		String queryString = "select distinct s.siteId from SiteSet ss join ss.sites s join s.lastCrawl sc where ss.siteSetId = :siteSetId and sc.crawlDate > :staleDate "
-				+ " and sc.inventoryCrawlSuccess = true";
+				+ " and sc.inventoryCrawlSuccess = true and size(sc.pageCrawls) >= :smallCrawlThreshold";
 		List<Long> siteIds = JPA.em().createQuery(queryString, Long.class)
 				.setParameter("siteSetId", siteSetId)
 				.setParameter("staleDate",  Global.getStaleDate(), TemporalType.DATE)
+				.setParameter("smallCrawlThreshold", SiteCrawlLogic.SMALL_CRAWL_THRESHOLD)
 				.getResultList();
 		return siteIds;
 	}
-
+	
 }

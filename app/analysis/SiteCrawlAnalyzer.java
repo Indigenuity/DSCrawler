@@ -34,6 +34,7 @@ import persistence.InventoryNumber;
 import persistence.PageCrawl;
 import persistence.SiteCrawl;
 import persistence.Staff;
+import play.Logger;
 import play.db.jpa.JPA;
 import utilities.Tim;
 import utilities.UrlUtils;
@@ -54,9 +55,11 @@ public class SiteCrawlAnalyzer {
 	
 	public SiteCrawlAnalysis runAnalysis(){
 		analysis.setAnalysisDate(new Date());
+		unmarkWorkDone(analysis);
 		if(config.getAnalysisMode() == AnalysisMode.PAGED){
 			pagedMode();
 		}
+		markWorkDone(analysis);
 		return analysis;
 	}
 	
@@ -71,8 +74,9 @@ public class SiteCrawlAnalyzer {
 			aggregateInventory(analysis);
 			calculateCapDbScores(analysis);
 		} catch(Exception e){
-			System.out.println("Exception in analysis : " + e.getClass() + " : " + e.getMessage());
-			e.printStackTrace(); 
+			analysis.setErrorMessage(e.getMessage());
+			Logger.error("Exception in analysis", e);
+			
 		}
 //		Tim.end();
 //		System.out.println("finished");
@@ -322,8 +326,21 @@ public class SiteCrawlAnalyzer {
 		}
 	}
 	
+	public static void unmarkWorkDone(SiteCrawlAnalysis analysis){
+		analysis.setInventoryDone(false);
+		analysis.setMatchingDone(false);
+		analysis.setCapDbDone(false);
+		analysis.setExtractionDone(false);
+		analysis.setErrorMessage(null);
+	}
 	
-	
+	public static void markWorkDone(SiteCrawlAnalysis analysis){
+		AnalysisConfig config = analysis.getConfig();
+		analysis.setInventoryDone(config.getDoInventory());
+		analysis.setMatchingDone(config.getDoMatching());
+		analysis.setCapDbDone(config.getDoCapDb());
+		analysis.setExtractionDone(config.getDoExtraction());
+	}
 	
 	/*****************************   Text Analysis ********************************/
 	

@@ -1,0 +1,51 @@
+Process : Importing Salesforce Accounts
+
+	Purpose
+		Keeping local records of Salesforce accounts allows for list comparisons and data quality checks
+		
+	
+	Input
+		CSV of all Salesforce accounts, with fields:
+			Account Name
+			Salesforce Unique ID
+			Website
+			Account Level
+			Parent Account 
+			Parent Account ID
+			Phone
+			Dealership Street
+			Dealership City
+			Dealership State/Province
+			Dealership Zip/Postal Code
+			Dealership Country
+			Brand Affiliation
+			Dealership Type
+			Account Type
+		DB table 'SalesforceAccount'
+			
+	Output
+		Updated DB table 'SalesforceAccount'
+			New records inserted
+			Existing records updated
+			Outdated records marked
+		
+		
+	Process Description
+		Keylists of Salesforce IDs are generated for imported list and existing DB table
+		Keylists are compared to determine which records to insert, update, and outdate
+		Iterate over insert, update, and outdate keylists and perform appropriate actions
+		
+		
+	Reports
+		Counts of current records:
+			Total accounts
+			Franchise accounts
+			Independent accounts
+			Group accounts
+			
+		Counts of changes made:
+			Updated records
+			Inserted records
+			Outdated records
+			Unchanged records
+			

@@ -395,7 +395,7 @@ public class SitesController extends Controller {
 		SiteSet siteSet = JPA.em().find(SiteSet.class, siteSetId);
 		Set<Long> siteIds = new HashSet<Long>();
 		siteIds.addAll(SiteSetDao.sitesWithFreshCrawls(siteSet.getSiteSetId()));
-		Asyncleton.getInstance().runConsumerMaster(5, 
+		Asyncleton.getInstance().runConsumerMaster(5,
 				JpaFunctionalBuilder.wrapConsumerInFind((site) ->{
 					SiteCrawl siteCrawl = site.getLastCrawl();
 					AnalysisControl.runInventoryAnalysis(siteCrawl);	

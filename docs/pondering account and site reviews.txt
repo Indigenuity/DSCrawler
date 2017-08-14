@@ -1,0 +1,97 @@
+import sf account #x with website "http://kengarffvw.com"
+
+in search for sf accounts with no site, acount #x is found
+
+	no site is found with homepage "http://kengarffvw.com"
+		Site is created
+		account is assigned site
+	OR site is found with homepage "http://kengarffvw.com"
+		account is assigned site
+		
+When unvalidated accounts are checked, site #y with "http://kengarffvw.com" as homepage is included
+	
+	UrlCheck reveals that "http://kengarffvw.com" is exactly right
+		site #y is marked as validated
+	OR UrlCheck reveals that "http://kengarffvw.com" should really be "http://www.kengarffvw.com"
+		site #z is created
+		site #y is marked as defunct
+		site #y redirectsTo is populated
+	OR UrlCheck reveals that "http://kengarffvw.com" forwards to "http://www.kengarffvw.net"
+		site #y is marked for review with suggestion to accept
+	OR UrlCheck reveals that "http://kengarffvw.com" results in an error
+		site #y is marked for review
+		
+		
+Dealers with defunct sites or sites needing review are selected.  Account #x shows up since site #y falls into one of these 
+	
+	site #y is defunct and has a redirect or manual redirect to site #z
+		account #x is changed to point to site #z
+		action is automatic; no manual review
+	OR site #y is defunct and has no redirect
+		no manual review; account and site are included in report
+	OR site #y needs review because "kengarffvw.com" forwards to "kengarffvw.net"
+		site #z is created
+		site #y is marked as defunct
+		site #y redirectsTo is populated
+		account #x is changed to point to site #z
+	OR site #y needs review because "kengarffvw.com" forwards to "unuseddomains.com"
+		site #y is marked as defunct
+	OR site #y needs review because "kengarffv.com" is a typo for "kengarffvw.com"
+		site #z is created
+		site #y is marked as defunct
+		site #y manualRedirectsTo is populated
+		account #x is changed to point to site #z
+	OR site #y needs review because "kengarffvw.com/?query=whack" is not approved
+	OR site #y needs review because "kengarffvw.com/index.html" results in a 404
+		site #z is created with homepage "kengarffvw.com"
+		site #y is marked as defunct
+		site #y manualRedirectsTo is populated
+		account #x is changed to point to site #z
+	OR site #y needs review because "kengarffvw.com" results in 404 or 500 or other error
+		site #y is marked as defunct
+	OR site #y needs review because "kengarffsux" is not a website
+		site #y is marked as invalid
+	OR site #y needed review for whatever reason but it was "kengarffvw.com" but should have been "kengarffnissan.com"
+		site #z is created
+		account #x is changed to point to site #z
+		site #y is left abandoned
+	
+	
+Later, account #x is updated in salesforce 
+	
+In search for changed websites, account #x is found
+	
+	account #x has new website, "kengarffoemsite.com"
+		new website matches current site
+			No change; no manual review
+		OR new website is different from current site
+			new website is generic redirect of current site, site #y
+				site #z is created with homepage "kengarffoemsite.com"
+				site #y is marked as defunct
+				site #y redirectsTo is populated
+				account #x is changed to point to site #z
+			OR new website is significantly different
+				site #z is created with homepage "kengarffoemsite.com"
+				account #x is changed to point to site #z
+				site #y is abandoned
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+		

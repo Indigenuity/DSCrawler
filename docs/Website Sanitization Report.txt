@@ -1,0 +1,31 @@
+Website list sanitization report
+
+Contains the following for each website
+	Salesforce id
+	Crawler Site id 
+	Seed (Original URL)
+	Manually entered seed (Original URL after I update it by hand)
+	Standardized Seed (add http, etc.)
+	Resolved Seed (only different from original URL if redirected)
+	Status Code (Was the visit to the URL ultimately successful?)
+	Does the URL make sense (used to make recommendation for action)
+		Is the URL even valid? (kengarffcom is not a valid URL)
+		Generic redirect (http -> https, etc.)
+		Path makes sense for homepage (index.html, not staff.html)
+		Path includes language specifications (dealer.com/fr/index)
+		Query string is necessary or unavoidable (?pid=1 indicates homepage)
+		Query string includes language specification (?lang=fr)
+		Domain makes sense (nothing on facebook.com)
+	Site shares domain with other sites, differentiated only by path (paaco.com websites)
+	Recommendation (What to do now)
+	
+	
+	
+Possible recommendations
+	No action -- original URL is just fine
+	Remove from list because defunct (outofbusinessdealer.com doesn't show a website anymore)
+	Resolve duplicate listing
+	Accept generic update (redirect or update was not a significant change, like https -> http)
+	Accept significant update (redirect or update was a significant change, like bobscars.com -> jimsautos.com)
+		- might also indicate other changes need to be made to salesforce account, like change of address or account name
+	Undecided (Interim recommendation.  Eventually this recommendation should be changed to one of these others)

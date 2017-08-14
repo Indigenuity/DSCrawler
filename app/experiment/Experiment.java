@@ -124,6 +124,7 @@ import akka.pattern.Patterns;
 import analysis.AnalysisConfig;
 import analysis.AnalysisDao;
 import analysis.AnalysisSet;
+import analysis.MobileCrawlAnalyzer;
 import analysis.SiteCrawlAnalysis;
 import analysis.SiteCrawlAnalyzer;
 import analysis.TextAnalyzer;
@@ -182,13 +183,56 @@ public class Experiment {
 //		Report report = ReportGenerator.generateWebsiteReport();
 //		CSVGenerator.printReport(report);
 		
-//		Site site = JPA.em().find(Site.class, 7L);
+//		Site site = JPA.em().find(Site.class, 342L);
+//		
+//		SiteLogic.runMobileCrawl(site);
+		
+		List<Long> siteIds = SiteSetDao.sitesWithGoodCrawls(3L);
+		
+		Asyncleton.getInstance().runConsumerMaster(5, 
+					JpaFunctionalBuilder.wrapConsumerInFind(arg0 -> {
+						try {
+							SiteLogic.runMobileCrawl(arg0);
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}, Site.class), 
+					siteIds.stream(), 
+					true);
+		
+//		MobileCrawl mobileCrawl = MobileCrawler.defaultMobileCrawl("http://www.kengarffvw.com/");
+//		Logger.info("isMobisite " + mobileCrawl.isMobiSite());
+//		Logger.info("isresponsive " + mobileCrawl.isResponsive());
+//		Logger.info("isadaptive" + mobileCrawl.isAdaptive());
+//		Logger.info("mostlyresponsive " + mobileCrawl.isMostlyResponsive());
+//		Logger.info("mostlyeadaptive " + mobileCrawl.isMostlyAdaptive());
+//		Logger.info("Mobile crawl resolved seed : " + mobileCrawl.getResolvedSeed());
+//		Logger.info("running mobile analysis");
+//		MobileCrawlAnalyzer.analyzeMobileCrawl(mobileCrawl);
+//		Logger.info("isMobisite " + mobileCrawl.isMobiSite());
+//		Logger.info("isresponsive " + mobileCrawl.isResponsive());
+//		Logger.info("isadaptive" + mobileCrawl.isAdaptive());
+//		Logger.info("mostlyresponsive " + mobileCrawl.isMostlyResponsive());
+//		Logger.info("mostlyeadaptive " + mobileCrawl.isMostlyAdaptive());
+//		Logger.info("Mobile crawl resolved seed : " + mobileCrawl.getResolvedSeed());
+		
+		
+		
+		
+		
+//		AnalysisDao.has
+//		
+//		AnalysisControl.runFullAnalysis(site.getLastCrawl());
+		
+		
+		
 //		System.out.println("urlcheck id : " + site.getUrlCheck().getUrlCheckId());
 //		System.out.println("status code : " + site.getUrlCheck().getStatusCode());
 		
-		SalesforceAccount account = JPA.em().find(SalesforceAccount.class, 1856l);
-		System.out.println("site : " + account.getSite().getHomepage());
-		System.out.println("unresolvedsite: " + account.getUnresolvedSite().getHomepage());
+//		SalesforceAccount account = JPA.em().find(SalesforceAccount.class, 1856l);
+//		System.out.println("site : " + account.getSite().getHomepage());
+//		System.out.println("unresolvedsite: " + account.getUnresolvedSite().getHomepage());
 //		SiteOwnerLogic.refreshRedirectPath(account);
 //		System.out.println("site : " + account.getSite().getHomepage());
 //		System.out.println("unresolvedsite: " + account.getUnresolvedSite().getHomepage());

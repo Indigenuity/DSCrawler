@@ -1,0 +1,6 @@
+Documentation for DSCrawler
+
+	Logging 
+		The code periodically calls the Logger to print messages.  Debugging statements are sent to a file, and anything more important is sent to the console(activator)
+		
+	

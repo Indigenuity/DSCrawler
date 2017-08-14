@@ -1,0 +1,31 @@
+Questions about DealerFire research
+
+On these questions, they might seem a bit pedantic, but I'm just trying to be thorough so we can get usable data.
+
+	For attributes like 'H1 unique to page?'
+		This is information that comes from each page individually.  For a site as a whole, do you want a percentage of the pages that have a unique H1?  Or a yes/no based on that percentage?
+		Same question for each attribute that describes a single page
+		
+	Alt. image tags
+		Just want to info on whether they exist, or about their length/content?
+		
+	URL readability
+		Would it suffice to look for big query strings for bad readability or a high occurrence of '-'?  
+			'-' is universally used to separate words, so it is a sign of readability.
+		Should probably ignore search pages because:
+			The example for a bad URL provided in the slideshow can be found on every site with search functionality--so ALL sites.  Search URLs are not designed to be readable.
+
+	Keyword Stuffing
+		Is it enough to know the title is in the 50-65 character range?  Stuffing can be subjective, even for human readers.
+		A check for excessive commas would find most stuffers, but not all.  Should I include this test?
+		
+	Responsive detection
+		Just checking for presence of screen-size sensitive CSS files.  This will record attempts at responsiveness, but not the quality.
+		Checking for site-size vs browser-size would involve building in-browser plugin (possible, but time-consuming)
+		
+	Image quality
+		Unless this only cares about image resolution, this would be impossible to automate, so we'd need people to manually check this
+		
+	Can I get a list of 5 or 6 sites that have mobile redirect set up?
+		
+		

@@ -25,6 +25,7 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.Formula;
 
 import datadefinitions.GeneralMatch;
 import datadefinitions.OEM;
@@ -38,6 +39,7 @@ import persistence.InventoryNumber;
 import persistence.PageCrawl;
 import persistence.SiteCrawl;
 import sites.persistence.Vehicle;
+import utilities.DSFormatter;
 
 @Entity
 public class SiteCrawlAnalysis {
@@ -67,10 +69,20 @@ public class SiteCrawlAnalysis {
 	
 	protected Date analysisDate;
 	
+	protected String errorMessage = null;
+	
 	protected int numCrawls = 0;
 	protected int numGoodCrawls = 0;
 	protected int numGoodPercentage = 0;
 	protected String invTypes;
+	
+	protected boolean inventoryDone = false;
+	protected boolean matchingDone = false;
+	protected boolean capDbDone = false;
+	protected boolean extractionDone = false;
+	
+	@Formula("inventoryDone = 1 AND matchingDone = 1 AND capDbDone = 1 AND extractionDone = 1")
+	protected boolean fullAnalysisDone;
 	
 	protected Boolean oemMandated = false;
 	
@@ -192,8 +204,6 @@ public class SiteCrawlAnalysis {
 	@MapKeyEnumerated(EnumType.STRING)
 	@Fetch(FetchMode.SELECT)
 	protected Map<OEM, Integer> oemMetaCounts = new HashMap<OEM, Integer>();
-	
-	
 	
 	public PageCrawlAnalysis getForPageCrawl(PageCrawl pageCrawl) {
 		for(PageCrawlAnalysis pageAnalysis : pageAnalyses) {
@@ -749,7 +759,49 @@ public class SiteCrawlAnalysis {
 	public void setOemMandated(Boolean oemMandated) {
 		this.oemMandated = oemMandated;
 	}
-	
-	
-	
+
+	public boolean isInventoryDone() {
+		return inventoryDone;
+	}
+
+	public void setInventoryDone(boolean inventoryDone) {
+		this.inventoryDone = inventoryDone;
+	}
+
+	public boolean isMatchingDone() {
+		return matchingDone;
+	}
+
+	public void setMatchingDone(boolean matchingDone) {
+		this.matchingDone = matchingDone;
+	}
+
+	public boolean isCapDbDone() {
+		return capDbDone;
+	}
+
+	public void setCapDbDone(boolean capDbDone) {
+		this.capDbDone = capDbDone;
+	}
+
+	public boolean isExtractionDone() {
+		return extractionDone;
+	}
+
+	public void setExtractionDone(boolean extractionDone) {
+		this.extractionDone = extractionDone;
+	}
+
+	public boolean isFullAnalysisDone() {
+		return fullAnalysisDone;
+	}
+
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = DSFormatter.truncate(errorMessage, 255);
+	}
+
 }

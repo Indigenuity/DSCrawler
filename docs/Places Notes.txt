@@ -1,0 +1,17 @@
+Notes about Places
+
+	Some are clearly not car dealers
+		
+		
+	Some we have accounts for, but no website
+		http://vansvansandmore.net/
+		https://dealersocket.my.salesforce.com/001j000000VuFp3?srPos=2&srKp=001
+	
+	Some reveal incorrect/deeper heirarchy
+		http://vansvansauto.fourstatesauto.com/
+		http://fourstatesauto.com/
+		https://dealersocket.my.salesforce.com/001j000000VuFp2?srPos=0&srKp=001
+		
+		
+		
+		

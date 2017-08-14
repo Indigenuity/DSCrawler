@@ -1,0 +1,28 @@
+foreignType,country,city,stdPostal,stdState,stdName,salesforceMatchString,foreignIdentifierString,outdated,street,custom3,custom4,custom1,state,custom2,custom5,custom6,identifier,website,stdStreet,stdCity,basicDealerId,phone,stdCountry,name,postal,projectIdentifier,stdPhone
+null,Canada,Sherbrooke,J1R0P4,QC,null,"Address Match : 001j0000016zqxCAAQ
+Phone Match : 001j0000016zqxCAAQ
+Website Match : 001j000000QqPU1AAN",null,null,5020 boul. Industriel,null,null,"5020 boul. Industriel, Sherbrooke, QC J1R 0P4",QC,null,null,null,null,http://www.performancenc.ca,5020 boul industriel,null,2636,819-821-3595,Canada,Evasion BMW,J1R 0P4,finished,8198213595
+null,Canada,St-Germain de Grantham (Drummondville),J0C1K0,QC,null,"Address Match : 001j000000QqPhMAAV
+Phone Match : 001j000000QqPhMAAV
+Website Match : 001j000000QqPU1AAN",null,null,176 Boul. Industriel,null,null,"176 Boul. Industriel, St-Germain de Grantham (Drummondville), QC J0C 1K0",QC,null,null,null,null,http://www.performancenc.ca,176 boul industriel,null,2635,819-395-2464,Canada,Carrier BMW,J0C 1K0,finished,8193952464
+null,Canada,Ajax,L1Z0C5,ON,null,"Address Match : 001j000000PbXRNAA3
+Phone Match : 001j000000PbXRNAA3",null,null,100 Achilles Road,null,null,"100 Achilles Road, Ajax, ON L1Z 0C5",ON,null,null,null,null,http://www.bmwbikes.ca,100 achilles road,null,2631,905-619-5522,Canada,Endras Motorrad,L1Z 0C5,finished,9056195522
+null,Canada,Oakville,L6L5M9,ON,null,Phone Match : 001j000000PbXf7AAF,null,null,2486 South Service Road West,null,null,"2486 South Service Road West, Oakville, ON L6L 5M9",ON,null,null,null,null,http://www.buddsmotorrad.com,2486 south service road west,null,2630,905-845-3577,Canada,Budds' BMW Motorrad,L6L 5M9,finished,9058453577
+null,United States,Greenville,29607,SC,null,"Address Match : 001j000000Nmi90AAB
+Phone Match : 001j000000Nmi90AAB
+Website Match : 001j000000Nmi90AAB",null,false,1431 Laurens Rd,null,null,"1431 Laurens Rd
+Greenville, SC 29607",SC,null,null,null,null,http://www.touringsport.com/,1431 laurens road,null,1143,+1 (864) 232-2269,United States,Touring Sport BMW,29607,finished,8642322269
+null,Canada,Toronto,M4M1B5,ON,null,"Address Match : 001j000000NmiH7AAJ
+Website Match : 001j000000NmiH7AAJ",null,null,11 Sunlight Park Road,null,null,"11 Sunlight Park Road, Toronto, ON M4M 1B5",ON,null,null,null,null,http://www.bmwtoronto.ca,11 sunlight park road,null,2629,416-623-4269,Canada,BMW Toronto,M4M 1B5,finished,4166234269
+null,United States,Indianola,50125,IA,null,"Address Match : 001j000000VuFE6AAN
+Phone Match : 001j000000VuFE6AAN",null,false,301 S Jefferson Way,null,null,"301 S Jefferson Way
+Indianola, IA 50125",IA,null,null,null,null,http://www.vanwallbmw.com/,301 south jefferson way,null,1293,+1 (515) 961-6288,United States,Van-Wall Powersports,50125,finished,5159616288
+null,United States,Albuquerque,87109,NM,null,"Phone Match : 001j000000NmWhxAAF
+Website Match : 001j000000NmWhxAAF",null,false,6001 Pan American Fwy NE,null,null,"6001 Pan American Fwy NE
+Albuquerque, NM 87109",NM,null,null,null,null,http://www.sandiabmw.com/,6001 pan american fwy ne,null,1161,+1 (505) 884-0066,United States,Sandia BMW Motorcycles,87109,finished,5058840066
+null,United States,Honolulu,96813,HI,null,"Address Match : 001j000000NmZF6AAN
+Phone Match : 001j000000VuGw0AAF
+Website Match : 001j000000VuGw0AAF",null,false,888 Kapiolani Boulevard,null,null,"888 Kapiolani Boulevard
+Honolulu, HI 96813",HI,null,null,null,null,http://www.southseascycles.com/,888 kapiolani boulevard,null,1291,+1 (808) 836-1144,United States,BMW Motorcycles of Honolulu,96813,finished,8088361144
+null,Canada,Montréal,H4B1V3,QC,null,"Phone Match : 001j000000j8U67AAE
+Website Match : 001j000000j8U67AAE",null,null,6695 rue Saint-Jacques,null,null,"6695 rue Saint-Jacques, Montréal, QC H4B 1V3",QC,null,null,null,null,http://www.motointer.com,6695 rue saintjacques,null,2637,514-483-6686,Canada,Moto Internationale,H4B 1V3,finished,5144836686

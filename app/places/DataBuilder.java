@@ -122,6 +122,7 @@ public class DataBuilder {
 		}
 	}
 	
+	
 	public static void refreshUsZips() throws IOException{
 		System.out.println("refreshing US Zipcodes");
 		Reader in = new FileReader(Global.getInputFolder() + "/zips/free-zipcode-database-Primary.csv");

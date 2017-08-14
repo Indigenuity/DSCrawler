@@ -252,7 +252,7 @@ public class MobileCrawler {
 			System.out.println("starting actual mobile crawl");
 			/*********************** Perform actual mobile crawl with mobile browser ************************************/	
 			Map<String, String> mobileEmulation = new HashMap<String, String>();
-			mobileEmulation.put("deviceName",  "Apple iPhone 6");
+			mobileEmulation.put("deviceName",  "iPhone 6");
 			Map<String, Object> chromeOptions = new HashMap<String, Object>();
 			chromeOptions.put("mobileEmulation",  mobileEmulation);
 			capabilities.setCapability(ChromeOptions.CAPABILITY, chromeOptions);

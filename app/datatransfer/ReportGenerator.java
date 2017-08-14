@@ -82,6 +82,8 @@ public class ReportGenerator {
 		reportRow.putCell("uncrawlablePath", site.getUncrawlablePath());
 		reportRow.putCell("Http status code", site.getUrlCheck().getStatusCode());
 		reportRow.putCell("Site is kosher", site.getFullyKosher());
+		reportRow.putCell("Http Error", site.getHttpError());
+		
 		return reportRow;
 	}
 	

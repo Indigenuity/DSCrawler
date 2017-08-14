@@ -71,6 +71,21 @@ public class AnalysisConfig {
 
 
 	public void setDoAll(){
+		doMatching();
+		doInventory();
+		doExtraction();
+		doCapDb();
+	}
+	
+	public void doInventory(){
+		this.doNewInventoryPage = true;
+		this.doUsedInventoryPage = true;
+		this.doInventoryNumbers = true;
+		this.doVehicles = true;
+		this.doPrices = true;
+	}
+	
+	public void doMatching(){
 		this.doBrandMatches = true;
 		this.doMetaBrandMatches = true;
 		this.doGeneralMatches = true;
@@ -80,26 +95,54 @@ public class AnalysisConfig {
 		this.doWpAttributionMatches = true;
 		this.doLinkTextMatches = true;
 		this.doTestMatches = true;
-		
-		
-		//*********** Inventory
-		this.doNewInventoryPage = true;
-		this.doUsedInventoryPage = true;
-		this.doInventoryNumbers = true;
-		this.doVehicles = true;
-		this.doPrices = true;
-		
-		//************ Extraction
-		this.extractUrls = true;
-		this.extractStrings = true;
-		this.extractLinks = true;
-		
-		//*********** CapDB scores
+	}
+	
+	public void doCapDb(){
 		this.doTitleTagScoring = true;
 		this.doUrlScoring = true;
 		this.doAltImageTagScore = true;
 		this.doH1Score = true;
 		this.doMetaDescriptionScore = true;
+	}
+	
+	public void doExtraction(){
+		this.extractUrls = true;
+		this.extractStrings = true;
+		this.extractLinks = true;
+	}
+	
+	public boolean getDoInventory(){
+		return this.doNewInventoryPage
+				&& this.doUsedInventoryPage
+				&& this.doInventoryNumbers
+				&& this.doVehicles
+				&& this.doPrices;
+	}
+	
+	public boolean getDoMatching(){
+		return this.doBrandMatches
+				&& this.doMetaBrandMatches
+				&& this.doGeneralMatches
+				&& this.doSchedulerMatches
+				&& this.doWpClues
+				&& this.doWebProviderMatches
+				&& this.doWpAttributionMatches
+				&& this.doLinkTextMatches
+				&& this.doTestMatches;
+	}
+	
+	public boolean getDoCapDb() {
+		return this.doTitleTagScoring
+				&& this.doUrlScoring
+				&& this.doAltImageTagScore
+				&& this.doH1Score
+				&& this.doMetaDescriptionScore;
+	}
+	
+	public boolean getDoExtraction() {
+		return this.extractUrls
+				&& this.extractStrings
+				&& this.extractLinks;
 	}
 
 	public Boolean getDoBrandMatches() {

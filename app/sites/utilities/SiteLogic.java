@@ -11,14 +11,17 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 
 import akka.actor.ActorRef;
+import analysis.MobileCrawlAnalyzer;
 import async.async.Asyncleton;
 import async.functionalwork.ConsumerWorkOrder;
 import async.functionalwork.JpaFunctionalBuilder;
+import crawling.MobileCrawler;
 import dao.SitesDAO;
 import datadefinitions.StringExtraction;
 import datadefinitions.StringMatchUtils;
 import datadefinitions.newdefinitions.AutoRemoveQuery;
 import global.Global;
+import persistence.MobileCrawl;
 import persistence.Site;
 import persistence.SiteCrawl;
 import persistence.Site.RedirectType;
@@ -57,6 +60,15 @@ public class SiteLogic {
 		return false;
 	}
 	
+	//****************** Mobile Crawls *********************************************//
+	
+	public static void runMobileCrawl(Site site) throws Exception{
+		MobileCrawl crawl = MobileCrawler.defaultMobileCrawl(site.getHomepage());
+		crawl.setSite(site);
+		MobileCrawlAnalyzer.analyzeMobileCrawl(crawl);
+		JPA.em().persist(crawl);
+	}
+	
 	//***************** Detecting and generating redirects ************************//
 	
 	public static Site getRedirectEndpoint(Site site, boolean allowManualRedirects){
@@ -73,7 +85,7 @@ public class SiteLogic {
 		return site;
 	}
 	
-	public static Site refreshRedirectPath(Site site, boolean forceHttpCheck){
+	public static Site refreshRedirectPath(Site site, boolean forceHttpCheck){ 
 		Site redirected = null;
 		Site currentSite = site;
 		int redirectCount = 0;

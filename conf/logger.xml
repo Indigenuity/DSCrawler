@@ -14,7 +14,7 @@
       <pattern>%coloredLevel %logger{15} - %message%n%xException{5}</pattern>
     </encoder>
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-        <level>INFO</level>
+        <level>DEBUG</level>
     </filter>
   </appender>
   

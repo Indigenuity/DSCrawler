@@ -11,13 +11,14 @@ import sites.persistence.Vehicle;
 
 public class Auction123 extends InventoryTool{
 	
+	
 	protected static final String NEW_PATH_STRING = "/new-inventory/index.htm";
 	protected static final String USED_PATH_STRING = "/used-inventory/index.htm";
 	protected static final Pattern PAGINATION_LINK_PATTERN= Pattern.compile(".*\\?start=([0-9]+)&");
 	
-	protected static final Pattern COUNT_PATTERN = Pattern.compile("vehicle-count[^0-9<(]+([0-9]+)");
-	protected static final Pattern ALTERNATE_COUNT_PATTERN = Pattern.compile("([0-9]+) Items Matching");
-	protected static final String NEXT_PAGE_SELECTOR = "a[rel=next]";
+	protected static final String GENERAL_ROOT_PATTERN = "showroom.auction123.com/.+/(detectmobile.html|index.html)";
+	protected static final Pattern COUNT_PATTERN = Pattern.compile("(?s)a123InventoryCount.+ of ([0-9]+) Total");
+	protected static final String NEXT_PAGE_SELECTOR = "a[class=a123PagerLink]";
 
 	@Override
 	public boolean isNewPath(URI uri) {
@@ -41,37 +42,31 @@ public class Auction123 extends InventoryTool{
 
 	@Override
 	public boolean isGeneralPath(URI uri) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean isGeneralRoot(URI uri) {
-		// TODO Auto-generated method stub
-		return false;
+		return uriContains(uri, GENERAL_ROOT_PATTERN);
 	}
 	
 	@Override
 	public boolean isNewPath(Document doc, URI uri) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean isNewRoot(Document doc, URI uri) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean isUsedPath(Document doc, URI uri) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean isUsedRoot(Document doc, URI uri) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -83,8 +78,7 @@ public class Auction123 extends InventoryTool{
 
 	@Override
 	public boolean isGeneralRoot(Document doc, URI uri) {
-		// TODO Auto-generated method stub
-		return false;
+		return isGeneralRoot(uri);
 	}
 
 	@Override

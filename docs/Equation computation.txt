@@ -1,0 +1,25 @@
+Alt Image score
+Round( (# images with alt text) / (# total images) * 100 )
+
+uniqueness score(e.g. for page urls)
+Round( (# unique pages URLs) / (# total pages) * 100 )
+
+length score
+Round( (# tags that meet length requirement) / (# total possible tags) * 100 )
+
+content score (e.g. for h1 tags on a site)
+Round( (#hasCity + #hasState + #hasMake) / (# total possible tags * 3) * 100 )
+
+
+Note: Length and content scores are affected by whether the appropriate tags are actually present.  
+So a lack of H1 tags on pages will lower the H1 length and content scores.
+
+For #hasCity, one city is included from the Salesforce Account, and a list of cities from the US and Canada is also compared.  From this list, the following cities were removed due to the possibility of false positives:
+	Lincoln
+	Mobile
+	Tacoma
+	Orange
+	Surprise
+	Independence
+	Centennial
+	Tyler

@@ -1,0 +1,40 @@
+
+List import and record linkage
+
+	Each record will be classified as one of the following:
+	
+		Unique Salesforce Match -- records that match exactly one Salesforce account on one of the following rules:
+			- Exact address match to Salesforce account with unique address
+			- Exact name match to Salesforce account with unique name
+			- Exact phone match to Salesforce account with unique phone
+			- Exact website match to Salesforce account with unique website
+		RECOMMENDED ACTION: Briefly scan manually to confirm matches
+		ACTION PRIORITY: Very low
+
+		Non-unique Salesforce Match -- records that match with more than one Salesforce account on one of the following rules:
+			- Exact address match to multiple Salesforce accounts
+			- Exact name match to multiple Salesforce accounts
+			- Exact phone match to multiple Salesforce accounts
+			- Exact website match to multiple Salesforce accounts
+		RECOMMENDED ACTION: Manually choose one of the matches to link the record with
+		ACTION PRIORITY: Low
+			
+		Likely Salesforce Match -- records that very closely resemble one or more Salesforce accounts
+			- Small JaroWinkler distance on address or name
+			- AND located in the same state or province
+		RECOMMENDED ACTION: Manually choose one of the matches to link the record with or mark as "No Salesforce Match"
+		ACTION PRIORITY: Medium
+			
+		Possible Salesforce Match -- records that only somewhat match one or more Salesforce accounts (not a likely match)
+			- Small JaroWinkler distance on address or name
+		RECOMMENDED ACTION: Perform Google Places search to find further details for classification(JD will do this)
+		ACTION PRIORITY: High
+			
+		No Salesforce Match -- records that don't bear similarity to any Salesforce account
+		RECOMMENDED ACTION: Perform Google Places search to find further details for classification(JD will do this)
+		ACTION PRIORITY: High
+		
+		Likely Not A Dealer -- records that probably aren't actually car dealers
+			- Name matches against dictionary of non-dealer words like "finance", "body", "repair", "auction", and "loans"
+		RECOMMENDED ACTION: Briefly scan manually to confirm non-dealer status
+		ACTION PRIORITY: Low

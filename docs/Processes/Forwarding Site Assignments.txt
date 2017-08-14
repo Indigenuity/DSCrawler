@@ -1,0 +1,20 @@
+Process: Forward Site Assignments
+
+	Purpose
+		Some URLs forward to others, and some were just entered incorrectly to Salesforce. When Sites are checked for forwarding and validation, many are marked as redirecting to other Sites, resulting in a chain of Sites. Through Site resolutions, account imports, and other reasons, SalesforceAccount objects' assigned Sites	may not reflect the end of this chain.  This process follows redirect chains to assign the correct Site object for each SalesforceAccount without an 'APPROVED' Site.
+		
+	Input
+		Keylist of SalesforceAccounts with Sites with the 'REDIRECTS' or 'MANUALLY_REDIRECTS' status
+	
+	Outcome
+		SalesforceAccounts are all assigned Sites found at the end of a redirect chain
+		
+	Process Description
+		Pull keylist of SalesforceAccounts with Sites with the 'REDIRECTS' or 'MANUALLY_REDIRECTS' status
+		Iterate over list, pulling Site objects to recursively follow redirect chain to find last Site
+		Assign last Site to SalesforceAccount
+		
+	Reports
+		Counts
+			Changed SalesforceAccounts
+			Abandoned Sites

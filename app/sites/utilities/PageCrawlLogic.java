@@ -91,7 +91,7 @@ public class PageCrawlLogic {
 	}
 	
 	public static boolean isInventoryPage(PageCrawl pageCrawl) {
-		return pageCrawl.getPagedInventory() || pageCrawl.getNewRoot() || pageCrawl.getUsedRoot();
+		return pageCrawl.getPagedInventory() || pageCrawl.getNewRoot() || pageCrawl.getUsedRoot() || pageCrawl.getGeneralRoot();
 	}
 	
 	public static boolean isSuccessfulStatusCode(Integer statusCode){

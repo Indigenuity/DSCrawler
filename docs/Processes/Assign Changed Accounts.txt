@@ -1,0 +1,21 @@
+Process:  Assigning Sites To Changed Accounts
+
+	Purpose
+		When the website field changes in Salesforce, this system needs to account for the change
+		
+	Input
+		Keylist of SalesforceAccount objects that changed in a given Sync (Salesforce import)
+		
+	Outcome
+		Changed SalesforceAccount objects will be assigned correct Site objects
+		
+	Process Description
+		Pull keylist of SalesforceAccounts with changed websites in most recent ACCOUNT_IMPORT Sync
+		Iterate over keylist and assign Site object using one of the following methods:
+			Find existing Site object with same homepage as SalesforceWebsite field
+			Create Site object based on SalesforceWebsite field
+	
+	Reports
+		Counts
+			Accounts changed
+			Sites created

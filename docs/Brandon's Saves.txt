@@ -1,0 +1,6 @@
+Defunct
+
+	Green -> Salesforce was changed to good data
+	Yellow -> Follow notes
+	Orange -> 403
+	Red -> Invalid or deleted or merged

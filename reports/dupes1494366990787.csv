@@ -1,0 +1,501 @@
+foreignType,country,city,stdPostal,stdState,stdName,salesforceMatchString,foreignIdentifierString,outdated,street,custom3,custom4,custom1,state,custom2,custom5,custom6,identifier,website,stdStreet,stdCity,basicDealerId,phone,stdCountry,name,postal,projectIdentifier,stdPhone
+null,United States,Greenville,29607,SC,null,"Address Match : 001j000000Nmi90AAB
+Phone Match : 001j000000Nmi90AAB
+Website Match : 001j000000Nmi90AAB",null,false,1431 Laurens Rd,null,null,"1431 Laurens Rd
+Greenville, SC 29607",SC,null,null,null,null,http://www.touringsport.com/,1431 laurens road,null,1143,+1 (864) 232-2269,United States,Touring Sport BMW,29607,finished,8642322269
+null,USA,Ormond Beach,32174,FL,null,Website Match : 001j000000aEe60AAC,null,false,1637 N US Hwy 1,null,I20,"1637 N US Hwy 1
+Ormond Beach, FL, USA 32174-2539
+(386) 671-7100 | Website",FL,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D Gift Card
+Express Lane™ Service
+HD-1™ Fit Shop
+H-D JUMPSTART™
+H-D Authorized Service
+H.O.G.® Chapter
+H-DTM Riding Academy
+H-D® Authorized Rentals
+",F14,Website Match : 001j000000aEe60AAC,652,http://www.brucerossmeyer.com/,1637 north us highway 1,null,391,(386) 671-7100,United States,Bruce Rossmeyer's Daytona Harley-Davidson,32174-2539,Harley,3866717100
+null,USA,Sioux Falls,57107,SD,null,"Phone Match : 001j000000Q6lUWAAZ
+Website Match : 001j000000Q6lUWAAZ",null,false,2601 W 60th St N,null,I04,"2601 W 60th St N
+Sioux Falls, SD, USA 57107-0860
+605-334-2721 | Website",SD,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D Gift Card
+Express Lane™ Service
+HD-1™ Fit Shop
+H-D JUMPSTART™
+H-D Authorized Service
+H.O.G.® Chapter
+H-DTM Riding Academy
+Test Ride
+",F04,Phone Match : 001j000000Q6lUWAAZ,4871,http://www.jl-harley.com/,2601 west 60th st north,null,670,605-334-2721,United States,J & L Harley-Davidson,57107-0860,Harley,6053342721
+null,USA,Missoula,59808,MT,null,"Address Match : 001j00000170PGyAAM
+Phone Match : 001j00000170PGyAAM",null,false,5106 E Harrier Blvd,null,I04,"5106 E Harrier Blvd
+Missoula, MT, USA 59808-9714
+(406) 721-2154 | Website",MT,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D Authorized Service
+H.O.G.® Chapter
+H-D® Authorized Rentals
+Test Ride
+",F04,Not in salesforce,3195,http://www.grizzlyhd.com/,5106 east harrier boulevard,null,473,(406) 721-2154,United States,Grizzly Harley-Davidson,59808-9714,Harley,4067212154
+null,USA,Salinas,93901,CA,null,"Address Match : 001j000000NmQdeAAF
+Phone Match : 001j000000NmMRMAA3
+Website Match : 001j000000NmQdeAAF",null,false,333 N Main St,null,I02,"333 N Main St
+Salinas, CA, USA 93901-2817
+(831) 731-5066 | Website",CA,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D JUMPSTART™
+H-D Authorized Service
+H.O.G.® Chapter
+Test Ride
+",F02,Address Match : 001j000000NmQdeAAF,3278,http://www.montereyharleydavidson.com/,333 north main street,null,232,(831) 731-5066,United States,"Monterey Harley-Davidson, Salinas",93901-2817,Harley,8317315066
+null,USA,Spokane Valley,99016,WA,null,"Address Match : 001j0000016zr3eAAA
+Phone Match : 001j0000016zr3eAAA
+Website Match : 001j0000016zr3eAAA",null,false,19011 E Cataldo Ave,null,I03,"19011 E Cataldo Ave
+Spokane Valley, WA, USA 99016-9423
+(509) 927-7433 | Website",WA,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D Gift Card
+HD-1™ Fit Shop
+H-D JUMPSTART™
+H-D Authorized Service
+H.O.G.® Chapter
+H-DTM Riding Academy
+Test Ride
+",F01,Address Match : 001j0000016zr3eAAA,2460,http://www.lonewolfh-d.com/,19011 east cataldo avenue,null,475,(509) 927-7433,United States,Lone Wolf Harley-Davidson,99016-9423,Harley,5099277433
+null,USA,Long Island City,11101,NY,null,"Address Match : 001j000000rTIXWAA4
+Phone Match : 001j000000rTIXWAA4
+Website Match : 001j000000rTIXWAA4",null,false,4211 Northern Blvd,null,I13,"4211 Northern Blvd
+Long Island City, NY, USA 11101-1539
+(718) 707-9300 | Website",NY,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D Gift Card
+Express Lane™ Service
+HD-1™ Fit Shop
+H-D JUMPSTART™
+H-D Authorized Service
+H.O.G.® Chapter
+Test Ride
+",F23,Address Match : 001j000000rTIXWAA4,1455,http://www.nycharleydavidson.com/,4211 northern boulevard,null,750,(718) 707-9300,United States,Harley-Davidson of New York City,11101-1539,Harley,7187079300
+null,USA,Madawaska,04756,ME,null,"Address Match : 001j000000Nmfr9AAB
+Phone Match : 001j00000170PNCAA2",null,false,116 Main St,null,I14,"116 Main St
+Madawaska, ME, USA 04756-1476
+(207) 496-3211 | Website",ME,"H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+",F24,Not a dealer,3398,http://www.plourdeplourde.com/,116 main street,null,596,(207) 496-3211,United States,Plourde's Harley-Davidson,04756-1476,Harley,2074963211
+null,USA,North Hampton,03862,NH,null,"Address Match : 001f100001AAlGLAA1
+Phone Match : 001j00000170PO2AAM",null,false,17 Lafayette Rd,null,I14,"17 Lafayette Rd
+North Hampton, NH, USA 03862-2402
+603-964-9959 | Website",NH,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D Gift Card
+Express Lane™ Service
+H-D Authorized Service
+H.O.G.® Chapter
+H-DTM Riding Academy
+H-D® Authorized Rentals
+Test Ride
+",F24,Not in salesforce,2805,http://www.seacoastharley.com/,17 lafayette road,null,597,603-964-9959,United States,Seacoast Harley-Davidson,03862-2402,Harley,6039649959
+null,USA,Orange Park,32073,FL,null,"Address Match : 001j000000w190PAAQ
+Phone Match : 001j000000w190PAAQ
+Website Match : 001j000000w192uAAA",null,false,1520 Wells Rd,null,I20,"1520 Wells Rd
+Orange Park, FL, USA 32073-6730
+904-215-1931 | Website",FL,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D Gift Card
+Express Lane™ Service
+HD-1™ Fit Shop
+H-D Authorized Service
+H.O.G.® Chapter
+H-DTM Riding Academy
+Test Ride
+",F14,Address Match : 001j000000w190PAAQ,679,http://www.adamecharley.com/,1520 wells road,null,399,904-215-1931,United States,Adamec Harley-Davidson of Orange Park,32073-6730,Harley,9042151931
+null,USA,Osage Beach,65065,MO,null,"Address Match : 001j0000016zm60AAA
+Phone Match : 001j000000cIpq1AAC
+Website Match : 001j0000016zm60AAA",null,false,6482 Osage Beach Pkwy,null,I10,"6482 Osage Beach Pkwy
+Osage Beach, MO, USA 65065-3335
+(573) 302-7600 | Website",MO,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D Gift Card
+H-D Authorized Service
+H.O.G.® Chapter
+Test Ride
+",F07,Address Match : 001j0000016zm60AAA,1888,http://www.lakeoftheozarksharley-davidson.com/,6482 osage beach parkway,null,674,(573) 302-7600,United States,Lake of the Ozarks Harley-Davidson Shop,65065-3335,Harley,5733027600
+null,USA,Great Falls,59405,MT,null,"Address Match : 001j00000198m2cAAA
+Phone Match : 001j00000170PEvAAM",null,false,4258 10th Ave S,null,I04,"4258 10th Ave S
+Great Falls, MT, USA 59405-5622
+406-727-2161 | Website",MT,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D Gift Card
+HD-1™ Fit Shop
+H-D JUMPSTART™
+H-D Authorized Service
+H.O.G.® Chapter
+H-D® Authorized Rentals
+Test Ride
+",F04,Not in salesforce,2641,http://www.bigskyharley.com/,4258 10th avenue south,null,477,406-727-2161,United States,Big Sky Harley-Davidson,59405-5622,Harley,4067272161
+null,USA,Saint Louis,63125,MO,null,"Address Match : 001j000000cIqggAAC
+Phone Match : 001j000000cIqggAAC
+Website Match : 001j000000cIqggAAC",null,false,3600 Lemay Ferry Rd,null,I10,"3600 Lemay Ferry Rd
+Saint Louis, MO, USA 63125-4503
+(314) 845-9900 | Website",MO,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+Express Lane™ Service
+H-D Authorized Service
+Test Ride
+",F07,Address Match : 001j000000cIqggAAC,4117,http://www.gatewayhd.com/,3600 lemay ferry road,null,511,(314) 845-9900,United States,Gateway Harley-Davidson,63125-4503,Harley,3148459900
+null,USA,Monterey,93940,CA,null,Website Match : 001j000000NmQdeAAF,null,false,700 Canery Row,null,I02,"700 Canery Row
+Monterey, CA, USA 93940-1063
+(831) 731-5067 | Website",CA,,F02,Not a dealer,3287,http://www.montereyharleydavidson.com/,700 canery row,null,236,(831) 731-5067,United States,"Monterey Harley-Davidson, Cannery Row",93940-1063,Harley,8317315067
+null,USA,Sellersville,18960,PA,null,"Address Match : 001j000000yA3sEAAS
+Phone Match : 001j000000yA3sEAAS
+Website Match : 001j000000yA3sEAAS",null,false,3255 State Rd,null,I12,"3255 State Rd
+Sellersville, PA, USA 18960-1655
+(215) 257-6112 | Website",PA,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D Authorized Service
+H.O.G.® Chapter
+Test Ride
+",F21,Address Match : 001j000000yA3sEAAS,3639,http://www.hannumshd.com/,3255 state road,null,359,(215) 257-6112,United States,Hannum's Harley-Davidson of Sellersville,18960-1655,Harley,2152576112
+null,USA,Gladstone,97027,OR,null,"Address Match : 001j000000gTMZGAA4
+Phone Match : 001j000000gTMZGAA4
+Website Match : 001j000000gTMZGAA4",null,false,870 E Berkeley St,null,I03,"870 E Berkeley St
+Gladstone, OR, USA 97027-2551
+503-249-8653 | Website",OR,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D Gift Card
+H-D JUMPSTART™
+H-D Authorized Service
+H.O.G.® Chapter
+Test Ride
+",F01,Address Match : 001j000000gTMZGAA4,4105,http://www.latus-hd.com/,870 east berkeley street,null,832,503-249-8653,United States,Latus Motors Harley-Davidson,97027-2551,Harley,5032498653
+null,USA,Albuquerque,87112,NM,null,"Address Match : 001j000000Q6tjyAAB
+Phone Match : 001j000000zl3BpAAI
+Website Match : 001j000000zl3BpAAI",null,false,8603 Lomas Blvd NE,null,I06,"8603 Lomas Blvd NE
+Albuquerque, NM, USA 87112-5048
+(505) 275-3853 | Website",NM,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+Express Lane™ Service
+H-D Authorized Service
+H-DTM Riding Academy
+Test Ride
+",F06,Address Match : 001j000000Q6tjyAAB,3423,http://www.dukecityhd.com/,8603 lomas boulevard ne,null,756,(505) 275-3853,United States,Duke City Harley-Davidson,87112-5048,Harley,5052753853
+null,USA,Scott City,63780,MO,null,"Address Match : 001j000000rRTxTAAW
+Phone Match : 001j000000rRTxTAAW
+Website Match : 001j000000tEC0FAAW",null,false,2100 E Outer Rd,null,I10,"2100 E Outer Rd
+Scott City, MO, USA 63780-7114
+(573) 334-7716 | Website",MO,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D JUMPSTART™
+H-D Authorized Service
+H.O.G.® Chapter
+Test Ride
+",F07,Address Match : 001j000000rRTxTAAW,3493,http://www.lawlesshd.com/,2100 east outer road,null,517,(573) 334-7716,United States,Lawless Harley-Davidson of Scott City,63780-7114,Harley,5733347716
+null,USA,Kennewick,99338,WA,null,"Address Match : 001j000000zmXjJAAU
+Phone Match : 001j000000zmXjJAAU
+Website Match : 001j0000016zqprAAA",null,false,3305 W 19th Ave,null,I03,"3305 W 19th Ave
+Kennewick, WA, USA 99338-2226
+(509) 735-1117 | Website",WA,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D JUMPSTART™
+H-D Authorized Service
+H.O.G.® Chapter
+Test Ride
+",F01,Address Match : 001j000000zmXjJAAU,2865,http://www.rattlesnakemountainhd.com/,3305 west 19th avenue,null,837,(509) 735-1117,United States,Rattlesnake Mountain Harley-Davidson,99338-2226,Harley,5097351117
+null,Canada,Toronto,M4M1B5,ON,null,"Address Match : 001j000000NmiH7AAJ
+Website Match : 001j000000NmiH7AAJ",null,null,11 Sunlight Park Road,null,null,"11 Sunlight Park Road, Toronto, ON M4M 1B5",ON,null,null,null,null,http://www.bmwtoronto.ca,11 sunlight park road,null,2629,416-623-4269,Canada,BMW Toronto,M4M 1B5,finished,4166234269
+null,Canada,Sherbrooke,J1R0P4,QC,null,"Address Match : 001j0000016zqxCAAQ
+Phone Match : 001j0000016zqxCAAQ
+Website Match : 001j000000QqPU1AAN",null,null,5020 boul. Industriel,null,null,"5020 boul. Industriel, Sherbrooke, QC J1R 0P4",QC,null,null,null,null,http://www.performancenc.ca,5020 boul industriel,null,2636,819-821-3595,Canada,Evasion BMW,J1R 0P4,finished,8198213595
+null,Canada,St-Germain de Grantham (Drummondville),J0C1K0,QC,null,"Address Match : 001j000000QqPhMAAV
+Phone Match : 001j000000QqPhMAAV
+Website Match : 001j000000QqPU1AAN",null,null,176 Boul. Industriel,null,null,"176 Boul. Industriel, St-Germain de Grantham (Drummondville), QC J0C 1K0",QC,null,null,null,null,http://www.performancenc.ca,176 boul industriel,null,2635,819-395-2464,Canada,Carrier BMW,J0C 1K0,finished,8193952464
+null,USA,Janesville,53545,WI,null,"Phone Match : 001j000000so0giAAA
+Website Match : 001j000000so0giAAA",null,false,3223 N Pontiac Dr,null,I10,"3223 N Pontiac Dr
+Janesville, WI, USA 53545-0387
+(608) 757-0880 | Website",WI,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+Express Lane™ Service
+H-D Authorized Service
+H.O.G.® Chapter
+H-DTM Riding Academy
+H-D® Authorized Rentals
+Test Ride
+",F17,Phone Match : 001j000000so0giAAA,3588,http://www.boardtrackerhd.com/,3223 north pontiac dr,null,641,(608) 757-0880,United States,Boardtracker Harley-Davidson,53545-0387,Harley,6087570880
+null,USA,Jacksonville,32256,FL,null,"Address Match : 001j000000w18xVAAQ
+Phone Match : 001j000000w18xVAAQ
+Website Match : 001j000000w192uAAA",null,false,8909 Baymeadows Rd,null,I20,"8909 Baymeadows Rd
+Jacksonville, FL, USA 32256-7507
+(904) 493-1931 | Website",FL,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D Gift Card
+Express Lane™ Service
+HD-1™ Fit Shop
+H-D JUMPSTART™
+H-D Authorized Service
+H.O.G.® Chapter
+H-DTM Riding Academy
+H-D® Authorized Rentals
+Test Ride
+",F14,Address Match : 001j000000w18xVAAQ,681,http://www.adamecharley.com/,8909 baymeadows road,null,400,(904) 493-1931,United States,Adamec Harley-Davidson of Jacksonville,32256-7507,Harley,9044931931
+null,USA,Jacksonville,32225,FL,null,"Address Match : 001j000000w192uAAA
+Phone Match : 001j000000w192uAAA
+Website Match : 001j000000w192uAAA",null,false,10399 Atlantic Blvd,null,I20,"10399 Atlantic Blvd
+Jacksonville, FL, USA 32225-6604
+(904) 641-3735 | Website",FL,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D Gift Card
+Express Lane™ Service
+HD-1™ Fit Shop
+H-D Authorized Service
+Test Ride
+",F14,Address Match : 001j000000w192uAAA,2117,http://www.adamecharley.com/,10399 atlantic boulevard,null,401,(904) 641-3735,United States,Adamec Harley-Davidson Shop at Regency,32225-6604,Harley,9046413735
+null,Canada,Ajax,L1Z0C5,ON,null,"Address Match : 001j000000PbXRNAA3
+Phone Match : 001j000000PbXRNAA3",null,null,100 Achilles Road,null,null,"100 Achilles Road, Ajax, ON L1Z 0C5",ON,null,null,null,null,http://www.bmwbikes.ca,100 achilles road,null,2631,905-619-5522,Canada,Endras Motorrad,L1Z 0C5,finished,9056195522
+null,USA,Sundance,82729,WY,null,Address Match : 001j000000NmWraAAF,null,false,220 E Main Street,null,I04,"220 E Main Street
+Sundance, WY, USA 82729-9904
+(307) 283-2001 | Website",WY,"H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D Authorized Service
+",F04,Not a dealer,2791,http://www.chuckdeluxe.com/,220 east main street,null,687,(307) 283-2001,United States,Deluxe Harley-Davidson of Sundance,82729-9904,Harley,3072832001
+null,Canada,Oakville,L6L5M9,ON,null,Phone Match : 001j000000PbXf7AAF,null,null,2486 South Service Road West,null,null,"2486 South Service Road West, Oakville, ON L6L 5M9",ON,null,null,null,null,http://www.buddsmotorrad.com,2486 south service road west,null,2630,905-845-3577,Canada,Budds' BMW Motorrad,L6L 5M9,finished,9058453577
+null,USA,Cleveland,44135,OH,null,"Address Match : 001j000000VuEvhAAF
+Phone Match : 001j000000VuEvhAAF",null,false,4985 W 150th St,null,I11,"4985 W 150th St
+Cleveland, OH, USA 44135-3303
+(216) 252-3111 | Website",OH,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+Express Lane™ Service
+HD-1™ Fit Shop
+H-D JUMPSTART™
+H-D Authorized Service
+H.O.G.® Chapter
+H-D® Authorized Rentals
+Test Ride
+",F20,Address Match : 001j000000VuEvhAAF,3509,http://www.rocknrollcityharley.com/,4985 west 150th street,null,802,(216) 252-3111,United States,Rock-n-Roll City Harley-Davidson,44135-3303,Harley,2162523111
+null,Canada,Montréal,H4B1V3,QC,null,"Phone Match : 001j000000j8U67AAE
+Website Match : 001j000000j8U67AAE",null,null,6695 rue Saint-Jacques,null,null,"6695 rue Saint-Jacques, Montréal, QC H4B 1V3",QC,null,null,null,null,http://www.motointer.com,6695 rue saintjacques,null,2637,514-483-6686,Canada,Moto Internationale,H4B 1V3,finished,5144836686
+null,USA,Salt Lake City,84115,UT,null,"Address Match : 001j00000170PHtAAM
+Phone Match : 001j00000170PHtAAM",null,false,2928 S State St,null,I05,"2928 S State St
+Salt Lake City, UT, USA 84115-3811
+801-487-4647 | Website",UT,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D Gift Card
+H-D Authorized Service
+H.O.G.® Chapter
+H-DTM Riding Academy
+H-D® Authorized Rentals
+Test Ride
+",F04,Not in salesforce,5211,http://www.utahharley.com/,2928 south state street,null,929,801-487-4647,United States,Harley-Davidson of Salt Lake City,84115-3811,Harley,8014874647
+null,United States,Albuquerque,87109,NM,null,"Phone Match : 001j000000NmWhxAAF
+Website Match : 001j000000NmWhxAAF",null,false,6001 Pan American Fwy NE,null,null,"6001 Pan American Fwy NE
+Albuquerque, NM 87109",NM,null,null,null,null,http://www.sandiabmw.com/,6001 pan american fwy ne,null,1161,+1 (505) 884-0066,United States,Sandia BMW Motorcycles,87109,finished,5058840066
+null,USA,Frederick,80516,CO,null,"Address Match : 001j000000Q6tdiAAB
+Phone Match : 001j000000Q6tdiAAB
+Website Match : 001j0000016ymS9AAI",null,false,3761 Monarch St,null,I05,"3761 Monarch St
+Frederick, CO, USA 80516-9455
+(303) 833-6777 | Website",CO,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D Gift Card
+Express Lane™ Service
+HD-1™ Fit Shop
+H-D JUMPSTART™
+H-D Authorized Service
+H.O.G.® Chapter
+H-D® Authorized Rentals
+Test Ride
+",F06,Address Match : 001j000000Q6tdiAAB,422,http://www.highcountryharley.com/,3761 monarch street,null,297,(303) 833-6777,United States,High Country Harley-Davidson/Buell,80516-9455,Harley,3038336777
+null,USA,Conneaut Lake,16316,PA,null,"Address Match : 001j000000Nmc54AAB
+Phone Match : 001j000000Nmc54AAB",null,false,13723 Conneaut Lake Rd,null,I12,"13723 Conneaut Lake Rd
+Conneaut Lake, PA, USA 16316-6821
+(814) 382-4821 | Website",PA,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D Gift Card
+H-D Authorized Service
+H.O.G.® Chapter
+Test Ride
+",F22,Address Match : 001j000000Nmc54AAB,4239,http://www.streettrackntrailinc.com/,13723 conneaut lake road,null,853,(814) 382-4821,United States,Street Track'n Trail Harley-Davidson,16316-6821,Harley,8143824821
+null,United States,Indianola,50125,IA,null,"Address Match : 001j000000VuFE6AAN
+Phone Match : 001j000000VuFE6AAN",null,false,301 S Jefferson Way,null,null,"301 S Jefferson Way
+Indianola, IA 50125",IA,null,null,null,null,http://www.vanwallbmw.com/,301 south jefferson way,null,1293,+1 (515) 961-6288,United States,Van-Wall Powersports,50125,finished,5159616288
+null,United States,Honolulu,96813,HI,null,"Address Match : 001j000000NmZF6AAN
+Phone Match : 001j000000VuGw0AAF
+Website Match : 001j000000VuGw0AAF",null,false,888 Kapiolani Boulevard,null,null,"888 Kapiolani Boulevard
+Honolulu, HI 96813",HI,null,null,null,null,http://www.southseascycles.com/,888 kapiolani boulevard,null,1291,+1 (808) 836-1144,United States,BMW Motorcycles of Honolulu,96813,finished,8088361144
+null,USA,Chadds Ford,19317,PA,null,"Address Match : 001j000000zmm6EAAQ
+Phone Match : 001j000000zmm6EAAQ
+Website Match : 001j000000yA3sEAAS",null,false,1241 Baltimore Pike,null,I12,"1241 Baltimore Pike
+Chadds Ford, PA, USA 19317-7304
+(610) 558-3331 | Website",PA,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D Gift Card
+H-D Authorized Service
+Test Ride
+",F21,Address Match : 001j000000zmm6EAAQ,8249,http://www.hannumshd.com/,1241 baltimore pike,null,341,(610) 558-3331,United States,Hannum's Harley-Davidson Chadds Ford,19317-7304,Harley,6105583331
+null,USA,Homosassa,34448,FL,null,"Address Match : 001j000000Nme5KAAR
+Website Match : 001j000000NmjB3AAJ",null,false,1785 S Suncoast Blvd,null,I20,"1785 S Suncoast Blvd
+Homosassa, FL, USA 34448-6414
+(352) 563-9900 | Website",FL,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+Express Lane™ Service
+H-D JUMPSTART™
+H-D Authorized Service
+H.O.G.® Chapter
+H-DTM Riding Academy
+Test Ride
+",F14,Address Match : 001j000000Nme5KAAR,3672,http://www.crystalharley.com/,1785 south suncoast boulevard,null,387,(352) 563-9900,United States,Crystal Harley-Davidson,34448-6414,Harley,3525639900
+null,USA,Media,19063,PA,null,"Address Match : 001j000000zmm7qAAA
+Phone Match : 001j000000zmm5BAAQ
+Website Match : 001j000000yA3sEAAS",null,false,1011 W Baltimore Pike,null,I12,"1011 W Baltimore Pike
+Media, PA, USA 19063-5101
+(610) 566-5562 | Website",PA,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D Gift Card
+H-D JUMPSTART™
+H-D Authorized Service
+H.O.G.® Chapter
+Test Ride
+",F21,Address Match : 001j000000zmm7qAAA,4415,http://www.hannumshdchaddsford.com/,1011 west baltimore pike,null,345,(610) 566-5562,United States,Hannum's Harley-Davidson,19063-5101,Harley,6105665562
+null,USA,Greeley,80631,CO,null,"Address Match : 001j000000VuGVRAA3
+Phone Match : 001j000000VuGVRAA3
+Website Match : 001j000000VuGVRAA3",null,false,3010 W 29th St,null,I05,"3010 W 29th St
+Greeley, CO, USA 80631-8526
+(970) 351-8150 | Website",CO,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D Gift Card
+Express Lane™ Service
+HD-1™ Fit Shop
+H-D JUMPSTART™
+H-D Authorized Service
+H.O.G.® Chapter
+H-DTM Riding Academy
+Test Ride
+",F06,Address Match : 001j000000VuGVRAA3,1462,http://www.greeleyhd.com/,3010 west 29th street,null,301,(970) 351-8150,United States,Greeley Harley-Davidson,80631-8526,Harley,9703518150
+null,USA,Daytona Beach,32118,FL,null,Website Match : 001j000000aEe60AAC,null,false,510 Main St,null,I20,"510 Main St
+Daytona Beach, FL, USA 32118-4440
+(386) 253-2453 | Website",FL,"H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+",F14,Not a dealer,1996,http://www.brucerossmeyer.com/,510 main street,null,389,(386) 253-2453,United States,Bruce Rossmeyer?s Daytona H-D on Main Street,32118-4440,Harley,3862532453
+null,USA,Twin Falls,83301,ID,null,"Address Match : 001j0000016zsSbAAI
+Phone Match : 001j0000016zsSbAAI
+Website Match : 001j0000016zsSbAAI",null,false,2404 Addison Ave E,null,I04,"2404 Addison Ave E
+Twin Falls, ID, USA 83301-6762
+(208) 734-8400 | Website",ID,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D Authorized Service
+H.O.G.® Chapter
+H-D® Authorized Rentals
+Test Ride
+",F01,Address Match : 001j0000016zsSbAAI,3374,http://www.snakehd.com/,2404 addison avenue east,null,468,(208) 734-8400,United States,Snake Harley-Davidson,83301-6762,Harley,2087348400
+null,USA,Wall,57790,SD,null,"Address Match : 001j000000VuFIqAAN
+Phone Match : 001j00000170PF1AAM
+Website Match : 001j000000aEdEtAAK",null,false,601 Main St,null,I04,"601 Main St
+Wall, SD, USA 57790-9500
+(605) 342-9362",SD,"H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+",F04,Not a dealer,2978,null,601 main street,null,864,(605) 342-9362,United States,Badlands Harley-Davidson,57790-9500,Harley,6053429362
+null,USA,Anderson,29621,SC,null,"Address Match : 001j0000011S9IjAAK
+Website Match : 001j0000011S9IjAAK",null,false,4110 Clemson Blvd,null,I18,"4110 Clemson Blvd
+Anderson, SC, USA 29621-1108
+864-224-1531 | Website",SC,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D Gift Card
+HD-1™ Fit Shop
+H-D Authorized Service
+H.O.G.® Chapter
+Test Ride
+",F15,Address Match : 001j0000011S9IjAAK,4769,http://www.timmsharley.com/,4110 clemson boulevard,null,426,864-224-1531,United States,Timms Harley-Davidson,29621-1108,Harley,8642241531
+null,USA,Rahway,07065,NJ,null,"Address Match : 001j000000zmm6iAAA
+Phone Match : 001j000000zmm6iAAA
+Website Match : 001j000000yA3sEAAS",null,false,12 W Milton Ave,null,I15,"12 W Milton Ave
+Rahway, NJ, USA 07065-3201
+(732) 381-2400 | Website",NJ,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+Express Lane™ Service
+H-D Authorized Service
+Test Ride
+",F16,Address Match : 001j000000zmm6iAAA,3909,http://www.hannumshd.com/,12 west milton avenue,null,745,(732) 381-2400,United States,Hannum's Harley-Davidson of Rahway,07065-3201,Harley,7323812400
+null,USA,New York,10013,NY,null,"Address Match : 001j000000rTIXbAAO
+Phone Match : 001j000000rTIXbAAO
+Website Match : 001j000000rTIXWAA4",null,false,378 Broadway,null,I13,"378 Broadway
+New York, NY, USA 10013-3518
+(212) 233-4369 | Website",NY,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D® Authorized Rentals
+Test Ride
+",F23,Address Match : 001j000000rTIXbAAO,3364,http://www.nycharleydavidson.com/,378 broadway,null,748,(212) 233-4369,United States,Harley-Davidson of New York City,10013-3518,Harley,2122334369
+null,USA,New York,10022,NY,null,Website Match : 001j000000rTIXWAA4,null,false,686 Lexington Ave,null,I13,"686 Lexington Ave
+New York, NY, USA 10022-2614
+(212) 355-3003 | Website",NY,"H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+",F23,Not a dealer,1469,http://www.nycharleydavidson.com/,686 lexington avenue,null,749,(212) 355-3003,United States,Harley-Davidson of New York City,10022-2614,Harley,2123553003
+null,USA,Saint Charles,63301,MO,null,"Address Match : 001j0000016zlRMAAY
+Phone Match : 001j000000cIqcnAAC
+Website Match : 001j0000016zlRMAAY",null,false,3808 W Clay St,null,I10,"3808 W Clay St
+Saint Charles, MO, USA 63301-4417
+(636) 946-6487 | Website",MO,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D Gift Card
+HD-1™ Fit Shop
+H-D JUMPSTART™
+H-D Authorized Service
+H.O.G.® Chapter
+H-D® Authorized Rentals
+Test Ride
+",F07,Address Match : 001j0000016zlRMAAY,2527,http://www.stcharlesharleydavidson.com/,3808 west clay street,null,508,(636) 946-6487,United States,St. Charles Harley-Davidson,63301-4417,Harley,6369466487
+null,CAN,Saskatoon,S7N4R5,SK,null,"Address Match : 001j000000QqQ0bAAF
+Phone Match : 001j000000QqQ0bAAF
+Website Match : 001j000000aEdEtAAK",null,false,102 - 23rd Street East,null,I28,"102 - 23rd Street East
+Saskatoon, SK, CAN S7N 4R5
+(306) 934-2750",SK,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D Gift Card
+H-D JUMPSTART™
+H-D Authorized Service
+H.O.G.® Chapter
+",F28,Address Match : 001j000000QqQ0bAAF,30014,null,102 23rd street east,null,42,(306) 934-2750,Canada,Redline Harley-Davidson,S7N 4R5,Harley,3069342750
+null,CAN,Yorkton,S3N3V2,SK,null,"Address Match : 001j000000ojom7AAA
+Phone Match : 001j000000ojom7AAA
+Website Match : 001j000000ojom7AAA",null,false,86 - 7th Avenue S,null,I28,"86 - 7th Avenue S
+Yorkton, SK, CAN S3N 3V2
+306-783-1999 | Website",SK,"H-D® Motorcycles
+H-D MotorClothes® Merchandise
+H-D Genuine Motor Accessories
+H-D Gift Card
+H-D Authorized Service
+H.O.G.® Chapter
+",F28,Phone Match : 001j000000ojom7AAA,30043,http://www.harleydavidsonofyorkton.com/,86 7th avenue south,null,43,306-783-1999,Canada,Harley-Davidson of Yorkton,S3N 3V2,Harley,3067831999

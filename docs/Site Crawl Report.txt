@@ -1,0 +1,23 @@
+Site Crawl Report
+
+Contains Proxy IP address used for the crawl
+Contains the following for each site crawl:
+	Salesforce id
+	Crawler Site id 
+	Crawler SiteCrawl id
+	Seed (Homepage URL)
+	Max Crawl Depth (How many layers of links to follow)
+	Actual Crawl Depth (How many layers were reached)
+	Crawl date
+	Number of intrasite URLs acquired (a link to kengarffvw.com will not be followed from kengarff.com)
+	Number of attempted URLs (not all URLs are attempted)
+	Number of successfully retrieved pages
+	Number of failed page retrievals
+	Number of unique paths (query strings do not affect unique paths)
+	Follow Non Uniques (Did this crawl follow all links regardless of uniqueness?  Usually not, since that risks falling into the rabbit hole of search pages)
+	Crawl Status (Completed, interrupted, error)
+	
+Potential flags
+	Number of URLs acquired is too low -- crawler probably didn't get past the first page
+	Failed page retrievals are not always a problem but should still be looked at
+	Low ratio of non uniques to intrasite URLs indicates deep crawls would be problematic

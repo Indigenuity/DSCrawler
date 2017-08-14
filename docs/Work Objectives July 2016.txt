@@ -1,0 +1,56 @@
+JD's Work Objectives at DealerSocket for July 2016
+	
+Work Times
+	24 hours per week
+	3 days per week -- Monday, Wednesday, Thursday
+	Arrive at work by 9 a.m.
+	
+Productivity aids
+	Each morning outline tasks for the day
+	Each week estimate time for current projects
+	Daily report to Cody (brief)
+	Get up walk around every hour, ignore interruptions between
+	
+Projects
+
+	Simplify workflow (4 hours, then ongoing)
+		Separate crawling and analysis into distinct parts rather than a single process:
+			- Check health of website list
+			- Crawl to get files
+			- Analyze file contents (Can be broken down further depending on analysis objectives)
+			- Inventory crawl
+			- Mobile Crawl
+		Create clean report for each step
+		Resolve any problems with each step before moving to the next
+		Clean and refactor code and interface (ongoing project)
+			For each workflow step, create simple interface to start process and create report
+			Make code maintainable by following Java best practices
+			Commit to versioning system after distinct sections of code have been completed
+		
+	Create templates for generating clean reports (2 hours)
+
+	Website list cleanup(16 hours for initial cleanup, 30 minutes for subsequent cleanups, not including program run time)
+		Find defunct websites
+		Identify duplicates
+		Standardize URLs
+		Make sure URL is homepage, not another page on the site (like a staff page)
+		Resolve and confirm URL redirects
+		Identify other URLs that require attention
+		Update Salesforce with current information
+		
+	Identify more websites (estimated time TBA)
+		Google Places crawl
+		WHOIS reverse IP lookup
+	
+	Update web provider identifiers (estimated time TBA)	
+	
+	Break up site crawl analysis into reportable chunks (estimated time TBA)
+		Inventory
+		Site characteristics
+		Staff and other contacts
+		SEO
+		Back end inferences
+	
+	Extend list of recognized website tools (estimated time TBA)
+		
+	

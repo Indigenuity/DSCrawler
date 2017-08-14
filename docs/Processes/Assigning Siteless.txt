@@ -1,0 +1,20 @@
+Process: Assigning Site Objects To Siteless SalesforceAccount Objects
+
+	Purpose
+		Site objects are used internally to check veracity of the website field and perform web crawls
+		
+	Input
+		Keylist of Site-less SalesforceAccount objects
+	
+	Outcome
+		All SalesforceAccounts will be assigned Site objects
+	
+	Process Description
+		Generate keylist of SalesforceAccounts with no Site
+		Iterate over keylist and assign Site object using one of the following methods:
+			Find existing Site object with same homepage as SalesforceWebsite field
+			Create Site object based on SalesforceWebsite field
+		
+	Reports
+		Counts
+			Sites created

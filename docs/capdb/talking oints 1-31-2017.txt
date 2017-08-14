@@ -1,0 +1,34 @@
+capdb talking points
+
+Star rating 
+	Still base on google places?
+	Involves pairing places and salesforce accounts
+	
+Scheduling tool, website provider, etc.
+	How detailed do we want these tool detections?  Just the major ones?
+	
+Inventory 
+	Will take a day or so
+	
+Brands carried
+	Explain method for extracting data -- only makes sense for franchise
+	
+
+# sales people
+	Can get with crawler, but maybe some issues
+	
+BDC and other uncrawlable fields
+
+Questions not asked on current surveys -- remove those data points?
+	
+Why two separate fields for "Has Online Scheduling Tool" and "Svc CRM"
+
+
+Broad topics
+	Independent vs Franchise
+	What fields to keep and throw away
+	How data points will be collected -- crawler vs surveys
+	Who will run actual calculations
+	Best way to calculate scores
+		Weights and how they are decided
+	

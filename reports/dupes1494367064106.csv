@@ -1,0 +1,119 @@
+foreignType,country,city,stdPostal,stdState,stdName,salesforceMatchString,foreignIdentifierString,outdated,street,custom3,custom4,custom1,state,custom2,custom5,custom6,identifier,website,stdStreet,stdCity,basicDealerId,phone,stdCountry,name,postal,projectIdentifier,stdPhone
+null,United States,Greenville,29607,SC,null,"Address Match : 001j000000Nmi90AAB
+Phone Match : 001j000000Nmi90AAB
+Website Match : 001j000000Nmi90AAB",null,false,1431 Laurens Rd,null,null,"1431 Laurens Rd
+Greenville, SC 29607",SC,null,null,null,null,http://www.touringsport.com/,1431 laurens road,null,1143,+1 (864) 232-2269,United States,Touring Sport BMW,29607,finished,8642322269
+null,United States,Walnut Creek,94596,CA,null,"Phone Match : 001f100001A9pNQAAZ
+Website Match : 001f100001A9pNQAAZ",null,false,1255 Parkside Dr,null,null,"1255 Parkside Dr
+Walnut Creek, CA 94596",CA,null,null,null,null,http://www.bmwmcwalnutcreek.com/,1255 parkside dr,null,1185,+1 (925) 938-8373,United States,BMW Motorcycles of Walnut Creek,94596,finished,9259388373
+null,United States,Santa Fe,87507,NM,null,"Phone Match : 001j000000NmMrlAAF
+Website Match : 001j000000NmMrlAAF",null,false,2544 Camino Edward Ortiz,null,null,"2544 Camino Edward Ortiz
+Santa Fe, NM 87507",NM,null,null,null,null,http://www.santafebmw.com/,2544 camino edward ortiz,null,1163,+1 (505) 474-0066,United States,Santa Fe BMW Motorcycles,87507,finished,5054740066
+null,United States,Lititz,17543,PA,null,"Address Match : 001j000000zn9E0AAI
+Phone Match : 001j000000zn9E0AAI",null,false,933 Lititz Pike,null,null,"933 Lititz Pike
+Lititz, PA 17543",PA,null,null,null,null,http://www.bmwmotorcyclesoflititz.com/,933 lititz pike,null,1260,+1 (717) 626-7433,United States,BMW Motorcycles of Lititz,17543,finished,7176267433
+null,United States,Albuquerque,87109,NM,null,"Phone Match : 001j000000NmWhxAAF
+Website Match : 001j000000NmWhxAAF",null,false,6001 Pan American Fwy NE,null,null,"6001 Pan American Fwy NE
+Albuquerque, NM 87109",NM,null,null,null,null,http://www.sandiabmw.com/,6001 pan american fwy ne,null,1161,+1 (505) 884-0066,United States,Sandia BMW Motorcycles,87109,finished,5058840066
+null,United States,Fairbanks,99709,AK,null,"Address Match : 001j0000016zt4IAAQ
+Phone Match : 001j0000016zt4IAAQ
+Website Match : 001j0000016zt4IAAQ",null,false,1450 Karen Way,null,null,"1450 Karen Way
+Fairbanks, AK 99709",AK,null,null,null,null,http://www.outpostalaska.com/,1450 karen way,null,1877,+1 (907) 456-3265,United States,Trail's End BMW,99709,finished,9074563265
+null,United States,Sandy,84070,UT,null,"Address Match : 001j000000NmhjEAAR
+Phone Match : 001j000000NmhjEAAR
+Website Match : 001j000000NmhjEAAR",null,false,339 W 9000 S,null,null,"339 W 9000 S
+Sandy, UT 84070",UT,null,null,null,null,http://www.bmwmotorcyclesofutah.com/,339 west 9000 south,null,1215,+1 (801) 618-2700,United States,BMW Motorcycles of Utah,84070,finished,8016182700
+null,United States,McDonough,30253,GA,null,Address Match : 001j000000zmGwNAAU,null,false,755 Industrial Blvd,null,null,"755 Industrial Blvd
+McDonough, GA 30253",GA,null,null,null,null,http://www.bmwmotorcyclesmcdonough.com/,755 industrial boulevard,null,1137,+1 (770) 957-7404,United States,BMW Motorcycles of McDonough,30253,finished,7709577404
+null,United States,Chandler,85286,AZ,null,Address Match : 001j000000zmWgUAAU,null,false,2677 E Willis Rd,null,null,"2677 E Willis Rd
+Chandler, AZ 85286",AZ,null,null,null,null,http://www.ridenoweuro.com/,2677 east willis road,null,1158,+1 (480) 898-0559,United States,Victory BMW,85286,finished,4808980559
+null,United States,Jessup,20794,MD,null,"Address Match : 001j000000y9OQtAAM
+Phone Match : 001j000000y9OQtAAM
+Website Match : 001j000000y9OQtAAM",null,false,10720 Guilford Rd,null,null,"10720 Guilford Rd
+Jessup, MD 20794",MD,null,null,null,null,http://www.bobsbmw.com/,10720 guilford road,null,1256,+1 (301) 497-8949,United States,Bob's BMW,20794,finished,3014978949
+null,United States,Pensacola,32505,FL,null,"Address Match : 001j000000w2MSkAAM
+Phone Match : 001j000000w2MSkAAM
+Website Match : 001j000000w2MSkAAM",null,false,6330 Pensacola Boulevard,null,null,"6330 Pensacola Boulevard
+Pensacola, FL 32505",FL,null,null,null,null,http://www.bmwmcpensacola.com/,6330 pensacola boulevard,null,1135,+1 (850) 466-5324,United States,BMW Motorcycles of Pensacola,32505,finished,8504665324
+null,United States,Gaithersburg,20879,MD,null,"Address Match : 001j00000170PEhAAM
+Phone Match : 001j00000170PEhAAM",null,false,7830 Airpark Rd,null,null,"7830 Airpark Rd
+Gaithersburg, MD 20879",MD,null,null,null,null,http://www.battley.com/,7830 airpark road,null,1255,+1 (301) 948-4581,United States,Battley Cycles,20879,finished,3019484581
+null,Canada,Saskatoon,S7K5W3,SK,null,"Address Match : 001j000000NmaqhAAB
+Phone Match : 001j000000NmaqhAAB",null,null,2634 Faithfull Avenue,null,null,"2634 Faithfull Avenue, Saskatoon, SK S7K 5W3",SK,null,null,null,null,http://www.ffunmotorsports.com,2634 faithfull avenue,null,2640,306-934-3717,Canada,European Motorrad,S7K 5W3,finished,3069343717
+null,United States,Williamsville,14221,NY,null,"Address Match : 001j000000NmZyMAAV
+Phone Match : 001j000000NmZyMAAV
+Website Match : 001j000000aEdEtAAK",null,false,8215 Main St,null,null,"8215 Main St
+Williamsville, NY 14221",NY,null,null,null,null,,8215 main street,null,1353,+1 (716) 505-2100,United States,Towne BMW Motorcycles,14221,finished,7165052100
+null,United States,Fort Collins,80524,CO,null,"Phone Match : 001j000000Q6kvKAAR
+Website Match : 001j000000Q6kvKAAR",null,false,1303 SW Frontage Rd,null,null,"1303 SW Frontage Rd
+Fort Collins, CO 80524",CO,null,null,null,null,http://www.coloradoeuro.com/,1303 sw frontage road,null,1232,+1 (970) 679-1600,United States,Northern Colorado Powersports,80524,finished,9706791600
+null,United States,Denton,76205,TX,null,"Address Match : 001j000000VuGH3AAN
+Phone Match : 001j000000VuGH3AAN",null,false,521 Acme St,null,null,"521 Acme St
+Denton, TX 76205",TX,null,null,null,null,http://www.bmwmotorcyclesofdenton.com/,521 acme street,null,1155,+1 (940) 387-3885,United States,BMW Motorcycles of Denton,76205,finished,9403873885
+null,Canada,Toronto,M4M1B5,ON,null,"Address Match : 001j000000NmiH7AAJ
+Website Match : 001j000000NmiH7AAJ",null,null,11 Sunlight Park Road,null,null,"11 Sunlight Park Road, Toronto, ON M4M 1B5",ON,null,null,null,null,http://www.bmwtoronto.ca,11 sunlight park road,null,2629,416-623-4269,Canada,BMW Toronto,M4M 1B5,finished,4166234269
+null,United States,Eugene,97402,OR,null,"Address Match : 001j0000011Qn2iAAC
+Website Match : 001j0000011Qn2iAAC",null,false,2891 W 11th Ave,null,null,"2891 W 11th Ave
+Eugene, OR 97402",OR,null,null,null,null,http://www.emcwor.com/,2891 west 11th avenue,null,1218,+1 (541) 338-0269,United States,"BMW Motorcycles of Western Oregon,",97402,finished,5413380269
+null,United States,Beaver Dam,53916,WI,null,"Address Match : 001j00000170PJeAAM
+Phone Match : 001j00000170PJeAAM",null,false,N8131 Kellom Rd,null,null,"N8131 Kellom Rd
+Beaver Dam, WI 53916",WI,null,null,null,null,http://www.mischlersbmw.com/,n8131 kellom road,null,1297,+1 (920) 887-8425,United States,"Mischler's Harley-Davidson, BMW Limited Liability Company",53916,finished,9208878425
+null,United States,Katy,77450,TX,null,"Phone Match : 001j000000VuGLMAA3
+Website Match : 001j000000VuGLMAA3",null,false,22515 Katy Fwy,null,null,"22515 Katy Fwy
+Katy, TX 77450",TX,null,null,null,null,http://www.wildwesthonda.com/,22515 katy fwy,null,1392,+1 (281) 392-8850,United States,Wild West Honda,77450,finished,2813928850
+null,United States,Indianola,50125,IA,null,"Address Match : 001j000000VuFE6AAN
+Phone Match : 001j000000VuFE6AAN",null,false,301 S Jefferson Way,null,null,"301 S Jefferson Way
+Indianola, IA 50125",IA,null,null,null,null,http://www.vanwallbmw.com/,301 south jefferson way,null,1293,+1 (515) 961-6288,United States,Van-Wall Powersports,50125,finished,5159616288
+null,United States,Honolulu,96819,HI,null,"Address Match : 001j000000VuGw0AAF
+Phone Match : 001j000000VuGw0AAF
+Website Match : 001j000000VuGw0AAF",null,false,3149 N Nimitz Hwy,null,null,"3149 N Nimitz Hwy
+Honolulu, HI 96819",HI,null,null,null,null,http://www.southseascycles.com/,3149 north nimitz highway,null,1292,+1 (808) 836-1144,United States,BMW Motorcycles of Nimitz,96819,finished,8088361144
+null,United States,Honolulu,96813,HI,null,"Address Match : 001j000000NmZF6AAN
+Phone Match : 001j000000VuGw0AAF
+Website Match : 001j000000VuGw0AAF",null,false,888 Kapiolani Boulevard,null,null,"888 Kapiolani Boulevard
+Honolulu, HI 96813",HI,null,null,null,null,http://www.southseascycles.com/,888 kapiolani boulevard,null,1291,+1 (808) 836-1144,United States,BMW Motorcycles of Honolulu,96813,finished,8088361144
+null,Canada,Sherbrooke,J1R0P4,QC,null,"Address Match : 001j0000016zqxCAAQ
+Phone Match : 001j0000016zqxCAAQ
+Website Match : 001j000000QqPU1AAN",null,null,5020 boul. Industriel,null,null,"5020 boul. Industriel, Sherbrooke, QC J1R 0P4",QC,null,null,null,null,http://www.performancenc.ca,5020 boul industriel,null,2636,819-821-3595,Canada,Evasion BMW,J1R 0P4,finished,8198213595
+null,United States,Monticello,55362,MN,null,"Phone Match : 001j000000VuFR6AAN
+Website Match : 001j000000VuFR6AAN",null,false,3613 Chelsea Rd West,null,null,"3613 Chelsea Rd West
+Monticello, MN 55362",MN,null,null,null,null,http://www.moonmotorsports.com/,3613 chelsea road west,null,1448,+1 (763) 295-2920,United States,"Moon Motor Sales, Inc.",55362,finished,7632952920
+null,United States,Louisville,40208,KY,null,"Address Match : 001j000000Zi4nTAAR
+Phone Match : 001j000000Zi4nTAAR
+Website Match : 001j000000Zi4nTAAR",null,false,1700 Arthur St,null,null,"1700 Arthur St
+Louisville, KY 40208",KY,null,null,null,null,http://www.bmwlouisville.com/,1700 arthur street,null,1327,+1 (502) 634-1340,United States,BMW Motorcycles of Louisville,40208,finished,5026341340
+null,United States,Spokane,99224,WA,null,"Address Match : 001j000000VuH13AAF
+Phone Match : 001j000000VuH13AAF
+Website Match : 001j000000VuH13AAF",null,false,4201 S Grove Rd,null,null,"4201 S Grove Rd
+Spokane, WA 99224",WA,null,null,null,null,http://www.westsideracing.com/,4201 south grove road,null,1305,+1 (509) 747-1862,United States,BMW Motorcycles of Spokane,99224,finished,5097471862
+null,United States,Lakewood,80214,CO,null,Address Match : 001j000000Q6ksoAAB,null,false,1435 Wadsworth Blvd,null,null,"1435 Wadsworth Blvd
+Lakewood, CO 80214",CO,null,null,null,null,http://www.foothillsbmw.com/,1435 wadsworth boulevard,null,1228,+1 (303) 202-1400,United States,Foothills BMW Motorcycles of Lakewo,80214,finished,3032021400
+null,Canada,St-Germain de Grantham (Drummondville),J0C1K0,QC,null,"Address Match : 001j000000QqPhMAAV
+Phone Match : 001j000000QqPhMAAV
+Website Match : 001j000000QqPU1AAN",null,null,176 Boul. Industriel,null,null,"176 Boul. Industriel, St-Germain de Grantham (Drummondville), QC J0C 1K0",QC,null,null,null,null,http://www.performancenc.ca,176 boul industriel,null,2635,819-395-2464,Canada,Carrier BMW,J0C 1K0,finished,8193952464
+null,United States,Worcester,01605,MA,null,Address Match : 001j000000aEaO1AAK,null,false,700 Plantation St.,null,null,"700 Plantation St.
+Worcester, MA 01605",MA,null,null,null,null,http://www.wagnermotorsport.com/,700 plantation street,null,1249,+1 (508) 581-5950,United States,Wagner BMW Motorcycles of Worcester,01605,finished,5085815950
+null,United States,New York,10019,NY,null,Address Match : 001j000000NmXflAAF,null,false,555 W 57th St,null,null,"555 W 57th St
+New York, NY 10019",NY,null,null,null,null,http://www.bmwbikesnyc.com/,555 west 57th street,null,1248,+1 (212) 373-7863,United States,BMW of Manhattan,10019,finished,2123737863
+null,United States,Hasbrouck Heights,07604,NJ,null,"Address Match : 001j000000aEZowAAG
+Phone Match : 001j000000eNMOQAA4",null,false,65 Route 17 South,null,null,"65 Route 17 South
+Hasbrouck Heights, NJ 07604",NJ,null,null,null,null,http://www.ccbmw.com/,65 route 17 south,null,1247,,United States,Cross Country BMW Motorcycles of Ha sbrouck Heights,07604,finished,
+null,United States,Grand Junction,81506,CO,null,"Address Match : 001j000000Q6kxiAAB
+Phone Match : 001j000000Q6kxiAAB
+Website Match : 001j000000Q6kxiAAB",null,false,2747 Crossroads Blvd.,null,null,"2747 Crossroads Blvd.
+Grand Junction, CO 81506",CO,null,null,null,null,http://www.gjharley.com/,2747 crossroads boulevard,null,1169,+1 (970) 245-0812,United States,Grand Junction BMW,81506,finished,9702450812
+null,United States,Cape Girardeau,63703,MO,null,"Address Match : 001j000000cIqTUAA0
+Phone Match : 001j000000cIqTUAA0
+Website Match : 001j000000cIqTUAA0",null,false,28 S Spanish St,null,null,"28 S Spanish St
+Cape Girardeau, MO 63703",MO,null,null,null,null,http://www.grassrootsbmw.com/,28 south spanish street,null,1147,+1 (573) 334-7223,United States,Grass Roots BMW,63703,finished,5733347223
+null,Canada,Ajax,L1Z0C5,ON,null,"Address Match : 001j000000PbXRNAA3
+Phone Match : 001j000000PbXRNAA3",null,null,100 Achilles Road,null,null,"100 Achilles Road, Ajax, ON L1Z 0C5",ON,null,null,null,null,http://www.bmwbikes.ca,100 achilles road,null,2631,905-619-5522,Canada,Endras Motorrad,L1Z 0C5,finished,9056195522
+null,Canada,Oakville,L6L5M9,ON,null,Phone Match : 001j000000PbXf7AAF,null,null,2486 South Service Road West,null,null,"2486 South Service Road West, Oakville, ON L6L 5M9",ON,null,null,null,null,http://www.buddsmotorrad.com,2486 south service road west,null,2630,905-845-3577,Canada,Budds' BMW Motorrad,L6L 5M9,finished,9058453577
+null,United States,Tigard,97223,OR,null,"Phone Match : 001j000000Q6lCGAAZ
+Website Match : 001j000000Q6lCGAAZ",null,false,12010 SW Garden Place,null,null,"12010 SW Garden Place
+Tigard, OR 97223",OR,null,null,null,null,http://www.bmcwor.com/,12010 sw garden place,null,1221,+1 (503) 597-7097,United States,"BMW Motorcycles of Western Oregon,",97223,finished,5035977097
+null,United States,Kansas City,64126,MO,null,"Phone Match : 001j000000cIq9KAAS
+Website Match : 001j000000cIq9KAAS",null,false,6633 E Truman Rd,null,null,"6633 E Truman Rd
+Kansas City, MO 64126",MO,null,null,null,null,http://www.englemotors.com/,6633 east truman road,null,1329,+1 (816) 241-7554,United States,"Engle Motors, Inc.",64126,finished,8162417554
+null,Canada,Montréal,H4B1V3,QC,null,"Phone Match : 001j000000j8U67AAE
+Website Match : 001j000000j8U67AAE",null,null,6695 rue Saint-Jacques,null,null,"6695 rue Saint-Jacques, Montréal, QC H4B 1V3",QC,null,null,null,null,http://www.motointer.com,6695 rue saintjacques,null,2637,514-483-6686,Canada,Moto Internationale,H4B 1V3,finished,5144836686

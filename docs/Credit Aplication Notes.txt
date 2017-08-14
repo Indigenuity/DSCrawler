@@ -1,0 +1,10 @@
+Notes on Credit Applications on dealership sites
+
+Many sites link to secondary domain with a credit application
+	http://www.bergstromauto.com/ -> http://www.bergstromcredit.com/
+	
+	
+CUDirect products like CUDL and AutoSmart seem to be back end systems that integrate with whatever online form.  The software seems to be focused more on the credit union than the dealer.  As an example, this credit union has a list of 50 or so dealers that come to them for lending through CUDL, but they all have varying credit app forms on their sites: https://www.fortbraggfcu.org/loans/auto/new_vehicles.aspx  Other credit unions can be found with similar lists through google search for 'autosmart online credit app'
+
+
+

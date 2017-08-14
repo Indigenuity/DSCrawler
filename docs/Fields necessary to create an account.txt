@@ -1,0 +1,49 @@
+Fields necessary to create an account:
+
+	Account Name
+		Spell out CDJ, etc. 
+	Account Type
+		For loads, account type will always be prospect
+	Account Level
+		Just do Sites
+	Dealership Type
+		Default to independent
+	Brand affiliation 	
+		necessary for good account, but not necessary for actual creation
+	Account Record Type (not account type)
+		Decides page layout
+		Always client
+			Third Party
+			OEM
+	Dealership Location
+		Dealership Street
+			Proper Longhand
+			punctuation doesn't matter
+		Dealership City
+			capitalization
+		Dealership State/Province
+			Full
+		Dealership Zip/Postal code
+			No space on Canada
+			Full 6 for canada
+			only 5 for US
+		Dealership Country
+			Full
+	Phone
+		Just numbers, no punctuation
+		no filtering for bad numbers or removing leading 1
+	Website
+	Primary Area
+		Lookup off of Postal
+	Pod
+		Select pod type based off of Dealership Type
+		Again, default to Independent
+	
+	
+For updating 
+	Account ID
+	
+	
+	
+	
+	
